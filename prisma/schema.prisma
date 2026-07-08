@@ -11,6 +11,9 @@ generator client {
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+  // Connexion directe (port 5432) pour les migrations quand DATABASE_URL passe
+  // par le pooler Supabase (port 6543). En local, identique à DATABASE_URL.
+  directUrl = env("DIRECT_URL")
 }
 
 // ------------------------------- ÉNUMÉRATIONS --------------------------------

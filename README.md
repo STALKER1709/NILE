@@ -153,22 +153,42 @@ pnpm db:seed      # (re)charger les données de démo
 pnpm db:reset     # réinitialiser la base (⚠ efface les données)
 ```
 
-## Passer à Supabase (production)
+## Passer à Supabase (procédure complète)
 
-Le fournisseur `mock` sert au développement. Pour la production :
+Le fournisseur `mock` sert au développement. Pour brancher la vraie
+authentification managée :
 
-1. Crée un projet sur [supabase.com](https://supabase.com).
-2. Dans **Settings → API**, récupère `Project URL`, `anon key`, `service_role key`.
-3. Dans `.env` (ou les variables d'environnement de l'hébergeur) :
+1. **Créer le projet** sur [supabase.com](https://supabase.com) (choisis une
+   région, note le mot de passe de la base).
+2. **Récupérer les clés** — **Settings → API** : `Project URL`, `anon key`,
+   `service_role key`.
+3. **Récupérer la chaîne de connexion** — **Settings → Database → Connection
+   string** : prends l'URI du **pooler** (port `6543`, mode transaction) pour
+   `DATABASE_URL`, et l'URI **direct** (port `5432`) pour `DIRECT_URL` si tu
+   ajoutes des migrations (Prisma utilise le direct pour migrer).
+4. **Renseigner les variables** (`.env` en local, ou les variables d'env de
+   l'hébergeur) :
    ```
    AUTH_PROVIDER="supabase"
-   NEXT_PUBLIC_SUPABASE_URL="..."
+   NEXT_PUBLIC_SUPABASE_URL="https://xxxx.supabase.co"
    NEXT_PUBLIC_SUPABASE_ANON_KEY="..."
-   SUPABASE_SERVICE_ROLE_KEY="..."
+   SUPABASE_SERVICE_ROLE_KEY="..."          # secret, jamais exposé au client
+   DATABASE_URL="postgresql://...:6543/postgres?pgbouncer=true"
    ```
-4. Dans Supabase **Authentication → Providers → Email**, désactive la
-   confirmation par email (« Confirm email ») pour le MVP, ou adapte le flux.
-5. `DATABASE_URL` pointe vers la base Postgres du projet Supabase.
+5. **Créer les tables** sur la base Supabase :
+   ```bash
+   pnpm prisma migrate deploy
+   pnpm db:seed        # optionnel : catégories + comptes de démo
+   ```
+6. **Désactiver la confirmation d'email** au MVP — **Authentication →
+   Providers → Email → « Confirm email » OFF** (sinon la connexion juste après
+   l'inscription échoue). Sinon, adapter le flux d'inscription.
+7. **Lancer** : `pnpm build && pnpm start`. Le **middleware** (`src/middleware.ts`)
+   rafraîchit automatiquement la session à chaque requête (motif officiel
+   `@supabase/ssr`) ; il est inactif en mode `mock`.
+
+Points à vérifier une fois branché : inscription → connexion → accès par rôle
+(comme pour le mock, mais avec de vrais comptes).
 
 > Le provider `mock` est **bloqué en production** (`NODE_ENV=production`) sauf
 > `ALLOW_MOCK_AUTH="true"` (pour une démo).
