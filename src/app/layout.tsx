@@ -30,8 +30,10 @@ export default async function RootLayout({
     : 0;
 
   return (
-    <html lang="fr">
-      <body>
+    // suppressHydrationWarning : évite les faux avertissements d'hydratation
+    // quand une extension de navigateur injecte des attributs dans html/body.
+    <html lang="fr" suppressHydrationWarning>
+      <body suppressHydrationWarning>
         <header className="border-b border-gray-200 bg-white">
           <nav className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
             <div className="flex items-center gap-4">
