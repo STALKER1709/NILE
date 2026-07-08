@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { getUtilisateurCourant } from "@/modules/auth/access";
+import { compterArticlesPanier } from "@/modules/commande/panier";
 import { deconnexionAction } from "@/app/(auth)/actions";
 
 // Le layout lit la session (cookies) : rendu dynamique, pas de pré-génération statique.
@@ -18,6 +19,9 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const utilisateur = await getUtilisateurCourant();
+  const nbArticles = utilisateur
+    ? await compterArticlesPanier(utilisateur.id)
+    : 0;
 
   return (
     <html lang="fr">
@@ -35,11 +39,14 @@ export default async function RootLayout({
             <div className="flex items-center gap-3 text-sm">
               {utilisateur ? (
                 <>
-                  <span className="hidden text-gray-600 sm:inline">
-                    {utilisateur.nom} · {utilisateur.role}
-                  </span>
+                  <Link href="/panier" className="text-nile hover:underline">
+                    Panier{nbArticles > 0 ? ` (${nbArticles})` : ""}
+                  </Link>
+                  <Link href="/commandes" className="hidden text-nile hover:underline sm:inline">
+                    Commandes
+                  </Link>
                   <Link href="/compte" className="text-nile hover:underline">
-                    Mon compte
+                    Compte
                   </Link>
                   <form action={deconnexionAction}>
                     <button

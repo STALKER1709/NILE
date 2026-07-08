@@ -3,8 +3,8 @@
 Marketplace e-commerce (modèle hybride) pour le marché camerounais.
 Interface en français, devise FCFA (XAF), pensée mobile-first.
 
-État : **Phase 1 — Catalogue** (produits, catégories, images, recherche, espace vendeur).
-Phases précédentes : Phase 0 — Fondations (comptes, rôles, authentification).
+État : **Phase 2 — Commande (COD)** (panier, commande + transaction stock, suivi acheteur).
+Phases précédentes : Phase 0 — Fondations · Phase 1 — Catalogue.
 
 ## Stack
 
@@ -79,6 +79,21 @@ pnpm dev
 
 Le stockage des images est **local** en dev (`public/uploads/`), et bascule sur
 Supabase Storage en production via `STORAGE_PROVIDER="supabase"`.
+
+## Vérifier la commande (Phase 2)
+
+1. Connecte-toi en acheteur (`acheteur@nile.cm` / `test1234`).
+2. Depuis une fiche produit du catalogue, choisis une quantité → **Ajouter au
+   panier**. Va sur **Panier** (dans le menu), ajuste les quantités si besoin.
+3. **Passer la commande** → remplis l'adresse (ville, quartier, repères libres) →
+   **Confirmer**. Le paiement est **à la livraison (COD)**.
+4. La commande apparaît dans **Mes commandes** avec deux statuts distincts
+   (commande *et* paiement). Ouvre-la : tu peux l'**annuler** tant qu'elle n'est
+   pas préparée (les articles sont alors remis en stock).
+
+Garde-fous : impossible de commander plus que le stock, ni au-dessus du plafond
+COD (`COD_PLAFOND_XAF`). Le décrément de stock est atomique : deux acheteurs ne
+peuvent pas acheter le même dernier article (pas de survente).
 
 ## Scripts utiles
 

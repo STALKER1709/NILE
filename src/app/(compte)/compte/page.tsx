@@ -17,6 +17,18 @@ export default async function ComptePage() {
     <div className="space-y-6">
       <h1 className="text-xl font-bold">Mon compte</h1>
 
+      <section className="flex flex-wrap gap-3">
+        <Link href="/panier" className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50">
+          Mon panier
+        </Link>
+        <Link href="/commandes" className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50">
+          Mes commandes
+        </Link>
+        <Link href="/catalogue" className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50">
+          Catalogue
+        </Link>
+      </section>
+
       <section className="rounded-lg bg-white p-5 shadow-sm">
         <dl className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-2">
           <div>

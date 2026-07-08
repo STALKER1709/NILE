@@ -2,15 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { formaterXAF } from "@/lib/money";
 import { getProduitPublicParSlug } from "@/modules/catalogue/produits";
+import { ajouterAuPanierAction } from "@/app/(compte)/panier/actions";
 
 export const dynamic = "force-dynamic";
 
 export default async function FicheProduitPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ erreur?: string }>;
 }) {
   const { slug } = await params;
+  const { erreur } = await searchParams;
   const produit = await getProduitPublicParSlug(slug);
   if (!produit) notFound();
 
@@ -65,15 +69,38 @@ export default async function FicheProduitPage({
             <p className="text-sm text-gray-600">En stock : {produit.stock}</p>
           )}
 
-          <button
-            type="button"
-            disabled={enRupture}
-            className="w-full rounded bg-nile px-4 py-2 text-sm font-medium text-white hover:bg-nile-dark disabled:cursor-not-allowed disabled:bg-gray-300"
-          >
-            Ajouter au panier
-          </button>
+          {erreur && (
+            <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              {erreur}
+            </p>
+          )}
+
+          <form action={ajouterAuPanierAction} className="flex items-end gap-2">
+            <input type="hidden" name="produitId" value={produit.id} />
+            <input type="hidden" name="slug" value={produit.slug} />
+            <div>
+              <label htmlFor="quantite" className="block text-xs text-gray-500">Quantité</label>
+              <input
+                id="quantite"
+                name="quantite"
+                type="number"
+                min={1}
+                max={produit.stock}
+                defaultValue={1}
+                disabled={enRupture}
+                className="mt-1 w-20 rounded border border-gray-300 px-2 py-2 text-sm disabled:bg-gray-100"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={enRupture}
+              className="flex-1 rounded bg-nile px-4 py-2 text-sm font-medium text-white hover:bg-nile-dark disabled:cursor-not-allowed disabled:bg-gray-300"
+            >
+              Ajouter au panier
+            </button>
+          </form>
           <p className="text-xs text-gray-400">
-            (Le panier et la commande arrivent en Phase 2.)
+            Il faut être connecté pour ajouter au panier.
           </p>
         </div>
       </div>
