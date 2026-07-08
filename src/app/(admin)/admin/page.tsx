@@ -26,6 +26,15 @@ export default async function AdminPage() {
       <section className="rounded-lg bg-white p-5 shadow-sm">
         <h2 className="mb-2 text-sm font-semibold">Gestion</h2>
         <div className="flex flex-col gap-1">
+          <Link href="/admin/vendeurs" className="text-sm text-nile hover:underline">
+            → Validation des vendeurs
+          </Link>
+          <Link href="/admin/commandes" className="text-sm text-nile hover:underline">
+            → Commandes & livraisons
+          </Link>
+          <Link href="/admin/moderation" className="text-sm text-nile hover:underline">
+            → Modération du catalogue
+          </Link>
           <Link href="/admin/categories" className="text-sm text-nile hover:underline">
             → Gérer les catégories
           </Link>

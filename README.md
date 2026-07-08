@@ -3,8 +3,8 @@
 Marketplace e-commerce (modèle hybride) pour le marché camerounais.
 Interface en français, devise FCFA (XAF), pensée mobile-first.
 
-État : **Phase 3 — Paiement Monetbil** (interface PaymentProvider, mock, callback serveur vérifié, réconciliation COD).
-Phases précédentes : Phase 0 — Fondations · Phase 1 — Catalogue · Phase 2 — Commande (COD).
+État : **Phase 4 — Confiance + livraison + admin** (avis, module livraison, back-office consolidé).
+Phases précédentes : Phase 0 — Fondations · Phase 1 — Catalogue · Phase 2 — Commande (COD) · Phase 3 — Paiement Monetbil.
 
 ## Stack
 
@@ -125,6 +125,21 @@ L'intégration `MonetbilProvider` suit le code source officiel `Monetbil/monetbi
    notification de test (surtout `paymentId` et `payment_ref`) : ce sont les
    deux champs dont dépend la confirmation. Ajuste si besoin dans
    `src/modules/paiement/monetbil/MonetbilProvider.ts`.
+
+## Vérifier la Phase 4 (confiance + livraison + admin)
+
+En **admin** (`admin@nile.cm`), menu back-office :
+- **Validation des vendeurs** : valider / rejeter / suspendre une boutique.
+- **Commandes & livraisons** : ouvrir une commande payée/COD → affecter un
+  transporteur (→ en préparation), marquer expédiée puis livrée, ajouter une
+  **preuve de livraison** (image), ou enregistrer un **refus à la livraison**
+  (→ commande refusée, **stock restitué**, **compteur anti-fraude COD** de
+  l'acheteur incrémenté).
+- **Modération du catalogue** : rejeter (masquer) ou réactiver un produit.
+
+Côté **acheteur** : une fois une commande **livrée**, la fiche du produit
+affiche un formulaire d'**avis** (note 1–5 + commentaire). Un avis par produit,
+uniquement après réception ; la note moyenne se met à jour automatiquement.
 
 ## Scripts utiles
 
