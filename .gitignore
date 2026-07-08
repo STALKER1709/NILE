@@ -1,0 +1,26 @@
+# dépendances
+/node_modules
+/.pnp
+.pnp.*
+
+# build Next.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# variables d'environnement (JAMAIS commiter les secrets)
+.env
+.env.local
+.env.*.local
+
+# base de données locale / prisma
+/prisma/*.db
+
+# logs & divers
+*.log
+npm-debug.log*
+.DS_Store
+/coverage
+/.vitest

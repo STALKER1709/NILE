@@ -1,0 +1,310 @@
+// =============================================================================
+// NILE Marketplace — schéma de base de données
+// Marketplace hybride (stock propre + vendeurs tiers), marché Cameroun.
+// Argent : entiers FCFA (XAF), jamais de décimales.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ------------------------------- ÉNUMÉRATIONS --------------------------------
+
+enum Role {
+  ACHETEUR
+  VENDEUR
+  ADMIN
+}
+
+enum StatutUtilisateur {
+  ACTIF
+  SUSPENDU
+}
+
+enum StatutVendeur {
+  EN_ATTENTE
+  VALIDE
+  REJETE
+  SUSPENDU
+}
+
+enum StatutProduit {
+  BROUILLON
+  ACTIF
+  INACTIF
+  EN_MODERATION
+  REJETE
+}
+
+// Statut du cycle de vie logistique de la commande (indépendant du paiement).
+enum StatutCommande {
+  EN_ATTENTE
+  CONFIRMEE
+  EN_PREPARATION
+  EXPEDIEE
+  LIVREE
+  ANNULEE
+  REFUSEE
+}
+
+// Statut du paiement (indépendant du statut de la commande).
+enum StatutPaiement {
+  EN_ATTENTE
+  PAYE
+  ECHOUE
+  REMBOURSE
+}
+
+enum ModePaiement {
+  MONETBIL
+  COD
+}
+
+enum StatutLivraison {
+  EN_ATTENTE
+  AFFECTEE
+  EN_TRANSIT
+  LIVREE
+  ECHEC
+  RETOURNEE
+}
+
+// Réconciliation du cash encaissé par le transporteur (paiement à la livraison).
+enum StatutCashCOD {
+  NON_APPLICABLE
+  NON_COLLECTE
+  COLLECTE
+  REVERSE
+}
+
+// --------------------------------- ENTITÉS -----------------------------------
+
+// Profil applicatif. L'identité (mot de passe/session) est gérée par le
+// fournisseur d'authentification (Supabase en prod, mock en dev) ; `id` est
+// l'identifiant de l'utilisateur d'auth. L'AUTORISATION (rôle) vit ici.
+model Utilisateur {
+  id                      String            @id // = id de l'utilisateur d'auth
+  nom                     String
+  telephone               String
+  email                   String            @unique
+  role                    Role              @default(ACHETEUR)
+  statut                  StatutUtilisateur @default(ACTIF)
+  // Compteur anti-fraude COD : commandes refusées/annulées à la livraison.
+  nbCommandesNonAbouties  Int               @default(0)
+  dateCreation            DateTime          @default(now())
+
+  vendeur   Vendeur?
+  panier    Panier?
+  commandes Commande[]
+  avis      Avis[]
+
+  @@index([role])
+}
+
+// Justificatif d'identité pour le fournisseur "mock" UNIQUEMENT (dev/tests).
+// En production (AUTH_PROVIDER="supabase"), cette table n'est pas utilisée :
+// Supabase gère les identifiants. Aucun secret de prod n'y est stocké.
+model MockCredential {
+  authId       String   @id
+  email        String   @unique
+  motDePasse   String // hash scrypt (dev uniquement)
+  dateCreation DateTime @default(now())
+}
+
+model Vendeur {
+  id               String        @id @default(uuid())
+  utilisateurId    String        @unique
+  utilisateur      Utilisateur   @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  nomBoutique      String
+  description      String?
+  statutValidation StatutVendeur @default(EN_ATTENTE)
+  // Infos de reversement (n° MoMo/Orange, etc.). JSON pour rester flexible.
+  infosPaiement    Json?
+  // La "boutique maison" = le stock propre de la plateforme.
+  estBoutiqueMaison Boolean      @default(false)
+  dateCreation     DateTime      @default(now())
+
+  produits       Produit[]
+  lignesCommande LigneCommande[]
+
+  @@index([statutValidation])
+}
+
+// Catégories en arborescence (parent_id) — extensible à toute catégorie.
+model Categorie {
+  id           String      @id @default(uuid())
+  nom          String
+  slug         String      @unique
+  parentId     String?
+  parent       Categorie?  @relation("CategorieArbre", fields: [parentId], references: [id])
+  enfants      Categorie[] @relation("CategorieArbre")
+  ordre        Int         @default(0)
+  dateCreation DateTime    @default(now())
+
+  produits Produit[]
+
+  @@index([parentId])
+}
+
+model Produit {
+  id           String        @id @default(uuid())
+  vendeurId    String
+  vendeur      Vendeur       @relation(fields: [vendeurId], references: [id], onDelete: Cascade)
+  categorieId  String
+  categorie    Categorie     @relation(fields: [categorieId], references: [id])
+  titre        String
+  slug         String        @unique
+  description  String
+  prix         Int // FCFA (XAF), entier
+  stock        Int           @default(0)
+  statut       StatutProduit @default(BROUILLON)
+  noteMoyenne  Float         @default(0) // dénormalisé (mis à jour depuis les avis)
+  nbAvis       Int           @default(0)
+  dateCreation DateTime      @default(now())
+  dateMaj      DateTime      @updatedAt
+
+  images         ImageProduit[]
+  avis           Avis[]
+  lignesPanier   LignePanier[]
+  lignesCommande LigneCommande[]
+
+  @@index([categorieId])
+  @@index([vendeurId])
+  @@index([statut])
+}
+
+model ImageProduit {
+  id        String  @id @default(uuid())
+  produitId String
+  produit   Produit @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  url       String
+  ordre     Int     @default(0)
+  alt       String?
+
+  @@index([produitId])
+}
+
+model Panier {
+  id            String        @id @default(uuid())
+  utilisateurId String        @unique
+  utilisateur   Utilisateur   @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  lignes        LignePanier[]
+  dateCreation  DateTime      @default(now())
+}
+
+model LignePanier {
+  id        String  @id @default(uuid())
+  panierId  String
+  panier    Panier  @relation(fields: [panierId], references: [id], onDelete: Cascade)
+  produitId String
+  produit   Produit @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  quantite  Int
+
+  @@unique([panierId, produitId])
+  @@index([produitId])
+}
+
+model Commande {
+  id             String         @id @default(uuid())
+  numero         String         @unique // référence lisible (ex : NILE-2026-000123)
+  acheteurId     String
+  acheteur       Utilisateur    @relation(fields: [acheteurId], references: [id])
+  statutCommande StatutCommande @default(EN_ATTENTE)
+  statutPaiement StatutPaiement @default(EN_ATTENTE)
+  modePaiement   ModePaiement
+  total          Int // FCFA (XAF)
+
+  // Adresse figée au moment de la commande — adressage informel camerounais.
+  destNom       String
+  destTelephone String
+  ville         String
+  quartier      String
+  reperes       String? // points de repère libres
+  gpsLat        Float?
+  gpsLng        Float?
+
+  dateCreation DateTime @default(now())
+  dateMaj      DateTime @updatedAt
+
+  lignes    LigneCommande[]
+  paiements Paiement[]
+  livraison Livraison?
+
+  @@index([acheteurId])
+  @@index([statutCommande])
+  @@index([statutPaiement])
+}
+
+model LigneCommande {
+  id           String   @id @default(uuid())
+  commandeId   String
+  commande     Commande @relation(fields: [commandeId], references: [id], onDelete: Cascade)
+  produitId    String
+  produit      Produit  @relation(fields: [produitId], references: [id])
+  // Indispensable : une commande peut mêler plusieurs vendeurs (règlements répartis).
+  vendeurId    String
+  vendeur      Vendeur  @relation(fields: [vendeurId], references: [id])
+  titreProduit String // snapshot du titre au moment de la commande
+  prixUnitaire Int // snapshot du prix (FCFA)
+  quantite     Int
+  sousTotal    Int // prixUnitaire * quantite
+
+  @@index([commandeId])
+  @@index([vendeurId])
+}
+
+model Paiement {
+  id           String         @id @default(uuid())
+  commandeId   String
+  commande     Commande       @relation(fields: [commandeId], references: [id], onDelete: Cascade)
+  mode         ModePaiement
+  montant      Int // FCFA
+  statut       StatutPaiement @default(EN_ATTENTE)
+  reference    String?        @unique // réf transaction Monetbil
+  payload      Json? // charge utile brute du callback vérifié
+  dateCreation DateTime       @default(now())
+  dateMaj      DateTime       @updatedAt
+
+  @@index([commandeId])
+}
+
+model Livraison {
+  id                 String          @id @default(uuid())
+  commandeId         String          @unique
+  commande           Commande        @relation(fields: [commandeId], references: [id], onDelete: Cascade)
+  transporteur       String? // texte libre au MVP (suivi manuel)
+  statut             StatutLivraison @default(EN_ATTENTE)
+  preuveUrl          String? // preuve de livraison (photo/signature)
+  statutCash         StatutCashCOD   @default(NON_APPLICABLE)
+  montantCashCollecte Int?           // FCFA encaissés à la livraison (COD)
+  dateAffectation    DateTime?
+  dateLivraison      DateTime?
+  note               String?
+}
+
+model Avis {
+  id           String      @id @default(uuid())
+  produitId    String
+  produit      Produit     @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  acheteurId   String
+  acheteur     Utilisateur @relation(fields: [acheteurId], references: [id])
+  note         Int // 1 à 5
+  commentaire  String?
+  dateCreation DateTime    @default(now())
+
+  @@unique([produitId, acheteurId]) // un avis par acheteur et par produit
+  @@index([produitId])
+}
+
+// Garde-fous / paramètres éditables par l'admin (plafond COD, etc.).
+// Clé/valeur pour rester flexible ; valeurs par défaut dans les variables d'env.
+model Configuration {
+  cle     String @id
+  valeur  Json
+  dateMaj DateTime @updatedAt
+}
