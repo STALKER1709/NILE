@@ -28,9 +28,11 @@ export class SupabaseAuthProvider implements AuthProvider {
       if (/registered|already/i.test(error.message)) {
         return { ok: false, error: "EMAIL_DEJA_UTILISE" };
       }
+      console.error("[supabase] signUp erreur:", error.message);
       return { ok: false, error: "ERREUR_FOURNISSEUR" };
     }
     if (!data.user) {
+      console.error("[supabase] signUp: aucun utilisateur renvoyé");
       return { ok: false, error: "ERREUR_FOURNISSEUR" };
     }
     return { ok: true, data: { authId: data.user.id } };
@@ -46,6 +48,7 @@ export class SupabaseAuthProvider implements AuthProvider {
       password,
     });
     if (error || !data.user) {
+      if (error) console.error("[supabase] signIn erreur:", error.message);
       return { ok: false, error: "IDENTIFIANTS_INVALIDES" };
     }
     return { ok: true, data: { authId: data.user.id } };

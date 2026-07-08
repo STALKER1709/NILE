@@ -29,6 +29,7 @@ export async function inscrireUtilisateur(
     if (signUp.error === "EMAIL_DEJA_UTILISE") {
       return { ok: false, code: "EMAIL_DEJA_UTILISE" };
     }
+    console.error("[inscription] échec signUp fournisseur:", signUp.error);
     return { ok: false, code: "ERREUR" };
   }
   const authId = signUp.data.authId;
@@ -65,12 +66,14 @@ export async function inscrireUtilisateur(
     ) {
       return { ok: false, code: "EMAIL_DEJA_UTILISE" };
     }
+    console.error("[inscription] échec création profil:", erreur);
     return { ok: false, code: "ERREUR" };
   }
 
   const signIn = await provider.signIn(input.email, input.motDePasse);
   if (!signIn.ok) {
     // Compte créé mais session non établie : l'utilisateur pourra se connecter.
+    console.error("[inscription] échec signIn après création:", signIn.error);
     return { ok: false, code: "ERREUR" };
   }
   return { ok: true };
