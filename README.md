@@ -3,8 +3,8 @@
 Marketplace e-commerce (modèle hybride) pour le marché camerounais.
 Interface en français, devise FCFA (XAF), pensée mobile-first.
 
-État : **Phase 2 — Commande (COD)** (panier, commande + transaction stock, suivi acheteur).
-Phases précédentes : Phase 0 — Fondations · Phase 1 — Catalogue.
+État : **Phase 3 — Paiement Monetbil** (interface PaymentProvider, mock, callback serveur vérifié, réconciliation COD).
+Phases précédentes : Phase 0 — Fondations · Phase 1 — Catalogue · Phase 2 — Commande (COD).
 
 ## Stack
 
@@ -94,6 +94,37 @@ Supabase Storage en production via `STORAGE_PROVIDER="supabase"`.
 Garde-fous : impossible de commander plus que le stock, ni au-dessus du plafond
 COD (`COD_PLAFOND_XAF`). Le décrément de stock est atomique : deux acheteurs ne
 peuvent pas acheter le même dernier article (pas de survente).
+
+## Vérifier le paiement (Phase 3)
+
+En mode `PAYMENT_PROVIDER="mock"` (par défaut), aucune transaction réelle :
+1. Ajoute un produit au panier, va sur **Passer la commande**, choisis
+   **Mobile Money (Monetbil)** → tu es redirigé vers une **page de simulation**.
+2. « Simuler un paiement réussi » → la commande passe **CONFIRMEE / payée**.
+   « Simuler un échec » → la commande est **annulée** et le stock restitué.
+3. La commande n'est marquée payée **que** par la notification serveur vérifiée
+   (`POST /api/paiement/callback`), jamais par le retour navigateur.
+4. En **admin** → **Réconciliation cash (COD)** : marque le cash « collecté »
+   (la commande devient payée) puis « reversé ».
+
+## Passer à Monetbil réel (à vérifier avant toute transaction)
+
+L'intégration `MonetbilProvider` suit le code source officiel `Monetbil/monetbil-php` :
+- démarrage : `POST https://www.monetbil.com/widget/v2.1/{SERVICE_KEY}` → `{ payment_url }` ;
+- vérification serveur : `POST https://api.monetbil.com/payment/v1/checkPayment` avec `paymentId` → `transaction.status` (1=succès, 0=échec, -1=annulé) ;
+- signature du callback : `md5(SERVICE_SECRET + concat(valeurs des paramètres triées par clé))`.
+
+**Elle n'a pas pu être exécutée contre le vrai service ici.** Avant de l'activer :
+1. Crée un service sur https://www.monetbil.com/services et récupère
+   `MONETBIL_SERVICE_KEY` / `MONETBIL_SERVICE_SECRET`, puis mets
+   `PAYMENT_PROVIDER="monetbil"`.
+2. Configure l'URL de notification (`notify_url`) — le code l'envoie
+   automatiquement (`/api/paiement/callback`), mais **confirme dans ton tableau
+   de bord Monetbil que les notifications serveur sont activées**.
+3. **Confirme les noms exacts des champs du callback** avec une vraie
+   notification de test (surtout `paymentId` et `payment_ref`) : ce sont les
+   deux champs dont dépend la confirmation. Ajuste si besoin dans
+   `src/modules/paiement/monetbil/MonetbilProvider.ts`.
 
 ## Scripts utiles
 

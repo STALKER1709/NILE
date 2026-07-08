@@ -88,10 +88,23 @@ export default async function CommanderPage({
           <textarea id="reperes" name="reperes" rows={2} className={champ} placeholder="Ex : en face de la pharmacie, immeuble bleu…" />
         </div>
 
-        <div className="rounded border border-gray-200 bg-gray-50 px-3 py-2 text-sm">
-          <p className="font-medium">Mode de paiement</p>
-          <p className="text-gray-600">Paiement à la livraison (espèces). Le paiement mobile (Monetbil) arrive en Phase 3.</p>
-        </div>
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-gray-700">Mode de paiement</legend>
+          <label className="flex items-start gap-2 rounded border border-gray-200 px-3 py-2 text-sm">
+            <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond} className="mt-1" />
+            <span>
+              <span className="font-medium">Paiement à la livraison</span>
+              <span className="block text-gray-500">Vous payez en espèces à la réception.</span>
+            </span>
+          </label>
+          <label className="flex items-start gap-2 rounded border border-gray-200 px-3 py-2 text-sm">
+            <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond} className="mt-1" />
+            <span>
+              <span className="font-medium">Mobile Money (Monetbil)</span>
+              <span className="block text-gray-500">MTN MoMo / Orange Money. Paiement avant expédition.</span>
+            </span>
+          </label>
+        </fieldset>
 
         <button
           type="submit"

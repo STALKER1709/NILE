@@ -3,7 +3,10 @@ import { notFound } from "next/navigation";
 import { exigerConnexion } from "@/modules/auth/access";
 import { getCommandeAcheteur } from "@/modules/commande/commande";
 import { formaterXAF } from "@/lib/money";
-import { annulerCommandeAction } from "@/app/(compte)/commandes/actions";
+import {
+  annulerCommandeAction,
+  reprendrePaiementAction,
+} from "@/app/(compte)/commandes/actions";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +35,10 @@ export default async function DetailCommandePage({
   const annulable =
     commande.statutCommande === "EN_ATTENTE" ||
     commande.statutCommande === "CONFIRMEE";
+  const paiementARelancer =
+    commande.modePaiement === "MONETBIL" &&
+    commande.statutPaiement === "EN_ATTENTE" &&
+    commande.statutCommande === "EN_ATTENTE";
   const annulee = commande.statutCommande === "ANNULEE";
   const etapeCourante = ETAPES_COMMANDE.indexOf(
     commande.statutCommande as (typeof ETAPES_COMMANDE)[number],
@@ -55,6 +62,28 @@ export default async function DetailCommandePage({
         <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
           Commande annulée. Les articles ont été remis en stock.
         </p>
+      )}
+      {ok === "paye" && (
+        <p className="rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+          Paiement confirmé. Merci !
+        </p>
+      )}
+      {ok === "echec" && (
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          Le paiement a échoué. La commande a été annulée et le stock restitué.
+        </p>
+      )}
+
+      {paiementARelancer && (
+        <form action={reprendrePaiementAction}>
+          <input type="hidden" name="commandeId" value={commande.id} />
+          <button
+            type="submit"
+            className="w-full rounded bg-nile px-4 py-3 text-sm font-medium text-white hover:bg-nile-dark"
+          >
+            Payer maintenant (Mobile Money)
+          </button>
+        </form>
       )}
       {erreur && (
         <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">

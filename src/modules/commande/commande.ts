@@ -1,11 +1,12 @@
 import { randomBytes } from "node:crypto";
-import { Prisma } from "@prisma/client";
+import { Prisma, type ModePaiement } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { calculerTotal, evaluerCommandeCOD } from "@/modules/commande/commande-core";
 import {
   getPlafondCOD,
   getMaxCommandesNonAbouties,
 } from "@/modules/commande/config";
+import { getPaymentProvider } from "@/modules/paiement";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -25,7 +26,7 @@ class ErreurCommande extends Error {
 }
 
 export type ResultatCommande =
-  | { ok: true; commandeId: string; numero: string }
+  | { ok: true; commandeId: string; numero: string; urlPaiement: string | null }
   | {
       ok: false;
       code:
@@ -34,9 +35,20 @@ export type ResultatCommande =
         | "TROP_COMMANDES_NON_ABOUTIES"
         | "STOCK_INSUFFISANT"
         | "INDISPONIBLE"
+        | "PAIEMENT_INDISPONIBLE"
         | "ERREUR";
       detail?: string;
     };
+
+export interface OptionsPaiement {
+  mode: ModePaiement;
+  // URLs absolues construites par la couche action (à partir des en-têtes).
+  urlRetour: string;
+  urlNotification: string;
+  emailAcheteur: string;
+  telephoneAcheteur: string;
+  nomAcheteur: string;
+}
 
 function genererNumero(): string {
   const annee = new Date().getFullYear();
@@ -44,13 +56,16 @@ function genererNumero(): string {
 }
 
 /**
- * Passe une commande en paiement à la livraison (COD).
- * Toute l'opération (validation stock, décrément, création commande, vidage du
- * panier) est atomique : en cas d'échec, aucune modification n'est conservée.
+ * Passe une commande (COD ou Monetbil).
+ * Création (décrément de stock, commande, paiement, vidage du panier) atomique.
+ * COD  -> commande CONFIRMEE, paiement EN_ATTENTE (réglé à la livraison).
+ * Monetbil -> commande EN_ATTENTE, initiation du paiement, renvoie l'URL du
+ * widget. La commande ne devient « payée » que sur callback serveur vérifié.
  */
-export async function passerCommandeCOD(
+export async function passerCommande(
   utilisateurId: string,
   adresse: AdresseLivraisonInput,
+  options: OptionsPaiement,
 ): Promise<ResultatCommande> {
   const panier = await prisma.panier.findUnique({
     where: { utilisateurId },
@@ -64,34 +79,44 @@ export async function passerCommandeCOD(
     panier.lignes.map((l) => ({ prix: l.produit.prix, quantite: l.quantite })),
   );
 
-  const [plafond, maxNonAbouti, acheteur] = await Promise.all([
-    getPlafondCOD(),
-    getMaxCommandesNonAbouties(),
-    prisma.utilisateur.findUniqueOrThrow({ where: { id: utilisateurId } }),
-  ]);
-
-  const decision = evaluerCommandeCOD({
-    total: totalPrevu,
-    plafond,
-    compteurNonAbouti: acheteur.nbCommandesNonAbouties,
-    maxNonAbouti,
-  });
-  if (decision === "PLAFOND_DEPASSE") return { ok: false, code: "PLAFOND_DEPASSE" };
-  if (decision === "TROP_COMMANDES_NON_ABOUTIES") {
-    return { ok: false, code: "TROP_COMMANDES_NON_ABOUTIES" };
+  // Garde-fous propres au paiement à la livraison uniquement.
+  let plafond = Number.MAX_SAFE_INTEGER;
+  if (options.mode === "COD") {
+    const [pl, maxNonAbouti, acheteur] = await Promise.all([
+      getPlafondCOD(),
+      getMaxCommandesNonAbouties(),
+      prisma.utilisateur.findUniqueOrThrow({ where: { id: utilisateurId } }),
+    ]);
+    plafond = pl;
+    const decision = evaluerCommandeCOD({
+      total: totalPrevu,
+      plafond,
+      compteurNonAbouti: acheteur.nbCommandesNonAbouties,
+      maxNonAbouti,
+    });
+    if (decision === "PLAFOND_DEPASSE") return { ok: false, code: "PLAFOND_DEPASSE" };
+    if (decision === "TROP_COMMANDES_NON_ABOUTIES") {
+      return { ok: false, code: "TROP_COMMANDES_NON_ABOUTIES" };
+    }
   }
 
+  const statutInitial = options.mode === "COD" ? "CONFIRMEE" : "EN_ATTENTE";
+
   // Jusqu'à 3 tentatives en cas de collision (improbable) du numéro de commande.
+  let cree: { commandeId: string; numero: string; paiementId: string; total: number } | null =
+    null;
   for (let tentative = 0; tentative < 3; tentative++) {
     try {
-      const commande = await creerCommandeTransaction(
+      cree = await creerCommandeTransaction(
         genererNumero(),
         utilisateurId,
         panier.id,
         adresse,
+        options.mode,
+        statutInitial,
         plafond,
       );
-      return { ok: true, commandeId: commande.id, numero: commande.numero };
+      break;
     } catch (erreur) {
       if (erreur instanceof ErreurCommande) {
         return { ok: false, code: erreur.code, detail: erreur.detail };
@@ -101,20 +126,57 @@ export async function passerCommandeCOD(
         erreur.code === "P2002" &&
         tentative < 2;
       if (collisionNumero) continue;
-      console.error("Erreur passerCommandeCOD:", erreur);
+      console.error("Erreur passerCommande:", erreur);
       return { ok: false, code: "ERREUR" };
     }
   }
-  return { ok: false, code: "ERREUR" };
+  if (!cree) return { ok: false, code: "ERREUR" };
+
+  // Paiement à la livraison : rien à initier.
+  if (options.mode === "COD") {
+    return {
+      ok: true,
+      commandeId: cree.commandeId,
+      numero: cree.numero,
+      urlPaiement: null,
+    };
+  }
+
+  // Monetbil : initier le paiement et renvoyer l'URL du widget.
+  try {
+    const demarrage = await getPaymentProvider().initier({
+      reference: cree.paiementId, // = payment_ref renvoyé dans le callback
+      montant: cree.total,
+      telephone: options.telephoneAcheteur,
+      email: options.emailAcheteur,
+      nomComplet: options.nomAcheteur,
+      numeroCommande: cree.numero,
+      urlRetour: options.urlRetour,
+      urlNotification: options.urlNotification,
+    });
+    return {
+      ok: true,
+      commandeId: cree.commandeId,
+      numero: cree.numero,
+      urlPaiement: demarrage.urlPaiement,
+    };
+  } catch (erreur) {
+    console.error("Initiation paiement échouée:", erreur);
+    // Libère la commande (remise en stock) : le paiement n'a pas pu démarrer.
+    await libererCommande(cree.commandeId);
+    return { ok: false, code: "PAIEMENT_INDISPONIBLE" };
+  }
 }
 
-function creerCommandeTransaction(
+async function creerCommandeTransaction(
   numero: string,
   utilisateurId: string,
   panierId: string,
   adresse: AdresseLivraisonInput,
+  mode: ModePaiement,
+  statutInitial: "CONFIRMEE" | "EN_ATTENTE",
   plafond: number,
-) {
+): Promise<{ commandeId: string; numero: string; paiementId: string; total: number }> {
   return prisma.$transaction(async (tx) => {
     const panier = await tx.panier.findUniqueOrThrow({
       where: { id: panierId },
@@ -154,13 +216,14 @@ function creerCommandeTransaction(
 
     if (total > plafond) throw new ErreurCommande("PLAFOND_DEPASSE");
 
+    const statutCash = mode === "COD" ? "NON_COLLECTE" : "NON_APPLICABLE";
     const commande = await tx.commande.create({
       data: {
         numero,
         acheteurId: utilisateurId,
-        statutCommande: "CONFIRMEE",
+        statutCommande: statutInitial,
         statutPaiement: "EN_ATTENTE",
-        modePaiement: "COD",
+        modePaiement: mode,
         total,
         destNom: adresse.destNom,
         destTelephone: adresse.destTelephone,
@@ -168,15 +231,46 @@ function creerCommandeTransaction(
         quartier: adresse.quartier,
         reperes: adresse.reperes ?? null,
         lignes: { createMany: { data: lignesData } },
-        paiements: {
-          create: { mode: "COD", montant: total, statut: "EN_ATTENTE" },
-        },
-        livraison: { create: { statut: "EN_ATTENTE", statutCash: "NON_COLLECTE" } },
+        livraison: { create: { statut: "EN_ATTENTE", statutCash } },
       },
+    });
+    const paiement = await tx.paiement.create({
+      data: { commandeId: commande.id, mode, montant: total, statut: "EN_ATTENTE" },
     });
 
     await tx.lignePanier.deleteMany({ where: { panierId: panier.id } });
-    return commande;
+    return {
+      commandeId: commande.id,
+      numero: commande.numero,
+      paiementId: paiement.id,
+      total,
+    };
+  });
+}
+
+/** Libère une commande non payée : remise en stock atomique (si applicable). */
+async function libererCommande(commandeId: string): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    const commande = await tx.commande.findUnique({
+      where: { id: commandeId },
+      include: { lignes: true },
+    });
+    if (!commande) return;
+    const maj = await tx.commande.updateMany({
+      where: {
+        id: commandeId,
+        statutCommande: { in: ["EN_ATTENTE", "CONFIRMEE"] },
+      },
+      data: { statutCommande: "ANNULEE", statutPaiement: "ECHOUE" },
+    });
+    if (maj.count === 1) {
+      for (const ligne of commande.lignes) {
+        await tx.produit.update({
+          where: { id: ligne.produitId },
+          data: { stock: { increment: ligne.quantite } },
+        });
+      }
+    }
   });
 }
 
@@ -200,6 +294,61 @@ export async function getCommandeAcheteur(
   });
   if (!commande || commande.acheteurId !== utilisateurId) return null;
   return commande;
+}
+
+export interface OptionsReprise {
+  urlRetour: string;
+  urlNotification: string;
+  email: string;
+  telephone: string;
+  nom: string;
+}
+
+export type ResultatReprise =
+  | { ok: true; urlPaiement: string }
+  | { ok: false; code: "INTROUVABLE" | "NON_APPLICABLE" | "ERREUR" };
+
+/** Relance le paiement Monetbil d'une commande encore en attente de paiement. */
+export async function reprendrePaiement(
+  utilisateurId: string,
+  commandeId: string,
+  options: OptionsReprise,
+): Promise<ResultatReprise> {
+  const commande = await prisma.commande.findUnique({
+    where: { id: commandeId },
+    include: { paiements: true },
+  });
+  if (!commande || commande.acheteurId !== utilisateurId) {
+    return { ok: false, code: "INTROUVABLE" };
+  }
+  if (
+    commande.modePaiement !== "MONETBIL" ||
+    commande.statutPaiement !== "EN_ATTENTE" ||
+    commande.statutCommande !== "EN_ATTENTE"
+  ) {
+    return { ok: false, code: "NON_APPLICABLE" };
+  }
+  const paiement =
+    commande.paiements.find((p) => p.statut === "EN_ATTENTE") ??
+    commande.paiements[0];
+  if (!paiement) return { ok: false, code: "NON_APPLICABLE" };
+
+  try {
+    const demarrage = await getPaymentProvider().initier({
+      reference: paiement.id,
+      montant: commande.total,
+      telephone: options.telephone,
+      email: options.email,
+      nomComplet: options.nom,
+      numeroCommande: commande.numero,
+      urlRetour: options.urlRetour,
+      urlNotification: options.urlNotification,
+    });
+    return { ok: true, urlPaiement: demarrage.urlPaiement };
+  } catch (erreur) {
+    console.error("reprendrePaiement:", erreur);
+    return { ok: false, code: "ERREUR" };
+  }
 }
 
 export type ResultatAnnulation =

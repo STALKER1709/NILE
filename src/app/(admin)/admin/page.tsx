@@ -25,9 +25,14 @@ export default async function AdminPage() {
 
       <section className="rounded-lg bg-white p-5 shadow-sm">
         <h2 className="mb-2 text-sm font-semibold">Gestion</h2>
-        <Link href="/admin/categories" className="text-sm text-nile hover:underline">
-          → Gérer les catégories
-        </Link>
+        <div className="flex flex-col gap-1">
+          <Link href="/admin/categories" className="text-sm text-nile hover:underline">
+            → Gérer les catégories
+          </Link>
+          <Link href="/admin/reconciliation" className="text-sm text-nile hover:underline">
+            → Réconciliation cash (COD)
+          </Link>
+        </div>
       </section>
 
       <section className="rounded-lg border border-dashed border-gray-300 p-5 text-sm text-gray-500">

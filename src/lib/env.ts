@@ -25,6 +25,9 @@ const schema = z
     PAYMENT_PROVIDER: z.enum(["mock", "monetbil"]).default("mock"),
     MONETBIL_SERVICE_KEY: z.string().optional(),
     MONETBIL_SERVICE_SECRET: z.string().optional(),
+    // Secret utilisé par le fournisseur de paiement "mock" pour signer les
+    // notifications simulées (dev/tests uniquement).
+    MOCK_PAYMENT_SECRET: z.string().default("dev-payment-secret"),
 
     // Stockage des images produit :
     //   "local"    -> dossier public/uploads (développement).
@@ -63,6 +66,16 @@ const schema = z
         path: ["MOCK_AUTH_SECRET"],
         message: "MOCK_AUTH_SECRET doit faire au moins 16 caractères.",
       });
+    }
+    if (val.PAYMENT_PROVIDER === "monetbil") {
+      if (!val.MONETBIL_SERVICE_KEY || !val.MONETBIL_SERVICE_SECRET) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["MONETBIL_SERVICE_KEY"],
+          message:
+            'MONETBIL_SERVICE_KEY et MONETBIL_SERVICE_SECRET requis quand PAYMENT_PROVIDER="monetbil".',
+        });
+      }
     }
     if (val.AUTH_PROVIDER === "supabase") {
       if (!val.NEXT_PUBLIC_SUPABASE_URL || !val.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
