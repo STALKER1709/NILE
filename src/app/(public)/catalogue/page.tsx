@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { formaterXAF } from "@/lib/money";
 import {
   listerCategories,
   collecterIdsCategorieEtDescendants,
@@ -7,12 +6,11 @@ import {
 } from "@/modules/catalogue/categories";
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
 import { normaliserParamsRecherche } from "@/modules/catalogue/recherche";
+import { CarteProduit } from "@/components/produit/CarteProduit";
+import { champClass, btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
-
 const PAR_PAGE = 12;
-const champ =
-  "block w-full rounded border border-gray-300 px-3 py-2 text-sm focus:border-nile focus:outline-none focus:ring-1 focus:ring-nile";
 
 export default async function CataloguePage({
   searchParams,
@@ -32,20 +30,15 @@ export default async function CataloguePage({
   const categories = await listerCategories();
   const optionsCat = aplatirPourSelect(categories);
 
-  // Filtre par catégorie (slug) -> inclut les sous-catégories.
   let categorieIds: string[] | undefined;
   const categorieChoisie = sp.categorie
     ? categories.find((c) => c.slug === sp.categorie)
     : undefined;
   if (categorieChoisie) {
-    categorieIds = collecterIdsCategorieEtDescendants(
-      categorieChoisie.id,
-      categories,
-    );
+    categorieIds = collecterIdsCategorieEtDescendants(categorieChoisie.id, categories);
   }
 
   const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
-
   const { produits, total, pages } = await rechercherProduitsCatalogue({
     q,
     categorieIds,
@@ -56,8 +49,7 @@ export default async function CataloguePage({
     parPage: PAR_PAGE,
   });
 
-  // Conserve les filtres dans les liens de pagination.
-  const construireLienPage = (p: number) => {
+  const lienPage = (p: number) => {
     const params = new URLSearchParams();
     if (sp.q) params.set("q", sp.q);
     if (sp.categorie) params.set("categorie", sp.categorie);
@@ -70,85 +62,59 @@ export default async function CataloguePage({
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-bold">Catalogue</h1>
+      <div className="flex items-baseline justify-between">
+        <h1 className="text-xl font-bold">Catalogue</h1>
+        <span className="text-sm text-gray-500">
+          {total} produit{total > 1 ? "s" : ""}
+        </span>
+      </div>
 
-      {/* Recherche + filtres (GET, sans JS) */}
-      <form method="get" className="grid grid-cols-1 gap-3 rounded-lg bg-white p-4 shadow-sm sm:grid-cols-2">
-        <input
-          name="q"
-          defaultValue={sp.q ?? ""}
-          placeholder="Rechercher un produit…"
-          className={`${champ} sm:col-span-2`}
-        />
-        <select name="categorie" defaultValue={sp.categorie ?? ""} className={champ}>
-          <option value="">Toutes les catégories</option>
-          {optionsCat.map((c) => {
-            const cat = categories.find((x) => x.id === c.id);
-            return (
-              <option key={c.id} value={cat?.slug ?? ""}>
-                {c.label}
-              </option>
-            );
-          })}
-        </select>
-        <select name="tri" defaultValue={sp.tri ?? "recent"} className={champ}>
-          <option value="recent">Plus récents</option>
-          <option value="prix_asc">Prix croissant</option>
-          <option value="prix_desc">Prix décroissant</option>
-        </select>
-        <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Prix min (FCFA)" className={champ} />
-        <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Prix max (FCFA)" className={champ} />
-        <button type="submit" className="rounded bg-nile px-4 py-2 text-sm font-medium text-white hover:bg-nile-dark sm:col-span-2">
-          Filtrer
-        </button>
-      </form>
-
-      <p className="text-sm text-gray-500">
-        {total} produit{total > 1 ? "s" : ""} trouvé{total > 1 ? "s" : ""}.
-      </p>
+      {/* Filtres (repliables sur mobile, sans JS) */}
+      <details className="group rounded-xl2 border border-gray-100 bg-white shadow-carte" open>
+        <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium sm:hidden">
+          Filtres & recherche
+          <span className="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+        </summary>
+        <form method="get" className="flex flex-col gap-3 p-4 pt-0 sm:flex-row sm:flex-wrap sm:items-end sm:pt-4">
+          <input name="q" defaultValue={sp.q ?? ""} placeholder="Rechercher…" className={`${champClass} sm:min-w-[12rem] sm:flex-1`} />
+          <select name="categorie" defaultValue={sp.categorie ?? ""} className={`${champClass} sm:w-48`}>
+            <option value="">Toutes catégories</option>
+            {optionsCat.map((c) => {
+              const cat = categories.find((x) => x.id === c.id);
+              return <option key={c.id} value={cat?.slug ?? ""}>{c.label}</option>;
+            })}
+          </select>
+          <select name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} sm:w-36`}>
+            <option value="recent">Plus récents</option>
+            <option value="prix_asc">Prix ↑</option>
+            <option value="prix_desc">Prix ↓</option>
+          </select>
+          <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min FCFA" className={`${champClass} sm:w-28`} />
+          <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max FCFA" className={`${champClass} sm:w-28`} />
+          <button type="submit" className={btn("primaire", "md")}>Filtrer</button>
+        </form>
+      </details>
 
       {produits.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
-          Aucun produit ne correspond à votre recherche.
-        </p>
+        <EtatVide titre="Aucun produit ne correspond à votre recherche.">
+          Essayez d'élargir vos filtres.
+        </EtatVide>
       ) : (
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          {produits.map((p) => (
-            <li key={p.id} className="overflow-hidden rounded-lg bg-white shadow-sm">
-              <Link href={`/produit/${p.slug}`}>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={p.images[0]?.url ?? "/placeholder-produit.svg"}
-                  alt={p.titre}
-                  className="aspect-square w-full object-cover"
-                  loading="lazy"
-                />
-                <div className="p-2">
-                  <p className="truncate text-sm font-medium">{p.titre}</p>
-                  <p className="text-sm font-semibold text-nile">{formaterXAF(p.prix)}</p>
-                  <p className="truncate text-xs text-gray-500">{p.vendeur.nomBoutique}</p>
-                  {p.stock === 0 && (
-                    <p className="text-xs font-medium text-red-600">Indisponible</p>
-                  )}
-                </div>
-              </Link>
-            </li>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {produits.map((p, i) => (
+            <CarteProduit key={p.id} produit={p} priority={i < 4} />
           ))}
-        </ul>
+        </div>
       )}
 
       {pages > 1 && (
-        <nav className="flex items-center justify-center gap-3 text-sm">
+        <nav className="flex items-center justify-center gap-4 pt-2 text-sm">
           {page > 1 && (
-            <Link href={construireLienPage(page - 1)} className="text-nile hover:underline">
-              ← Précédent
-            </Link>
+            <Link href={lienPage(page - 1)} className={btn("secondaire", "sm")}>← Précédent</Link>
           )}
           <span className="text-gray-500">Page {page} / {pages}</span>
           {page < pages && (
-            <Link href={construireLienPage(page + 1)} className="text-nile hover:underline">
-              Suivant →
-            </Link>
+            <Link href={lienPage(page + 1)} className={btn("secondaire", "sm")}>Suivant →</Link>
           )}
         </nav>
       )}

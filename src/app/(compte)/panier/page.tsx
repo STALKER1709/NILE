@@ -2,11 +2,12 @@ import Link from "next/link";
 import { exigerConnexion } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { calculerTotal } from "@/modules/commande/commande-core";
-import { formaterXAF } from "@/lib/money";
 import {
   modifierQuantiteAction,
   retirerLigneAction,
 } from "@/app/(compte)/panier/actions";
+import { Vignette } from "@/components/ui/Vignette";
+import { Carte, Prix, btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 
@@ -18,7 +19,6 @@ export default async function PanierPage({
   const { ok, erreur } = await searchParams;
   const utilisateur = await exigerConnexion();
   const panier = await getPanierAvecLignes(utilisateur.id);
-
   const total = calculerTotal(
     panier.lignes.map((l) => ({ prix: l.produit.prix, quantite: l.quantite })),
   );
@@ -28,100 +28,79 @@ export default async function PanierPage({
       <h1 className="text-xl font-bold">Mon panier</h1>
 
       {ok === "ajoute" && (
-        <p className="rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Produit ajouté au panier.
         </p>
       )}
       {erreur && (
-        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {erreur}
-        </p>
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       {panier.lignes.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
-          Votre panier est vide.{" "}
-          <Link href="/catalogue" className="text-nile hover:underline">
-            Parcourir le catalogue
-          </Link>
-        </p>
+        <EtatVide titre="Votre panier est vide.">
+          <Link href="/catalogue" className="text-nile hover:underline">Parcourir le catalogue</Link>
+        </EtatVide>
       ) : (
-        <>
-          <ul className="divide-y divide-gray-100 rounded-lg bg-white shadow-sm">
+        <div className="grid gap-5 lg:grid-cols-3">
+          <div className="space-y-3 lg:col-span-2">
             {panier.lignes.map((l) => {
-              const indisponible =
+              const indispo =
                 l.produit.statut !== "ACTIF" ||
                 l.produit.vendeur.statutValidation !== "VALIDE";
               const stockInsuffisant = l.produit.stock < l.quantite;
               return (
-                <li key={l.id} className="flex flex-wrap items-center gap-3 p-3">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={l.produit.images[0]?.url ?? "/placeholder-produit.svg"}
-                    alt=""
-                    className="h-14 w-14 shrink-0 rounded object-cover"
-                    loading="lazy"
+                <Carte key={l.id} className="flex gap-3 p-3">
+                  <Vignette
+                    url={l.produit.images[0]?.url}
+                    alt={l.produit.titre}
+                    sizes="80px"
+                    className="h-20 w-20 shrink-0 rounded-lg"
                   />
                   <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/produit/${l.produit.slug}`}
-                      className="truncate font-medium hover:underline"
-                    >
+                    <Link href={`/produit/${l.produit.slug}`} className="line-clamp-2 font-medium hover:underline">
                       {l.produit.titre}
                     </Link>
-                    <p className="text-sm text-gray-500">
-                      {formaterXAF(l.produit.prix)} × {l.quantite} ={" "}
-                      <span className="font-medium">
-                        {formaterXAF(l.produit.prix * l.quantite)}
-                      </span>
-                    </p>
-                    {indisponible && (
-                      <p className="text-xs font-medium text-red-600">
-                        Produit indisponible — retirez-le pour commander.
-                      </p>
+                    <Prix montant={l.produit.prix} className="mt-0.5 block text-sm text-gray-500" />
+                    {indispo && <p className="text-xs font-medium text-red-600">Produit indisponible — à retirer.</p>}
+                    {!indispo && stockInsuffisant && (
+                      <p className="text-xs font-medium text-red-600">Stock restant : {l.produit.stock}.</p>
                     )}
-                    {!indisponible && stockInsuffisant && (
-                      <p className="text-xs font-medium text-red-600">
-                        Stock restant : {l.produit.stock}. Réduisez la quantité.
-                      </p>
-                    )}
+                    <div className="mt-2 flex items-center gap-3">
+                      <form action={modifierQuantiteAction} className="flex items-center gap-1">
+                        <input type="hidden" name="ligneId" value={l.id} />
+                        <input name="quantite" type="number" min={0} defaultValue={l.quantite}
+                          className="w-16 rounded-lg border border-gray-300 px-2 py-1 text-sm" />
+                        <button type="submit" className={btn("secondaire", "sm")}>OK</button>
+                      </form>
+                      <form action={retirerLigneAction}>
+                        <input type="hidden" name="ligneId" value={l.id} />
+                        <button type="submit" className="text-xs text-red-600 hover:underline">Retirer</button>
+                      </form>
+                    </div>
                   </div>
-                  <form action={modifierQuantiteAction} className="flex items-center gap-1">
-                    <input type="hidden" name="ligneId" value={l.id} />
-                    <input
-                      name="quantite"
-                      type="number"
-                      min={0}
-                      defaultValue={l.quantite}
-                      className="w-16 rounded border border-gray-300 px-2 py-1 text-sm"
-                    />
-                    <button type="submit" className="rounded border border-gray-300 px-2 py-1 text-xs hover:bg-gray-50">
-                      MAJ
-                    </button>
-                  </form>
-                  <form action={retirerLigneAction}>
-                    <input type="hidden" name="ligneId" value={l.id} />
-                    <button type="submit" className="text-xs text-red-600 hover:underline">
-                      Retirer
-                    </button>
-                  </form>
-                </li>
+                  <Prix montant={l.produit.prix * l.quantite} className="shrink-0 self-center font-bold text-nile" />
+                </Carte>
               );
             })}
-          </ul>
-
-          <div className="flex items-center justify-between rounded-lg bg-white p-4 shadow-sm">
-            <span className="text-sm text-gray-600">Total</span>
-            <span className="text-lg font-bold text-nile">{formaterXAF(total)}</span>
           </div>
 
-          <Link
-            href="/commander"
-            className="block rounded bg-nile px-4 py-3 text-center text-sm font-medium text-white hover:bg-nile-dark"
-          >
-            Passer la commande
-          </Link>
-        </>
+          <div className="lg:col-span-1">
+            <Carte className="sticky top-24 space-y-3 p-4">
+              <h2 className="font-semibold">Récapitulatif</h2>
+              <div className="flex justify-between text-sm text-gray-600">
+                <span>Sous-total</span>
+                <Prix montant={total} />
+              </div>
+              <div className="flex justify-between border-t border-gray-100 pt-3 text-lg font-bold">
+                <span>Total</span>
+                <Prix montant={total} className="text-nile" />
+              </div>
+              <Link href="/commander" className={btn("accent", "lg", "w-full")}>
+                Passer la commande
+              </Link>
+            </Carte>
+          </div>
+        </div>
       )}
     </div>
   );

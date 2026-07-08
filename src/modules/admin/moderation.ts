@@ -9,6 +9,7 @@ export async function listerProduitsModeration() {
     include: {
       vendeur: { select: { nomBoutique: true } },
       categorie: { select: { nom: true } },
+      images: { orderBy: { ordre: "asc" }, take: 1 },
     },
   });
 }

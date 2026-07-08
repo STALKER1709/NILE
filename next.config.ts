@@ -5,7 +5,12 @@ const nextConfig: NextConfig = {
   // Les images des produits seront servies depuis un stockage managé (Supabase Storage
   // ou Cloudinary). On déclarera ici les domaines autorisés quand le stockage sera branché.
   images: {
-    remotePatterns: [],
+    // Autorise l'optimisation des images produit servies par Supabase Storage
+    // (et par tout projet *.supabase.co). Le local /uploads est déjà même-origine.
+    remotePatterns: [
+      { protocol: "https", hostname: "*.supabase.co" },
+    ],
+    formats: ["image/avif", "image/webp"],
   },
   experimental: {
     // Autorise l'upload de quelques images (2 Mo max chacune) via Server Actions.

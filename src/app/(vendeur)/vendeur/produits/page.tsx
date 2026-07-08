@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { exigerVendeur } from "@/modules/auth/access";
 import { listerProduitsVendeur } from "@/modules/catalogue/produits";
-import { formaterXAF } from "@/lib/money";
+import { Vignette } from "@/components/ui/Vignette";
+import { Carte, Prix, Badge, btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 
@@ -25,64 +26,39 @@ export default async function ListeProduitsVendeurPage({
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-bold">Mes produits</h1>
-        <Link
-          href="/vendeur/produits/nouveau"
-          className="rounded bg-nile px-3 py-2 text-sm font-medium text-white hover:bg-nile-dark"
-        >
-          + Nouveau produit
-        </Link>
+        <Link href="/vendeur/produits/nouveau" className={btn("primaire", "md")}>+ Nouveau</Link>
       </div>
 
       {ok && MESSAGES_OK[ok] && (
-        <p className="rounded border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700">
-          {MESSAGES_OK[ok]}
-        </p>
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{MESSAGES_OK[ok]}</p>
       )}
       {erreur && (
-        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-          {erreur}
-        </p>
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       {vendeur.statutValidation !== "VALIDE" && (
-        <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          Votre boutique est <strong>{vendeur.statutValidation}</strong>. Vous
-          pouvez préparer vos produits, mais la publication (mise en ligne) sera
-          possible une fois la boutique validée par un administrateur.
+        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Boutique <strong>{vendeur.statutValidation}</strong> — publication possible une fois validée.
         </p>
       )}
 
       {produits.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
-          Aucun produit pour l'instant. Créez votre premier produit.
-        </p>
+        <EtatVide titre="Aucun produit pour l'instant.">Créez votre premier produit.</EtatVide>
       ) : (
-        <ul className="divide-y divide-gray-100 rounded-lg bg-white shadow-sm">
+        <div className="space-y-2">
           {produits.map((p) => (
-            <li key={p.id} className="flex items-center gap-3 p-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={p.images[0]?.url ?? "/placeholder-produit.svg"}
-                alt=""
-                className="h-14 w-14 shrink-0 rounded object-cover"
-                loading="lazy"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{p.titre}</p>
-                <p className="text-sm text-gray-500">
-                  {formaterXAF(p.prix)} · stock {p.stock} ·{" "}
-                  <span className="font-medium">{p.statut}</span>
-                </p>
-              </div>
-              <Link
-                href={`/vendeur/produits/${p.id}`}
-                className="shrink-0 text-sm text-nile hover:underline"
-              >
-                Gérer
-              </Link>
-            </li>
+            <Link key={p.id} href={`/vendeur/produits/${p.id}`} className="block">
+              <Carte className="flex items-center gap-3 p-3 transition hover:shadow-flottant">
+                <Vignette url={p.images[0]?.url} alt="" sizes="56px" className="h-14 w-14 shrink-0 rounded-lg" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-medium">{p.titre}</p>
+                  <p className="text-sm text-gray-500"><Prix montant={p.prix} /> · stock {p.stock}</p>
+                </div>
+                <Badge ton={p.statut === "ACTIF" ? "vert" : p.statut === "REJETE" ? "rouge" : "neutre"}>{p.statut}</Badge>
+              </Carte>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );

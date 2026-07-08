@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { exigerConnexion } from "@/modules/auth/access";
 import { listerCommandesAcheteur } from "@/modules/commande/commande";
-import { formaterXAF } from "@/lib/money";
+import { Carte, Prix, EtatVide } from "@/components/ui/kit";
+import {
+  BadgeStatutCommande,
+  BadgeStatutPaiement,
+} from "@/components/commande/StatutBadges";
 
 export const dynamic = "force-dynamic";
 
@@ -14,34 +18,29 @@ export default async function MesCommandesPage() {
       <h1 className="text-xl font-bold">Mes commandes</h1>
 
       {commandes.length === 0 ? (
-        <p className="rounded-lg border border-dashed border-gray-300 p-6 text-center text-sm text-gray-500">
-          Aucune commande pour l'instant.{" "}
-          <Link href="/catalogue" className="text-nile hover:underline">
-            Parcourir le catalogue
-          </Link>
-        </p>
+        <EtatVide titre="Aucune commande pour l'instant.">
+          <Link href="/catalogue" className="text-nile hover:underline">Parcourir le catalogue</Link>
+        </EtatVide>
       ) : (
-        <ul className="divide-y divide-gray-100 rounded-lg bg-white shadow-sm">
+        <div className="space-y-3">
           {commandes.map((c) => (
-            <li key={c.id}>
-              <Link href={`/commandes/${c.id}`} className="flex items-center justify-between gap-3 p-3 hover:bg-gray-50">
+            <Link key={c.id} href={`/commandes/${c.id}`} className="block">
+              <Carte className="flex items-center justify-between gap-3 p-4 transition hover:shadow-flottant">
                 <div className="min-w-0">
-                  <p className="truncate font-medium">{c.numero}</p>
+                  <p className="font-semibold">{c.numero}</p>
                   <p className="text-xs text-gray-500">
-                    {new Date(c.dateCreation).toLocaleDateString("fr-FR")} ·{" "}
-                    {c._count.lignes} article{c._count.lignes > 1 ? "s" : ""}
+                    {new Date(c.dateCreation).toLocaleDateString("fr-FR")} · {c._count.lignes} article{c._count.lignes > 1 ? "s" : ""}
                   </p>
+                  <div className="mt-2 flex flex-wrap gap-1.5">
+                    <BadgeStatutCommande statut={c.statutCommande} />
+                    <BadgeStatutPaiement statut={c.statutPaiement} />
+                  </div>
                 </div>
-                <div className="text-right">
-                  <p className="font-semibold text-nile">{formaterXAF(c.total)}</p>
-                  <p className="text-xs text-gray-500">
-                    {c.statutCommande} · paiement {c.statutPaiement}
-                  </p>
-                </div>
-              </Link>
-            </li>
+                <Prix montant={c.total} className="shrink-0 text-lg font-bold text-nile" />
+              </Carte>
+            </Link>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
