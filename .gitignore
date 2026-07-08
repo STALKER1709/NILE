@@ -18,6 +18,9 @@ next-env.d.ts
 # base de données locale / prisma
 /prisma/*.db
 
+# images uploadées en local (dev)
+/public/uploads/
+
 # logs & divers
 *.log
 npm-debug.log*

@@ -24,9 +24,14 @@ export default async function RootLayout({
       <body>
         <header className="border-b border-gray-200 bg-white">
           <nav className="mx-auto flex max-w-3xl items-center justify-between gap-4 px-4 py-3">
-            <Link href="/" className="text-lg font-bold text-nile">
-              NILE
-            </Link>
+            <div className="flex items-center gap-4">
+              <Link href="/" className="text-lg font-bold text-nile">
+                NILE
+              </Link>
+              <Link href="/catalogue" className="text-sm text-gray-600 hover:text-nile">
+                Catalogue
+              </Link>
+            </div>
             <div className="flex items-center gap-3 text-sm">
               {utilisateur ? (
                 <>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 
@@ -28,9 +29,12 @@ export default async function VendeurPage() {
         )}
       </section>
 
-      <section className="rounded-lg border border-dashed border-gray-300 p-5 text-sm text-gray-500">
-        La gestion des produits arrive en <strong>Phase 1 — Catalogue</strong>.
-      </section>
+      <Link
+        href="/vendeur/produits"
+        className="inline-block rounded bg-nile px-4 py-2 text-sm font-medium text-white hover:bg-nile-dark"
+      >
+        Gérer mes produits
+      </Link>
     </div>
   );
 }

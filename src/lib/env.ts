@@ -26,6 +26,12 @@ const schema = z
     MONETBIL_SERVICE_KEY: z.string().optional(),
     MONETBIL_SERVICE_SECRET: z.string().optional(),
 
+    // Stockage des images produit :
+    //   "local"    -> dossier public/uploads (développement).
+    //   "supabase" -> bucket Supabase Storage (production).
+    STORAGE_PROVIDER: z.enum(["local", "supabase"]).default("local"),
+    SUPABASE_STORAGE_BUCKET: z.string().default("produits"),
+
     COD_PLAFOND_XAF: z.coerce.number().int().positive().default(150000),
     COD_MAX_COMMANDES_NON_ABOUTIES: z.coerce
       .number()

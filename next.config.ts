@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [],
   },
+  experimental: {
+    // Autorise l'upload de quelques images (2 Mo max chacune) via Server Actions.
+    serverActions: {
+      bodySizeLimit: "8mb",
+    },
+  },
 };
 
 export default nextConfig;

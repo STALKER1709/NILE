@@ -14,9 +14,14 @@ export default async function AccueilPage() {
           La marketplace du Cameroun. Paiement mobile (MTN MoMo, Orange Money)
           et paiement à la livraison.
         </p>
-        <p className="mt-4 text-sm text-gray-500">
-          Phase 0 — Fondations : comptes, rôles et authentification.
-        </p>
+        <div className="mt-4">
+          <Link
+            href="/catalogue"
+            className="inline-block rounded bg-nile px-4 py-2 text-sm font-medium text-white hover:bg-nile-dark"
+          >
+            Parcourir le catalogue
+          </Link>
+        </div>
       </section>
 
       {utilisateur ? (

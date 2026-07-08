@@ -3,7 +3,8 @@
 Marketplace e-commerce (modèle hybride) pour le marché camerounais.
 Interface en français, devise FCFA (XAF), pensée mobile-first.
 
-État : **Phase 0 — Fondations** (comptes, rôles, authentification).
+État : **Phase 1 — Catalogue** (produits, catégories, images, recherche, espace vendeur).
+Phases précédentes : Phase 0 — Fondations (comptes, rôles, authentification).
 
 ## Stack
 
@@ -63,6 +64,21 @@ pnpm dev
    - `/vendeur` → **seulement** un VENDEUR (sinon redirection vers `/acces-refuse`) ;
    - `/admin` → **seulement** un ADMIN.
 5. Non connecté, va sur `/admin` → tu es redirigé vers `/connexion`.
+
+## Vérifier le catalogue (Phase 1)
+
+1. Connecte-toi en **vendeur** (`vendeur@nile.cm` / `test1234`).
+2. Va dans **Mon compte → Gérer mes produits → Nouveau produit** : remplis le
+   formulaire, ajoute une image, crée le produit (il est en **BROUILLON**).
+3. Sur la page du produit, clique **Publier** (possible car la boutique de démo
+   est validée). Un vendeur non validé ne peut pas publier.
+4. Va sur `/catalogue` : recherche, filtre par catégorie / prix, ouvre une fiche
+   produit. Un produit en rupture (stock 0) est marqué « Indisponible ».
+5. En **admin** (`admin@nile.cm`), va sur `/admin/categories` pour construire
+   ton arborescence de catégories.
+
+Le stockage des images est **local** en dev (`public/uploads/`), et bascule sur
+Supabase Storage en production via `STORAGE_PROVIDER="supabase"`.
 
 ## Scripts utiles
 

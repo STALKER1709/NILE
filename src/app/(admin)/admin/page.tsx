@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 
@@ -20,6 +21,13 @@ export default async function AdminPage() {
         <StatCard label="Utilisateurs" valeur={nbUtilisateurs} />
         <StatCard label="Vendeurs" valeur={nbVendeurs} />
         <StatCard label="Vendeurs en attente" valeur={nbVendeursEnAttente} />
+      </section>
+
+      <section className="rounded-lg bg-white p-5 shadow-sm">
+        <h2 className="mb-2 text-sm font-semibold">Gestion</h2>
+        <Link href="/admin/categories" className="text-sm text-nile hover:underline">
+          → Gérer les catégories
+        </Link>
       </section>
 
       <section className="rounded-lg border border-dashed border-gray-300 p-5 text-sm text-gray-500">

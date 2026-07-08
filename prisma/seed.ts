@@ -44,6 +44,31 @@ async function creerCompteMock(params: {
   });
 }
 
+async function creerProduitDemo(params: {
+  slug: string;
+  vendeurId: string;
+  categorieId: string;
+  titre: string;
+  description: string;
+  prix: number;
+  stock: number;
+}) {
+  return prisma.produit.upsert({
+    where: { slug: params.slug },
+    update: {},
+    create: {
+      slug: params.slug,
+      vendeurId: params.vendeurId,
+      categorieId: params.categorieId,
+      titre: params.titre,
+      description: params.description,
+      prix: params.prix,
+      stock: params.stock,
+      statut: "ACTIF",
+    },
+  });
+}
+
 async function main() {
   // --- Comptes de démonstration -------------------------------------------
   const admin = await creerCompteMock({
@@ -70,8 +95,8 @@ async function main() {
     role: "VENDEUR",
   });
 
-  // Boutique du vendeur démo (validée pour pouvoir tester le catalogue plus tard).
-  await prisma.vendeur.upsert({
+  // Boutique du vendeur démo (validée pour pouvoir tester le catalogue).
+  const boutiqueDemo = await prisma.vendeur.upsert({
     where: { utilisateurId: vendeurUser.id },
     update: {},
     create: {
@@ -89,7 +114,7 @@ async function main() {
     telephone: "+237633333333",
     role: "VENDEUR",
   });
-  await prisma.vendeur.upsert({
+  const boutiqueMaison = await prisma.vendeur.upsert({
     where: { utilisateurId: maisonUser.id },
     update: {},
     create: {
@@ -106,7 +131,7 @@ async function main() {
     update: {},
     create: { nom: "Électronique", slug: "electronique", ordre: 1 },
   });
-  await prisma.categorie.upsert({
+  const telephones = await prisma.categorie.upsert({
     where: { slug: "telephones" },
     update: {},
     create: {
@@ -116,7 +141,7 @@ async function main() {
       ordre: 1,
     },
   });
-  await prisma.categorie.upsert({
+  const accessoires = await prisma.categorie.upsert({
     where: { slug: "accessoires" },
     update: {},
     create: {
@@ -126,10 +151,52 @@ async function main() {
       ordre: 2,
     },
   });
-  await prisma.categorie.upsert({
+  const maison = await prisma.categorie.upsert({
     where: { slug: "maison" },
     update: {},
     create: { nom: "Maison & Cuisine", slug: "maison", ordre: 2 },
+  });
+
+  // --- Produits de démonstration (publiés) --------------------------------
+  await creerProduitDemo({
+    slug: "smartphone-nile-x",
+    vendeurId: boutiqueMaison.id,
+    categorieId: telephones.id,
+    titre: "Smartphone NILE X",
+    description:
+      "Smartphone d'entrée de gamme, écran 6 pouces, double SIM, batterie longue durée. Idéal pour un premier smartphone.",
+    prix: 89000,
+    stock: 25,
+  });
+  await creerProduitDemo({
+    slug: "ecouteurs-bluetooth",
+    vendeurId: boutiqueDemo.id,
+    categorieId: accessoires.id,
+    titre: "Écouteurs Bluetooth",
+    description:
+      "Écouteurs sans fil confortables, autonomie 5 heures, avec boîtier de recharge.",
+    prix: 12500,
+    stock: 60,
+  });
+  await creerProduitDemo({
+    slug: "chargeur-rapide-usb-c",
+    vendeurId: boutiqueDemo.id,
+    categorieId: accessoires.id,
+    titre: "Chargeur rapide USB-C",
+    description:
+      "Chargeur mural 20W avec câble USB-C. Compatible avec la plupart des smartphones récents.",
+    prix: 6000,
+    stock: 0, // en rupture pour tester l'affichage
+  });
+  await creerProduitDemo({
+    slug: "bouilloire-electrique",
+    vendeurId: boutiqueMaison.id,
+    categorieId: maison.id,
+    titre: "Bouilloire électrique 1,7 L",
+    description:
+      "Bouilloire électrique rapide, arrêt automatique, base rotative 360°.",
+    prix: 15000,
+    stock: 12,
   });
 
   // --- Garde-fous COD (éditables ensuite par l'admin) ---------------------

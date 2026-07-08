@@ -182,7 +182,8 @@ model ImageProduit {
   id        String  @id @default(uuid())
   produitId String
   produit   Produit @relation(fields: [produitId], references: [id], onDelete: Cascade)
-  url       String
+  url       String // URL publique affichable
+  chemin    String? // clé de stockage (pour suppression du fichier)
   ordre     Int     @default(0)
   alt       String?
 

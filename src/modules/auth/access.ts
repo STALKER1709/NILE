@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import type { Role, Utilisateur } from "@prisma/client";
+import type { Role, Utilisateur, Vendeur } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getAuthProvider } from "@/modules/auth";
 import { evaluerAcces } from "@/modules/auth/access-core";
@@ -38,6 +38,19 @@ export async function exigerRole(
 /** Garde serveur : exige simplement d'être connecté (n'importe quel rôle). */
 export async function exigerConnexion(): Promise<Utilisateur> {
   return exigerRole("ACHETEUR", "VENDEUR", "ADMIN");
+}
+
+/** Garde serveur : exige un vendeur et renvoie son profil boutique. */
+export async function exigerVendeur(): Promise<{
+  utilisateur: Utilisateur;
+  vendeur: Vendeur;
+}> {
+  const utilisateur = await exigerRole("VENDEUR");
+  const vendeur = await prisma.vendeur.findUnique({
+    where: { utilisateurId: utilisateur.id },
+  });
+  if (!vendeur) redirect("/compte");
+  return { utilisateur, vendeur };
 }
 
 export type { Role, Utilisateur };
