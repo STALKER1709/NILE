@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Link from "next/link";
 import "./globals.css";
 import { getUtilisateurCourant } from "@/modules/auth/access";
@@ -11,6 +11,12 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "NILE Marketplace",
   description: "Marketplace du Cameroun — achats en ligne, paiement mobile et à la livraison.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0f766e",
 };
 
 export default async function RootLayout({

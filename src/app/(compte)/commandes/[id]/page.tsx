@@ -40,6 +40,7 @@ export default async function DetailCommandePage({
     commande.statutPaiement === "EN_ATTENTE" &&
     commande.statutCommande === "EN_ATTENTE";
   const annulee = commande.statutCommande === "ANNULEE";
+  const refusee = commande.statutCommande === "REFUSEE";
   const etapeCourante = ETAPES_COMMANDE.indexOf(
     commande.statutCommande as (typeof ETAPES_COMMANDE)[number],
   );
@@ -108,7 +109,7 @@ export default async function DetailCommandePage({
           </span>
         </div>
 
-        {!annulee && (
+        {!annulee && !refusee && (
           <ol className="mt-3 flex flex-wrap gap-1 text-xs">
             {ETAPES_COMMANDE.map((etape, i) => (
               <li
@@ -123,6 +124,16 @@ export default async function DetailCommandePage({
               </li>
             ))}
           </ol>
+        )}
+        {annulee && (
+          <p className="mt-3 rounded bg-amber-50 px-2 py-1 text-xs text-amber-800">
+            Commande annulée.
+          </p>
+        )}
+        {refusee && (
+          <p className="mt-3 rounded bg-red-50 px-2 py-1 text-xs text-red-700">
+            Commande refusée à la livraison.
+          </p>
         )}
       </section>
 
@@ -152,6 +163,34 @@ export default async function DetailCommandePage({
         </p>
         {commande.reperes && (
           <p className="text-sm text-gray-500">Repères : {commande.reperes}</p>
+        )}
+        {commande.livraison && (
+          <div className="mt-2 border-t border-gray-100 pt-2 text-sm">
+            <p className="text-gray-600">
+              Suivi : <span className="font-medium">{commande.livraison.statut}</span>
+              {commande.livraison.transporteur && (
+                <> · {commande.livraison.transporteur}</>
+              )}
+            </p>
+            {commande.livraison.dateLivraison && (
+              <p className="text-xs text-gray-500">
+                Livrée le{" "}
+                {new Date(commande.livraison.dateLivraison).toLocaleDateString("fr-FR")}
+              </p>
+            )}
+            {commande.livraison.preuveUrl && (
+              <div className="mt-2">
+                <p className="text-xs text-gray-500">Preuve de livraison</p>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={commande.livraison.preuveUrl}
+                  alt="Preuve de livraison"
+                  className="mt-1 h-24 rounded object-cover"
+                  loading="lazy"
+                />
+              </div>
+            )}
+          </div>
         )}
       </section>
 

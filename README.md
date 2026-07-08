@@ -3,8 +3,8 @@
 Marketplace e-commerce (modèle hybride) pour le marché camerounais.
 Interface en français, devise FCFA (XAF), pensée mobile-first.
 
-État : **Phase 4 — Confiance + livraison + admin** (avis, module livraison, back-office consolidé).
-Phases précédentes : Phase 0 — Fondations · Phase 1 — Catalogue · Phase 2 — Commande (COD) · Phase 3 — Paiement Monetbil.
+État : **MVP complet (Phases 0 → 5)** — fondations, catalogue, commande, paiement, confiance/livraison/admin, finitions.
+Tout fonctionne en mode « mock » local (auth, paiement, stockage) ; voir plus bas pour brancher les vrais services.
 
 ## Stack
 
