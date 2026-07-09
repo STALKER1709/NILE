@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { BadgePanier } from "@/components/panier/BadgePanier";
 
 export function NavMobile({
   connecte,
@@ -30,21 +31,23 @@ function Item({
   href,
   libelle,
   children,
-  badge = 0,
+  badge,
 }: {
   href: string;
   libelle: string;
   children: ReactNode;
+  /** Ne passer que sur l'item Panier : la pastille s'abonne au total du panier. */
   badge?: number;
 }) {
   return (
     <Link href={href} className="relative flex flex-col items-center gap-0.5 py-2 text-[11px] text-gray-600 hover:text-nile">
       {children}
       <span>{libelle}</span>
-      {badge > 0 && (
-        <span className="absolute right-1/2 top-1 translate-x-3 grid h-4 min-w-[1rem] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-white">
-          {badge}
-        </span>
+      {badge !== undefined && (
+        <BadgePanier
+          initial={badge}
+          className="absolute right-1/2 top-1 translate-x-3 grid h-4 min-w-[1rem] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-white"
+        />
       )}
     </Link>
   );

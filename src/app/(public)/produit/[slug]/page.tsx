@@ -3,9 +3,10 @@ import { notFound } from "next/navigation";
 import { getProduitPublicParSlug } from "@/modules/catalogue/produits";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { listerAvisProduit, peutLaisserAvis } from "@/modules/avis/avis";
-import { ajouterAuPanierAction } from "@/app/(compte)/panier/actions";
+import { getQuantitesPanier } from "@/modules/commande/panier";
 import { creerAvisAction } from "@/app/(public)/produit/[slug]/actions";
 import { Vignette } from "@/components/ui/Vignette";
+import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { Carte, Etoiles, Prix, Badge, btn, champClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -40,9 +41,10 @@ export default async function FicheProduitPage({
   if (!produit) notFound();
 
   const utilisateur = await getUtilisateurCourant();
-  const [avis, peutNoter] = await Promise.all([
+  const [avis, peutNoter, quantites] = await Promise.all([
     listerAvisProduit(produit.id),
     utilisateur ? peutLaisserAvis(utilisateur.id, produit.id) : Promise.resolve(false),
+    getQuantitesPanier(utilisateur?.id ?? null),
   ]);
   const enRupture = produit.stock === 0;
 
@@ -125,26 +127,15 @@ export default async function FicheProduitPage({
               </p>
             )}
 
-            <form action={ajouterAuPanierAction} className="space-y-3">
-              <input type="hidden" name="produitId" value={produit.id} />
-              <input type="hidden" name="slug" value={produit.slug} />
-              <div className="flex items-center gap-2">
-                <label htmlFor="quantite" className="text-sm text-gray-600">Quantité</label>
-                <input
-                  id="quantite"
-                  name="quantite"
-                  type="number"
-                  min={1}
-                  max={produit.stock}
-                  defaultValue={1}
-                  disabled={enRupture}
-                  className={`${champClass} w-20`}
-                />
-              </div>
-              <button type="submit" disabled={enRupture} className={btn("accent", "lg", "w-full")}>
-                Ajouter au panier
-              </button>
-            </form>
+            <BoutonPanier
+              produitId={produit.id}
+              stock={produit.stock}
+              quantiteInitiale={quantites[produit.id] ?? 0}
+              taille="lg"
+            />
+            <Link href="/panier" className={btn("secondaire", "md", "w-full")}>
+              Voir mon panier
+            </Link>
 
             <ul className="space-y-1.5 border-t border-gray-100 pt-3 text-xs text-gray-600">
               <li className="flex items-center gap-2">

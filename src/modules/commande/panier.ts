@@ -39,11 +39,16 @@ export type ResultatPanier =
   | { ok: true }
   | { ok: false; code: "INTROUVABLE" | "INDISPONIBLE" | "STOCK_INSUFFISANT" };
 
+/** Résultat d'un ajustement de quantité : renvoie la quantité finale en panier. */
+export type ResultatQuantitePanier =
+  | { ok: true; quantite: number }
+  | { ok: false; code: "INTROUVABLE" | "INDISPONIBLE" | "STOCK_INSUFFISANT" };
+
 export async function ajouterAuPanier(
   utilisateurId: string,
   produitId: string,
   quantite: number,
-): Promise<ResultatPanier> {
+): Promise<ResultatQuantitePanier> {
   const produit = await prisma.produit.findUnique({
     where: { id: produitId },
     include: { vendeur: { select: { statutValidation: true } } },
@@ -71,7 +76,49 @@ export async function ajouterAuPanier(
     update: { quantite: quantiteVoulue },
     create: { panierId: panier.id, produitId, quantite },
   });
-  return { ok: true };
+  return { ok: true, quantite: quantiteVoulue };
+}
+
+/**
+ * Retire une unité d'un produit du panier (comportement « supermarché »).
+ * À 0, la ligne est supprimée. Retirer un produit absent n'est pas une erreur.
+ */
+export async function retirerUneUnite(
+  utilisateurId: string,
+  produitId: string,
+): Promise<ResultatQuantitePanier> {
+  const ligne = await prisma.lignePanier.findFirst({
+    where: { produitId, panier: { utilisateurId } },
+  });
+  if (!ligne) return { ok: true, quantite: 0 };
+
+  const nouvelle = ligne.quantite - 1;
+  if (nouvelle <= 0) {
+    await prisma.lignePanier.delete({ where: { id: ligne.id } });
+    return { ok: true, quantite: 0 };
+  }
+  await prisma.lignePanier.update({
+    where: { id: ligne.id },
+    data: { quantite: nouvelle },
+  });
+  return { ok: true, quantite: nouvelle };
+}
+
+/**
+ * Quantités du panier par produit (produitId -> quantité), pour afficher les
+ * compteurs sur les cartes produit. Vide si non connecté.
+ */
+export async function getQuantitesPanier(
+  utilisateurId: string | null,
+): Promise<Record<string, number>> {
+  if (!utilisateurId) return {};
+  const lignes = await prisma.lignePanier.findMany({
+    where: { panier: { utilisateurId } },
+    select: { produitId: true, quantite: true },
+  });
+  const map: Record<string, number> = {};
+  for (const l of lignes) map[l.produitId] = l.quantite;
+  return map;
 }
 
 export async function modifierQuantite(

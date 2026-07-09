@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Role } from "@prisma/client";
 import { deconnexionAction } from "@/app/(auth)/actions";
+import { BadgePanier } from "@/components/panier/BadgePanier";
 
 export interface LienCategorie {
   nom: string;
@@ -142,11 +143,10 @@ function LienPanier({ nb }: { nb: number }) {
         <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
       </svg>
       <span className="hidden text-sm font-semibold lg:inline">Panier</span>
-      {nb > 0 && (
-        <span className="absolute left-4 top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-nile-950">
-          {nb}
-        </span>
-      )}
+      <BadgePanier
+        initial={nb}
+        className="absolute left-4 top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-nile-950"
+      />
     </Link>
   );
 }

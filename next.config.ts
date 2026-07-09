@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // La compression gzip intégrée de `next start` bufferise les réponses en
+  // flux des Server Actions (la réponse n'arrive jamais au navigateur). En
+  // production sur Vercel, la compression est faite par leur proxy de bord,
+  // donc la désactiver ici ne coûte rien.
+  compress: false,
   // Les images des produits seront servies depuis un stockage managé (Supabase Storage
   // ou Cloudinary). On déclarera ici les domaines autorisés quand le stockage sera branché.
   images: {

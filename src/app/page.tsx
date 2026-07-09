@@ -1,16 +1,20 @@
 import Link from "next/link";
 import { listerCategories } from "@/modules/catalogue/categories";
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
+import { getUtilisateurCourant } from "@/modules/auth/access";
+import { getQuantitesPanier } from "@/modules/commande/panier";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 
 export const dynamic = "force-dynamic";
 
 export default async function AccueilPage() {
-  const [categories, { produits: recents }, { produits: populaires }] =
+  const utilisateur = await getUtilisateurCourant();
+  const [categories, { produits: recents }, { produits: populaires }, quantites] =
     await Promise.all([
       listerCategories(),
       rechercherProduitsCatalogue({ tri: "recent", page: 1, parPage: 12 }),
       rechercherProduitsCatalogue({ tri: "populaire", page: 1, parPage: 6 }),
+      getQuantitesPanier(utilisateur?.id ?? null),
     ]);
   const racines = categories.filter((c) => !c.parentId).slice(0, 8);
 
@@ -100,11 +104,16 @@ export default async function AccueilPage() {
 
       {/* Meilleures ventes */}
       {populaires.length > 0 && (
-        <SectionProduits titre="Les mieux notés" produits={populaires} />
+        <SectionProduits titre="Les mieux notés" produits={populaires} quantites={quantites} />
       )}
 
       {/* Nouveautés */}
-      <SectionProduits titre="Nouveautés" produits={recents} vide="Le catalogue se remplit bientôt." />
+      <SectionProduits
+        titre="Nouveautés"
+        produits={recents}
+        quantites={quantites}
+        vide="Le catalogue se remplit bientôt."
+      />
     </div>
   );
 }
@@ -112,10 +121,12 @@ export default async function AccueilPage() {
 function SectionProduits({
   titre,
   produits,
+  quantites,
   vide,
 }: {
   titre: string;
   produits: React.ComponentProps<typeof CarteProduit>["produit"][];
+  quantites: Record<string, number>;
   vide?: string;
 }) {
   return (
@@ -133,7 +144,12 @@ function SectionProduits({
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {produits.map((p, i) => (
-            <CarteProduit key={p.slug} produit={p} priority={i < 6} />
+            <CarteProduit
+              key={p.slug}
+              produit={p}
+              quantitePanier={quantites[p.id] ?? 0}
+              priority={i < 6}
+            />
           ))}
         </div>
       )}

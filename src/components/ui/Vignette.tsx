@@ -9,12 +9,15 @@ export function Vignette({
   alt,
   sizes = "(max-width: 640px) 50vw, 240px",
   className = "",
+  classImage = "",
   priority = false,
 }: {
   url?: string | null;
   alt: string;
   sizes?: string;
   className?: string;
+  /** Classes appliquées à l'image interne (ex. zoom au survol, confiné au cadre). */
+  classImage?: string;
   priority?: boolean;
 }) {
   return (
@@ -26,8 +29,9 @@ export function Vignette({
           fill
           sizes={sizes}
           priority={priority}
-          className="object-cover"
+          className={`object-cover ${classImage}`}
         />
+
       ) : (
         <div className="flex h-full w-full items-center justify-center text-gray-300">
           <svg width="40%" height="40%" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
