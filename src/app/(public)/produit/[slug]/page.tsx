@@ -10,6 +10,23 @@ import { Carte, Etoiles, Prix, Badge, btn, champClass } from "@/components/ui/ki
 
 export const dynamic = "force-dynamic";
 
+function PuceCheck() {
+  return (
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      className="shrink-0 text-emerald-600"
+      aria-hidden="true"
+    >
+      <path d="M20 6 9 17l-5-5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
 export default async function FicheProduitPage({
   params,
   searchParams,
@@ -74,19 +91,16 @@ export default async function FicheProduitPage({
             ) : (
               <p className="mt-1 text-sm text-gray-400">Pas encore d'avis</p>
             )}
+            <p className="mt-1 text-sm text-gray-500">
+              Vendu par{" "}
+              <span className="font-medium text-nile">{produit.vendeur.nomBoutique}</span>
+            </p>
           </div>
 
-          <Prix montant={produit.prix} className="block text-3xl font-extrabold text-nile" />
-
-          <p className="text-sm text-gray-500">
-            Vendu par <span className="font-medium text-gray-700">{produit.vendeur.nomBoutique}</span>
-          </p>
-
-          {enRupture ? (
-            <Badge ton="rouge">Indisponible (rupture)</Badge>
-          ) : (
-            <Badge ton="vert">En stock ({produit.stock})</Badge>
-          )}
+          <div className="border-y border-gray-100 py-3">
+            <Prix montant={produit.prix} className="block text-3xl font-extrabold text-promo" />
+            <p className="mt-1 text-xs text-gray-500">Prix TTC · FCFA (XAF), sans frais cachés</p>
+          </div>
 
           {erreur && (
             <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
@@ -97,12 +111,25 @@ export default async function FicheProduitPage({
             </p>
           )}
 
-          <Carte className="p-4">
-            <form action={ajouterAuPanierAction} className="flex items-end gap-3">
+          {/* Encadré d'achat (type marketplace) */}
+          <Carte className="space-y-3 p-4">
+            <p className="text-2xl font-extrabold text-promo">
+              <Prix montant={produit.prix} />
+            </p>
+
+            {enRupture ? (
+              <Badge ton="rouge">Indisponible (rupture)</Badge>
+            ) : (
+              <p className="text-sm font-semibold text-emerald-700">
+                En stock ({produit.stock} disponible{produit.stock > 1 ? "s" : ""})
+              </p>
+            )}
+
+            <form action={ajouterAuPanierAction} className="space-y-3">
               <input type="hidden" name="produitId" value={produit.id} />
               <input type="hidden" name="slug" value={produit.slug} />
-              <div>
-                <label htmlFor="quantite" className="block text-xs text-gray-500">Quantité</label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="quantite" className="text-sm text-gray-600">Quantité</label>
                 <input
                   id="quantite"
                   name="quantite"
@@ -111,14 +138,26 @@ export default async function FicheProduitPage({
                   max={produit.stock}
                   defaultValue={1}
                   disabled={enRupture}
-                  className={`${champClass} mt-1 w-20`}
+                  className={`${champClass} w-20`}
                 />
               </div>
-              <button type="submit" disabled={enRupture} className={btn("accent", "lg", "flex-1")}>
+              <button type="submit" disabled={enRupture} className={btn("accent", "lg", "w-full")}>
                 Ajouter au panier
               </button>
             </form>
-            <p className="mt-2 text-xs text-gray-400">Connexion requise pour commander.</p>
+
+            <ul className="space-y-1.5 border-t border-gray-100 pt-3 text-xs text-gray-600">
+              <li className="flex items-center gap-2">
+                <PuceCheck /> Paiement à la livraison possible
+              </li>
+              <li className="flex items-center gap-2">
+                <PuceCheck /> Mobile Money (MTN MoMo, Orange Money)
+              </li>
+              <li className="flex items-center gap-2">
+                <PuceCheck /> Livraison partout au Cameroun
+              </li>
+            </ul>
+            <p className="text-xs text-gray-400">Connexion requise pour commander.</p>
           </Carte>
         </div>
       </div>

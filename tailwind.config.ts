@@ -18,10 +18,17 @@ const config: Config = {
           700: "#0f766e",
           dark: "#0b5850",
           800: "#115e59",
+          900: "#0a3d38",
+          950: "#06231f",
         },
         accent: {
           DEFAULT: "#f59e0b",
           dark: "#d97706",
+        },
+        // Prix de vente / promotions : rouge chaud « marketplace » (type Amazon/Alibaba).
+        promo: {
+          DEFAULT: "#b12704",
+          dark: "#8a1e03",
         },
       },
       boxShadow: {

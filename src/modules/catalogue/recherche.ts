@@ -5,7 +5,7 @@ import { Prisma } from "@prisma/client";
  * Le cœur (`construireWhereProduits`) est une fonction PURE, testable sans base.
  */
 
-export type TriProduits = "recent" | "prix_asc" | "prix_desc";
+export type TriProduits = "recent" | "prix_asc" | "prix_desc" | "populaire";
 
 export interface FiltresRecherche {
   q?: string;
@@ -54,12 +54,16 @@ export function construireWhereProduits(
 
 export function construireOrderBy(
   tri: TriProduits,
-): Prisma.ProduitOrderByWithRelationInput {
+):
+  | Prisma.ProduitOrderByWithRelationInput
+  | Prisma.ProduitOrderByWithRelationInput[] {
   switch (tri) {
     case "prix_asc":
       return { prix: "asc" };
     case "prix_desc":
       return { prix: "desc" };
+    case "populaire":
+      return [{ noteMoyenne: "desc" }, { nbAvis: "desc" }];
     case "recent":
     default:
       return { dateCreation: "desc" };
@@ -100,7 +104,9 @@ export function normaliserParamsRecherche(params: {
   }
 
   const tri: TriProduits =
-    params.tri === "prix_asc" || params.tri === "prix_desc"
+    params.tri === "prix_asc" ||
+    params.tri === "prix_desc" ||
+    params.tri === "populaire"
       ? params.tri
       : "recent";
 

@@ -1,24 +1,32 @@
 import Link from "next/link";
 import type { Role } from "@prisma/client";
 import { deconnexionAction } from "@/app/(auth)/actions";
-import { btn } from "@/components/ui/kit";
+
+export interface LienCategorie {
+  nom: string;
+  slug: string;
+}
 
 function BarreRecherche({ className = "" }: { className?: string }) {
   return (
-    <form method="get" action="/catalogue" className={`relative ${className}`}>
+    <form
+      method="get"
+      action="/catalogue"
+      className={`flex overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-accent ${className}`}
+    >
       <input
         type="search"
         name="q"
-        placeholder="Rechercher un produit…"
+        placeholder="Rechercher un produit, une marque…"
         aria-label="Rechercher"
-        className="w-full rounded-full border border-gray-300 bg-gray-50 py-2.5 pl-4 pr-11 text-sm focus:border-nile focus:bg-white focus:outline-none focus:ring-2 focus:ring-nile/30"
+        className="min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
       />
       <button
         type="submit"
         aria-label="Lancer la recherche"
-        className="absolute right-1 top-1/2 -translate-y-1/2 rounded-full bg-nile p-2 text-white hover:bg-nile-dark"
+        className="grid w-11 place-items-center bg-accent text-white hover:bg-accent-dark"
       >
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           <circle cx="11" cy="11" r="7" />
           <path d="m21 21-4.3-4.3" strokeLinecap="round" />
         </svg>
@@ -30,42 +38,61 @@ function BarreRecherche({ className = "" }: { className?: string }) {
 export function Entete({
   utilisateur,
   nbArticles,
+  categories,
 }: {
   utilisateur: { nom: string; role: Role } | null;
   nbArticles: number;
+  categories: LienCategorie[];
 }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-gray-200 bg-white/95 backdrop-blur">
-      <div className="mx-auto max-w-5xl px-4">
-        <div className="flex items-center gap-3 py-3">
-          <Link href="/" className="flex items-center gap-1.5 text-xl font-extrabold tracking-tight text-nile">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-nile text-white">N</span>
+    <header className="sticky top-0 z-40 text-white shadow-md">
+      {/* Barre principale (sombre, type marketplace) */}
+      <div className="bg-nile-900">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-3 py-2.5 sm:gap-4 sm:px-4">
+          <Link href="/" className="flex shrink-0 items-center gap-1.5 text-xl font-extrabold tracking-tight">
+            <span className="grid h-8 w-8 place-items-center rounded-md bg-accent text-nile-950">N</span>
             <span className="hidden sm:inline">NILE</span>
           </Link>
 
-          <BarreRecherche className="hidden flex-1 sm:block" />
+          {/* Livrer au Cameroun (signal marketplace) */}
+          <div className="hidden items-center gap-1.5 rounded-md px-2 py-1 text-xs hover:bg-white/10 lg:flex">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+              <path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z" strokeLinejoin="round" />
+              <circle cx="12" cy="10" r="2.5" />
+            </svg>
+            <span className="leading-tight">
+              <span className="block text-white/60">Livrer au</span>
+              <span className="block font-semibold">Cameroun 🇨🇲</span>
+            </span>
+          </div>
+
+          <BarreRecherche className="hidden flex-1 sm:flex" />
 
           <nav className="ml-auto flex items-center gap-1 sm:gap-2">
             {utilisateur ? (
               <>
-                <Link href="/compte" className="hidden items-center gap-2 rounded-lg px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 sm:flex">
-                  <IconeUtilisateur />
-                  <span className="max-w-[9rem] truncate">{utilisateur.nom}</span>
+                <Link href="/compte" className="hidden rounded-md px-2 py-1 text-left text-xs leading-tight hover:bg-white/10 sm:block">
+                  <span className="block text-white/60">Bonjour, {utilisateur.nom.split(" ")[0]}</span>
+                  <span className="block font-semibold">Compte &amp; commandes</span>
                 </Link>
                 <LienPanier nb={nbArticles} />
-                <form action={deconnexionAction} className="hidden sm:block">
-                  <button type="submit" className="rounded-lg px-2 py-2 text-sm text-gray-500 hover:text-gray-900">
+                <form action={deconnexionAction} className="hidden lg:block">
+                  <button type="submit" className="rounded-md px-2 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                     Déconnexion
                   </button>
                 </form>
               </>
             ) : (
               <>
-                <LienPanier nb={nbArticles} />
-                <Link href="/connexion" className="hidden px-3 py-2 text-sm text-gray-700 hover:text-nile sm:block">
-                  Connexion
+                <Link href="/connexion" className="hidden rounded-md px-2 py-1 text-left text-xs leading-tight hover:bg-white/10 sm:block">
+                  <span className="block text-white/60">Bonjour, identifiez-vous</span>
+                  <span className="block font-semibold">Compte &amp; commandes</span>
                 </Link>
-                <Link href="/inscription" className={btn("primaire", "sm", "hidden sm:inline-flex")}>
+                <LienPanier nb={nbArticles} />
+                <Link
+                  href="/inscription"
+                  className="hidden rounded-md bg-accent px-3 py-2 text-xs font-semibold text-nile-950 hover:bg-accent-dark sm:inline-block"
+                >
                   Créer un compte
                 </Link>
               </>
@@ -74,7 +101,33 @@ export function Entete({
         </div>
 
         {/* Recherche pleine largeur sur mobile */}
-        <BarreRecherche className="pb-3 sm:hidden" />
+        <div className="px-3 pb-2.5 sm:hidden">
+          <BarreRecherche />
+        </div>
+      </div>
+
+      {/* Bandeau des rayons (départements) */}
+      <div className="bg-nile-800">
+        <div className="mx-auto flex max-w-6xl items-center gap-1 overflow-x-auto px-2 py-1.5 text-sm no-scrollbar sm:px-4">
+          <Link
+            href="/catalogue"
+            className="flex shrink-0 items-center gap-1.5 rounded px-2.5 py-1 font-medium hover:bg-white/10"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            Tous les rayons
+          </Link>
+          {categories.map((c) => (
+            <Link
+              key={c.slug}
+              href={`/catalogue?categorie=${c.slug}`}
+              className="shrink-0 whitespace-nowrap rounded px-2.5 py-1 text-white/90 hover:bg-white/10"
+            >
+              {c.nom}
+            </Link>
+          ))}
+        </div>
       </div>
     </header>
   );
@@ -82,26 +135,18 @@ export function Entete({
 
 function LienPanier({ nb }: { nb: number }) {
   return (
-    <Link href="/panier" aria-label="Panier" className="relative rounded-lg p-2 text-gray-700 hover:bg-gray-100">
+    <Link href="/panier" aria-label="Panier" className="relative flex items-center gap-1.5 rounded-md px-2 py-2 hover:bg-white/10">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="9" cy="21" r="1" />
         <circle cx="20" cy="21" r="1" />
         <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
       </svg>
+      <span className="hidden text-sm font-semibold lg:inline">Panier</span>
       {nb > 0 && (
-        <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
+        <span className="absolute left-4 top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-nile-950">
           {nb}
         </span>
       )}
     </Link>
-  );
-}
-
-function IconeUtilisateur() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-      <circle cx="12" cy="7" r="4" />
-    </svg>
   );
 }

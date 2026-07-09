@@ -84,10 +84,11 @@ export default async function CataloguePage({
               return <option key={c.id} value={cat?.slug ?? ""}>{c.label}</option>;
             })}
           </select>
-          <select name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} sm:w-36`}>
+          <select name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} sm:w-40`}>
             <option value="recent">Plus récents</option>
-            <option value="prix_asc">Prix ↑</option>
-            <option value="prix_desc">Prix ↓</option>
+            <option value="populaire">Les mieux notés</option>
+            <option value="prix_asc">Prix croissant</option>
+            <option value="prix_desc">Prix décroissant</option>
           </select>
           <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min FCFA" className={`${champClass} sm:w-28`} />
           <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max FCFA" className={`${champClass} sm:w-28`} />
@@ -100,9 +101,9 @@ export default async function CataloguePage({
           Essayez d'élargir vos filtres.
         </EtatVide>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {produits.map((p, i) => (
-            <CarteProduit key={p.id} produit={p} priority={i < 4} />
+            <CarteProduit key={p.id} produit={p} priority={i < 5} />
           ))}
         </div>
       )}
