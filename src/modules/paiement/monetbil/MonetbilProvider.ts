@@ -40,6 +40,10 @@ export class MonetbilProvider implements PaymentProvider {
   }
 
   async initier(ctx: ContexteInitiation): Promise<DemarragePaiement> {
+    const morceaux = ctx.nomComplet.trim().split(/\s+/);
+    const first_name = morceaux[0] || ctx.nomComplet;
+    const last_name = morceaux.slice(1).join(" ") || first_name;
+
     const corps = new URLSearchParams({
       amount: String(ctx.montant),
       currency: "XAF",
@@ -48,6 +52,8 @@ export class MonetbilProvider implements PaymentProvider {
       item_ref: ctx.numeroCommande,
       payment_ref: ctx.reference,
       user: ctx.reference,
+      first_name,
+      last_name,
       email: ctx.email,
       phone: ctx.telephone,
       return_url: ctx.urlRetour,
@@ -59,12 +65,24 @@ export class MonetbilProvider implements PaymentProvider {
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: corps.toString(),
     });
+    const texte = await reponse.text();
+    // Trace la réponse brute de Monetbil pour diagnostic (statut + corps).
+    console.log(
+      "[monetbil] initier:",
+      reponse.status,
+      texte.slice(0, 500),
+    );
     if (!reponse.ok) {
-      throw new Error(`Monetbil widget: HTTP ${reponse.status}`);
+      throw new Error(`Monetbil widget: HTTP ${reponse.status} — ${texte.slice(0, 200)}`);
     }
-    const data = (await reponse.json()) as { payment_url?: string };
+    let data: { payment_url?: string };
+    try {
+      data = JSON.parse(texte) as { payment_url?: string };
+    } catch {
+      throw new Error(`Monetbil widget: réponse non-JSON — ${texte.slice(0, 200)}`);
+    }
     if (!data.payment_url) {
-      throw new Error("Monetbil widget: payment_url absent de la réponse.");
+      throw new Error(`Monetbil widget: payment_url absent — ${texte.slice(0, 200)}`);
     }
     return { reference: ctx.reference, urlPaiement: data.payment_url };
   }
