@@ -66,12 +66,6 @@ export class MonetbilProvider implements PaymentProvider {
       body: corps.toString(),
     });
     const texte = await reponse.text();
-    // Trace la réponse brute de Monetbil pour diagnostic (statut + corps).
-    console.log(
-      "[monetbil] initier:",
-      reponse.status,
-      texte.slice(0, 500),
-    );
     if (!reponse.ok) {
       throw new Error(`Monetbil widget: HTTP ${reponse.status} — ${texte.slice(0, 200)}`);
     }
@@ -108,9 +102,10 @@ export class MonetbilProvider implements PaymentProvider {
         body: new URLSearchParams({ paymentId }).toString(),
       });
       const texte = await reponse.text();
-      // Trace la réponse brute de checkPayment (statut exact renvoyé).
-      console.log("[monetbil] checkPayment:", reponse.status, texte.slice(0, 400));
-      if (!reponse.ok) return { ok: false, raison: "ERREUR" };
+      if (!reponse.ok) {
+        console.error("[monetbil] checkPayment HTTP", reponse.status);
+        return { ok: false, raison: "ERREUR" };
+      }
       const data = JSON.parse(texte) as {
         transaction?: { status?: number | string };
       };

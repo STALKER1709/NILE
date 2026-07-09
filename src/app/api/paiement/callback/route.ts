@@ -22,15 +22,9 @@ export async function POST(req: Request): Promise<Response> {
     return NextResponse.json({ ok: false }, { status: 400 });
   }
 
-  // Journalise les champs bruts reçus : permet de vérifier, lors d'un paiement
-  // de TEST Monetbil, les noms exacts des champs (paymentId, payment_ref…).
-  // À réduire une fois l'intégration confirmée.
-  console.log("[callback] champs reçus:", JSON.stringify(Object.keys(corps)));
-  console.log("[callback] corps:", JSON.stringify(corps));
-
   const res = await traiterNotificationPaiement(corps);
-  console.log("[callback] résultat:", JSON.stringify(res));
   if (!res.ok) {
+    console.error("[callback] notification rejetée:", res.raison);
     return NextResponse.json({ ok: false, raison: res.raison }, { status: 400 });
   }
   return NextResponse.json({ ok: true, statut: res.statut });
