@@ -153,7 +153,10 @@ export async function supprimerProduit(
 
 export type ResultatImage =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "TYPE_INVALIDE" | "TROP_LOURDE" };
+  | {
+      ok: false;
+      code: "INTROUVABLE" | "TYPE_INVALIDE" | "TROP_LOURDE" | "STOCKAGE_INDISPONIBLE";
+    };
 
 export async function ajouterImageProduit(
   vendeurId: string,
@@ -174,7 +177,15 @@ export async function ajouterImageProduit(
     return { ok: false, code: "TROP_LOURDE" };
   }
 
-  const enregistre = await getStorageProvider().enregistrer(fichier);
+  let enregistre;
+  try {
+    enregistre = await getStorageProvider().enregistrer(fichier);
+  } catch (erreur) {
+    // Le stockage a échoué (ex. bucket absent) : on ne casse pas la création
+    // du produit ; le produit reste, seule l'image n'est pas ajoutée.
+    console.error("Upload image échoué:", erreur);
+    return { ok: false, code: "STOCKAGE_INDISPONIBLE" };
+  }
   await prisma.imageProduit.create({
     data: {
       produitId,

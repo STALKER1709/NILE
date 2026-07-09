@@ -61,8 +61,11 @@ export class SupabaseAuthProvider implements AuthProvider {
 
   async getCurrentAuthId(): Promise<string | null> {
     const supabase = await creerClientServeur();
-    const { data } = await supabase.auth.getUser();
-    return data.user?.id ?? null;
+    // Lecture LOCALE du cookie (pas d'appel réseau) : le middleware a déjà
+    // validé/rafraîchi la session via getUser() à chaque requête. On évite
+    // ainsi un second aller-retour vers Supabase à chaque page (perf).
+    const { data } = await supabase.auth.getSession();
+    return data.session?.user?.id ?? null;
   }
 
   async deleteIdentity(authId: string): Promise<void> {

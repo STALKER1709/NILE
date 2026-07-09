@@ -28,6 +28,8 @@ function messageErreurImage(code: string): string {
       return "Format d'image non accepté (JPEG, PNG ou WEBP seulement).";
     case "TROP_LOURDE":
       return "Image trop lourde (2 Mo maximum).";
+    case "STOCKAGE_INDISPONIBLE":
+      return "Le stockage d'images n'est pas encore configuré. Le produit a été créé sans image.";
     default:
       return "Image introuvable.";
   }
