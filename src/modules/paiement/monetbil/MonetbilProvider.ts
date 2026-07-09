@@ -107,12 +107,17 @@ export class MonetbilProvider implements PaymentProvider {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({ paymentId }).toString(),
       });
+      const texte = await reponse.text();
+      // Trace la réponse brute de checkPayment (statut exact renvoyé).
+      console.log("[monetbil] checkPayment:", reponse.status, texte.slice(0, 400));
       if (!reponse.ok) return { ok: false, raison: "ERREUR" };
-      const data = (await reponse.json()) as {
-        transaction?: { status?: number };
+      const data = JSON.parse(texte) as {
+        transaction?: { status?: number | string };
       };
       const status = data.transaction?.status;
-      if (status === undefined) return { ok: false, raison: "ERREUR" };
+      if (status === undefined || status === null) {
+        return { ok: false, raison: "ERREUR" };
+      }
       return {
         ok: true,
         data: { reference, statut: mapperStatutMonetbil(status) },

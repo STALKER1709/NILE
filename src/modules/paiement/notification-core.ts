@@ -37,6 +37,11 @@ export type StatutPaiementNotifie = "PAYE" | "ECHOUE";
  * Statuts Monetbil : 1 = succès, 0 = échec, -1 = annulé
  * (7/8/9 = équivalents en mode test). Tout ce qui n'est pas un succès = échec.
  */
-export function mapperStatutMonetbil(status: number): StatutPaiementNotifie {
-  return status === 1 || status === 7 ? "PAYE" : "ECHOUE";
+export function mapperStatutMonetbil(
+  status: number | string,
+): StatutPaiementNotifie {
+  // Coercition volontaire : Monetbil peut renvoyer le statut en nombre OU en
+  // texte ("7"). 1 = succès, 7 = succès (mode test).
+  const n = Number(status);
+  return n === 1 || n === 7 ? "PAYE" : "ECHOUE";
 }
