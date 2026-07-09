@@ -123,7 +123,14 @@ export async function supprimerProduitAction(
 ): Promise<void> {
   const { vendeur } = await exigerVendeur();
   const produitId = String(formData.get("produitId") ?? "");
-  await supprimerProduit(vendeur.id, produitId);
+  const res = await supprimerProduit(vendeur.id, produitId);
+  if (!res.ok) {
+    const msg =
+      res.code === "LIE_COMMANDES"
+        ? "Ce produit figure dans des commandes : dépubliez-le au lieu de le supprimer."
+        : "Produit introuvable.";
+    redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
+  }
   redirect("/vendeur/produits?ok=supprime");
 }
 

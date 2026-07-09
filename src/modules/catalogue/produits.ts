@@ -1,4 +1,5 @@
-import type { Prisma, Produit, StatutProduit } from "@prisma/client";
+import { Prisma } from "@prisma/client";
+import type { Produit, StatutProduit } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { genererSlugProduit } from "@/modules/catalogue/slug";
 import {
@@ -68,7 +69,9 @@ export async function creerProduit(
   });
 }
 
-export type ResultatMaj = { ok: true } | { ok: false; code: "INTROUVABLE" };
+export type ResultatMaj =
+  | { ok: true }
+  | { ok: false; code: "INTROUVABLE" | "LIE_COMMANDES" };
 
 export async function mettreAJourProduit(
   vendeurId: string,
@@ -138,6 +141,19 @@ export async function supprimerProduit(
   }
   // Supprime d'abord les fichiers image (best-effort), puis la ligne (cascade DB).
   const storage = getStorageProvider();
+  try {
+    await prisma.produit.delete({ where: { id: produitId } });
+  } catch (erreur) {
+    // Contrainte de clé étrangère : le produit figure dans des commandes.
+    if (
+      erreur instanceof Prisma.PrismaClientKnownRequestError &&
+      erreur.code === "P2003"
+    ) {
+      return { ok: false, code: "LIE_COMMANDES" };
+    }
+    throw erreur;
+  }
+  // Produit supprimé : on nettoie les fichiers image (best-effort).
   for (const image of produit.images) {
     if (image.chemin) {
       await storage.supprimer(image.chemin).catch((e) => {
@@ -145,7 +161,6 @@ export async function supprimerProduit(
       });
     }
   }
-  await prisma.produit.delete({ where: { id: produitId } });
   return { ok: true };
 }
 
