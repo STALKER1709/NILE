@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getPaymentProvider } from "@/modules/paiement";
+import { notifierCommandeConfirmee } from "@/modules/email/notifications";
 
 export type ResultatTraitement =
   | { ok: true; statut: "PAYE" | "ECHOUE" | "DEJA_TRAITE" }
@@ -34,17 +35,24 @@ export async function traiterNotificationPaiement(
   }
 
   if (statut === "PAYE") {
-    await prisma.$transaction(async (tx) => {
+    // `confirmee` = cette notification a réellement fait basculer la commande
+    // (guard idempotent) : on n'envoie les emails qu'une seule fois.
+    const confirmee = await prisma.$transaction(async (tx) => {
       await tx.paiement.updateMany({
         where: { id: reference, statut: { not: "PAYE" } },
         data: { statut: "PAYE", payload: corps },
       });
       // Ne confirme la commande que si elle attendait encore le paiement.
-      await tx.commande.updateMany({
+      const maj = await tx.commande.updateMany({
         where: { id: paiement.commandeId, statutCommande: "EN_ATTENTE" },
         data: { statutPaiement: "PAYE", statutCommande: "CONFIRMEE" },
       });
+      return maj.count === 1;
     });
+    if (confirmee) {
+      // Email acheteur + vendeurs (n'échoue jamais le callback).
+      await notifierCommandeConfirmee(paiement.commandeId);
+    }
     return { ok: true, statut: "PAYE" };
   }
 

@@ -7,6 +7,7 @@ import {
   getMaxCommandesNonAbouties,
 } from "@/modules/commande/config";
 import { getPaymentProvider } from "@/modules/paiement";
+import { notifierCommandeConfirmee } from "@/modules/email/notifications";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -132,8 +133,10 @@ export async function passerCommande(
   }
   if (!cree) return { ok: false, code: "ERREUR" };
 
-  // Paiement à la livraison : rien à initier.
+  // Paiement à la livraison : rien à initier, la commande est confirmée.
   if (options.mode === "COD") {
+    // Email acheteur + vendeurs (n'échoue jamais la commande).
+    await notifierCommandeConfirmee(cree.commandeId);
     return {
       ok: true,
       commandeId: cree.commandeId,

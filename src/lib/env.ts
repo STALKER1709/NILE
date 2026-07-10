@@ -41,6 +41,15 @@ const schema = z
     STORAGE_PROVIDER: z.enum(["local", "supabase"]).default("local"),
     SUPABASE_STORAGE_BUCKET: z.string().default("produits"),
 
+    // Email transactionnel (confirmations de commande) :
+    //   "mock"  -> journalise seulement (développement).
+    //   "brevo" -> envoi réel via Brevo (production).
+    EMAIL_PROVIDER: z.enum(["mock", "brevo"]).default("mock"),
+    BREVO_API_KEY: z.string().optional(),
+    // Adresse expéditrice validée dans Brevo (Senders & IP > Senders).
+    EMAIL_EXPEDITEUR: z.string().email().optional(),
+    EMAIL_EXPEDITEUR_NOM: z.string().default("NILE Marketplace"),
+
     COD_PLAFOND_XAF: z.coerce.number().int().positive().default(150000),
     COD_MAX_COMMANDES_NON_ABOUTIES: z.coerce
       .number()
@@ -80,6 +89,16 @@ const schema = z
           path: ["MONETBIL_SERVICE_KEY"],
           message:
             'MONETBIL_SERVICE_KEY et MONETBIL_SERVICE_SECRET requis quand PAYMENT_PROVIDER="monetbil".',
+        });
+      }
+    }
+    if (val.EMAIL_PROVIDER === "brevo") {
+      if (!val.BREVO_API_KEY || !val.EMAIL_EXPEDITEUR) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["BREVO_API_KEY"],
+          message:
+            'BREVO_API_KEY et EMAIL_EXPEDITEUR requis quand EMAIL_PROVIDER="brevo".',
         });
       }
     }
