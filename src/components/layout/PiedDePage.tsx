@@ -2,7 +2,8 @@ import Link from "next/link";
 
 export function PiedDePage() {
   return (
-    <footer className="mt-10 bg-nile-900 text-white">
+    // pb-16 mobile : la barre de navigation fixe ne recouvre pas le contenu.
+    <footer className="mt-10 bg-nile-900 pb-16 text-white sm:pb-0">
       {/* Bandeau « retour en haut » (signal marketplace) */}
       <Link
         href="#top"

@@ -65,7 +65,7 @@ export default async function PanierPage({
                     {!indispo && stockInsuffisant && (
                       <p className="text-xs font-medium text-red-600">Stock restant : {l.produit.stock}.</p>
                     )}
-                    <div className="mt-2 flex items-center gap-3">
+                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
                       <form action={modifierQuantiteAction} className="flex items-center gap-1">
                         <input type="hidden" name="ligneId" value={l.id} />
                         <input name="quantite" type="number" min={0} defaultValue={l.quantite}
@@ -74,11 +74,21 @@ export default async function PanierPage({
                       </form>
                       <form action={retirerLigneAction}>
                         <input type="hidden" name="ligneId" value={l.id} />
-                        <button type="submit" className="text-xs text-red-600 hover:underline">Retirer</button>
+                        <button type="submit" className="rounded-lg px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 hover:underline">
+                          Retirer
+                        </button>
                       </form>
                     </div>
+                    {/* Total de ligne : sous les infos sur mobile (évite le débordement) */}
+                    <Prix
+                      montant={l.produit.prix * l.quantite}
+                      className="mt-1.5 block font-bold text-nile sm:hidden"
+                    />
                   </div>
-                  <Prix montant={l.produit.prix * l.quantite} className="shrink-0 self-center font-bold text-nile" />
+                  <Prix
+                    montant={l.produit.prix * l.quantite}
+                    className="hidden shrink-0 self-center font-bold text-nile sm:block"
+                  />
                 </Carte>
               );
             })}

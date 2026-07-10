@@ -84,8 +84,9 @@ export default async function CommanderPage({
             )}
           </Carte>
 
-          <button type="submit" className={btn("accent", "lg", "w-full")}>
-            Confirmer la commande — <Prix montant={total} />
+          <button type="submit" className={btn("accent", "lg", "w-full flex-wrap")}>
+            <span>Confirmer la commande</span>
+            <Prix montant={total} className="whitespace-nowrap" />
           </button>
         </form>
 
