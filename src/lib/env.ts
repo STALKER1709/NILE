@@ -51,6 +51,8 @@ const schema = z
     EMAIL_EXPEDITEUR_NOM: z.string().default("NILE Marketplace"),
 
     COD_PLAFOND_XAF: z.coerce.number().int().positive().default(150000),
+    // Commission NILE (%) sur les ventes des vendeurs tiers (reversements).
+    COMMISSION_POURCENT: z.coerce.number().min(0).max(100).default(10),
     COD_MAX_COMMANDES_NON_ABOUTIES: z.coerce
       .number()
       .int()

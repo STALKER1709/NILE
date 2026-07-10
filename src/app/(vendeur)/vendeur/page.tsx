@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
-import { Carte, Badge, btn } from "@/components/ui/kit";
+import { getSoldeVendeur } from "@/modules/reversement/reversement";
+import { Carte, Badge, Prix, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Espace vendeur" };
@@ -12,6 +13,10 @@ export default async function VendeurPage() {
     where: { utilisateurId: utilisateur.id },
     include: { _count: { select: { produits: true } } },
   });
+  const solde =
+    vendeur && !vendeur.estBoutiqueMaison
+      ? await getSoldeVendeur(vendeur.id)
+      : null;
 
   return (
     <div className="space-y-5">
@@ -40,6 +45,34 @@ export default async function VendeurPage() {
           Gérer mes produits
         </Link>
       </Carte>
+
+      {solde && (
+        <Carte className="p-5">
+          <h2 className="font-semibold">Mes gains</h2>
+          <p className="mt-1 text-xs text-gray-500">
+            Une vente est comptée quand la commande est livrée et payée.
+            Commission NILE : {solde.tauxPourcent} %.
+          </p>
+          <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
+            <div>
+              <dt className="text-xs text-gray-500">Ventes livrées</dt>
+              <dd className="font-medium"><Prix montant={solde.brut} /></dd>
+            </div>
+            <div>
+              <dt className="text-xs text-gray-500">Net vendeur</dt>
+              <dd className="font-medium"><Prix montant={solde.net} /></dd>
+            </div>
+            <div>
+              <dt className="text-xs text-gray-500">Déjà reversé</dt>
+              <dd className="font-medium"><Prix montant={solde.dejaReverse} /></dd>
+            </div>
+            <div>
+              <dt className="text-xs text-gray-500">Reste à recevoir</dt>
+              <dd className="text-lg font-bold text-nile"><Prix montant={solde.solde} /></dd>
+            </div>
+          </dl>
+        </Carte>
+      )}
     </div>
   );
 }

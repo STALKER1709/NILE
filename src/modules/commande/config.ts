@@ -21,3 +21,11 @@ export function getMaxCommandesNonAbouties(): Promise<number> {
     env.COD_MAX_COMMANDES_NON_ABOUTIES,
   );
 }
+
+/**
+ * Commission NILE (en %) prélevée sur les ventes des vendeurs tiers, déduite
+ * de leur reversement. La boutique maison n'est pas concernée.
+ */
+export function getTauxCommissionPourcent(): Promise<number> {
+  return lireConfigNombre("commission_pourcent", env.COMMISSION_POURCENT);
+}

@@ -12,6 +12,7 @@ const LIENS = [
   { href: "/admin/moderation", titre: "Modération", desc: "Rejeter / réactiver des produits" },
   { href: "/admin/categories", titre: "Catégories", desc: "Gérer l'arborescence" },
   { href: "/admin/reconciliation", titre: "Réconciliation COD", desc: "Cash collecté / reversé" },
+  { href: "/admin/reversements", titre: "Reversements vendeurs", desc: "Soldes dus et paiements aux vendeurs tiers" },
 ];
 
 export default async function AdminPage() {

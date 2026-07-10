@@ -14,6 +14,26 @@ import {
   deconnecterUtilisateur,
 } from "@/modules/auth/service";
 import { getAuthProvider } from "@/modules/auth";
+import {
+  consommerTentative,
+  reinitialiserLimite,
+} from "@/modules/securite/rate-limit";
+
+/** Adresse IP du client (Vercel : premier élément de x-forwarded-for). */
+async function ipClient(): Promise<string> {
+  const h = await headers();
+  const premiere = (h.get("x-forwarded-for") ?? "").split(",")[0]?.trim();
+  return premiere || "ip-inconnue";
+}
+
+function messageTropDeTentatives(minutes: number): string {
+  return `Trop de tentatives. Réessaie dans ${minutes} minute${minutes > 1 ? "s" : ""}.`;
+}
+
+// Plafonds anti-abus (fenêtre glissante).
+const LIMITE_CONNEXION = { max: 5, fenetreMinutes: 15 };
+const LIMITE_INSCRIPTION = { max: 5, fenetreMinutes: 60 };
+const LIMITE_RESET = { max: 3, fenetreMinutes: 60 };
 
 export async function inscriptionAction(formData: FormData): Promise<void> {
   const brut = {
@@ -29,6 +49,18 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
   if (!parsed.success) {
     const msg = parsed.error.issues[0]?.message ?? "Données invalides.";
     redirect(`/inscription?erreur=${encodeURIComponent(msg)}`);
+  }
+
+  // Anti-abus : créations de comptes en rafale depuis une même IP.
+  const limite = await consommerTentative(
+    `inscription:${await ipClient()}`,
+    LIMITE_INSCRIPTION.max,
+    LIMITE_INSCRIPTION.fenetreMinutes,
+  );
+  if (!limite.autorise) {
+    redirect(
+      `/inscription?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}`,
+    );
   }
 
   const res = await inscrireUtilisateur(parsed.data);
@@ -55,6 +87,20 @@ export async function connexionAction(formData: FormData): Promise<void> {
     redirect(`/connexion?erreur=${encodeURIComponent(msg)}`);
   }
 
+  // Anti-abus : force brute sur un compte depuis une même IP. Le compteur est
+  // remis à zéro à la première connexion réussie.
+  const cleLimite = `connexion:${await ipClient()}:${parsed.data.email}`;
+  const limite = await consommerTentative(
+    cleLimite,
+    LIMITE_CONNEXION.max,
+    LIMITE_CONNEXION.fenetreMinutes,
+  );
+  if (!limite.autorise) {
+    redirect(
+      `/connexion?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}`,
+    );
+  }
+
   const res = await connecterUtilisateur(parsed.data);
   if (!res.ok) {
     const msg =
@@ -66,6 +112,7 @@ export async function connexionAction(formData: FormData): Promise<void> {
     redirect(`/connexion?erreur=${encodeURIComponent(msg)}`);
   }
 
+  await reinitialiserLimite(cleLimite);
   redirect("/compte");
 }
 
@@ -88,6 +135,18 @@ export async function demanderReinitialisationAction(
   const parsed = emailSchema.safeParse(formData.get("email"));
   if (!parsed.success) {
     redirect(`/mot-de-passe-oublie?erreur=${encodeURIComponent("Email invalide.")}`);
+  }
+
+  // Anti-abus : envois d'emails de réinitialisation en rafale.
+  const limite = await consommerTentative(
+    `reset:${await ipClient()}`,
+    LIMITE_RESET.max,
+    LIMITE_RESET.fenetreMinutes,
+  );
+  if (!limite.autorise) {
+    redirect(
+      `/mot-de-passe-oublie?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}`,
+    );
   }
 
   const origine = await origineRequete();

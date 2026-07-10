@@ -134,6 +134,7 @@ model Vendeur {
 
   produits       Produit[]
   lignesCommande LigneCommande[]
+  reversements   Reversement[]
 
   @@index([statutValidation])
 }
@@ -311,4 +312,29 @@ model Configuration {
   cle     String @id
   valeur  Json
   dateMaj DateTime @updatedAt
+}
+
+// Rate limiting (anti-abus) : une ligne par tentative sensible (connexion,
+// inscription, réinitialisation). Les lignes hors fenêtre sont purgées au fil
+// de l'eau par le module securite/rate-limit.
+model EvenementAbus {
+  id           String   @id @default(uuid())
+  cle          String // ex. "connexion:1.2.3.4:email@x.cm"
+  dateCreation DateTime @default(now())
+
+  @@index([cle, dateCreation])
+}
+
+// Reversement d'argent à un vendeur tiers (transfert MoMo/OM fait à la main
+// par l'admin, enregistré ici). Le solde dû = ventes livrées ET payées,
+// moins la commission NILE, moins la somme des reversements.
+model Reversement {
+  id           String   @id @default(uuid())
+  vendeurId    String
+  vendeur      Vendeur  @relation(fields: [vendeurId], references: [id])
+  montant      Int // FCFA versés au vendeur
+  commentaire  String? // ex. référence du transfert Mobile Money
+  dateCreation DateTime @default(now())
+
+  @@index([vendeurId])
 }

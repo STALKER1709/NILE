@@ -216,6 +216,26 @@ CREATE TABLE "Configuration" (
     CONSTRAINT "Configuration_pkey" PRIMARY KEY ("cle")
 );
 
+-- CreateTable
+CREATE TABLE "EvenementAbus" (
+    "id" TEXT NOT NULL,
+    "cle" TEXT NOT NULL,
+    "dateCreation" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "EvenementAbus_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
+CREATE TABLE "Reversement" (
+    "id" TEXT NOT NULL,
+    "vendeurId" TEXT NOT NULL,
+    "montant" INTEGER NOT NULL,
+    "commentaire" TEXT,
+    "dateCreation" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "Reversement_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Utilisateur_email_key" ON "Utilisateur"("email");
 
@@ -294,6 +314,12 @@ CREATE INDEX "Avis_produitId_idx" ON "Avis"("produitId");
 -- CreateIndex
 CREATE UNIQUE INDEX "Avis_produitId_acheteurId_key" ON "Avis"("produitId", "acheteurId");
 
+-- CreateIndex
+CREATE INDEX "EvenementAbus_cle_dateCreation_idx" ON "EvenementAbus"("cle", "dateCreation");
+
+-- CreateIndex
+CREATE INDEX "Reversement_vendeurId_idx" ON "Reversement"("vendeurId");
+
 -- AddForeignKey
 ALTER TABLE "Vendeur" ADD CONSTRAINT "Vendeur_utilisateurId_fkey" FOREIGN KEY ("utilisateurId") REFERENCES "Utilisateur"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
@@ -341,4 +367,7 @@ ALTER TABLE "Avis" ADD CONSTRAINT "Avis_produitId_fkey" FOREIGN KEY ("produitId"
 
 -- AddForeignKey
 ALTER TABLE "Avis" ADD CONSTRAINT "Avis_acheteurId_fkey" FOREIGN KEY ("acheteurId") REFERENCES "Utilisateur"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Reversement" ADD CONSTRAINT "Reversement_vendeurId_fkey" FOREIGN KEY ("vendeurId") REFERENCES "Vendeur"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
