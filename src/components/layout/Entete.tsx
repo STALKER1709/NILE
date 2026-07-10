@@ -77,7 +77,7 @@ export function Entete({
                   <span className="block font-semibold">Compte &amp; commandes</span>
                 </Link>
                 <LienPanier nb={nbArticles} />
-                <form action={deconnexionAction} className="hidden lg:block">
+                <form action={deconnexionAction} className="hidden sm:block">
                   <button type="submit" className="rounded-md px-2 py-2 text-xs text-white/70 hover:bg-white/10 hover:text-white">
                     Déconnexion
                   </button>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { exigerConnexion } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
+import { deconnexionAction } from "@/app/(auth)/actions";
 import { Carte, Badge, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -45,6 +46,19 @@ export default async function ComptePage() {
           <Link href="/vendeur" className={btn("secondaire", "sm", "mt-3")}>Gérer mes produits</Link>
         </Carte>
       )}
+
+      {/* Déconnexion : seul accès sur mobile (l'en-tête ne l'affiche qu'en grand écran) */}
+      <Carte className="p-5">
+        <h2 className="mb-1 font-semibold">Session</h2>
+        <p className="mb-3 text-sm text-gray-500">
+          Connecté en tant que {utilisateur.email}.
+        </p>
+        <form action={deconnexionAction}>
+          <button type="submit" className={btn("danger", "md", "w-full sm:w-auto")}>
+            Se déconnecter
+          </button>
+        </form>
+      </Carte>
     </div>
   );
 }
