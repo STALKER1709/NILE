@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
+import { env } from "@/lib/env";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { compterArticlesPanier } from "@/modules/commande/panier";
 import { listerCategories } from "@/modules/catalogue/categories";
@@ -7,10 +8,23 @@ import { Entete } from "@/components/layout/Entete";
 import { PiedDePage } from "@/components/layout/PiedDePage";
 import { NavMobile } from "@/components/layout/NavMobile";
 
+const DESCRIPTION =
+  "Marketplace du Cameroun — achats en ligne, paiement mobile (MTN MoMo, Orange Money) et à la livraison.";
+
 export const metadata: Metadata = {
-  title: "NILE Marketplace",
-  description:
-    "Marketplace du Cameroun — achats en ligne, paiement mobile (MTN MoMo, Orange Money) et à la livraison.",
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
+  title: {
+    default: "NILE Marketplace — Achats en ligne au Cameroun",
+    template: "%s | NILE Marketplace",
+  },
+  description: DESCRIPTION,
+  openGraph: {
+    siteName: "NILE Marketplace",
+    locale: "fr_FR",
+    type: "website",
+    title: "NILE Marketplace — Achats en ligne au Cameroun",
+    description: DESCRIPTION,
+  },
 };
 
 export const viewport: Viewport = {

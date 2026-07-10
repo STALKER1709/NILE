@@ -44,4 +44,19 @@ export interface AuthProvider {
    * après signUp). Best-effort ; peut être un no-op selon le fournisseur.
    */
   deleteIdentity(authId: string): Promise<void>;
+
+  /**
+   * Envoie l'email de réinitialisation du mot de passe. `urlRedirection` est
+   * l'URL absolue vers laquelle le lien de l'email ramène l'utilisateur.
+   * Ne révèle JAMAIS si l'email existe (anti-énumération) : toujours silencieux.
+   */
+  demanderReinitialisation(email: string, urlRedirection: string): Promise<void>;
+
+  /**
+   * Change le mot de passe de l'utilisateur COURANT (session normale ou session
+   * de récupération issue du lien email). Échoue si personne n'est connecté.
+   */
+  changerMotDePasse(
+    nouveauMotDePasse: string,
+  ): Promise<AuthResult<{ authId: string }>>;
 }

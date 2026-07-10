@@ -94,4 +94,26 @@ export class MockAuthProvider implements AuthProvider {
       .delete({ where: { authId } })
       .catch(() => undefined); // best-effort
   }
+
+  async demanderReinitialisation(
+    email: string,
+    urlRedirection: string,
+  ): Promise<void> {
+    // Le mock n'envoie pas d'email : on journalise pour le développement.
+    console.log(
+      `[mock-auth] réinitialisation demandée pour ${email} (lien réel : ${urlRedirection})`,
+    );
+  }
+
+  async changerMotDePasse(
+    nouveauMotDePasse: string,
+  ): Promise<AuthResult<{ authId: string }>> {
+    const authId = await this.getCurrentAuthId();
+    if (!authId) return { ok: false, error: "IDENTIFIANTS_INVALIDES" };
+    await prisma.mockCredential.update({
+      where: { authId },
+      data: { motDePasse: hasherMotDePasse(nouveauMotDePasse) },
+    });
+    return { ok: true, data: { authId } };
+  }
 }

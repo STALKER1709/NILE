@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Carte } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Back-office" };
 
 const LIENS = [
   { href: "/admin/vendeurs", titre: "Vendeurs", desc: "Valider / suspendre les boutiques" },

@@ -12,6 +12,7 @@ import { CarteProduit } from "@/components/produit/CarteProduit";
 import { champClass, btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Catalogue" };
 const PAR_PAGE = 12;
 
 export default async function CataloguePage({

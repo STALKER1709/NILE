@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { Prisma } from "@prisma/client";
 import type { Produit, StatutProduit } from "@prisma/client";
 import { prisma } from "@/lib/db";
@@ -254,7 +255,7 @@ export async function rechercherProduitsCatalogue(options: OptionsCatalogue) {
       take: parPage,
       include: {
         images: { orderBy: { ordre: "asc" }, take: 1 },
-        vendeur: { select: { nomBoutique: true } },
+        vendeur: { select: { id: true, nomBoutique: true } },
       },
     }),
     prisma.produit.count({ where }),
@@ -268,8 +269,12 @@ export async function rechercherProduitsCatalogue(options: OptionsCatalogue) {
   };
 }
 
-/** Fiche produit publique : visible seulement si ACTIF et boutique VALIDÉE. */
-export async function getProduitPublicParSlug(slug: string) {
+/**
+ * Fiche produit publique : visible seulement si ACTIF et boutique VALIDÉE.
+ * `cache()` : une seule requête par rendu même si la page ET generateMetadata
+ * appellent cette fonction.
+ */
+export const getProduitPublicParSlug = cache(async (slug: string) => {
   const where: Prisma.ProduitWhereInput = {
     slug,
     statut: "ACTIF",
@@ -279,8 +284,8 @@ export async function getProduitPublicParSlug(slug: string) {
     where,
     include: {
       images: { orderBy: { ordre: "asc" } },
-      vendeur: { select: { nomBoutique: true } },
+      vendeur: { select: { id: true, nomBoutique: true } },
       categorie: true,
     },
   });
-}
+});

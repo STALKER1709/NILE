@@ -46,8 +46,13 @@ export function PiedDePage() {
           </ul>
         </div>
       </div>
-      <div className="border-t border-white/10 py-4 text-center text-xs text-white/50">
-        © {new Date().getFullYear()} NILE Marketplace — FCFA (XAF)
+      <div className="space-y-2 border-t border-white/10 py-4 text-center text-xs text-white/50">
+        <p className="space-x-3">
+          <Link href="/conditions" className="hover:text-white">Conditions générales</Link>
+          <span aria-hidden="true">·</span>
+          <Link href="/confidentialite" className="hover:text-white">Confidentialité</Link>
+        </p>
+        <p>© {new Date().getFullYear()} NILE Marketplace — FCFA (XAF)</p>
       </div>
     </footer>
   );

@@ -46,5 +46,24 @@ export const connexionSchema = z.object({
   motDePasse: z.string().min(1, "Mot de passe requis."),
 });
 
+export const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email("Email invalide.");
+
+export const nouveauMotDePasseSchema = z
+  .object({
+    motDePasse: z
+      .string()
+      .min(8, "Le mot de passe doit faire au moins 8 caractères.")
+      .max(200),
+    confirmation: z.string(),
+  })
+  .refine((v) => v.motDePasse === v.confirmation, {
+    path: ["confirmation"],
+    message: "Les deux mots de passe ne correspondent pas.",
+  });
+
 export type InscriptionInput = z.infer<typeof inscriptionSchema>;
 export type ConnexionInput = z.infer<typeof connexionSchema>;

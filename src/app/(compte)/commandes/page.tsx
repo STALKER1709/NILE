@@ -8,6 +8,7 @@ import {
 } from "@/components/commande/StatutBadges";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Mes commandes" };
 
 export default async function MesCommandesPage() {
   const utilisateur = await exigerConnexion();

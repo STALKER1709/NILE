@@ -5,8 +5,14 @@ import { deconnexionAction } from "@/app/(auth)/actions";
 import { Carte, Badge, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Mon compte" };
 
-export default async function ComptePage() {
+export default async function ComptePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ok?: string }>;
+}) {
+  const { ok } = await searchParams;
   const utilisateur = await exigerConnexion();
   const vendeur =
     utilisateur.role === "VENDEUR"
@@ -16,6 +22,12 @@ export default async function ComptePage() {
   return (
     <div className="space-y-5">
       <h1 className="text-xl font-bold">Mon compte</h1>
+
+      {ok === "mdp" && (
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          Ton mot de passe a bien été modifié.
+        </p>
+      )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Raccourci href="/commandes" libelle="Mes commandes" />

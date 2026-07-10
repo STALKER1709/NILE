@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Carte, Badge, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Espace vendeur" };
 
 export default async function VendeurPage() {
   const utilisateur = await exigerRole("VENDEUR");

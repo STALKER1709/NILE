@@ -10,6 +10,7 @@ import { Vignette } from "@/components/ui/Vignette";
 import { Carte, Prix, btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Mon panier" };
 
 export default async function PanierPage({
   searchParams,

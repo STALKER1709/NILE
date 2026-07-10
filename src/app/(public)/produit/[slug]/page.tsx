@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduitPublicParSlug } from "@/modules/catalogue/produits";
+import { formaterXAF } from "@/lib/money";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { listerAvisProduit, peutLaisserAvis } from "@/modules/avis/avis";
 import { getQuantitesPanier } from "@/modules/commande/panier";
@@ -10,6 +11,30 @@ import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { Carte, Etoiles, Prix, Badge, btn, champClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+
+/** SEO + aperçus de partage (WhatsApp, Facebook…) : titre, description, photo. */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const produit = await getProduitPublicParSlug(slug);
+  if (!produit) return { title: "Produit introuvable" };
+
+  const description = `${formaterXAF(produit.prix)} — ${produit.description.slice(0, 140)}`;
+  return {
+    title: produit.titre,
+    description,
+    alternates: { canonical: `/produit/${produit.slug}` },
+    openGraph: {
+      title: produit.titre,
+      description,
+      type: "website",
+      images: produit.images[0] ? [{ url: produit.images[0].url }] : undefined,
+    },
+  };
+}
 
 function PuceCheck() {
   return (
@@ -95,7 +120,9 @@ export default async function FicheProduitPage({
             )}
             <p className="mt-1 text-sm text-gray-500">
               Vendu par{" "}
-              <span className="font-medium text-nile">{produit.vendeur.nomBoutique}</span>
+              <Link href={`/boutique/${produit.vendeur.id}`} className="font-medium text-nile hover:underline">
+                {produit.vendeur.nomBoutique}
+              </Link>
             </p>
           </div>
 

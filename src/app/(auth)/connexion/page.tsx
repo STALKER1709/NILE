@@ -3,6 +3,7 @@ import { connexionAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Connexion" };
 
 export default async function ConnexionPage({
   searchParams,
@@ -29,7 +30,12 @@ export default async function ConnexionPage({
             <input id="email" name="email" type="email" required autoComplete="email" className={`${champClass} mt-1`} />
           </div>
           <div>
-            <label htmlFor="motDePasse" className={labelClass}>Mot de passe</label>
+            <div className="flex items-baseline justify-between">
+              <label htmlFor="motDePasse" className={labelClass}>Mot de passe</label>
+              <Link href="/mot-de-passe-oublie" className="text-xs text-nile hover:underline">
+                Mot de passe oublié ?
+              </Link>
+            </div>
             <input id="motDePasse" name="motDePasse" type="password" required autoComplete="current-password" className={`${champClass} mt-1`} />
           </div>
           <button type="submit" className={btn("primaire", "lg", "w-full")}>Se connecter</button>

@@ -7,6 +7,7 @@ import { passerCommandeAction } from "@/app/(compte)/commander/actions";
 import { Carte, Prix, btn, champClass, labelClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Passer la commande" };
 
 export default async function CommanderPage({
   searchParams,

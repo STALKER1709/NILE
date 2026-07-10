@@ -3,6 +3,7 @@ import { inscriptionAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata = { title: "Créer un compte" };
 
 export default async function InscriptionPage({
   searchParams,

@@ -12,7 +12,7 @@ export interface ProduitCarte {
   noteMoyenne: number;
   nbAvis: number;
   images: { url: string }[];
-  vendeur: { nomBoutique: string };
+  vendeur: { id?: string; nomBoutique: string };
 }
 
 export function CarteProduit({
@@ -67,9 +67,18 @@ export function CarteProduit({
             montant={produit.prix}
             className="text-[17px] font-extrabold text-promo"
           />
-          <p className="mt-0.5 truncate text-[11px] text-gray-400">
-            {produit.vendeur.nomBoutique}
-          </p>
+          {produit.vendeur.id ? (
+            <Link
+              href={`/boutique/${produit.vendeur.id}`}
+              className="mt-0.5 block truncate text-[11px] text-gray-400 hover:text-nile hover:underline"
+            >
+              {produit.vendeur.nomBoutique}
+            </Link>
+          ) : (
+            <p className="mt-0.5 truncate text-[11px] text-gray-400">
+              {produit.vendeur.nomBoutique}
+            </p>
+          )}
         </div>
 
         {/* Actions : ajout « supermarché » + détail du produit */}

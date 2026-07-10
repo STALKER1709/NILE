@@ -76,4 +76,33 @@ export class SupabaseAuthProvider implements AuthProvider {
       // best-effort : nécessite la clé service_role ; sinon on ignore.
     }
   }
+
+  async demanderReinitialisation(
+    email: string,
+    urlRedirection: string,
+  ): Promise<void> {
+    const supabase = await creerClientServeur();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: urlRedirection,
+    });
+    // On journalise mais on ne remonte rien : la réponse UX est identique que
+    // l'email existe ou non (anti-énumération de comptes).
+    if (error) {
+      console.error("[supabase] resetPasswordForEmail erreur:", error.message);
+    }
+  }
+
+  async changerMotDePasse(
+    nouveauMotDePasse: string,
+  ): Promise<AuthResult<{ authId: string }>> {
+    const supabase = await creerClientServeur();
+    const { data, error } = await supabase.auth.updateUser({
+      password: nouveauMotDePasse,
+    });
+    if (error || !data.user) {
+      if (error) console.error("[supabase] updateUser erreur:", error.message);
+      return { ok: false, error: "ERREUR_FOURNISSEUR" };
+    }
+    return { ok: true, data: { authId: data.user.id } };
+  }
 }

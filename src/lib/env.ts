@@ -22,6 +22,12 @@ const schema = z
     NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().optional(),
     SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 
+    // URL publique du site (SEO : liens absolus des sitemap/Open Graph).
+    NEXT_PUBLIC_SITE_URL: z
+      .string()
+      .url()
+      .default("https://nile-beige.vercel.app"),
+
     PAYMENT_PROVIDER: z.enum(["mock", "monetbil"]).default("mock"),
     MONETBIL_SERVICE_KEY: z.string().optional(),
     MONETBIL_SERVICE_SECRET: z.string().optional(),
