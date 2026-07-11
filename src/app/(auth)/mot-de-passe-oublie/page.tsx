@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { demanderReinitialisationAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Mot de passe oublié" };
@@ -39,9 +40,9 @@ export default async function MotDePasseOubliePage({
             <label htmlFor="email" className={labelClass}>Email</label>
             <input id="email" name="email" type="email" required autoComplete="email" className={`${champClass} mt-1`} />
           </div>
-          <button type="submit" className={btn("primaire", "lg", "w-full")}>
+          <BoutonSoumettre enCours="Envoi…" className={btn("primaire", "lg", "w-full")}>
             Envoyer le lien
-          </button>
+          </BoutonSoumettre>
         </form>
       </Carte>
 

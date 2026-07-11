@@ -9,6 +9,7 @@ import { creerAvisAction } from "@/app/(public)/produit/[slug]/actions";
 import { Vignette } from "@/components/ui/Vignette";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { Carte, Etoiles, Prix, Badge, btn, champClass } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 
@@ -201,7 +202,7 @@ export default async function FicheProduitPage({
               </select>
             </div>
             <textarea name="commentaire" rows={2} placeholder="Votre commentaire (facultatif)" className={champClass} />
-            <button type="submit" className={btn("primaire", "sm")}>Publier mon avis</button>
+            <BoutonSoumettre enCours="Publication…" className={btn("primaire", "sm")}>Publier mon avis</BoutonSoumettre>
           </form>
         )}
 

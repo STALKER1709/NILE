@@ -2,11 +2,10 @@
 
 import { redirect } from "next/navigation";
 import { exigerConnexion, getUtilisateurCourant } from "@/modules/auth/access";
-import { ajoutPanierSchema, majQuantiteSchema } from "@/validators/commande";
+import { ajoutPanierSchema } from "@/validators/commande";
 import {
   ajouterAuPanier,
   retirerUneUnite,
-  modifierQuantite,
   retirerLigne,
   compterArticlesPanier,
 } from "@/modules/commande/panier";
@@ -73,30 +72,6 @@ export async function decrementerPanierAction(
   if (!res.ok) return { ok: false, message: messagePanier(res.code) };
   const totalArticles = await compterArticlesPanier(utilisateur.id);
   return { ok: true, quantite: res.quantite, totalArticles };
-}
-
-export async function modifierQuantiteAction(
-  formData: FormData,
-): Promise<void> {
-  const utilisateur = await exigerConnexion();
-
-  const parsed = majQuantiteSchema.safeParse({
-    ligneId: formData.get("ligneId"),
-    quantite: formData.get("quantite"),
-  });
-  if (!parsed.success) {
-    redirect("/panier?erreur=Quantit%C3%A9%20invalide.");
-  }
-
-  const res = await modifierQuantite(
-    utilisateur.id,
-    parsed.data.ligneId,
-    parsed.data.quantite,
-  );
-  if (!res.ok) {
-    redirect(`/panier?erreur=${encodeURIComponent(messagePanier(res.code))}`);
-  }
-  redirect("/panier");
 }
 
 export async function retirerLigneAction(formData: FormData): Promise<void> {

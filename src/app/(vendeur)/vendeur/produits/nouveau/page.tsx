@@ -3,6 +3,7 @@ import { exigerVendeur } from "@/modules/auth/access";
 import { listerCategories, aplatirPourSelect } from "@/modules/catalogue/categories";
 import { creerProduitAction } from "@/app/(vendeur)/vendeur/produits/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 
@@ -61,7 +62,7 @@ export default async function NouveauProduitPage({
             <input id="images" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple className={`${champClass} mt-1`} />
             <p className="mt-1 text-xs text-gray-500">JPEG, PNG ou WEBP · 2 Mo max par image.</p>
           </div>
-          <button type="submit" className={btn("primaire", "lg", "w-full")}>Créer le produit</button>
+          <BoutonSoumettre enCours="Création (envoi des images)…" className={btn("primaire", "lg", "w-full")}>Créer le produit</BoutonSoumettre>
         </form>
       </Carte>
     </div>

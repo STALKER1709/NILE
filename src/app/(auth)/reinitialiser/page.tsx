@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { reinitialiserMotDePasseAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = { title: "Nouveau mot de passe" };
@@ -52,9 +53,9 @@ export default async function ReinitialiserPage({
               className={`${champClass} mt-1`}
             />
           </div>
-          <button type="submit" className={btn("primaire", "lg", "w-full")}>
+          <BoutonSoumettre enCours="Enregistrement…" className={btn("primaire", "lg", "w-full")}>
             Enregistrer le mot de passe
-          </button>
+          </BoutonSoumettre>
         </form>
       </Carte>
 

@@ -3,10 +3,7 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { getLignesInvite } from "@/modules/commande/panier-invite";
 import { calculerTotal } from "@/modules/commande/commande-core";
-import {
-  modifierQuantiteAction,
-  retirerLigneAction,
-} from "@/app/(compte)/panier/actions";
+import { retirerLigneAction } from "@/app/(compte)/panier/actions";
 import { Vignette } from "@/components/ui/Vignette";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { Carte, Prix, btn, EtatVide } from "@/components/ui/kit";
@@ -70,6 +67,7 @@ export default async function PanierPage({
                           produitId={l.produit.id}
                           stock={l.produit.stock}
                           quantiteInitiale={l.quantite}
+                          rafraichirApres
                         />
                       </div>
                       <Prix
@@ -166,12 +164,14 @@ export default async function PanierPage({
                       <p className="text-xs font-medium text-red-600">Stock restant : {l.produit.stock}.</p>
                     )}
                     <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                      <form action={modifierQuantiteAction} className="flex items-center gap-1">
-                        <input type="hidden" name="ligneId" value={l.id} />
-                        <input name="quantite" type="number" min={0} defaultValue={l.quantite}
-                          className="w-16 rounded-lg border border-gray-300 px-2 py-1 text-sm" />
-                        <button type="submit" className={btn("secondaire", "sm")}>OK</button>
-                      </form>
+                      <div className="max-w-[10rem] flex-1">
+                        <BoutonPanier
+                          produitId={l.produit.id}
+                          stock={l.produit.stock}
+                          quantiteInitiale={l.quantite}
+                          rafraichirApres
+                        />
+                      </div>
                       <form action={retirerLigneAction}>
                         <input type="hidden" name="ligneId" value={l.id} />
                         <button type="submit" className="rounded-lg px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 hover:underline">

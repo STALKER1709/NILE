@@ -3,6 +3,7 @@ import { exigerRole } from "@/modules/auth/access";
 import { listerSoldesVendeurs } from "@/modules/reversement/reversement";
 import { enregistrerReversementAction } from "@/app/(admin)/admin/reversements/actions";
 import { Carte, Prix, btn, champClass, EtatVide } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Reversements vendeurs" };
@@ -100,9 +101,9 @@ export default async function ReversementsPage({
                       className={`${champClass} mt-1`}
                     />
                   </div>
-                  <button type="submit" className={btn("primaire", "md", "sm:shrink-0")}>
+                  <BoutonSoumettre enCours="Enregistrement…" className={btn("primaire", "md", "sm:shrink-0")}>
                     Marquer reversé
-                  </button>
+                  </BoutonSoumettre>
                 </form>
               )}
             </Carte>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   incrementerPanierAction,
   decrementerPanierAction,
@@ -18,12 +19,16 @@ export function BoutonPanier({
   stock,
   quantiteInitiale,
   taille = "sm",
+  rafraichirApres = false,
 }: {
   produitId: string;
   stock: number;
   quantiteInitiale: number;
   taille?: "sm" | "lg";
+  /** Rafraîchit les données serveur après chaque clic (page panier : totaux). */
+  rafraichirApres?: boolean;
 }) {
+  const router = useRouter();
   const [quantite, setQuantite] = useState(quantiteInitiale);
   const [message, setMessage] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
@@ -43,6 +48,7 @@ export function BoutonPanier({
         setQuantite(res.quantite);
         // Met à jour les badges panier (en-tête + nav mobile) sans round-trip.
         annoncerTotalPanier(res.totalArticles);
+        if (rafraichirApres) router.refresh();
       } else {
         setMessage(res.message);
       }

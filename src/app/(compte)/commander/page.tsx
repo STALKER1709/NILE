@@ -3,7 +3,9 @@ import { exigerConnexion } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { calculerTotal } from "@/modules/commande/commande-core";
 import { getPlafondCOD } from "@/modules/commande/config";
+import { getDerniereAdresse } from "@/modules/commande/commande";
 import { passerCommandeAction } from "@/app/(compte)/commander/actions";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 import { Carte, Prix, btn, champClass, labelClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -22,7 +24,10 @@ export default async function CommanderPage({
   const total = calculerTotal(
     panier.lignes.map((l) => ({ prix: l.produit.prix, quantite: l.quantite })),
   );
-  const plafond = await getPlafondCOD();
+  const [plafond, derniere] = await Promise.all([
+    getPlafondCOD(),
+    getDerniereAdresse(utilisateur.id),
+  ]);
   const depassePlafond = total > plafond;
 
   return (
@@ -37,27 +42,32 @@ export default async function CommanderPage({
         <form action={passerCommandeAction} className="space-y-5 lg:col-span-2">
           <Carte className="space-y-4 p-5">
             <h2 className="font-semibold">Adresse de livraison</h2>
+            {derniere && (
+              <p className="rounded-lg bg-nile-50 px-3 py-2 text-xs text-nile-800">
+                Adresse pré-remplie depuis ta dernière commande — modifie si besoin.
+              </p>
+            )}
             <div>
               <label htmlFor="destNom" className={labelClass}>Nom du destinataire</label>
-              <input id="destNom" name="destNom" required defaultValue={utilisateur.nom} className={`${champClass} mt-1`} />
+              <input id="destNom" name="destNom" required defaultValue={derniere?.destNom ?? utilisateur.nom} className={`${champClass} mt-1`} />
             </div>
             <div>
               <label htmlFor="destTelephone" className={labelClass}>Téléphone de contact</label>
-              <input id="destTelephone" name="destTelephone" required defaultValue={utilisateur.telephone} placeholder="6XX XXX XXX" className={`${champClass} mt-1`} />
+              <input id="destTelephone" name="destTelephone" required defaultValue={derniere?.destTelephone ?? utilisateur.telephone} placeholder="6XX XXX XXX" className={`${champClass} mt-1`} />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label htmlFor="ville" className={labelClass}>Ville</label>
-                <input id="ville" name="ville" required placeholder="Douala" className={`${champClass} mt-1`} />
+                <input id="ville" name="ville" required defaultValue={derniere?.ville ?? ""} placeholder="Douala" className={`${champClass} mt-1`} />
               </div>
               <div>
                 <label htmlFor="quartier" className={labelClass}>Quartier</label>
-                <input id="quartier" name="quartier" required placeholder="Akwa" className={`${champClass} mt-1`} />
+                <input id="quartier" name="quartier" required defaultValue={derniere?.quartier ?? ""} placeholder="Akwa" className={`${champClass} mt-1`} />
               </div>
             </div>
             <div>
               <label htmlFor="reperes" className={labelClass}>Points de repère (facultatif)</label>
-              <textarea id="reperes" name="reperes" rows={2} placeholder="Ex : en face de la pharmacie, immeuble bleu…" className={`${champClass} mt-1`} />
+              <textarea id="reperes" name="reperes" rows={2} defaultValue={derniere?.reperes ?? ""} placeholder="Ex : en face de la pharmacie, immeuble bleu…" className={`${champClass} mt-1`} />
             </div>
           </Carte>
 
@@ -85,10 +95,13 @@ export default async function CommanderPage({
             )}
           </Carte>
 
-          <button type="submit" className={btn("accent", "lg", "w-full flex-wrap")}>
+          <BoutonSoumettre
+            enCours="Commande en cours…"
+            className={btn("accent", "lg", "w-full flex-wrap")}
+          >
             <span>Confirmer la commande</span>
             <Prix montant={total} className="whitespace-nowrap" />
-          </button>
+          </BoutonSoumettre>
         </form>
 
         <div className="lg:col-span-1">

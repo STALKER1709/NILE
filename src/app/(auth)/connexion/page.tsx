@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { connexionAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Connexion" };
@@ -40,7 +41,7 @@ export default async function ConnexionPage({
             </div>
             <input id="motDePasse" name="motDePasse" type="password" required autoComplete="current-password" className={`${champClass} mt-1`} />
           </div>
-          <button type="submit" className={btn("primaire", "lg", "w-full")}>Se connecter</button>
+          <BoutonSoumettre enCours="Connexion…" className={btn("primaire", "lg", "w-full")}>Se connecter</BoutonSoumettre>
         </form>
       </Carte>
 

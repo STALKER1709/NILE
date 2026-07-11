@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { inscriptionAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Créer un compte" };
@@ -58,7 +59,7 @@ export default async function InscriptionPage({
             <input id="nomBoutique" name="nomBoutique" className={`${champClass} mt-1`} />
             <p className="mt-1 text-xs text-gray-500">Requis si vous vendez. Boutique validée par un administrateur.</p>
           </div>
-          <button type="submit" className={btn("primaire", "lg", "w-full")}>Créer mon compte</button>
+          <BoutonSoumettre enCours="Création du compte…" className={btn("primaire", "lg", "w-full")}>Créer mon compte</BoutonSoumettre>
         </form>
       </Carte>
 

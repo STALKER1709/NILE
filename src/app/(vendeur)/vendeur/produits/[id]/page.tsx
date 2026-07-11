@@ -12,6 +12,7 @@ import {
 } from "@/app/(vendeur)/vendeur/produits/actions";
 import { Vignette } from "@/components/ui/Vignette";
 import { Carte, Badge, champClass, labelClass, btn } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
 
@@ -89,7 +90,7 @@ export default async function GestionProduitPage({
         <form action={ajouterImageAction} encType="multipart/form-data" className="mt-3 flex items-end gap-2">
           <input type="hidden" name="produitId" value={produit.id} />
           <input name="image" type="file" accept="image/jpeg,image/png,image/webp" required className={champClass} />
-          <button type="submit" className={btn("secondaire", "md")}>Ajouter</button>
+          <BoutonSoumettre enCours="Envoi…" className={btn("secondaire", "md")}>Ajouter</BoutonSoumettre>
         </form>
       </Carte>
 
@@ -122,7 +123,7 @@ export default async function GestionProduitPage({
               {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
             </select>
           </div>
-          <button type="submit" className={btn("primaire", "md", "w-full")}>Enregistrer</button>
+          <BoutonSoumettre enCours="Enregistrement…" className={btn("primaire", "md", "w-full")}>Enregistrer</BoutonSoumettre>
         </form>
       </Carte>
 

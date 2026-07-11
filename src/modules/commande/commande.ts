@@ -277,6 +277,24 @@ async function libererCommande(commandeId: string): Promise<void> {
   });
 }
 
+/**
+ * Dernière adresse de livraison utilisée par l'acheteur (pré-remplissage du
+ * formulaire de commande — gros gain de confort pour les clients récurrents).
+ */
+export async function getDerniereAdresse(utilisateurId: string) {
+  return prisma.commande.findFirst({
+    where: { acheteurId: utilisateurId },
+    orderBy: { dateCreation: "desc" },
+    select: {
+      destNom: true,
+      destTelephone: true,
+      ville: true,
+      quartier: true,
+      reperes: true,
+    },
+  });
+}
+
 // ------------------------------ SUIVI ACHETEUR -------------------------------
 
 export async function listerCommandesAcheteur(utilisateurId: string) {
