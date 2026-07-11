@@ -14,10 +14,35 @@ import {
   deconnecterUtilisateur,
 } from "@/modules/auth/service";
 import { getAuthProvider } from "@/modules/auth";
+import { getUtilisateurCourant } from "@/modules/auth/access";
+import { fusionnerPanierInvite } from "@/modules/commande/panier-invite";
 import {
   consommerTentative,
   reinitialiserLimite,
 } from "@/modules/securite/rate-limit";
+
+/**
+ * Cible de redirection après connexion/inscription (`suite`) : uniquement un
+ * chemin interne au site (jamais une URL externe).
+ */
+function cibleApresAuth(formData: FormData): string {
+  const suite = String(formData.get("suite") ?? "");
+  return suite.startsWith("/") && !suite.startsWith("//") ? suite : "/compte";
+}
+
+/** Suffixe `&suite=...` à conserver dans les redirections d'erreur du formulaire. */
+function suffixeSuite(formData: FormData): string {
+  const suite = String(formData.get("suite") ?? "");
+  return suite.startsWith("/") && !suite.startsWith("//")
+    ? `&suite=${encodeURIComponent(suite)}`
+    : "";
+}
+
+/** Fusionne l'éventuel panier invité dans le panier du compte connecté. */
+async function recupererPanierInvite(): Promise<void> {
+  const utilisateur = await getUtilisateurCourant();
+  if (utilisateur) await fusionnerPanierInvite(utilisateur.id);
+}
 
 /** Adresse IP du client (Vercel : premier élément de x-forwarded-for). */
 async function ipClient(): Promise<string> {
@@ -48,7 +73,7 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
   const parsed = inscriptionSchema.safeParse(brut);
   if (!parsed.success) {
     const msg = parsed.error.issues[0]?.message ?? "Données invalides.";
-    redirect(`/inscription?erreur=${encodeURIComponent(msg)}`);
+    redirect(`/inscription?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}`);
   }
 
   // Anti-abus : créations de comptes en rafale depuis une même IP.
@@ -59,7 +84,7 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
   );
   if (!limite.autorise) {
     redirect(
-      `/inscription?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}`,
+      `/inscription?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}${suffixeSuite(formData)}`,
     );
   }
 
@@ -69,10 +94,11 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
       res.code === "EMAIL_DEJA_UTILISE"
         ? "Cet email est déjà utilisé."
         : "Une erreur est survenue. Réessaie.";
-    redirect(`/inscription?erreur=${encodeURIComponent(msg)}`);
+    redirect(`/inscription?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}`);
   }
 
-  redirect("/compte");
+  await recupererPanierInvite();
+  redirect(cibleApresAuth(formData));
 }
 
 export async function connexionAction(formData: FormData): Promise<void> {
@@ -84,7 +110,7 @@ export async function connexionAction(formData: FormData): Promise<void> {
   const parsed = connexionSchema.safeParse(brut);
   if (!parsed.success) {
     const msg = parsed.error.issues[0]?.message ?? "Données invalides.";
-    redirect(`/connexion?erreur=${encodeURIComponent(msg)}`);
+    redirect(`/connexion?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}`);
   }
 
   // Anti-abus : force brute sur un compte depuis une même IP. Le compteur est
@@ -97,7 +123,7 @@ export async function connexionAction(formData: FormData): Promise<void> {
   );
   if (!limite.autorise) {
     redirect(
-      `/connexion?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}`,
+      `/connexion?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}${suffixeSuite(formData)}`,
     );
   }
 
@@ -109,11 +135,12 @@ export async function connexionAction(formData: FormData): Promise<void> {
         : res.code === "IDENTIFIANTS_INVALIDES"
           ? "Email ou mot de passe incorrect."
           : "Une erreur est survenue. Réessaie.";
-    redirect(`/connexion?erreur=${encodeURIComponent(msg)}`);
+    redirect(`/connexion?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}`);
   }
 
   await reinitialiserLimite(cleLimite);
-  redirect("/compte");
+  await recupererPanierInvite();
+  redirect(cibleApresAuth(formData));
 }
 
 export async function deconnexionAction(): Promise<void> {

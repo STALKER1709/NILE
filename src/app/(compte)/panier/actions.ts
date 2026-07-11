@@ -1,7 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { exigerConnexion } from "@/modules/auth/access";
+import { exigerConnexion, getUtilisateurCourant } from "@/modules/auth/access";
 import { ajoutPanierSchema, majQuantiteSchema } from "@/validators/commande";
 import {
   ajouterAuPanier,
@@ -10,6 +10,11 @@ import {
   retirerLigne,
   compterArticlesPanier,
 } from "@/modules/commande/panier";
+import {
+  ajouterInvite,
+  retirerInvite,
+  compterArticlesInvite,
+} from "@/modules/commande/panier-invite";
 
 function messagePanier(code: string): string {
   switch (code) {
@@ -27,14 +32,23 @@ export type EtatBoutonPanier =
   | { ok: true; quantite: number; totalArticles: number }
   | { ok: false; message: string };
 
-/** Ajoute 1 unité au panier SANS quitter la page (compteur sur la carte). */
+/**
+ * Ajoute 1 unité au panier SANS quitter la page (compteur sur la carte).
+ * Fonctionne aussi pour un VISITEUR non connecté (panier invité en cookie) :
+ * l'inscription n'est exigée qu'au moment de passer la commande.
+ */
 export async function incrementerPanierAction(
   produitId: string,
 ): Promise<EtatBoutonPanier> {
-  const utilisateur = await exigerConnexion();
-
   const parsed = ajoutPanierSchema.safeParse({ produitId, quantite: 1 });
   if (!parsed.success) return { ok: false, message: "Produit invalide." };
+
+  const utilisateur = await getUtilisateurCourant();
+  if (!utilisateur) {
+    const res = await ajouterInvite(parsed.data.produitId);
+    if (!res.ok) return { ok: false, message: messagePanier(res.code) };
+    return { ok: true, quantite: res.quantite, totalArticles: await compterArticlesInvite() };
+  }
 
   const res = await ajouterAuPanier(utilisateur.id, parsed.data.produitId, 1);
   if (!res.ok) return { ok: false, message: messagePanier(res.code) };
@@ -42,12 +56,18 @@ export async function incrementerPanierAction(
   return { ok: true, quantite: res.quantite, totalArticles };
 }
 
-/** Retire 1 unité du panier SANS quitter la page (compteur sur la carte). */
+/** Retire 1 unité du panier SANS quitter la page (invités inclus). */
 export async function decrementerPanierAction(
   produitId: string,
 ): Promise<EtatBoutonPanier> {
-  const utilisateur = await exigerConnexion();
   if (!produitId) return { ok: false, message: "Produit invalide." };
+
+  const utilisateur = await getUtilisateurCourant();
+  if (!utilisateur) {
+    const res = await retirerInvite(produitId);
+    if (!res.ok) return { ok: false, message: messagePanier(res.code) };
+    return { ok: true, quantite: res.quantite, totalArticles: await compterArticlesInvite() };
+  }
 
   const res = await retirerUneUnite(utilisateur.id, produitId);
   if (!res.ok) return { ok: false, message: messagePanier(res.code) };

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getUtilisateurCourant } from "@/modules/auth/access";
-import { getQuantitesPanier } from "@/modules/commande/panier";
+import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 import { Badge, EtatVide } from "@/components/ui/kit";
 
@@ -50,7 +50,7 @@ export default async function BoutiquePage({
         vendeur: { select: { id: true, nomBoutique: true } },
       },
     }),
-    getQuantitesPanier(utilisateur?.id ?? null),
+    getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
 
   return (

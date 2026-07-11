@@ -7,7 +7,7 @@ import {
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
 import { normaliserParamsRecherche } from "@/modules/catalogue/recherche";
 import { getUtilisateurCourant } from "@/modules/auth/access";
-import { getQuantitesPanier } from "@/modules/commande/panier";
+import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 import { champClass, btn, EtatVide } from "@/components/ui/kit";
 
@@ -42,7 +42,7 @@ export default async function CataloguePage({
   }
 
   const utilisateur = await getUtilisateurCourant();
-  const quantites = await getQuantitesPanier(utilisateur?.id ?? null);
+  const quantites = await getQuantitesAffichees(utilisateur?.id ?? null);
 
   const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
   const { produits, total, pages } = await rechercherProduitsCatalogue({

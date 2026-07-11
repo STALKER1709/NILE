@@ -8,9 +8,10 @@ export const metadata = { title: "Connexion" };
 export default async function ConnexionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ erreur?: string }>;
+  searchParams: Promise<{ erreur?: string; suite?: string }>;
 }) {
-  const { erreur } = await searchParams;
+  const { erreur, suite } = await searchParams;
+  const suiteSure = suite?.startsWith("/") && !suite.startsWith("//") ? suite : "";
 
   return (
     <div className="mx-auto max-w-md space-y-4 py-6">
@@ -25,6 +26,7 @@ export default async function ConnexionPage({
 
       <Carte className="p-6">
         <form action={connexionAction} className="space-y-4">
+          {suiteSure && <input type="hidden" name="suite" value={suiteSure} />}
           <div>
             <label htmlFor="email" className={labelClass}>Email</label>
             <input id="email" name="email" type="email" required autoComplete="email" className={`${champClass} mt-1`} />
@@ -44,7 +46,12 @@ export default async function ConnexionPage({
 
       <p className="text-center text-sm text-gray-600">
         Pas encore de compte ?{" "}
-        <Link href="/inscription" className="font-medium text-nile hover:underline">Créer un compte</Link>
+        <Link
+          href={suiteSure ? `/inscription?suite=${encodeURIComponent(suiteSure)}` : "/inscription"}
+          className="font-medium text-nile hover:underline"
+        >
+          Créer un compte
+        </Link>
       </p>
     </div>
   );

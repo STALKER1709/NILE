@@ -2,7 +2,7 @@ import Link from "next/link";
 import { listerCategories } from "@/modules/catalogue/categories";
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
 import { getUtilisateurCourant } from "@/modules/auth/access";
-import { getQuantitesPanier } from "@/modules/commande/panier";
+import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 
 export const dynamic = "force-dynamic";
@@ -14,7 +14,7 @@ export default async function AccueilPage() {
       listerCategories(),
       rechercherProduitsCatalogue({ tri: "recent", page: 1, parPage: 12 }),
       rechercherProduitsCatalogue({ tri: "populaire", page: 1, parPage: 6 }),
-      getQuantitesPanier(utilisateur?.id ?? null),
+      getQuantitesAffichees(utilisateur?.id ?? null),
     ]);
   const racines = categories.filter((c) => !c.parentId).slice(0, 8);
 

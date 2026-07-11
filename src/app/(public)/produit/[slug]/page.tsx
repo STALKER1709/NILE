@@ -4,7 +4,7 @@ import { getProduitPublicParSlug } from "@/modules/catalogue/produits";
 import { formaterXAF } from "@/lib/money";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { listerAvisProduit, peutLaisserAvis } from "@/modules/avis/avis";
-import { getQuantitesPanier } from "@/modules/commande/panier";
+import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { creerAvisAction } from "@/app/(public)/produit/[slug]/actions";
 import { Vignette } from "@/components/ui/Vignette";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
@@ -69,7 +69,7 @@ export default async function FicheProduitPage({
   const [avis, peutNoter, quantites] = await Promise.all([
     listerAvisProduit(produit.id),
     utilisateur ? peutLaisserAvis(utilisateur.id, produit.id) : Promise.resolve(false),
-    getQuantitesPanier(utilisateur?.id ?? null),
+    getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
   const enRupture = produit.stock === 0;
 
@@ -175,7 +175,7 @@ export default async function FicheProduitPage({
                 <PuceCheck /> Livraison partout au Cameroun
               </li>
             </ul>
-            <p className="text-xs text-gray-400">Connexion requise pour commander.</p>
+            <p className="text-xs text-gray-400">Compte requis uniquement pour valider la commande.</p>
           </Carte>
         </div>
       </div>

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { env } from "@/lib/env";
 import { getUtilisateurCourant } from "@/modules/auth/access";
-import { compterArticlesPanier } from "@/modules/commande/panier";
+import { compterArticlesAffiches } from "@/modules/commande/panier-invite";
 import { listerCategories } from "@/modules/catalogue/categories";
 import { Entete } from "@/components/layout/Entete";
 import { PiedDePage } from "@/components/layout/PiedDePage";
@@ -42,9 +42,7 @@ export default async function RootLayout({
     getUtilisateurCourant(),
     listerCategories(),
   ]);
-  const nbArticles = utilisateur
-    ? await compterArticlesPanier(utilisateur.id)
-    : 0;
+  const nbArticles = await compterArticlesAffiches(utilisateur?.id ?? null);
   const rayons = categories
     .filter((c) => !c.parentId)
     .slice(0, 10)
