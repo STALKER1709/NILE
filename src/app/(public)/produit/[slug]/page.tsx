@@ -176,6 +176,9 @@ export default async function FicheProduitPage({
               <li className="flex items-center gap-2">
                 <PuceCheck /> Livraison <strong>gratuite</strong> partout au Cameroun
               </li>
+              <li className="flex items-center gap-2">
+                <PuceCheck /> Vérifie ton colis à la livraison (ventes fermes, pas de retour)
+              </li>
               {env.DELAI_LIVRAISON_TEXTE && (
                 <li className="flex items-center gap-2">
                   <PuceCheck /> Délai : {env.DELAI_LIVRAISON_TEXTE}

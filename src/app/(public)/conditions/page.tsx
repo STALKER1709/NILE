@@ -63,19 +63,29 @@ export default function ConditionsPage() {
 
         <Section titre="5. Livraison">
           <p>
-            La livraison est assurée au Cameroun à l&apos;adresse indiquée par
-            l&apos;acheteur (ville, quartier, points de repère). Les délais sont
-            indicatifs. En cas de refus du colis à la livraison sans motif
-            légitime, NILE se réserve le droit de limiter l&apos;accès au
-            paiement à la livraison pour les commandes futures.
-          </p>
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-amber-800">
-            [À COMPLÉTER : zones couvertes, frais et délais de livraison,
-            politique de retour/remboursement.]
+            La livraison est <strong>gratuite</strong> et assurée au Cameroun à
+            l&apos;adresse indiquée par l&apos;acheteur (ville, quartier, points
+            de repère). Les délais affichés lors de la commande sont indicatifs.
           </p>
         </Section>
 
-        <Section titre="6. Vendeurs tiers">
+        <Section titre="6. Vérification à la livraison — ventes fermes">
+          <p>
+            L&apos;acheteur est invité à <strong>vérifier son colis au moment de
+            la livraison</strong>, avant paiement en cas de paiement à la
+            livraison. Si le colis ne correspond pas à la commande, il peut le
+            <strong> refuser à la livraison</strong> : la commande est alors
+            annulée (et remboursée si elle avait été payée par Mobile Money).
+          </p>
+          <p>
+            Une fois le colis accepté, <strong>les ventes sont fermes : aucun
+            retour ni échange n&apos;est accepté</strong>. En cas de refus de
+            colis répétés sans motif légitime, NILE peut restreindre
+            l&apos;accès au paiement à la livraison.
+          </p>
+        </Section>
+
+        <Section titre="7. Vendeurs tiers">
           <p>
             Les vendeurs tiers sont responsables de la conformité, de la
             description et de la disponibilité de leurs produits. Toute boutique
@@ -85,14 +95,14 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="7. Avis">
+        <Section titre="8. Avis">
           <p>
             Seuls les acheteurs ayant reçu un produit peuvent laisser un avis.
             Les avis frauduleux, injurieux ou hors sujet peuvent être retirés.
           </p>
         </Section>
 
-        <Section titre="8. Responsabilité">
+        <Section titre="9. Responsabilité">
           <p>
             NILE met tout en œuvre pour assurer la disponibilité et la sécurité
             de la plateforme, sans garantie d&apos;absence totale
@@ -101,7 +111,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="9. Droit applicable">
+        <Section titre="10. Droit applicable">
           <p>
             Les présentes conditions sont régies par le droit camerounais. Tout
             litige sera soumis aux juridictions compétentes du Cameroun, après
