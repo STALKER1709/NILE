@@ -13,13 +13,33 @@ export async function listerCommandesVendeur(vendeurId: string) {
     take: 100,
     include: {
       lignes: { where: { vendeurId } },
+      _count: { select: { lignes: true } },
       livraison: { select: { statut: true, transporteur: true } },
     },
   });
   return commandes.map((c) => ({
     ...c,
     totalVendeur: c.lignes.reduce((s, l) => s + l.sousTotal, 0),
+    // La boutique pilote le suivi seulement si TOUTES les lignes sont à elle
+    // (commande multi-boutiques : suivi coordonné par NILE).
+    gereeParVendeur: c._count.lignes === c.lignes.length,
   }));
+}
+
+/**
+ * Autorisation de suivi : une boutique ne peut piloter la livraison d'une
+ * commande que si TOUTES ses lignes lui appartiennent. Vérifié côté serveur
+ * avant chaque transition (jamais seulement dans l'interface).
+ */
+export async function vendeurGereCommande(
+  vendeurId: string,
+  commandeId: string,
+): Promise<boolean> {
+  const [total, duVendeur] = await Promise.all([
+    prisma.ligneCommande.count({ where: { commandeId } }),
+    prisma.ligneCommande.count({ where: { commandeId, vendeurId } }),
+  ]);
+  return total > 0 && total === duVendeur;
 }
 
 /**

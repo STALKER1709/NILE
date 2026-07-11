@@ -20,6 +20,13 @@ export default async function AdminCommandesPage() {
         <Link href="/admin" className="text-sm text-gray-500 hover:underline">← Back-office</Link>
       </div>
 
+      <p className="text-sm text-gray-500">
+        Supervision : chaque boutique pilote la livraison de ses commandes
+        mono-boutique depuis son espace vendeur. Ici tu peux tout voir, agir en
+        secours, gérer les commandes multi-boutiques, les refus à la livraison
+        et l&apos;encaissement du cash COD.
+      </p>
+
       {commandes.length === 0 ? (
         <EtatVide titre="Aucune commande." />
       ) : (

@@ -5,15 +5,32 @@ import {
   compterCommandesVendeur,
 } from "@/modules/commande/vendeur";
 import {
+  affecterTransporteurVendeurAction,
+  expedierVendeurAction,
+  livrerVendeurAction,
+} from "@/app/(vendeur)/vendeur/commandes/actions";
+import {
   BadgeStatutCommande,
   BadgeStatutPaiement,
 } from "@/components/commande/StatutBadges";
-import { Carte, Prix, EtatVide } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
+import { Carte, Prix, EtatVide, btn, champClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mes commandes — vendeur" };
 
-export default async function CommandesVendeurPage() {
+const MESSAGES_OK: Record<string, string> = {
+  preparation: "Commande en préparation — bon courage !",
+  expediee: "Commande marquée expédiée. L'acheteur est prévenu.",
+  livree: "Commande livrée. Bien joué !",
+};
+
+export default async function CommandesVendeurPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ok?: string; erreur?: string }>;
+}) {
+  const { ok, erreur } = await searchParams;
   const { vendeur } = await exigerVendeur();
   const [commandes, compteurs] = await Promise.all([
     listerCommandesVendeur(vendeur.id),
@@ -33,11 +50,21 @@ export default async function CommandesVendeurPage() {
         <Compteur label="Livrées" valeur={compteurs.livrees} />
       </div>
 
+      {ok && MESSAGES_OK[ok] && (
+        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          {MESSAGES_OK[ok]}
+        </p>
+      )}
+      {erreur && (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+      )}
+
       <p className="text-sm text-gray-500">
-        Prépare les commandes <strong>confirmées</strong> (le paiement Mobile
-        Money est déjà encaissé ; le paiement à la livraison est collecté par
-        le livreur). L&apos;expédition et la livraison sont coordonnées avec
-        NILE.
+        <strong>Ta boutique pilote la livraison</strong> de ses commandes :
+        préparation, expédition, livraison — l&apos;acheteur est prévenu
+        automatiquement à chaque étape, et NILE supervise. Un colis refusé à la
+        livraison ou un souci d&apos;encaissement : contacte NILE (page{" "}
+        <Link href="/contact" className="text-nile hover:underline">contact</Link>).
       </p>
 
       {commandes.length === 0 ? (
@@ -93,6 +120,63 @@ export default async function CommandesVendeurPage() {
                   <p className="mt-1">Transporteur : {c.livraison.transporteur}</p>
                 )}
               </div>
+
+              {/* Pilotage du suivi par la boutique (commande entièrement à elle). */}
+              {c.gereeParVendeur ? (
+                <div className="mt-3 border-t border-gray-100 pt-3">
+                  {c.statutCommande === "CONFIRMEE" && (
+                    <form
+                      action={affecterTransporteurVendeurAction}
+                      className="flex flex-col gap-2 sm:flex-row sm:items-end"
+                    >
+                      <input type="hidden" name="commandeId" value={c.id} />
+                      <div className="flex-1">
+                        <label htmlFor={`tr-${c.id}`} className="block text-xs text-gray-500">
+                          Qui livre ? (transporteur, livreur, ou toi-même)
+                        </label>
+                        <input
+                          id={`tr-${c.id}`}
+                          name="transporteur"
+                          required
+                          placeholder="Ex : Moto Express, Jean 6XX…, moi-même"
+                          className={`${champClass} mt-1`}
+                        />
+                      </div>
+                      <BoutonSoumettre enCours="Un instant…" className={btn("primaire", "md", "sm:shrink-0")}>
+                        Commencer la préparation
+                      </BoutonSoumettre>
+                    </form>
+                  )}
+                  {c.statutCommande === "EN_PREPARATION" && (
+                    <form action={expedierVendeurAction}>
+                      <input type="hidden" name="commandeId" value={c.id} />
+                      <BoutonSoumettre enCours="Un instant…" className={btn("primaire", "md")}>
+                        Marquer expédiée
+                      </BoutonSoumettre>
+                      <span className="ml-2 text-xs text-gray-500">
+                        L&apos;acheteur recevra la notification d&apos;expédition.
+                      </span>
+                    </form>
+                  )}
+                  {c.statutCommande === "EXPEDIEE" && (
+                    <form action={livrerVendeurAction}>
+                      <input type="hidden" name="commandeId" value={c.id} />
+                      <BoutonSoumettre enCours="Un instant…" className={btn("accent", "md")}>
+                        Marquer livrée
+                      </BoutonSoumettre>
+                      {c.modePaiement === "COD" && (
+                        <span className="ml-2 text-xs text-gray-500">
+                          Encaisse <Prix montant={c.total} /> à la remise du colis.
+                        </span>
+                      )}
+                    </form>
+                  )}
+                </div>
+              ) : (
+                <p className="mt-3 border-t border-gray-100 pt-3 text-xs text-gray-500">
+                  Commande multi-boutiques : le suivi est coordonné par NILE.
+                </p>
+              )}
             </Carte>
           ))}
         </div>
