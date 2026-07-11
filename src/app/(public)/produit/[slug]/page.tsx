@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getProduitPublicParSlug } from "@/modules/catalogue/produits";
 import { formaterXAF } from "@/lib/money";
+import { env } from "@/lib/env";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { listerAvisProduit, peutLaisserAvis } from "@/modules/avis/avis";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
@@ -173,8 +174,13 @@ export default async function FicheProduitPage({
                 <PuceCheck /> Mobile Money (MTN MoMo, Orange Money)
               </li>
               <li className="flex items-center gap-2">
-                <PuceCheck /> Livraison partout au Cameroun
+                <PuceCheck /> Livraison <strong>gratuite</strong> partout au Cameroun
               </li>
+              {env.DELAI_LIVRAISON_TEXTE && (
+                <li className="flex items-center gap-2">
+                  <PuceCheck /> Délai : {env.DELAI_LIVRAISON_TEXTE}
+                </li>
+              )}
             </ul>
             <p className="text-xs text-gray-400">Compte requis uniquement pour valider la commande.</p>
           </Carte>

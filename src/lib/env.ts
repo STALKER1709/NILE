@@ -28,6 +28,14 @@ const schema = z
       .url()
       .default("https://nile-beige.vercel.app"),
 
+    // Contact / support client (affichés seulement si renseignés).
+    // WhatsApp : numéro international SANS + ni espaces (ex. 2376XXXXXXXX).
+    CONTACT_WHATSAPP: z.string().regex(/^\d{8,15}$/).optional(),
+    CONTACT_EMAIL: z.string().email().optional(),
+    // Délai de livraison affiché aux acheteurs (ex. "24-72 h à Douala et
+    // Yaoundé, 2 à 5 jours ailleurs"). Vide = non affiché.
+    DELAI_LIVRAISON_TEXTE: z.string().optional(),
+
     PAYMENT_PROVIDER: z.enum(["mock", "monetbil"]).default("mock"),
     MONETBIL_SERVICE_KEY: z.string().optional(),
     MONETBIL_SERVICE_SECRET: z.string().optional(),

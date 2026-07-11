@@ -3,8 +3,10 @@ import { getEmailProvider } from "@/modules/email";
 import {
   construireEmailAcheteur,
   construireEmailVendeur,
+  construireEmailStatut,
   vendeursDeLaCommande,
   type CommandePourEmail,
+  type StatutNotifiable,
 } from "@/modules/email/notifications-core";
 
 /**
@@ -88,5 +90,43 @@ export async function notifierCommandeConfirmee(
     }
   } catch (erreur) {
     console.error("[email] notification de commande échouée:", erreur);
+  }
+}
+
+/**
+ * Prévient l'ACHETEUR d'un changement d'étape (expédiée, livrée).
+ * Un échec d'envoi est journalisé et ne fait JAMAIS échouer la transition.
+ */
+export async function notifierStatutCommande(
+  commandeId: string,
+  statut: StatutNotifiable,
+): Promise<void> {
+  try {
+    const commande = await prisma.commande.findUnique({
+      where: { id: commandeId },
+      include: {
+        acheteur: { select: { nom: true, email: true } },
+        livraison: { select: { transporteur: true } },
+      },
+    });
+    if (!commande) return;
+
+    const contenu = construireEmailStatut(
+      {
+        numero: commande.numero,
+        total: commande.total,
+        modePaiement: commande.modePaiement,
+      },
+      statut,
+      commande.acheteur.nom,
+      commande.livraison?.transporteur,
+    );
+    await getEmailProvider().envoyer({
+      a: commande.acheteur.email,
+      nomDestinataire: commande.acheteur.nom,
+      ...contenu,
+    });
+  } catch (erreur) {
+    console.error("[email] notification de statut échouée:", erreur);
   }
 }

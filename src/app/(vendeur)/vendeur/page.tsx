@@ -2,6 +2,7 @@ import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 import { getSoldeVendeur } from "@/modules/reversement/reversement";
+import { compterCommandesVendeur } from "@/modules/commande/vendeur";
 import { Carte, Badge, Prix, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -17,6 +18,7 @@ export default async function VendeurPage() {
     vendeur && !vendeur.estBoutiqueMaison
       ? await getSoldeVendeur(vendeur.id)
       : null;
+  const compteurs = vendeur ? await compterCommandesVendeur(vendeur.id) : null;
 
   return (
     <div className="space-y-5">
@@ -41,9 +43,19 @@ export default async function VendeurPage() {
         <p className="mt-3 text-sm text-gray-500">
           {vendeur?._count.produits ?? 0} produit(s) dans votre boutique.
         </p>
-        <Link href="/vendeur/produits" className={btn("primaire", "md", "mt-4")}>
-          Gérer mes produits
-        </Link>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link href="/vendeur/produits" className={btn("primaire", "md")}>
+            Gérer mes produits
+          </Link>
+          <Link href="/vendeur/commandes" className={btn("secondaire", "md")}>
+            Mes commandes
+            {compteurs && compteurs.aPreparer > 0 && (
+              <span className="ml-1 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-white">
+                {compteurs.aPreparer}
+              </span>
+            )}
+          </Link>
+        </div>
       </Carte>
 
       {solde && (

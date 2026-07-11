@@ -108,3 +108,45 @@ Prépare les articles puis mets à jour le statut dans ton espace vendeur.
 export function vendeursDeLaCommande(lignes: LigneEmail[]): string[] {
   return [...new Set(lignes.map((l) => l.vendeurId))];
 }
+
+export type StatutNotifiable = "EXPEDIEE" | "LIVREE";
+
+/**
+ * Email envoyé à l'ACHETEUR quand sa commande change d'étape.
+ * Crucial pour le paiement à la livraison : le client doit savoir que le
+ * colis arrive (sinon refus à la porte).
+ */
+export function construireEmailStatut(
+  commande: Pick<CommandePourEmail, "numero" | "total" | "modePaiement">,
+  statut: StatutNotifiable,
+  nomAcheteur: string,
+  transporteur?: string | null,
+): { sujet: string; texte: string; html: string } {
+  if (statut === "EXPEDIEE") {
+    const sujet = `Commande ${commande.numero} expédiée — elle arrive !`;
+    const texte = `Bonjour ${nomAcheteur},
+
+Bonne nouvelle : ta commande ${commande.numero} est en route.${transporteur ? `\nTransporteur : ${transporteur}.` : ""}
+${
+  commande.modePaiement === "COD"
+    ? `\nPrépare ${formaterXAF(commande.total)} en espèces pour le livreur (paiement à la livraison).`
+    : "\nElle est déjà payée : rien à régler à la réception."
+}
+Tu peux suivre l'avancement dans « Mes commandes » sur NILE.
+
+— NILE Marketplace`;
+    return { sujet, texte, html: enHtml(texte) };
+  }
+
+  const sujet = `Commande ${commande.numero} livrée — merci !`;
+  const texte = `Bonjour ${nomAcheteur},
+
+Ta commande ${commande.numero} a été livrée. Merci pour ta confiance !
+
+Un souci avec un article ? Réponds à cet email ou passe par la page contact.
+Et si tout va bien, laisse un avis sur les produits reçus : ça aide les
+autres acheteurs et les vendeurs sérieux.
+
+— NILE Marketplace`;
+  return { sujet, texte, html: enHtml(texte) };
+}

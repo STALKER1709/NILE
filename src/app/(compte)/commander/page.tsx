@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { exigerConnexion } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { calculerTotal } from "@/modules/commande/commande-core";
+import { env } from "@/lib/env";
 import { getPlafondCOD } from "@/modules/commande/config";
 import { getDerniereAdresse } from "@/modules/commande/commande";
 import { passerCommandeAction } from "@/app/(compte)/commander/actions";
@@ -115,6 +116,13 @@ export default async function CommanderPage({
                 </li>
               ))}
             </ul>
+            <div className="flex justify-between text-sm text-gray-600">
+              <span>Livraison</span>
+              <span className="font-medium text-emerald-700">Gratuite</span>
+            </div>
+            {env.DELAI_LIVRAISON_TEXTE && (
+              <p className="text-xs text-gray-500">Délai estimé : {env.DELAI_LIVRAISON_TEXTE}</p>
+            )}
             <div className="flex justify-between border-t border-gray-100 pt-2 font-bold">
               <span>Total</span>
               <Prix montant={total} className="text-nile" />

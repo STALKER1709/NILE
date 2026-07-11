@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   construireEmailAcheteur,
   construireEmailVendeur,
+  construireEmailStatut,
   vendeursDeLaCommande,
   type CommandePourEmail,
 } from "@/modules/email/notifications-core";
@@ -87,5 +88,29 @@ describe("vendeursDeLaCommande", () => {
         { titreProduit: "X", quantite: 1, sousTotal: 1, vendeurId: "v1" },
       ]),
     ).toEqual(["v1", "v2"]);
+  });
+});
+
+describe("construireEmailStatut", () => {
+  const base = { numero: "NILE-2026-ABCD1234", total: 27500, modePaiement: "COD" as const };
+
+  it("EXPEDIEE en COD : rappelle le montant à préparer en espèces", () => {
+    const email = construireEmailStatut(base, "EXPEDIEE", "Jean", "Express Douala");
+    expect(email.sujet).toContain("expédiée");
+    expect(email.texte).toContain("27 500");
+    expect(email.texte).toContain("espèces");
+    expect(email.texte).toContain("Express Douala");
+  });
+
+  it("EXPEDIEE en Mobile Money : rien à régler", () => {
+    const email = construireEmailStatut({ ...base, modePaiement: "MONETBIL" }, "EXPEDIEE", "Jean");
+    expect(email.texte).toContain("rien à régler");
+    expect(email.texte).not.toContain("espèces");
+  });
+
+  it("LIVREE : remercie et invite à laisser un avis", () => {
+    const email = construireEmailStatut(base, "LIVREE", "Jean");
+    expect(email.sujet).toContain("livrée");
+    expect(email.texte).toContain("avis");
   });
 });

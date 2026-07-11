@@ -7,6 +7,7 @@ import { listerCategories } from "@/modules/catalogue/categories";
 import { Entete } from "@/components/layout/Entete";
 import { PiedDePage } from "@/components/layout/PiedDePage";
 import { NavMobile } from "@/components/layout/NavMobile";
+import { BulleWhatsApp } from "@/components/layout/BulleWhatsApp";
 
 const DESCRIPTION =
   "Marketplace du Cameroun — achats en ligne, paiement mobile (MTN MoMo, Orange Money) et à la livraison.";
@@ -62,6 +63,7 @@ export default async function RootLayout({
         <main className="mx-auto max-w-6xl px-3 py-5 pb-24 sm:px-4 sm:pb-8">{children}</main>
         <PiedDePage />
         <NavMobile connecte={!!utilisateur} nbArticles={nbArticles} />
+        {env.CONTACT_WHATSAPP && <BulleWhatsApp numero={env.CONTACT_WHATSAPP} />}
       </body>
     </html>
   );

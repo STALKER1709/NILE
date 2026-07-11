@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { notifierStatutCommande } from "@/modules/email/notifications";
 import { getStorageProvider } from "@/modules/stockage";
 import {
   TYPES_IMAGE_ACCEPTES,
@@ -74,6 +75,8 @@ export async function marquerExpediee(
       data: { statut: "EN_TRANSIT" },
     }),
   ]);
+  // Prévient l'acheteur (essentiel en COD : préparer le paiement au livreur).
+  await notifierStatutCommande(commandeId, "EXPEDIEE");
   return { ok: true };
 }
 
@@ -96,6 +99,7 @@ export async function marquerLivree(
       data: { statut: "LIVREE", dateLivraison: new Date() },
     }),
   ]);
+  await notifierStatutCommande(commandeId, "LIVREE");
   return { ok: true };
 }
 
