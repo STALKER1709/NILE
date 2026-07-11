@@ -2,15 +2,22 @@ import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
+import { statsAdmin } from "@/modules/stats/stats";
+import { listerSoldesVendeurs } from "@/modules/reversement/reversement";
 import { ActiverNotifications } from "@/components/push/ActiverNotifications";
-import { Carte } from "@/components/ui/kit";
+import { GraphBarres } from "@/components/stats/GraphBarres";
+import {
+  BadgeStatutCommande,
+  BadgeStatutPaiement,
+} from "@/components/commande/StatutBadges";
+import { Carte, Prix } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Back-office" };
 
 const LIENS = [
   { href: "/admin/vendeurs", titre: "Vendeurs", desc: "Valider / suspendre les boutiques" },
-  { href: "/admin/commandes", titre: "Commandes & livraisons", desc: "Suivi, transporteur, preuve, refus" },
+  { href: "/admin/commandes", titre: "Commandes & livraisons", desc: "Supervision, multi-boutiques, refus" },
   { href: "/admin/moderation", titre: "Modération", desc: "Rejeter / réactiver des produits" },
   { href: "/admin/categories", titre: "Catégories", desc: "Gérer l'arborescence" },
   { href: "/admin/reconciliation", titre: "Réconciliation COD", desc: "Cash collecté / reversé" },
@@ -19,15 +26,19 @@ const LIENS = [
 
 export default async function AdminPage() {
   await exigerRole("ADMIN");
-  const [nbUtilisateurs, nbVendeurs, nbEnAttente, nbCommandes] = await Promise.all([
-    prisma.utilisateur.count(),
-    prisma.vendeur.count(),
-    prisma.vendeur.count({ where: { statutValidation: "EN_ATTENTE" } }),
-    prisma.commande.count(),
-  ]);
+  const [stats, soldes, nbUtilisateurs, nbVendeurs, nbEnAttente, produitsActifs] =
+    await Promise.all([
+      statsAdmin(),
+      listerSoldesVendeurs(),
+      prisma.utilisateur.count(),
+      prisma.vendeur.count(),
+      prisma.vendeur.count({ where: { statutValidation: "EN_ATTENTE" } }),
+      prisma.produit.count({ where: { statut: "ACTIF" } }),
+    ]);
+  const duVendeurs = soldes.reduce((s, v) => s + v.solde, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-xl font-bold">Back-office</h1>
         {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
@@ -35,11 +46,82 @@ export default async function AdminPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Stat label="Utilisateurs" valeur={nbUtilisateurs} />
-        <Stat label="Vendeurs" valeur={nbVendeurs} />
-        <Stat label="À valider" valeur={nbEnAttente} accent />
-        <Stat label="Commandes" valeur={nbCommandes} />
+      {/* Argent */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Kpi label="CA réalisé (livré & payé)" valeur={<Prix montant={stats.caRealise} />} />
+        <Kpi label="CA ce mois" valeur={<Prix montant={stats.caMois} />} />
+        <Lien href="/admin/reversements">
+          <Kpi
+            label="Dû aux vendeurs"
+            valeur={<Prix montant={duVendeurs} />}
+            accent={duVendeurs > 0}
+          />
+        </Lien>
+        <Lien href="/admin/reconciliation">
+          <Kpi
+            label="Cash COD à réconcilier"
+            valeur={<Prix montant={stats.cashACollecter} />}
+            sousTitre={`${stats.nbCashACollecter} livraison${stats.nbCashACollecter > 1 ? "s" : ""}`}
+            accent={stats.cashACollecter > 0}
+          />
+        </Lien>
+      </div>
+
+      {/* Plateforme */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <Kpi label="Utilisateurs" valeur={String(nbUtilisateurs)} />
+        <Lien href="/admin/vendeurs">
+          <Kpi
+            label="Boutiques à valider"
+            valeur={String(nbEnAttente)}
+            sousTitre={`${nbVendeurs} vendeurs au total`}
+            accent={nbEnAttente > 0}
+          />
+        </Lien>
+        <Lien href="/admin/commandes">
+          <Kpi label="Commandes en cours" valeur={String(stats.commandesActives)} />
+        </Lien>
+        <Kpi label="Produits actifs" valeur={String(produitsActifs)} />
+      </div>
+
+      <div className="grid gap-5 lg:grid-cols-2">
+        <Carte className="p-5">
+          <GraphBarres points={stats.activite7Jours} titre="Commandes des 7 derniers jours" />
+        </Carte>
+
+        <Carte className="p-5">
+          <div className="flex items-baseline justify-between">
+            <h2 className="font-semibold">Dernières commandes</h2>
+            <Link href="/admin/commandes" className="text-xs text-nile hover:underline">
+              Tout voir →
+            </Link>
+          </div>
+          {stats.dernieresCommandes.length === 0 ? (
+            <p className="mt-2 text-sm text-gray-500">Aucune commande.</p>
+          ) : (
+            <ul className="mt-2 divide-y divide-gray-100">
+              {stats.dernieresCommandes.map((c) => (
+                <li key={c.id}>
+                  <Link
+                    href={`/admin/commandes/${c.id}`}
+                    className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm hover:bg-gray-50"
+                  >
+                    <span className="min-w-0">
+                      <span className="block font-medium">{c.numero}</span>
+                      <span className="block truncate text-xs text-gray-500">
+                        {c.acheteur.nom} · <Prix montant={c.total} />
+                      </span>
+                    </span>
+                    <span className="flex gap-1">
+                      <BadgeStatutCommande statut={c.statutCommande} />
+                      <BadgeStatutPaiement statut={c.statutPaiement} />
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </Carte>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -56,11 +138,28 @@ export default async function AdminPage() {
   );
 }
 
-function Stat({ label, valeur, accent = false }: { label: string; valeur: number; accent?: boolean }) {
+function Lien({ href, children }: { href: string; children: React.ReactNode }) {
+  return <Link href={href}>{children}</Link>;
+}
+
+function Kpi({
+  label,
+  valeur,
+  sousTitre,
+  accent = false,
+}: {
+  label: string;
+  valeur: React.ReactNode;
+  sousTitre?: string;
+  accent?: boolean;
+}) {
   return (
-    <Carte className="p-4">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className={`mt-1 text-2xl font-bold ${accent && valeur > 0 ? "text-accent-dark" : "text-nile"}`}>{valeur}</p>
+    <Carte className="h-full p-4 transition hover:shadow-flottant">
+      <p className="text-xs text-gray-500">{label}</p>
+      <p className={`mt-1 truncate text-xl font-bold ${accent ? "text-accent-dark" : "text-nile"}`}>
+        {valeur}
+      </p>
+      {sousTitre && <p className="mt-0.5 text-[11px] text-gray-400">{sousTitre}</p>}
     </Carte>
   );
 }

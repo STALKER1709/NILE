@@ -2,7 +2,12 @@ import Link from "next/link";
 import { exigerConnexion } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 import { deconnexionAction } from "@/app/(auth)/actions";
-import { Carte, Badge, btn } from "@/components/ui/kit";
+import { statsAcheteur } from "@/modules/stats/stats";
+import {
+  BadgeStatutCommande,
+  BadgeStatutPaiement,
+} from "@/components/commande/StatutBadges";
+import { Carte, Badge, Prix, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mon compte" };
@@ -14,10 +19,12 @@ export default async function ComptePage({
 }) {
   const { ok } = await searchParams;
   const utilisateur = await exigerConnexion();
-  const vendeur =
+  const [vendeur, stats] = await Promise.all([
     utilisateur.role === "VENDEUR"
-      ? await prisma.vendeur.findUnique({ where: { utilisateurId: utilisateur.id } })
-      : null;
+      ? prisma.vendeur.findUnique({ where: { utilisateurId: utilisateur.id } })
+      : Promise.resolve(null),
+    statsAcheteur(utilisateur.id),
+  ]);
 
   return (
     <div className="space-y-5">
@@ -27,6 +34,43 @@ export default async function ComptePage({
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Ton mot de passe a bien été modifié.
         </p>
+      )}
+
+      {/* Mes achats en un coup d'œil */}
+      <div className="grid grid-cols-3 gap-3">
+        <Kpi label="En cours" valeur={String(stats.enCours)} accent={stats.enCours > 0} />
+        <Kpi label="Livrées" valeur={String(stats.livrees)} />
+        <Kpi label="Total dépensé" valeur={<Prix montant={stats.totalDepense} />} />
+      </div>
+
+      {stats.derniereCommande && (
+        <Carte className="p-4">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-xs text-gray-500">Dernière commande</p>
+              <p className="font-semibold">{stats.derniereCommande.numero}</p>
+              <p className="text-xs text-gray-500">
+                {new Date(stats.derniereCommande.dateCreation).toLocaleDateString("fr-FR", {
+                  day: "numeric",
+                  month: "long",
+                })}{" "}
+                · {stats.derniereCommande._count.lignes} article
+                {stats.derniereCommande._count.lignes > 1 ? "s" : ""} ·{" "}
+                <Prix montant={stats.derniereCommande.total} />
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5">
+              <BadgeStatutCommande statut={stats.derniereCommande.statutCommande} />
+              <BadgeStatutPaiement statut={stats.derniereCommande.statutPaiement} />
+              <Link
+                href={`/commandes/${stats.derniereCommande.id}`}
+                className={btn("secondaire", "sm")}
+              >
+                Suivre
+              </Link>
+            </div>
+          </div>
+        </Carte>
       )}
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -72,6 +116,25 @@ export default async function ComptePage({
         </form>
       </Carte>
     </div>
+  );
+}
+
+function Kpi({
+  label,
+  valeur,
+  accent = false,
+}: {
+  label: string;
+  valeur: React.ReactNode;
+  accent?: boolean;
+}) {
+  return (
+    <Carte className="p-4 text-center">
+      <p className={`truncate text-xl font-bold ${accent ? "text-accent-dark" : "text-nile"}`}>
+        {valeur}
+      </p>
+      <p className="text-xs text-gray-500">{label}</p>
+    </Carte>
   );
 }
 
