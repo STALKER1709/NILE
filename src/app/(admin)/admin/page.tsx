@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
+import { ActiverNotifications } from "@/components/push/ActiverNotifications";
 import { Carte } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +28,12 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-bold">Back-office</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-xl font-bold">Back-office</h1>
+        {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
+          <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
+        )}
+      </div>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Utilisateurs" valeur={nbUtilisateurs} />

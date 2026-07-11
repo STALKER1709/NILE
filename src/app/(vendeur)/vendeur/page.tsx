@@ -3,6 +3,8 @@ import { exigerRole } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 import { getSoldeVendeur } from "@/modules/reversement/reversement";
 import { compterCommandesVendeur } from "@/modules/commande/vendeur";
+import { env } from "@/lib/env";
+import { ActiverNotifications } from "@/components/push/ActiverNotifications";
 import { Carte, Badge, Prix, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -43,6 +45,11 @@ export default async function VendeurPage() {
         <p className="mt-3 text-sm text-gray-500">
           {vendeur?._count.produits ?? 0} produit(s) dans votre boutique.
         </p>
+        {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
+          <div className="mt-3">
+            <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
+          </div>
+        )}
         <div className="mt-4 flex flex-wrap gap-2">
           <Link href="/vendeur/produits" className={btn("primaire", "md")}>
             Gérer mes produits

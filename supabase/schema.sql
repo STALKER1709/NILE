@@ -226,6 +226,18 @@ CREATE TABLE "EvenementAbus" (
 );
 
 -- CreateTable
+CREATE TABLE "AbonnementPush" (
+    "id" TEXT NOT NULL,
+    "utilisateurId" TEXT NOT NULL,
+    "endpoint" TEXT NOT NULL,
+    "p256dh" TEXT NOT NULL,
+    "auth" TEXT NOT NULL,
+    "dateCreation" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "AbonnementPush_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Reversement" (
     "id" TEXT NOT NULL,
     "vendeurId" TEXT NOT NULL,
@@ -318,6 +330,12 @@ CREATE UNIQUE INDEX "Avis_produitId_acheteurId_key" ON "Avis"("produitId", "ache
 CREATE INDEX "EvenementAbus_cle_dateCreation_idx" ON "EvenementAbus"("cle", "dateCreation");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "AbonnementPush_endpoint_key" ON "AbonnementPush"("endpoint");
+
+-- CreateIndex
+CREATE INDEX "AbonnementPush_utilisateurId_idx" ON "AbonnementPush"("utilisateurId");
+
+-- CreateIndex
 CREATE INDEX "Reversement_vendeurId_idx" ON "Reversement"("vendeurId");
 
 -- AddForeignKey
@@ -367,6 +385,9 @@ ALTER TABLE "Avis" ADD CONSTRAINT "Avis_produitId_fkey" FOREIGN KEY ("produitId"
 
 -- AddForeignKey
 ALTER TABLE "Avis" ADD CONSTRAINT "Avis_acheteurId_fkey" FOREIGN KEY ("acheteurId") REFERENCES "Utilisateur"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "AbonnementPush" ADD CONSTRAINT "AbonnementPush_utilisateurId_fkey" FOREIGN KEY ("utilisateurId") REFERENCES "Utilisateur"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Reversement" ADD CONSTRAINT "Reversement_vendeurId_fkey" FOREIGN KEY ("vendeurId") REFERENCES "Vendeur"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

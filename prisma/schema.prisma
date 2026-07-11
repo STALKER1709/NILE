@@ -102,6 +102,7 @@ model Utilisateur {
   dateCreation            DateTime          @default(now())
 
   vendeur   Vendeur?
+  abonnementsPush AbonnementPush[]
   panier    Panier?
   commandes Commande[]
   avis      Avis[]
@@ -323,6 +324,20 @@ model EvenementAbus {
   dateCreation DateTime @default(now())
 
   @@index([cle, dateCreation])
+}
+
+// Abonnement Web Push d'un utilisateur (vendeur/admin) : permet de le
+// prévenir instantanément d'une nouvelle commande sur son téléphone.
+model AbonnementPush {
+  id           String      @id @default(uuid())
+  utilisateurId String
+  utilisateur  Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  endpoint     String      @unique
+  p256dh       String
+  auth         String
+  dateCreation DateTime    @default(now())
+
+  @@index([utilisateurId])
 }
 
 // Reversement d'argent à un vendeur tiers (transfert MoMo/OM fait à la main

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { getPaymentProvider } from "@/modules/paiement";
 import { notifierCommandeConfirmee } from "@/modules/email/notifications";
+import { notifierPushNouvelleCommande } from "@/modules/push/push";
 
 export type ResultatTraitement =
   | { ok: true; statut: "PAYE" | "ECHOUE" | "DEJA_TRAITE" }
@@ -50,8 +51,9 @@ export async function traiterNotificationPaiement(
       return maj.count === 1;
     });
     if (confirmee) {
-      // Email acheteur + vendeurs (n'échoue jamais le callback).
+      // Email acheteur + vendeurs, et push vendeurs/admin (n'échouent jamais le callback).
       await notifierCommandeConfirmee(paiement.commandeId);
+      await notifierPushNouvelleCommande(paiement.commandeId);
     }
     return { ok: true, statut: "PAYE" };
   }

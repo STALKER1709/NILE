@@ -28,6 +28,12 @@ const schema = z
       .url()
       .default("https://nile-beige.vercel.app"),
 
+    // Notifications push (Web Push / VAPID). Génère la paire de clés avec :
+    //   npx web-push generate-vapid-keys
+    // Les deux clés doivent être présentes pour activer le push.
+    NEXT_PUBLIC_VAPID_PUBLIC_KEY: z.string().optional(),
+    VAPID_PRIVATE_KEY: z.string().optional(),
+
     // Contact / support client (affichés seulement si renseignés).
     // WhatsApp : numéro international SANS + ni espaces (ex. 2376XXXXXXXX).
     CONTACT_WHATSAPP: z.string().regex(/^\d{8,15}$/).optional(),

@@ -8,6 +8,7 @@ import {
 } from "@/modules/commande/config";
 import { getPaymentProvider } from "@/modules/paiement";
 import { notifierCommandeConfirmee } from "@/modules/email/notifications";
+import { notifierPushNouvelleCommande } from "@/modules/push/push";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -135,8 +136,9 @@ export async function passerCommande(
 
   // Paiement à la livraison : rien à initier, la commande est confirmée.
   if (options.mode === "COD") {
-    // Email acheteur + vendeurs (n'échoue jamais la commande).
+    // Email acheteur + vendeurs, et push vendeurs/admin (n'échouent jamais la commande).
     await notifierCommandeConfirmee(cree.commandeId);
+    await notifierPushNouvelleCommande(cree.commandeId);
     return {
       ok: true,
       commandeId: cree.commandeId,
