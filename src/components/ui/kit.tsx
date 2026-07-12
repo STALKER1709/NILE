@@ -41,12 +41,14 @@ export function btn(
 export function Carte({
   children,
   className = "",
+  id,
 }: {
   children: ReactNode;
   className?: string;
+  id?: string;
 }) {
   return (
-    <section className={`rounded-xl2 border border-gray-100 bg-white shadow-carte ${className}`}>
+    <section id={id} className={`rounded-xl2 border border-gray-100 bg-white shadow-carte ${className}`}>
       {children}
     </section>
   );

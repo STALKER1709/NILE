@@ -1,14 +1,25 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getProduitPublicParSlug } from "@/modules/catalogue/produits";
+import {
+  getProduitPublicParSlug,
+  getProduitsSimilaires,
+} from "@/modules/catalogue/produits";
 import { formaterXAF } from "@/lib/money";
 import { env } from "@/lib/env";
 import { getUtilisateurCourant } from "@/modules/auth/access";
-import { listerAvisProduit, peutLaisserAvis } from "@/modules/avis/avis";
+import {
+  listerAvisProduit,
+  peutLaisserAvis,
+  getRepartitionNotes,
+} from "@/modules/avis/avis";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { creerAvisAction } from "@/app/(public)/produit/[slug]/actions";
 import { GaleriePhotos } from "@/components/produit/GaleriePhotos";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
+import { BarreAchatMobile } from "@/components/produit/BarreAchatMobile";
+import { RepartitionAvis, BadgeAchatVerifie } from "@/components/produit/RepartitionAvis";
+import { MemoriserVu, VusRecemment } from "@/components/produit/VusRecemment";
+import { CarteProduit } from "@/components/produit/CarteProduit";
 import { Carte, Etoiles, Prix, Badge, btn, champClass } from "@/components/ui/kit";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
@@ -68,12 +79,15 @@ export default async function FicheProduitPage({
   if (!produit) notFound();
 
   const utilisateur = await getUtilisateurCourant();
-  const [avis, peutNoter, quantites] = await Promise.all([
+  const [avis, peutNoter, quantites, repartition, similaires] = await Promise.all([
     listerAvisProduit(produit.id),
     utilisateur ? peutLaisserAvis(utilisateur.id, produit.id) : Promise.resolve(false),
     getQuantitesAffichees(utilisateur?.id ?? null),
+    getRepartitionNotes(produit.id),
+    getProduitsSimilaires(produit.categorieId, produit.id, 6),
   ]);
   const enRupture = produit.stock === 0;
+  const quantitePanier = quantites[produit.id] ?? 0;
 
   return (
     <div className="space-y-6">
@@ -120,7 +134,7 @@ export default async function FicheProduitPage({
           )}
 
           {/* Encadré d'achat (type marketplace) */}
-          <Carte className="space-y-3 p-4">
+          <Carte id="achat-principal" className="space-y-3 p-4">
             <div>
               <p className="text-3xl font-extrabold text-promo">
                 <Prix montant={produit.prix} />
@@ -130,16 +144,20 @@ export default async function FicheProduitPage({
 
             {enRupture ? (
               <Badge ton="rouge">Indisponible (rupture)</Badge>
+            ) : produit.stock <= 5 ? (
+              <p className="text-sm font-semibold text-promo">
+                Plus que {produit.stock} en stock — commandez vite !
+              </p>
             ) : (
               <p className="text-sm font-semibold text-emerald-700">
-                En stock ({produit.stock} disponible{produit.stock > 1 ? "s" : ""})
+                En stock ({produit.stock} disponibles)
               </p>
             )}
 
             <BoutonPanier
               produitId={produit.id}
               stock={produit.stock}
-              quantiteInitiale={quantites[produit.id] ?? 0}
+              quantiteInitiale={quantitePanier}
               taille="lg"
             />
             <Link href="/panier" className={btn("secondaire", "md", "w-full")}>
@@ -178,7 +196,13 @@ export default async function FicheProduitPage({
 
       {/* Avis */}
       <Carte className="space-y-4 p-5">
-        <h2 className="font-semibold">Avis ({produit.nbAvis})</h2>
+        <h2 className="font-semibold">Avis clients ({produit.nbAvis})</h2>
+
+        <RepartitionAvis
+          total={repartition.total}
+          moyenne={repartition.moyenne}
+          parNote={repartition.parNote}
+        />
 
         {peutNoter && (
           <form action={creerAvisAction} className="space-y-2 rounded-lg border border-gray-200 p-3">
@@ -195,13 +219,14 @@ export default async function FicheProduitPage({
           </form>
         )}
 
-        {avis.length === 0 ? (
-          <p className="text-sm text-gray-500">Aucun avis pour l'instant.</p>
-        ) : (
-          <ul className="divide-y divide-gray-100">
+        {avis.length > 0 && (
+          <ul className="divide-y divide-gray-100 border-t border-gray-100 pt-1">
             {avis.map((a) => (
-              <li key={a.id} className="py-3 first:pt-0">
-                <Etoiles note={a.note} />
+              <li key={a.id} className="py-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Etoiles note={a.note} />
+                  <BadgeAchatVerifie />
+                </div>
                 {a.commentaire && <p className="mt-1 text-sm text-gray-700">{a.commentaire}</p>}
                 <p className="mt-0.5 text-xs text-gray-400">
                   {a.acheteur.nom} · {new Date(a.dateCreation).toLocaleDateString("fr-FR")}
@@ -211,6 +236,44 @@ export default async function FicheProduitPage({
           </ul>
         )}
       </Carte>
+
+      {/* Produits similaires */}
+      {similaires.length > 0 && (
+        <section>
+          <h2 className="mb-3 text-lg font-bold">Vous aimerez aussi</h2>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+            {similaires.map((p, i) => (
+              <CarteProduit
+                key={p.id}
+                produit={p}
+                quantitePanier={quantites[p.id] ?? 0}
+                index={i}
+              />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Vus récemment (client, localStorage) */}
+      <VusRecemment slugCourant={produit.slug} />
+
+      {/* Mémorise ce produit dans l'historique + barre d'achat collante mobile */}
+      <MemoriserVu
+        produit={{
+          slug: produit.slug,
+          titre: produit.titre,
+          prix: produit.prix,
+          image: produit.images[0]?.url,
+        }}
+      />
+      {!enRupture && (
+        <BarreAchatMobile
+          produitId={produit.id}
+          stock={produit.stock}
+          quantiteInitiale={quantitePanier}
+          prix={produit.prix}
+        />
+      )}
     </div>
   );
 }

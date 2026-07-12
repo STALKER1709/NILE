@@ -289,3 +289,53 @@ export const getProduitPublicParSlug = cache(async (slug: string) => {
     },
   });
 });
+
+/**
+ * Produits similaires : même catégorie, achetables (ACTIF + boutique VALIDÉE),
+ * hors produit courant. Les mieux notés d'abord. Pour le cross-sell de la
+ * fiche produit (« Vous aimerez aussi »).
+ */
+export async function getProduitsSimilaires(
+  categorieId: string,
+  produitIdExclu: string,
+  limite = 6,
+) {
+  return prisma.produit.findMany({
+    where: {
+      categorieId,
+      id: { not: produitIdExclu },
+      statut: "ACTIF",
+      vendeur: { is: { statutValidation: "VALIDE" } },
+    },
+    orderBy: [{ noteMoyenne: "desc" }, { nbAvis: "desc" }, { dateCreation: "desc" }],
+    take: limite,
+    include: {
+      images: { orderBy: { ordre: "asc" }, take: 1 },
+      vendeur: { select: { id: true, nomBoutique: true } },
+    },
+  });
+}
+
+/**
+ * Suggestions d'autocomplétion de recherche : produits dont le titre contient
+ * le terme (achetables), triés par pertinence simple (les mieux notés).
+ */
+export async function suggererProduits(terme: string, limite = 6) {
+  const t = terme.trim();
+  if (t.length < 2) return [];
+  return prisma.produit.findMany({
+    where: {
+      titre: { contains: t, mode: "insensitive" },
+      statut: "ACTIF",
+      vendeur: { is: { statutValidation: "VALIDE" } },
+    },
+    orderBy: [{ nbAvis: "desc" }, { noteMoyenne: "desc" }],
+    take: limite,
+    select: {
+      slug: true,
+      titre: true,
+      prix: true,
+      images: { orderBy: { ordre: "asc" }, take: 1, select: { url: true } },
+    },
+  });
+}

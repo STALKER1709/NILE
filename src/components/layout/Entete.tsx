@@ -2,38 +2,11 @@ import Link from "next/link";
 import type { Role } from "@prisma/client";
 import { deconnexionAction } from "@/app/(auth)/actions";
 import { BadgePanier } from "@/components/panier/BadgePanier";
+import { BarreRecherche } from "@/components/layout/BarreRecherche";
 
 export interface LienCategorie {
   nom: string;
   slug: string;
-}
-
-function BarreRecherche({ className = "" }: { className?: string }) {
-  return (
-    <form
-      method="get"
-      action="/catalogue"
-      className={`flex overflow-hidden rounded-md bg-white shadow-sm ring-1 ring-black/5 focus-within:ring-2 focus-within:ring-accent ${className}`}
-    >
-      <input
-        type="search"
-        name="q"
-        placeholder="Rechercher un produit, une marque…"
-        aria-label="Rechercher"
-        className="min-w-0 flex-1 bg-transparent px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none"
-      />
-      <button
-        type="submit"
-        aria-label="Lancer la recherche"
-        className="grid w-11 place-items-center bg-accent text-white hover:bg-accent-dark"
-      >
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-          <circle cx="11" cy="11" r="7" />
-          <path d="m21 21-4.3-4.3" strokeLinecap="round" />
-        </svg>
-      </button>
-    </form>
-  );
 }
 
 export function Entete({
