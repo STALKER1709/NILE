@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { listerCategories } from "@/modules/catalogue/categories";
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
+import { listerBoutiques } from "@/modules/catalogue/boutiques";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
+import { CarteBoutique } from "@/components/boutique/CarteBoutique";
 import { Carrousel } from "@/components/ui/Carrousel";
 import { DiapoMarque, DiapoLivraison, DiapoMomo } from "@/components/accueil/Diapos";
 import { IconeCategorie } from "@/components/categorie/IconeCategorie";
@@ -12,13 +14,19 @@ export const dynamic = "force-dynamic";
 
 export default async function AccueilPage() {
   const utilisateur = await getUtilisateurCourant();
-  const [categories, { produits: recents }, { produits: populaires }, quantites] =
-    await Promise.all([
-      listerCategories(),
-      rechercherProduitsCatalogue({ tri: "recent", page: 1, parPage: 12 }),
-      rechercherProduitsCatalogue({ tri: "populaire", page: 1, parPage: 6 }),
-      getQuantitesAffichees(utilisateur?.id ?? null),
-    ]);
+  const [
+    categories,
+    { produits: recents },
+    { produits: populaires },
+    boutiques,
+    quantites,
+  ] = await Promise.all([
+    listerCategories(),
+    rechercherProduitsCatalogue({ tri: "recent", page: 1, parPage: 12 }),
+    rechercherProduitsCatalogue({ tri: "populaire", page: 1, parPage: 6 }),
+    listerBoutiques({ tri: "populaire", limite: 8 }),
+    getQuantitesAffichees(utilisateur?.id ?? null),
+  ]);
   const racines = categories.filter((c) => !c.parentId).slice(0, 8);
 
   return (
@@ -86,6 +94,23 @@ export default async function AccueilPage() {
                   <span className="text-xs text-nile">Voir le rayon</span>
                 </span>
               </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Boutiques à découvrir */}
+      {boutiques.length > 0 && (
+        <section>
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="text-lg font-bold">Boutiques à découvrir</h2>
+            <Link href="/boutiques" className="text-sm font-medium text-nile hover:underline">
+              Toutes les boutiques →
+            </Link>
+          </div>
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+            {boutiques.map((b, i) => (
+              <CarteBoutique key={b.id} boutique={b} compact index={i} />
             ))}
           </div>
         </section>

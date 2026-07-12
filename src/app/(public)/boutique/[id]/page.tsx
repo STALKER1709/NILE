@@ -3,7 +3,7 @@ import { prisma } from "@/lib/db";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
-import { Badge, EtatVide } from "@/components/ui/kit";
+import { Badge, EtatVide, Etoiles } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 
@@ -53,6 +53,13 @@ export default async function BoutiquePage({
     getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
 
+  // Note globale de la boutique : moyenne pondérée des avis de ses produits.
+  const totalAvis = produits.reduce((s, p) => s + p.nbAvis, 0);
+  const noteGlobale =
+    totalAvis > 0
+      ? produits.reduce((s, p) => s + p.noteMoyenne * p.nbAvis, 0) / totalAvis
+      : 0;
+
   return (
     <div className="space-y-5">
       <div className="overflow-hidden rounded-xl2 border border-gray-100 bg-white shadow-carte">
@@ -75,6 +82,27 @@ export default async function BoutiquePage({
               </span>
             </p>
           </div>
+        </div>
+
+        {/* Indicateurs de confiance */}
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-1.5 text-sm">
+          <span className="flex items-center gap-1.5">
+            <strong className="font-semibold text-gray-900">{produits.length}</strong>
+            <span className="text-gray-500">
+              produit{produits.length > 1 ? "s" : ""} en ligne
+            </span>
+          </span>
+          {totalAvis > 0 && (
+            <span className="flex items-center gap-1.5">
+              <Etoiles note={noteGlobale} />
+              <strong className="font-semibold text-gray-900">
+                {noteGlobale.toFixed(1)}
+              </strong>
+              <span className="text-gray-500">
+                ({totalAvis} avis vérifié{totalAvis > 1 ? "s" : ""})
+              </span>
+            </span>
+          )}
         </div>
         {boutique.description && (
           <p className="mt-3 text-sm text-gray-600">{boutique.description}</p>

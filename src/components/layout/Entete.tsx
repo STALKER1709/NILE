@@ -92,6 +92,16 @@ export function Entete({
             </svg>
             Tous les rayons
           </Link>
+          <Link
+            href="/boutiques"
+            className="flex shrink-0 items-center gap-1.5 rounded px-2.5 py-1 font-medium hover:bg-white/10"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+              <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" />
+              <path d="M8 9a4 4 0 0 1 8 0" />
+            </svg>
+            Boutiques
+          </Link>
           {categories.map((c) => (
             <Link
               key={c.slug}

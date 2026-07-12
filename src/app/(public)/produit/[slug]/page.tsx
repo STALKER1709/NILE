@@ -19,6 +19,7 @@ import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { BarreAchatMobile } from "@/components/produit/BarreAchatMobile";
 import { RepartitionAvis, BadgeAchatVerifie } from "@/components/produit/RepartitionAvis";
 import { MemoriserVu, VusRecemment } from "@/components/produit/VusRecemment";
+import { BoutonPartage } from "@/components/produit/BoutonPartage";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 import { Carte, Etoiles, Prix, Badge, btn, champClass } from "@/components/ui/kit";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
@@ -116,12 +117,15 @@ export default async function FicheProduitPage({
             ) : (
               <p className="mt-1 text-sm text-gray-400">Pas encore d'avis</p>
             )}
-            <p className="mt-1 text-sm text-gray-500">
-              Vendu par{" "}
-              <Link href={`/boutique/${produit.vendeur.id}`} className="font-medium text-nile hover:underline">
-                {produit.vendeur.nomBoutique}
-              </Link>
-            </p>
+            <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-sm text-gray-500">
+                Vendu par{" "}
+                <Link href={`/boutique/${produit.vendeur.id}`} className="font-medium text-nile hover:underline">
+                  {produit.vendeur.nomBoutique}
+                </Link>
+              </p>
+              <BoutonPartage titre={produit.titre} />
+            </div>
           </div>
 
           {erreur && (
