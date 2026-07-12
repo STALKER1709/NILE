@@ -1,0 +1,24 @@
+BANNIÈRES PHOTO DU CARROUSEL D'ACCUEIL
+======================================
+
+Dépose ici 3 photos au format paysage (1200 px de large ou plus) :
+
+  marche.jpg     bannière 1 : ambiance marché / shopping africain
+  livraison.jpg  bannière 2 : livreur, moto, colis
+  momo.jpg       bannière 3 : paiement mobile, téléphone en main
+
+Où les trouver (gratuites pour usage commercial, sans attribution) :
+  https://unsplash.com  ->  recherches : "african market", "delivery motorcycle",
+                            "mobile money africa" ou "hand phone payment"
+  https://www.pexels.com (mêmes recherches)
+
+Conseils de choix :
+  - format paysage, sujet plutôt à droite de l'image (le texte s'affiche à gauche) ;
+  - scène lumineuse et nette, pas de texte incrusté dans la photo ;
+  - après ajout des fichiers, activer les photos dans
+    src/components/accueil/Diapos.tsx : PHOTOS_ACTIVES = true.
+
+Crédits (à compléter, bonne pratique même si non obligatoire) :
+  marche.jpg     : photographe, lien
+  livraison.jpg  : photographe, lien
+  momo.jpg       : photographe, lien

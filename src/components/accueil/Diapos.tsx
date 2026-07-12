@@ -1,6 +1,22 @@
 import Link from "next/link";
+import Image from "next/image";
 
-/** Diapositives du carrousel d'accueil : bannières illustrées, 100 % SVG. */
+/**
+ * Diapositives du carrousel d'accueil.
+ * Deux rendus possibles par diapo :
+ *  - photo réelle en fond (fichiers /public/bannieres/*.jpg) + voile dégradé ;
+ *  - illustration SVG dessinée (repli tant que les photos ne sont pas là).
+ * Passer PHOTOS_ACTIVES à true quand les trois fichiers sont dans le dépôt :
+ *  public/bannieres/marche.jpg, livraison.jpg, momo.jpg (1200 px de large,
+ * compressés, licence libre pour usage commercial).
+ */
+const PHOTOS_ACTIVES = false;
+
+const PHOTOS = {
+  marche: "/bannieres/marche.jpg",
+  livraison: "/bannieres/livraison.jpg",
+  momo: "/bannieres/momo.jpg",
+} as const;
 
 function Slide({
   fond,
@@ -11,6 +27,8 @@ function Slide({
   ctaHref,
   ctaClair = false,
   illustration,
+  photo,
+  voile,
 }: {
   fond: string;
   kicker: string;
@@ -20,9 +38,26 @@ function Slide({
   ctaHref: string;
   ctaClair?: boolean;
   illustration: React.ReactNode;
+  photo?: string;
+  /** Dégradé posé sur la photo pour garder le texte lisible. */
+  voile?: string;
 }) {
+  const avecPhoto = PHOTOS_ACTIVES && photo;
   return (
     <div className={`relative flex h-52 items-center overflow-hidden sm:h-64 ${fond}`}>
+      {avecPhoto && (
+        <>
+          <Image
+            src={photo}
+            alt=""
+            fill
+            priority
+            sizes="100vw"
+            className="object-cover"
+          />
+          <div className={`absolute inset-0 ${voile ?? "bg-gradient-to-r from-nile-950/85 via-nile-900/60 to-nile-900/10"}`} />
+        </>
+      )}
       <div className="relative z-10 max-w-[62%] px-5 py-6 sm:max-w-[55%] sm:px-10">
         <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70 sm:text-xs">
           {kicker}
@@ -42,9 +77,11 @@ function Slide({
           {cta}
         </Link>
       </div>
-      <div className="pointer-events-none absolute inset-y-0 right-0 flex w-[45%] items-center justify-center">
-        {illustration}
-      </div>
+      {!avecPhoto && (
+        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-[45%] items-center justify-center">
+          {illustration}
+        </div>
+      )}
     </div>
   );
 }
@@ -145,6 +182,7 @@ export function DiapoMarque() {
       cta="Parcourir le catalogue"
       ctaHref="/catalogue"
       illustration={<SacsShopping />}
+      photo={PHOTOS.marche}
     />
   );
 }
@@ -160,6 +198,8 @@ export function DiapoLivraison() {
       ctaHref="/catalogue"
       ctaClair
       illustration={<Colis />}
+      photo={PHOTOS.livraison}
+      voile="bg-gradient-to-r from-amber-950/85 via-amber-800/55 to-amber-700/10"
     />
   );
 }
@@ -174,6 +214,7 @@ export function DiapoMomo() {
       cta="Voir les produits"
       ctaHref="/catalogue"
       illustration={<TelephoneMomo />}
+      photo={PHOTOS.momo}
     />
   );
 }
