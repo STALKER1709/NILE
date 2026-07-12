@@ -133,6 +133,7 @@ export default async function CataloguePage({
               produit={p}
               quantitePanier={quantites[p.id] ?? 0}
               priority={i < 5}
+              index={i}
             />
           ))}
         </div>

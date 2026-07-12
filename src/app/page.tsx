@@ -36,6 +36,7 @@ export default async function AccueilPage() {
         <Garantie
           titre="Paiement à la livraison"
           texte="Payez en espèces quand vous recevez votre colis."
+          index={0}
           icone={
             <path d="M3 6h18v12H3z M3 10h18 M7 15h4" strokeLinecap="round" strokeLinejoin="round" />
           }
@@ -43,6 +44,7 @@ export default async function AccueilPage() {
         <Garantie
           titre="Mobile Money sécurisé"
           texte="MTN MoMo & Orange Money, paiement confirmé côté serveur."
+          index={1}
           icone={
             <>
               <rect x="6" y="3" width="12" height="18" rx="2" />
@@ -53,6 +55,7 @@ export default async function AccueilPage() {
         <Garantie
           titre="Livraison partout au Cameroun"
           texte="Vos commandes livrées dans tout le pays."
+          index={2}
           icone={
             <>
               <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" strokeLinejoin="round" />
@@ -68,11 +71,12 @@ export default async function AccueilPage() {
         <section>
           <h2 className="mb-3 text-lg font-bold">Explorer les rayons</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {racines.map((c) => (
+            {racines.map((c, i) => (
               <Link
                 key={c.id}
                 href={`/catalogue?categorie=${c.slug}`}
-                className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-carte transition hover:border-nile hover:shadow-flottant"
+                style={{ animationDelay: `${i * 50}ms` }}
+                className="group flex animate-fondu-haut items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-carte transition duration-200 hover:-translate-y-0.5 hover:border-nile hover:shadow-flottant"
               >
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-nile-50 text-nile transition-colors group-hover:bg-nile group-hover:text-white">
                   <IconeCategorie nom={c.nom} />
@@ -146,6 +150,7 @@ function SectionProduits({
               produit={p}
               quantitePanier={quantites[p.id] ?? 0}
               priority={i < 6}
+              index={i}
             />
           ))}
         </div>
@@ -158,13 +163,18 @@ function Garantie({
   titre,
   texte,
   icone,
+  index = 0,
 }: {
   titre: string;
   texte: string;
   icone: React.ReactNode;
+  index?: number;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-xl border border-gray-100 bg-white p-3.5 shadow-carte">
+    <div
+      style={{ animationDelay: `${index * 80}ms` }}
+      className="flex animate-fondu-haut items-start gap-3 rounded-xl border border-gray-100 bg-white p-3.5 shadow-carte"
+    >
       <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-nile-50 text-nile">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
           {icone}

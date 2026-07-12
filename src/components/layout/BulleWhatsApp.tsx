@@ -20,7 +20,7 @@ export function BulleWhatsApp({ numero }: { numero: string }) {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Nous écrire sur WhatsApp"
-      className="fixed bottom-20 right-3 z-40 grid h-12 w-12 place-items-center rounded-full bg-emerald-500 text-white shadow-flottant transition hover:bg-emerald-600 sm:bottom-5 sm:right-5"
+      className="fixed bottom-20 right-3 z-40 grid h-12 w-12 animate-apparition place-items-center rounded-full bg-emerald-500 text-white shadow-flottant transition hover:scale-105 hover:bg-emerald-600 sm:bottom-5 sm:right-5"
     >
       <IconeWhatsApp taille={26} />
     </Link>

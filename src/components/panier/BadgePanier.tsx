@@ -34,5 +34,10 @@ export function BadgePanier({
   }, []);
 
   if (nb <= 0) return null;
-  return <span className={className}>{nb}</span>;
+  // `key={nb}` : le span est remonté à chaque changement, ce qui rejoue le pop.
+  return (
+    <span key={nb} className={`${className} animate-pop`}>
+      {nb}
+    </span>
+  );
 }

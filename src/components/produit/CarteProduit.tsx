@@ -19,16 +19,24 @@ export function CarteProduit({
   produit,
   quantitePanier = 0,
   priority = false,
+  index = 0,
 }: {
   produit: ProduitCarte;
   /** Quantité déjà dans le panier de l'utilisateur (compteur supermarché). */
   quantitePanier?: number;
   priority?: boolean;
+  /** Position dans la grille : sert à décaler l'apparition (effet en cascade). */
+  index?: number;
 }) {
   const enRupture = produit.stock === 0;
   const lien = `/produit/${produit.slug}`;
+  // Apparition en cascade, plafonnée pour que la grille ne traîne pas.
+  const delai = `${Math.min(index, 11) * 45}ms`;
   return (
-    <article className="group flex flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-carte transition hover:border-nile/40 hover:shadow-flottant">
+    <article
+      style={{ animationDelay: delai }}
+      className="group flex animate-fondu-haut flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-carte transition duration-200 hover:-translate-y-0.5 hover:border-nile/40 hover:shadow-flottant"
+    >
       <Link href={lien} className="relative block bg-white">
         <Vignette
           url={produit.images[0]?.url}

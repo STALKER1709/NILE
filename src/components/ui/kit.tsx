@@ -33,7 +33,7 @@ export function btn(
   taille: Taille = "md",
   extra = "",
 ): string {
-  return `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${VARIANTES[variante]} ${TAILLES[taille]} ${extra}`;
+  return `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-[transform,background-color,border-color,color,box-shadow] duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 ${VARIANTES[variante]} ${TAILLES[taille]} ${extra}`;
 }
 
 /* --------------------------------- Cartes ---------------------------------- */

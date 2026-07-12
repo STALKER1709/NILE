@@ -99,6 +99,7 @@ export default async function BoutiquePage({
               produit={p}
               quantitePanier={quantites[p.id] ?? 0}
               priority={i < 5}
+              index={i}
             />
           ))}
         </div>

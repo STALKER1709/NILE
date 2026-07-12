@@ -57,4 +57,36 @@ body {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* Bloc de chargement (skeleton) avec reflet qui balaie. */
+  .skeleton {
+    position: relative;
+    overflow: hidden;
+    background: #e5e7eb;
+  }
+  .skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent
+    );
+    animation: brillance 1.5s infinite;
+  }
+}
+
+/* Accessibilité : coupe animations et transitions pour qui préfère le calme. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
 }
