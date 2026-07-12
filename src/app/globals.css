@@ -14,6 +14,18 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
+/* Défilement doux (lien « Retour en haut »), sauf préférence contraire. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+::selection {
+  background: #ccfbf1; /* nile-100 */
+  color: #06231f; /* nile-950 */
+}
+
 body {
   @apply bg-gray-50 text-gray-900 antialiased;
 }

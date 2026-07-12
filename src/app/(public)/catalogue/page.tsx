@@ -75,32 +75,51 @@ export default async function CataloguePage({
         </span>
       </div>
 
-      {/* Filtres (repliables sur mobile, sans JS) */}
-      <details className="group rounded-xl2 border border-gray-100 bg-white shadow-carte" open>
-        <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium sm:hidden">
-          Filtres & recherche
-          <span className="text-gray-400 transition-transform group-open:rotate-180">▾</span>
-        </summary>
-        <form method="get" className="flex flex-col gap-3 p-4 pt-0 sm:flex-row sm:flex-wrap sm:items-end sm:pt-4">
-          <input name="q" defaultValue={sp.q ?? ""} placeholder="Rechercher…" className={`${champClass} sm:min-w-[12rem] sm:flex-1`} />
-          <select name="categorie" defaultValue={sp.categorie ?? ""} className={`${champClass} sm:w-48`}>
-            <option value="">Toutes catégories</option>
-            {optionsCat.map((c) => {
-              const cat = categories.find((x) => x.id === c.id);
-              return <option key={c.id} value={cat?.slug ?? ""}>{c.label}</option>;
-            })}
-          </select>
-          <select name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} sm:w-40`}>
-            <option value="recent">Plus récents</option>
-            <option value="populaire">Les mieux notés</option>
-            <option value="prix_asc">Prix croissant</option>
-            <option value="prix_desc">Prix décroissant</option>
-          </select>
-          <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min FCFA" className={`${champClass} sm:w-28`} />
-          <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max FCFA" className={`${champClass} sm:w-28`} />
-          <button type="submit" className={btn("primaire", "md")}>Filtrer</button>
-        </form>
-      </details>
+      {/* Filtres : repliés par défaut sur mobile (le 1er produit reste visible
+          sans défiler), toujours visibles sur grand écran. Sans JavaScript. */}
+      {(() => {
+        const filtreActif = !!(sp.q || sp.categorie || sp.prixMin || sp.prixMax || sp.tri);
+        const formulaire = (
+          <form method="get" className="flex flex-col gap-3 p-4 pt-0 sm:flex-row sm:flex-wrap sm:items-end sm:pt-4">
+            <input name="q" defaultValue={sp.q ?? ""} placeholder="Rechercher…" className={`${champClass} sm:min-w-[12rem] sm:flex-1`} />
+            <select name="categorie" defaultValue={sp.categorie ?? ""} className={`${champClass} sm:w-48`}>
+              <option value="">Toutes catégories</option>
+              {optionsCat.map((c) => {
+                const cat = categories.find((x) => x.id === c.id);
+                return <option key={c.id} value={cat?.slug ?? ""}>{c.label}</option>;
+              })}
+            </select>
+            <select name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} sm:w-40`}>
+              <option value="recent">Plus récents</option>
+              <option value="populaire">Les mieux notés</option>
+              <option value="prix_asc">Prix croissant</option>
+              <option value="prix_desc">Prix décroissant</option>
+            </select>
+            <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min FCFA" className={`${champClass} sm:w-28`} />
+            <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max FCFA" className={`${champClass} sm:w-28`} />
+            <button type="submit" className={btn("primaire", "md")}>Filtrer</button>
+          </form>
+        );
+        return (
+          <>
+            {/* Mobile : repliable, ouvert seulement si un filtre est déjà actif. */}
+            <details
+              className="group rounded-xl2 border border-gray-100 bg-white shadow-carte sm:hidden"
+              open={filtreActif}
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium">
+                Filtres & recherche
+                <span className="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+              </summary>
+              {formulaire}
+            </details>
+            {/* Desktop : toujours visible. */}
+            <div className="hidden rounded-xl2 border border-gray-100 bg-white shadow-carte sm:block">
+              {formulaire}
+            </div>
+          </>
+        );
+      })()}
 
       {produits.length === 0 ? (
         <EtatVide titre="Aucun produit ne correspond à votre recherche.">

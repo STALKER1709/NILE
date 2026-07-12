@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 import { BadgePanier } from "@/components/panier/BadgePanier";
 
@@ -39,8 +42,16 @@ function Item({
   /** Ne passer que sur l'item Panier : la pastille s'abonne au total du panier. */
   badge?: number;
 }) {
+  const chemin = usePathname();
+  const actif = chemin === href || (href !== "/" && chemin.startsWith(href));
   return (
-    <Link href={href} className="relative flex flex-col items-center gap-0.5 py-2 text-[11px] text-gray-600 hover:text-nile">
+    <Link
+      href={href}
+      aria-current={actif ? "page" : undefined}
+      className={`relative flex flex-col items-center gap-0.5 py-2 text-[11px] ${
+        actif ? "font-semibold text-nile" : "text-gray-600 hover:text-nile"
+      }`}
+    >
       {children}
       <span>{libelle}</span>
       {badge !== undefined && (

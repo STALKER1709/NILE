@@ -70,12 +70,12 @@ export function CarteProduit({
           {produit.vendeur.id ? (
             <Link
               href={`/boutique/${produit.vendeur.id}`}
-              className="mt-0.5 block truncate text-[11px] text-gray-400 hover:text-nile hover:underline"
+              className="mt-0.5 block truncate text-[11px] text-gray-500 hover:text-nile hover:underline"
             >
               {produit.vendeur.nomBoutique}
             </Link>
           ) : (
-            <p className="mt-0.5 truncate text-[11px] text-gray-400">
+            <p className="mt-0.5 truncate text-[11px] text-gray-500">
               {produit.vendeur.nomBoutique}
             </p>
           )}
@@ -90,7 +90,7 @@ export function CarteProduit({
           />
           <Link
             href={lien}
-            className="inline-flex h-9 w-full items-center justify-center rounded-lg border border-gray-300 bg-white text-sm font-medium text-gray-700 transition-colors hover:border-nile hover:text-nile"
+            className="inline-flex h-8 w-full items-center justify-center rounded-lg border border-gray-200 bg-white text-xs font-medium text-gray-600 transition-colors hover:border-nile hover:text-nile"
           >
             Détails
           </Link>

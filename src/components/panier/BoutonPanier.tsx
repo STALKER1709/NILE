@@ -79,7 +79,7 @@ export function BoutonPanier({
           type="button"
           onClick={() => appliquer(incrementerPanierAction)}
           disabled={enCours}
-          className={`inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent font-semibold text-white transition-colors hover:bg-accent-dark disabled:opacity-60 ${hBtn}`}
+          className={`inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent font-semibold text-nile-950 transition-colors hover:bg-accent-dark disabled:opacity-60 ${hBtn}`}
         >
           <IconePanierPlus />
           Ajouter

@@ -16,7 +16,7 @@ type Taille = "sm" | "md" | "lg";
 
 const VARIANTES: Record<Variante, string> = {
   primaire: "bg-nile text-white hover:bg-nile-dark shadow-sm",
-  accent: "bg-accent text-white hover:bg-accent-dark shadow-sm",
+  accent: "bg-accent font-semibold text-nile-950 hover:bg-accent-dark shadow-sm",
   secondaire: "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50",
   danger: "border border-red-300 bg-white text-red-700 hover:bg-red-50",
   ghost: "text-nile hover:bg-nile-50",
@@ -120,6 +120,22 @@ export function EtatVide({
 }) {
   return (
     <div className="rounded-xl2 border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
+      <svg
+        width="40"
+        height="40"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="mx-auto mb-3 text-gray-300"
+        aria-hidden="true"
+      >
+        <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+        <path d="M3 6h18" />
+        <path d="M16 10a4 4 0 0 1-8 0" />
+      </svg>
       <p className="font-medium text-gray-700">{titre}</p>
       {children && <div className="mt-2 text-sm text-gray-500">{children}</div>}
     </div>

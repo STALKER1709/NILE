@@ -128,11 +128,6 @@ export default async function FicheProduitPage({
             </p>
           </div>
 
-          <div className="border-y border-gray-100 py-3">
-            <Prix montant={produit.prix} className="block text-3xl font-extrabold text-promo" />
-            <p className="mt-1 text-xs text-gray-500">Prix TTC · FCFA (XAF), sans frais cachés</p>
-          </div>
-
           {erreur && (
             <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
           )}
@@ -144,9 +139,12 @@ export default async function FicheProduitPage({
 
           {/* Encadré d'achat (type marketplace) */}
           <Carte className="space-y-3 p-4">
-            <p className="text-2xl font-extrabold text-promo">
-              <Prix montant={produit.prix} />
-            </p>
+            <div>
+              <p className="text-3xl font-extrabold text-promo">
+                <Prix montant={produit.prix} />
+              </p>
+              <p className="mt-0.5 text-xs text-gray-500">Prix TTC · FCFA (XAF), sans frais cachés</p>
+            </div>
 
             {enRupture ? (
               <Badge ton="rouge">Indisponible (rupture)</Badge>

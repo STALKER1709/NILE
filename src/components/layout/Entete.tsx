@@ -46,7 +46,7 @@ export function Entete({
   categories: LienCategorie[];
 }) {
   return (
-    <header className="sticky top-0 z-40 text-white shadow-md">
+    <header className="relative z-40 text-white shadow-md sm:sticky sm:top-0">
       {/* Barre principale (sombre, type marketplace) */}
       <div className="bg-nile-900">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-3 py-2.5 sm:gap-4 sm:px-4">
