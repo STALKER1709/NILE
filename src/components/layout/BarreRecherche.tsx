@@ -1,35 +1,58 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { formaterXAF } from "@/lib/money";
 
-interface Suggestion {
+interface ProduitSuggere {
   slug: string;
   titre: string;
   prix: number;
   image: string | null;
 }
 
+interface BoutiqueSuggeree {
+  id: string;
+  nomBoutique: string;
+  nbProduits: number;
+}
+
+/** Élément navigable de la liste (boutiques d'abord, puis produits). */
+type Item =
+  | { type: "boutique"; data: BoutiqueSuggeree }
+  | { type: "produit"; data: ProduitSuggere };
+
 /**
- * Barre de recherche avec autocomplétion. Suggère des produits dès 2 lettres
- * (requête débouncée), navigation au clavier (flèches + Entrée). Reste un vrai
- * formulaire GET vers /catalogue : fonctionne même sans JavaScript.
+ * Barre de recherche avec autocomplétion. Suggère des produits (par titre) et
+ * des boutiques (par nom) dès 2 lettres, requête débouncée, navigation au
+ * clavier (flèches + Entrée). Reste un vrai formulaire GET vers /catalogue :
+ * fonctionne même sans JavaScript.
  */
 export function BarreRecherche({ className = "" }: { className?: string }) {
   const router = useRouter();
   const [terme, setTerme] = useState("");
-  const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
+  const [produits, setProduits] = useState<ProduitSuggere[]>([]);
+  const [boutiques, setBoutiques] = useState<BoutiqueSuggeree[]>([]);
   const [ouvert, setOuvert] = useState(false);
   const [actif, setActif] = useState(-1);
   const conteneur = useRef<HTMLDivElement>(null);
   const abort = useRef<AbortController | null>(null);
 
+  // Liste plate pour la navigation clavier : boutiques puis produits.
+  const items = useMemo<Item[]>(
+    () => [
+      ...boutiques.map((b) => ({ type: "boutique" as const, data: b })),
+      ...produits.map((p) => ({ type: "produit" as const, data: p })),
+    ],
+    [boutiques, produits],
+  );
+
   // Requête débouncée des suggestions.
   useEffect(() => {
     const t = terme.trim();
     if (t.length < 2) {
-      setSuggestions([]);
+      setProduits([]);
+      setBoutiques([]);
       return;
     }
     const minuteur = setTimeout(async () => {
@@ -40,8 +63,12 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
           `/api/recherche/suggestions?q=${encodeURIComponent(t)}`,
           { signal: abort.current.signal },
         );
-        const data = (await rep.json()) as { produits: Suggestion[] };
-        setSuggestions(data.produits ?? []);
+        const data = (await rep.json()) as {
+          produits: ProduitSuggere[];
+          boutiques: BoutiqueSuggeree[];
+        };
+        setProduits(data.produits ?? []);
+        setBoutiques(data.boutiques ?? []);
         setActif(-1);
       } catch {
         // requête annulée ou réseau : on n'affiche rien de plus.
@@ -61,29 +88,33 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
     return () => document.removeEventListener("mousedown", h);
   }, []);
 
-  function allerVersProduit(s: Suggestion) {
+  function ouvrirItem(item: Item) {
     setOuvert(false);
-    router.push(`/produit/${s.slug}`);
+    if (item.type === "boutique") {
+      router.push(`/boutique/${item.data.id}`);
+    } else {
+      router.push(`/produit/${item.data.slug}`);
+    }
   }
 
   function surTouche(e: React.KeyboardEvent) {
-    if (!ouvert || suggestions.length === 0) return;
+    if (!ouvert || items.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setActif((i) => Math.min(i + 1, suggestions.length - 1));
+      setActif((i) => Math.min(i + 1, items.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setActif((i) => Math.max(i - 1, -1));
     } else if (e.key === "Enter" && actif >= 0) {
       e.preventDefault();
-      const choix = suggestions[actif];
-      if (choix) allerVersProduit(choix);
+      const choix = items[actif];
+      if (choix) ouvrirItem(choix);
     } else if (e.key === "Escape") {
       setOuvert(false);
     }
   }
 
-  const afficherListe = ouvert && suggestions.length > 0;
+  const afficherListe = ouvert && items.length > 0;
 
   return (
     <div ref={conteneur} className={`relative ${className}`}>
@@ -103,7 +134,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
           }}
           onFocus={() => setOuvert(true)}
           onKeyDown={surTouche}
-          placeholder="Rechercher un produit, une marque…"
+          placeholder="Rechercher un produit, une boutique…"
           aria-label="Rechercher"
           aria-expanded={afficherListe}
           aria-autocomplete="list"
@@ -127,36 +158,81 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
           role="listbox"
           className="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 text-left shadow-flottant"
         >
-          {suggestions.map((s, i) => (
-            <li key={s.slug} role="option" aria-selected={i === actif}>
+          {boutiques.length > 0 && (
+            <li className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+              Boutiques
+            </li>
+          )}
+          {boutiques.map((b, i) => (
+            <li key={`b-${b.id}`} role="option" aria-selected={i === actif}>
               <button
                 type="button"
                 onMouseDown={(e) => {
                   e.preventDefault();
-                  allerVersProduit(s);
+                  ouvrirItem({ type: "boutique", data: b });
                 }}
                 onMouseEnter={() => setActif(i)}
                 className={`flex w-full items-center gap-3 px-3 py-2 text-left ${
                   i === actif ? "bg-nile-50" : "hover:bg-gray-50"
                 }`}
               >
-                <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded bg-gray-50">
-                  {s.image ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={s.image} alt="" className="h-full w-full object-contain" />
-                  ) : (
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300" aria-hidden="true">
-                      <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" />
-                    </svg>
-                  )}
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-nile text-sm font-bold text-white">
+                  {b.nomBoutique.charAt(0).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm text-gray-800">{s.titre}</span>
-                  <span className="text-xs font-semibold text-promo">{formaterXAF(s.prix)}</span>
+                  <span className="block truncate text-sm font-medium text-gray-800">
+                    {b.nomBoutique}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    Boutique · {b.nbProduits} produit{b.nbProduits > 1 ? "s" : ""}
+                  </span>
                 </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gray-300" aria-hidden="true">
+                  <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
               </button>
             </li>
           ))}
+
+          {produits.length > 0 && boutiques.length > 0 && (
+            <li className="mt-1 border-t border-gray-100 px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+              Produits
+            </li>
+          )}
+          {produits.map((s, i) => {
+            const idx = boutiques.length + i;
+            return (
+              <li key={`p-${s.slug}`} role="option" aria-selected={idx === actif}>
+                <button
+                  type="button"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    ouvrirItem({ type: "produit", data: s });
+                  }}
+                  onMouseEnter={() => setActif(idx)}
+                  className={`flex w-full items-center gap-3 px-3 py-2 text-left ${
+                    idx === actif ? "bg-nile-50" : "hover:bg-gray-50"
+                  }`}
+                >
+                  <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded bg-gray-50">
+                    {s.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={s.image} alt="" className="h-full w-full object-contain" />
+                    ) : (
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300" aria-hidden="true">
+                        <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" />
+                      </svg>
+                    )}
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm text-gray-800">{s.titre}</span>
+                    <span className="text-xs font-semibold text-promo">{formaterXAF(s.prix)}</span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+
           <li>
             <button
               type="button"

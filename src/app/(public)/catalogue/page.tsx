@@ -5,6 +5,7 @@ import {
   aplatirPourSelect,
 } from "@/modules/catalogue/categories";
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
+import { rechercherBoutiques } from "@/modules/catalogue/boutiques";
 import { normaliserParamsRecherche } from "@/modules/catalogue/recherche";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
@@ -54,6 +55,9 @@ export default async function CataloguePage({
     page,
     parPage: PAR_PAGE,
   });
+
+  // Boutiques correspondant au terme (uniquement 1re page d'une recherche).
+  const boutiques = q && page === 1 ? await rechercherBoutiques(q, 6) : [];
 
   const lienPage = (p: number) => {
     const params = new URLSearchParams();
@@ -121,10 +125,46 @@ export default async function CataloguePage({
         );
       })()}
 
+      {boutiques.length > 0 && (
+        <section className="rounded-xl2 border border-gray-100 bg-white p-4 shadow-carte">
+          <h2 className="mb-3 text-sm font-semibold text-gray-700">
+            Boutiques pour « {q} »
+          </h2>
+          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+            {boutiques.map((b) => (
+              <Link
+                key={b.id}
+                href={`/boutique/${b.id}`}
+                className="flex min-w-[13rem] shrink-0 items-center gap-3 rounded-lg border border-gray-100 p-3 transition hover:-translate-y-0.5 hover:border-nile-100 hover:shadow-flottant"
+              >
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-nile text-lg font-bold text-white">
+                  {b.nomBoutique.charAt(0).toUpperCase()}
+                </span>
+                <span className="min-w-0">
+                  <span className="block truncate text-sm font-semibold text-gray-900">
+                    {b.nomBoutique}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    Boutique vérifiée · {b.nbProduits} produit
+                    {b.nbProduits > 1 ? "s" : ""}
+                  </span>
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
       {produits.length === 0 ? (
-        <EtatVide titre="Aucun produit ne correspond à votre recherche.">
-          Essayez d'élargir vos filtres.
-        </EtatVide>
+        boutiques.length > 0 ? (
+          <EtatVide titre="Aucun produit ne correspond, mais des boutiques oui.">
+            Ouvrez une boutique ci-dessus ou élargissez vos filtres.
+          </EtatVide>
+        ) : (
+          <EtatVide titre="Aucun produit ne correspond à votre recherche.">
+            Essayez d'élargir vos filtres.
+          </EtatVide>
+        )
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {produits.map((p, i) => (
