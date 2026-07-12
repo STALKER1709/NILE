@@ -62,10 +62,10 @@ export default async function AdminDetailCommandePage({
           <BadgeStatutPaiement statut={commande.statutPaiement} />
         </div>
         <p className="text-gray-600">
-          {commande.destNom} · {commande.destTelephone} — {commande.quartier}, {commande.ville}
+          {commande.destNom} · {commande.destTelephone} · {commande.quartier}, {commande.ville}
           {commande.reperes ? ` (${commande.reperes})` : ""}
         </p>
-        <p className="text-gray-600">Livraison : <span className="font-medium">{commande.livraison?.statut ?? "—"}</span>{commande.livraison?.transporteur ? ` · ${commande.livraison.transporteur}` : ""}</p>
+        <p className="text-gray-600">Livraison : <span className="font-medium">{commande.livraison?.statut ?? "-"}</span>{commande.livraison?.transporteur ? ` · ${commande.livraison.transporteur}` : ""}</p>
       </Carte>
 
       <Carte className="p-4">

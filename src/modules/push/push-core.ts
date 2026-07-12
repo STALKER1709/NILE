@@ -19,7 +19,7 @@ export function chargeNouvelleCommandeVendeur(params: {
   const { numero, nbArticles, totalVendeur, modePaiement } = params;
   return {
     titre: `🛒 Nouvelle commande ${numero}`,
-    corps: `${nbArticles} article${nbArticles > 1 ? "s" : ""} — ${formaterXAF(totalVendeur)} · ${
+    corps: `${nbArticles} article${nbArticles > 1 ? "s" : ""} · ${formaterXAF(totalVendeur)} · ${
       modePaiement === "COD" ? "paiement à la livraison" : "déjà payée (Mobile Money)"
     }. À préparer !`,
     url: "/vendeur/commandes",

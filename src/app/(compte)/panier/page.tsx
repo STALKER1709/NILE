@@ -60,7 +60,7 @@ export default async function PanierPage({
                       </Link>
                       <Prix montant={l.produit.prix} className="mt-0.5 block text-sm text-gray-500" />
                       {indispo && (
-                        <p className="text-xs font-medium text-red-600">Produit indisponible — retirez-le.</p>
+                        <p className="text-xs font-medium text-red-600">Produit indisponible · retirez-le.</p>
                       )}
                       <div className="mt-2 max-w-[10rem]">
                         <BoutonPanier
@@ -102,7 +102,7 @@ export default async function PanierPage({
                   Passer la commande
                 </Link>
                 <p className="text-center text-xs text-gray-500">
-                  Identifie-toi pour valider — ton panier sera conservé.{" "}
+                  Identifie-toi pour valider · ton panier sera conservé.{" "}
                   <Link href={`/inscription?suite=${encodeURIComponent("/commander")}`} className="text-nile hover:underline">
                     Créer un compte
                   </Link>
@@ -159,7 +159,7 @@ export default async function PanierPage({
                       {l.produit.titre}
                     </Link>
                     <Prix montant={l.produit.prix} className="mt-0.5 block text-sm text-gray-500" />
-                    {indispo && <p className="text-xs font-medium text-red-600">Produit indisponible — à retirer.</p>}
+                    {indispo && <p className="text-xs font-medium text-red-600">Produit indisponible · à retirer.</p>}
                     {!indispo && stockInsuffisant && (
                       <p className="text-xs font-medium text-red-600">Stock restant : {l.produit.stock}.</p>
                     )}

@@ -67,16 +67,16 @@ export class MonetbilProvider implements PaymentProvider {
     });
     const texte = await reponse.text();
     if (!reponse.ok) {
-      throw new Error(`Monetbil widget: HTTP ${reponse.status} — ${texte.slice(0, 200)}`);
+      throw new Error(`Monetbil widget: HTTP ${reponse.status} · ${texte.slice(0, 200)}`);
     }
     let data: { payment_url?: string };
     try {
       data = JSON.parse(texte) as { payment_url?: string };
     } catch {
-      throw new Error(`Monetbil widget: réponse non-JSON — ${texte.slice(0, 200)}`);
+      throw new Error(`Monetbil widget: réponse non-JSON · ${texte.slice(0, 200)}`);
     }
     if (!data.payment_url) {
-      throw new Error(`Monetbil widget: payment_url absent — ${texte.slice(0, 200)}`);
+      throw new Error(`Monetbil widget: payment_url absent · ${texte.slice(0, 200)}`);
     }
     return { reference: ctx.reference, urlPaiement: data.payment_url };
   }

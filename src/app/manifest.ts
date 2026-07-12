@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "NILE Marketplace",
     short_name: "NILE",
     description:
-      "Marketplace du Cameroun — achats en ligne, paiement mobile et à la livraison.",
+      "Marketplace du Cameroun · achats en ligne, paiement mobile et à la livraison.",
     start_url: "/",
     display: "standalone",
     background_color: "#f9fafb",

@@ -36,7 +36,7 @@ export default function ContactPage() {
           <div className="min-w-0 flex-1">
             <p className="font-semibold">WhatsApp</p>
             <p className="text-sm text-gray-500">
-              Réponse rapide aux heures ouvrées — le canal le plus simple.
+              Réponse rapide aux heures ouvrées · le canal le plus simple.
             </p>
           </div>
           <a

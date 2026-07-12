@@ -105,7 +105,7 @@ export function ActiverNotifications({ clePublique }: { clePublique: string }) {
   if (etat === "refuse") {
     return (
       <p className="text-xs text-gray-500">
-        Notifications bloquées par le navigateur — autorise-les dans les
+        Notifications bloquées par le navigateur · autorise-les dans les
         réglages du site pour être prévenu des nouvelles commandes.
       </p>
     );

@@ -45,7 +45,7 @@ export default async function CommanderPage({
             <h2 className="font-semibold">Adresse de livraison</h2>
             {derniere && (
               <p className="rounded-lg bg-nile-50 px-3 py-2 text-xs text-nile-800">
-                Adresse pré-remplie depuis ta dernière commande — modifie si besoin.
+                Adresse pré-remplie depuis ta dernière commande · modifie si besoin.
               </p>
             )}
             <div>

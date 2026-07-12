@@ -4,6 +4,9 @@ import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
+import { Carrousel } from "@/components/ui/Carrousel";
+import { DiapoMarque, DiapoLivraison, DiapoMomo } from "@/components/accueil/Diapos";
+import { IconeCategorie } from "@/components/categorie/IconeCategorie";
 
 export const dynamic = "force-dynamic";
 
@@ -20,31 +23,13 @@ export default async function AccueilPage() {
 
   return (
     <div className="space-y-6">
-      {/* Bannière */}
-      <section className="overflow-hidden rounded-xl2 bg-gradient-to-r from-nile-900 via-nile-800 to-nile-dark px-6 py-9 text-white sm:px-10 sm:py-12">
-        <p className="text-sm font-medium text-accent">Marketplace du Cameroun 🇨🇲</p>
-        <h1 className="mt-2 max-w-xl text-2xl font-extrabold leading-tight sm:text-4xl">
-          Achetez malin, payez comme vous voulez
-        </h1>
-        <p className="mt-3 max-w-lg text-sm text-white/80 sm:text-base">
-          Des milliers de produits, payés par Mobile Money ou à la livraison.
-          Livraison partout au Cameroun.
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link
-            href="/catalogue"
-            className="inline-flex items-center rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-nile-950 hover:bg-accent-dark"
-          >
-            Parcourir le catalogue
-          </Link>
-          <Link
-            href="/inscription"
-            className="inline-flex items-center rounded-md border border-white/40 px-5 py-2.5 text-sm font-semibold text-white hover:bg-white/10"
-          >
-            Vendre sur NILE
-          </Link>
-        </div>
-      </section>
+      {/* Titre accessible + carrousel de bannières */}
+      <h1 className="sr-only">NILE Marketplace, achats en ligne au Cameroun</h1>
+      <Carrousel etiquette="Offres et services NILE">
+        <DiapoMarque />
+        <DiapoLivraison />
+        <DiapoMomo />
+      </Carrousel>
 
       {/* Garanties (confiance) */}
       <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -87,14 +72,14 @@ export default async function AccueilPage() {
               <Link
                 key={c.id}
                 href={`/catalogue?categorie=${c.slug}`}
-                className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-carte transition hover:border-nile hover:shadow-flottant"
+                className="group flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-carte transition hover:border-nile hover:shadow-flottant"
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-nile-50 text-lg font-bold text-nile">
-                  {c.nom.charAt(0).toUpperCase()}
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-nile-50 text-nile transition-colors group-hover:bg-nile group-hover:text-white">
+                  <IconeCategorie nom={c.nom} />
                 </span>
                 <span className="min-w-0">
                   <span className="block truncate text-sm font-semibold text-gray-800">{c.nom}</span>
-                  <span className="text-xs text-nile">Voir →</span>
+                  <span className="text-xs text-nile">Voir le rayon</span>
                 </span>
               </Link>
             ))}
@@ -106,6 +91,18 @@ export default async function AccueilPage() {
       {populaires.length > 0 && (
         <SectionProduits titre="Les mieux notés" produits={populaires} quantites={quantites} />
       )}
+
+      {/* Ruban livraison */}
+      <section className="flex items-center justify-center gap-3 rounded-xl2 bg-gradient-to-r from-nile-800 to-nile-700 px-4 py-3 text-white">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
+          <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" />
+          <circle cx="7" cy="17" r="1.5" />
+          <circle cx="17" cy="17" r="1.5" />
+        </svg>
+        <p className="text-sm">
+          <strong>Livraison gratuite</strong> partout au Cameroun, sur toutes les commandes.
+        </p>
+      </section>
 
       {/* Nouveautés */}
       <SectionProduits

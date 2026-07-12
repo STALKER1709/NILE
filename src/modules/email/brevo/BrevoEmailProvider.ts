@@ -47,7 +47,7 @@ export class BrevoEmailProvider implements EmailProvider {
     if (!reponse.ok) {
       const corps = await reponse.text().catch(() => "");
       throw new Error(
-        `Brevo: HTTP ${reponse.status} — ${corps.slice(0, 200)}`,
+        `Brevo: HTTP ${reponse.status} · ${corps.slice(0, 200)}`,
       );
     }
   }

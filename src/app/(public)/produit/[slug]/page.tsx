@@ -7,7 +7,7 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { listerAvisProduit, peutLaisserAvis } from "@/modules/avis/avis";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { creerAvisAction } from "@/app/(public)/produit/[slug]/actions";
-import { Vignette } from "@/components/ui/Vignette";
+import { GaleriePhotos } from "@/components/produit/GaleriePhotos";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { Carte, Etoiles, Prix, Badge, btn, champClass } from "@/components/ui/kit";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
@@ -24,7 +24,7 @@ export async function generateMetadata({
   const produit = await getProduitPublicParSlug(slug);
   if (!produit) return { title: "Produit introuvable" };
 
-  const description = `${formaterXAF(produit.prix)} — ${produit.description.slice(0, 140)}`;
+  const description = `${formaterXAF(produit.prix)} · ${produit.description.slice(0, 140)}`;
   return {
     title: produit.titre,
     description,
@@ -84,29 +84,11 @@ export default async function FicheProduitPage({
       </nav>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Galerie */}
-        <div className="space-y-2">
-          <Vignette
-            url={produit.images[0]?.url}
-            alt={produit.titre}
-            priority
-            sizes="(max-width: 768px) 100vw, 480px"
-            className="aspect-square w-full rounded-xl2 border border-gray-100"
-          />
-          {produit.images.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-              {produit.images.map((img) => (
-                <Vignette
-                  key={img.id}
-                  url={img.url}
-                  alt=""
-                  sizes="72px"
-                  className="h-16 w-16 shrink-0 rounded-lg border border-gray-100"
-                />
-              ))}
-            </div>
-          )}
-        </div>
+        {/* Galerie interactive */}
+        <GaleriePhotos
+          images={produit.images.map((img) => ({ id: img.id, url: img.url }))}
+          titre={produit.titre}
+        />
 
         {/* Infos + achat */}
         <div className="space-y-4">

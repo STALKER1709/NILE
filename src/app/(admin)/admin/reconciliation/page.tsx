@@ -45,7 +45,7 @@ export default async function ReconciliationPage({
                 <p className="truncate font-medium">{c.numero}</p>
                 <p className="text-xs text-gray-500"><Prix montant={c.total} /> · {c.statutCommande} · paiement {c.statutPaiement}</p>
               </div>
-              <Badge ton={TON_CASH[c.livraison?.statutCash ?? "NON_APPLICABLE"]}>cash : {c.livraison?.statutCash ?? "—"}</Badge>
+              <Badge ton={TON_CASH[c.livraison?.statutCash ?? "NON_APPLICABLE"]}>cash : {c.livraison?.statutCash ?? "-"}</Badge>
               {c.livraison?.statutCash === "NON_COLLECTE" && (
                 <form action={marquerCollecteAction}>
                   <input type="hidden" name="commandeId" value={c.id} />

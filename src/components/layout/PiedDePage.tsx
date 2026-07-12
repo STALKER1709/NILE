@@ -46,6 +46,13 @@ export function PiedDePage() {
           </ul>
         </div>
       </div>
+      <div className="border-t border-white/10 py-4">
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <span className="rounded-md bg-[#ffcb05] px-2.5 py-1 text-[11px] font-bold text-gray-900">MTN MoMo</span>
+          <span className="rounded-md bg-[#ff7900] px-2.5 py-1 text-[11px] font-bold text-white">Orange Money</span>
+          <span className="rounded-md border border-white/30 px-2.5 py-1 text-[11px] font-semibold text-white/85">Espèces à la livraison</span>
+        </div>
+      </div>
       <div className="space-y-2 border-t border-white/10 py-4 text-center text-xs text-white/50">
         <p className="space-x-3">
           <Link href="/contact" className="hover:text-white">Contact</Link>
@@ -54,7 +61,7 @@ export function PiedDePage() {
           <span aria-hidden="true">·</span>
           <Link href="/confidentialite" className="hover:text-white">Confidentialité</Link>
         </p>
-        <p>© {new Date().getFullYear()} NILE Marketplace — FCFA (XAF)</p>
+        <p>© {new Date().getFullYear()} NILE Marketplace · FCFA (XAF)</p>
       </div>
     </footer>
   );

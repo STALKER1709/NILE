@@ -49,7 +49,7 @@ export function construireEmailAcheteur(
   commande: CommandePourEmail,
   nomAcheteur: string,
 ): { sujet: string; texte: string; html: string } {
-  const sujet = `Commande ${commande.numero} confirmée — ${formaterXAF(commande.total)}`;
+  const sujet = `Commande ${commande.numero} confirmée · ${formaterXAF(commande.total)}`;
   const texte = `Bonjour ${nomAcheteur},
 
 Ta commande ${commande.numero} est confirmée. Merci pour ta confiance !
@@ -61,12 +61,12 @@ Total : ${formaterXAF(commande.total)}
 Mode de paiement : ${libelleMode(commande.modePaiement)}
 
 Livraison :
-  ${commande.destNom} — ${commande.destTelephone}
+  ${commande.destNom} · ${commande.destTelephone}
   ${commande.quartier}, ${commande.ville}${commande.reperes ? `\n  Repères : ${commande.reperes}` : ""}
 
 Tu peux suivre ta commande dans « Mes commandes » sur NILE.
 
-— NILE Marketplace`;
+- NILE Marketplace`;
   return { sujet, texte, html: enHtml(texte) };
 }
 
@@ -83,24 +83,24 @@ export function construireEmailVendeur(
   if (lignes.length === 0) return null;
   const totalVendeur = lignes.reduce((s, l) => s + l.sousTotal, 0);
 
-  const sujet = `Nouvelle commande ${commande.numero} à préparer — ${formaterXAF(totalVendeur)}`;
+  const sujet = `Nouvelle commande ${commande.numero} à préparer · ${formaterXAF(totalVendeur)}`;
   const texte = `Bonjour ${nomBoutique},
 
 Bonne nouvelle : tu as une nouvelle commande à préparer sur NILE.
 
-Commande ${commande.numero} — tes articles :
+Commande ${commande.numero} · tes articles :
 ${listeLignes(lignes)}
 
 Total de tes articles : ${formaterXAF(totalVendeur)}
 Mode de paiement : ${libelleMode(commande.modePaiement)}
 
 Livraison :
-  ${commande.destNom} — ${commande.destTelephone}
+  ${commande.destNom} · ${commande.destTelephone}
   ${commande.quartier}, ${commande.ville}${commande.reperes ? `\n  Repères : ${commande.reperes}` : ""}
 
 Prépare les articles puis mets à jour le statut dans ton espace vendeur.
 
-— NILE Marketplace`;
+- NILE Marketplace`;
   return { sujet, texte, html: enHtml(texte) };
 }
 
@@ -123,7 +123,7 @@ export function construireEmailStatut(
   transporteur?: string | null,
 ): { sujet: string; texte: string; html: string } {
   if (statut === "EXPEDIEE") {
-    const sujet = `Commande ${commande.numero} expédiée — elle arrive !`;
+    const sujet = `Commande ${commande.numero} expédiée · elle arrive !`;
     const texte = `Bonjour ${nomAcheteur},
 
 Bonne nouvelle : ta commande ${commande.numero} est en route.${transporteur ? `\nTransporteur : ${transporteur}.` : ""}
@@ -134,11 +134,11 @@ ${
 }
 Tu peux suivre l'avancement dans « Mes commandes » sur NILE.
 
-— NILE Marketplace`;
+- NILE Marketplace`;
     return { sujet, texte, html: enHtml(texte) };
   }
 
-  const sujet = `Commande ${commande.numero} livrée — merci !`;
+  const sujet = `Commande ${commande.numero} livrée · merci !`;
   const texte = `Bonjour ${nomAcheteur},
 
 Ta commande ${commande.numero} a été livrée. Merci pour ta confiance !
@@ -147,6 +147,6 @@ Un souci avec un article ? Réponds à cet email ou passe par la page contact.
 Et si tout va bien, laisse un avis sur les produits reçus : ça aide les
 autres acheteurs et les vendeurs sérieux.
 
-— NILE Marketplace`;
+- NILE Marketplace`;
   return { sujet, texte, html: enHtml(texte) };
 }

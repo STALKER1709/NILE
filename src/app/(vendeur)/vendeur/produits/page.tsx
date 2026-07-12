@@ -38,7 +38,7 @@ export default async function ListeProduitsVendeurPage({
 
       {vendeur.statutValidation !== "VALIDE" && (
         <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
-          Boutique <strong>{vendeur.statutValidation}</strong> — publication possible une fois validée.
+          Boutique <strong>{vendeur.statutValidation}</strong> · publication possible une fois validée.
         </p>
       )}
 

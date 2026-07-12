@@ -42,7 +42,7 @@ export default async function AdminCategoriesPage({
           <div>
             <label htmlFor="parentId" className={labelClass}>Catégorie parente (facultatif)</label>
             <select id="parentId" name="parentId" defaultValue="" className={`${champClass} mt-1`}>
-              <option value="">— Aucune (racine)</option>
+              <option value="">- Aucune (racine)</option>
               {options.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
             </select>
           </div>

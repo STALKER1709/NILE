@@ -69,7 +69,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="6. Vérification à la livraison — ventes fermes">
+        <Section titre="6. Vérification à la livraison · ventes fermes">
           <p>
             L&apos;acheteur est invité à <strong>vérifier son colis au moment de
             la livraison</strong>, avant paiement en cas de paiement à la

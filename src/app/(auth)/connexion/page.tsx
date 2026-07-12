@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { connexionAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
+import { PanneauMarque } from "@/components/auth/PanneauMarque";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
@@ -15,7 +16,9 @@ export default async function ConnexionPage({
   const suiteSure = suite?.startsWith("/") && !suite.startsWith("//") ? suite : "";
 
   return (
-    <div className="mx-auto max-w-md space-y-4 py-6">
+    <div className="mx-auto grid max-w-4xl gap-6 py-6 lg:grid-cols-2">
+      <PanneauMarque />
+      <div className="mx-auto w-full max-w-md space-y-4 lg:mx-0">
       <div className="text-center">
         <h1 className="text-2xl font-bold">Content de vous revoir</h1>
         <p className="mt-1 text-sm text-gray-500">Connectez-vous à votre compte NILE.</p>
@@ -54,6 +57,7 @@ export default async function ConnexionPage({
           Créer un compte
         </Link>
       </p>
+      </div>
     </div>
   );
 }

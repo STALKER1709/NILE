@@ -55,9 +55,11 @@ export default async function BoutiquePage({
 
   return (
     <div className="space-y-5">
-      <div className="rounded-xl2 border border-gray-100 bg-white p-5 shadow-carte">
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-nile-50 text-xl font-bold text-nile">
+      <div className="overflow-hidden rounded-xl2 border border-gray-100 bg-white shadow-carte">
+        <div className="h-20 bg-gradient-to-r from-nile-800 via-nile-700 to-emerald-700 sm:h-24" />
+        <div className="p-5 pt-0">
+        <div className="-mt-7 flex flex-wrap items-end gap-3">
+          <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-nile text-xl font-bold text-white ring-4 ring-white">
             {boutique.nomBoutique.charAt(0).toUpperCase()}
           </span>
           <div className="min-w-0">
@@ -77,6 +79,7 @@ export default async function BoutiquePage({
         {boutique.description && (
           <p className="mt-3 text-sm text-gray-600">{boutique.description}</p>
         )}
+        </div>
       </div>
 
       <div className="flex items-baseline justify-between">

@@ -92,7 +92,7 @@ export default async function ReversementsPage({
                   </div>
                   <div className="flex-1">
                     <label htmlFor={`commentaire-${v.vendeurId}`} className="block text-xs text-gray-500">
-                      Référence (facultatif — ex. n° transfert MoMo)
+                      Référence (facultatif · ex. n° transfert MoMo)
                     </label>
                     <input
                       id={`commentaire-${v.vendeurId}`}

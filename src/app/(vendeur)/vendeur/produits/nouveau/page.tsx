@@ -54,7 +54,7 @@ export default async function NouveauProduitPage({
               {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
             </select>
             {categories.length === 0 && (
-              <p className="mt-1 text-xs text-amber-700">Aucune catégorie — un administrateur doit en créer.</p>
+              <p className="mt-1 text-xs text-amber-700">Aucune catégorie · un administrateur doit en créer.</p>
             )}
           </div>
           <div>

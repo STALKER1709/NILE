@@ -65,7 +65,7 @@ export default async function VendeurPage() {
         />
         <Kpi
           label="Note boutique"
-          valeur={stats.noteMoyenne ? `★ ${stats.noteMoyenne.toFixed(1)}` : "—"}
+          valeur={stats.noteMoyenne ? `★ ${stats.noteMoyenne.toFixed(1)}` : "-"}
           sousTitre={`${stats.nbAvis} avis`}
         />
       </div>

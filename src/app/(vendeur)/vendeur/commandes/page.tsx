@@ -17,10 +17,10 @@ import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 import { Carte, Prix, EtatVide, btn, champClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Mes commandes — vendeur" };
+export const metadata = { title: "Mes commandes · vendeur" };
 
 const MESSAGES_OK: Record<string, string> = {
-  preparation: "Commande en préparation — bon courage !",
+  preparation: "Commande en préparation · bon courage !",
   expediee: "Commande marquée expédiée. L'acheteur est prévenu.",
   livree: "Commande livrée. Bien joué !",
 };
@@ -61,7 +61,7 @@ export default async function CommandesVendeurPage({
 
       <p className="text-sm text-gray-500">
         <strong>Ta boutique pilote la livraison</strong> de ses commandes :
-        préparation, expédition, livraison — l&apos;acheteur est prévenu
+        préparation, expédition, livraison · l&apos;acheteur est prévenu
         automatiquement à chaque étape, et NILE supervise. Un colis refusé à la
         livraison ou un souci d&apos;encaissement : contacte NILE (page{" "}
         <Link href="/contact" className="text-nile hover:underline">contact</Link>).
@@ -110,7 +110,7 @@ export default async function CommandesVendeurPage({
               <div className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">
                 <p className="font-medium text-gray-700">Livraison</p>
                 <p>
-                  {c.destNom} — {c.destTelephone}
+                  {c.destNom} · {c.destTelephone}
                 </p>
                 <p>
                   {c.quartier}, {c.ville}

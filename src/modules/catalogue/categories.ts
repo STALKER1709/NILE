@@ -69,7 +69,7 @@ export function aplatirPourSelect(
   const options: { id: string; label: string }[] = [];
   const parcourir = (noeuds: CategorieAvecEnfants[], profondeur: number) => {
     for (const n of noeuds) {
-      options.push({ id: n.id, label: `${"— ".repeat(profondeur)}${n.nom}` });
+      options.push({ id: n.id, label: `${"- ".repeat(profondeur)}${n.nom}` });
       parcourir(n.enfants, profondeur + 1);
     }
   };

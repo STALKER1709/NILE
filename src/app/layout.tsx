@@ -10,12 +10,12 @@ import { NavMobile } from "@/components/layout/NavMobile";
 import { BulleWhatsApp } from "@/components/layout/BulleWhatsApp";
 
 const DESCRIPTION =
-  "Marketplace du Cameroun — achats en ligne, paiement mobile (MTN MoMo, Orange Money) et à la livraison.";
+  "Marketplace du Cameroun · achats en ligne, paiement mobile (MTN MoMo, Orange Money) et à la livraison.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: {
-    default: "NILE Marketplace — Achats en ligne au Cameroun",
+    default: "NILE Marketplace · Achats en ligne au Cameroun",
     template: "%s | NILE Marketplace",
   },
   description: DESCRIPTION,
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     siteName: "NILE Marketplace",
     locale: "fr_FR",
     type: "website",
-    title: "NILE Marketplace — Achats en ligne au Cameroun",
+    title: "NILE Marketplace · Achats en ligne au Cameroun",
     description: DESCRIPTION,
   },
 };
