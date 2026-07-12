@@ -10,7 +10,7 @@ import Image from "next/image";
  *  public/bannieres/marche.jpg, livraison.jpg, momo.jpg (1200 px de large,
  * compressés, licence libre pour usage commercial).
  */
-const PHOTOS_ACTIVES = false;
+const PHOTOS_ACTIVES = true;
 
 const PHOTOS = {
   marche: "/bannieres/marche.jpg",
