@@ -3,11 +3,10 @@ import type { Role } from "@prisma/client";
 import { deconnexionAction } from "@/app/(auth)/actions";
 import { BadgePanier } from "@/components/panier/BadgePanier";
 import { BarreRecherche } from "@/components/layout/BarreRecherche";
+import { NavPrincipale } from "@/components/layout/NavPrincipale";
 
-export interface LienCategorie {
-  nom: string;
-  slug: string;
-}
+export type { LienCategorie } from "@/components/layout/NavPrincipale";
+import type { LienCategorie } from "@/components/layout/NavPrincipale";
 
 export function Entete({
   utilisateur,
@@ -29,18 +28,6 @@ export function Entete({
             </span>
             <span className="hidden font-extrabold tracking-wide sm:inline text-white">NILE</span>
           </Link>
-
-          {/* Livrer au Cameroun (signal marketplace) */}
-          <div className="hidden items-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-xs transition-colors hover:bg-white/10 lg:flex">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-amber-400">
-              <path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z" strokeLinejoin="round" />
-              <circle cx="12" cy="10" r="2.5" />
-            </svg>
-            <span className="leading-tight">
-              <span className="block text-[10px] uppercase font-semibold text-white/60">Livrer au</span>
-              <span className="block font-bold">Cameroun 🇨🇲</span>
-            </span>
-          </div>
 
           <BarreRecherche className="hidden flex-1 sm:flex" />
 
@@ -82,39 +69,8 @@ export function Entete({
         </div>
       </div>
 
-      {/* Bandeau des rayons (départements) */}
-      <div className="bg-nile-800 shadow-inner">
-        <div className="mx-auto flex max-w-6xl items-center gap-1.5 overflow-x-auto px-2 py-1.5 text-xs font-medium no-scrollbar sm:px-4 sm:text-sm">
-          <Link
-            href="/catalogue"
-            className="flex shrink-0 items-center gap-1.5 rounded-md bg-white/10 px-3 py-1 font-semibold text-white transition-colors hover:bg-white/20"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-            Tous les rayons
-          </Link>
-          <Link
-            href="/boutiques"
-            className="flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 text-white/90 transition-colors hover:bg-white/10"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
-              <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" />
-              <path d="M8 9a4 4 0 0 1 8 0" />
-            </svg>
-            Boutiques
-          </Link>
-          {categories.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/catalogue?categorie=${c.slug}`}
-              className="shrink-0 whitespace-nowrap rounded-md px-2.5 py-1 text-white/85 transition-colors hover:bg-white/10 hover:text-white"
-            >
-              {c.nom}
-            </Link>
-          ))}
-        </div>
-      </div>
+      {/* Barre de navigation principale (rayons + destinations clés) */}
+      <NavPrincipale categories={categories} />
     </header>
   );
 }
