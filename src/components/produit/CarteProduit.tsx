@@ -35,62 +35,68 @@ export function CarteProduit({
   return (
     <article
       style={{ animationDelay: delai }}
-      className="group flex animate-fondu-haut flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-carte transition duration-200 hover:-translate-y-0.5 hover:border-nile/40 hover:shadow-flottant"
+      className="group flex animate-fondu-haut flex-col overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-carte transition-all duration-200 hover:-translate-y-1 hover:border-nile-500/40 hover:shadow-carte-hover"
     >
-      <Link href={lien} className="relative block bg-white">
+      <Link href={lien} className="relative block overflow-hidden bg-slate-50">
         <Vignette
           url={produit.images[0]?.url}
           alt={produit.titre}
           priority={priority}
           className="aspect-square w-full"
-          classImage="transition-transform duration-200 group-hover:scale-[1.04]"
+          classImage="transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 200px"
         />
-        {enRupture && (
-          <span className="absolute left-2 top-2 rounded bg-red-600/90 px-2 py-0.5 text-[11px] font-semibold text-white">
+        {enRupture ? (
+          <span className="absolute left-2 top-2 rounded-md bg-rose-600/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm backdrop-blur-xs">
             Rupture
+          </span>
+        ) : (
+          <span className="absolute left-2 top-2 rounded-md bg-nile-900/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-nile-100 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+            En stock
           </span>
         )}
       </Link>
 
-      <div className="flex flex-1 flex-col gap-1 p-2.5">
+      <div className="flex flex-1 flex-col gap-1 p-3">
         <Link href={lien}>
-          <p className="ligne-2 min-h-[2.4rem] text-[13px] leading-snug text-gray-800 hover:text-nile">
+          <p className="ligne-2 min-h-[2.4rem] text-[13px] font-medium leading-snug text-slate-800 transition-colors group-hover:text-nile-700">
             {produit.titre}
           </p>
         </Link>
 
-        {/* Ligne note (hauteur réservée pour un alignement régulier de la grille) */}
-        <div className="flex min-h-[1rem] items-center gap-1 text-[11px] text-gray-500">
-          {produit.nbAvis > 0 && (
+        {/* Ligne note */}
+        <div className="flex min-h-[1rem] items-center gap-1 text-[11px] text-slate-500">
+          {produit.nbAvis > 0 ? (
             <>
               <Etoiles note={produit.noteMoyenne} />
-              <span>({produit.nbAvis})</span>
+              <span className="font-medium text-slate-400">({produit.nbAvis})</span>
             </>
+          ) : (
+            <span className="text-[10px] text-slate-400">Nouveau</span>
           )}
         </div>
 
-        <div className="mt-auto pt-0.5">
+        <div className="mt-auto pt-1">
           <Prix
             montant={produit.prix}
-            className="text-[17px] font-extrabold text-promo"
+            className="text-[17px] font-black tracking-tight text-promo"
           />
           {produit.vendeur.id ? (
             <Link
               href={`/boutique/${produit.vendeur.id}`}
-              className="mt-0.5 block truncate text-[11px] text-gray-500 hover:text-nile hover:underline"
+              className="mt-0.5 block truncate text-[11px] font-medium text-slate-500 hover:text-nile hover:underline"
             >
               {produit.vendeur.nomBoutique}
             </Link>
           ) : (
-            <p className="mt-0.5 truncate text-[11px] text-gray-500">
+            <p className="mt-0.5 truncate text-[11px] text-slate-400">
               {produit.vendeur.nomBoutique}
             </p>
           )}
         </div>
 
-        {/* Actions : ajout « supermarché » + détail du produit */}
-        <div className="mt-1.5 flex flex-col gap-1.5">
+        {/* Actions : ajout supermarché + détail */}
+        <div className="mt-2 flex flex-col gap-1.5">
           <BoutonPanier
             produitId={produit.id}
             stock={produit.stock}
@@ -98,7 +104,7 @@ export function CarteProduit({
           />
           <Link
             href={lien}
-            className="inline-flex h-8 w-full items-center justify-center rounded-lg border border-gray-200 bg-white text-xs font-medium text-gray-600 transition-colors hover:border-nile hover:text-nile"
+            className="inline-flex h-8 w-full items-center justify-center rounded-lg border border-slate-200 bg-slate-50 text-xs font-semibold text-slate-700 transition-all hover:border-nile-500 hover:bg-nile-50 hover:text-nile-700"
           >
             Détails
           </Link>

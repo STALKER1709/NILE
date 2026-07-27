@@ -5,9 +5,9 @@ import { formaterXAF } from "@/lib/money";
 /* ------------------------------- Formulaires ------------------------------- */
 
 export const champClass =
-  "block w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-nile focus:outline-none focus:ring-2 focus:ring-nile/30";
+  "block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-nile-600 focus:outline-none focus:ring-2 focus:ring-nile-500/25";
 
-export const labelClass = "block text-sm font-medium text-gray-700";
+export const labelClass = "block text-sm font-semibold text-slate-700 mb-1";
 
 /* --------------------------------- Boutons --------------------------------- */
 
@@ -15,17 +15,17 @@ type Variante = "primaire" | "accent" | "secondaire" | "danger" | "ghost";
 type Taille = "sm" | "md" | "lg";
 
 const VARIANTES: Record<Variante, string> = {
-  primaire: "bg-nile text-white hover:bg-nile-dark shadow-sm",
-  accent: "bg-accent font-semibold text-nile-950 hover:bg-accent-dark shadow-sm",
-  secondaire: "border border-gray-300 bg-white text-gray-800 hover:bg-gray-50",
-  danger: "border border-red-300 bg-white text-red-700 hover:bg-red-50",
-  ghost: "text-nile hover:bg-nile-50",
+  primaire: "bg-nile-700 text-white hover:bg-nile-800 shadow-sm border border-nile-800/30",
+  accent: "bg-gradient-to-r from-amber-400 to-amber-500 font-bold text-nile-950 hover:brightness-105 shadow-sm border border-amber-600/20",
+  secondaire: "border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400 shadow-xs",
+  danger: "border border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100 hover:border-rose-300",
+  ghost: "text-nile-700 hover:bg-nile-50 font-semibold",
 };
 
 const TAILLES: Record<Taille, string> = {
-  sm: "px-3 py-1.5 text-xs",
-  md: "px-4 py-2.5 text-sm",
-  lg: "px-5 py-3 text-base",
+  sm: "px-3 py-1.5 text-xs rounded-md",
+  md: "px-4 py-2.5 text-sm rounded-lg",
+  lg: "px-5 py-3 text-base rounded-xl",
 };
 
 export function btn(
@@ -33,7 +33,7 @@ export function btn(
   taille: Taille = "md",
   extra = "",
 ): string {
-  return `inline-flex items-center justify-center gap-2 rounded-lg font-medium transition-[transform,background-color,border-color,color,box-shadow] duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 ${VARIANTES[variante]} ${TAILLES[taille]} ${extra}`;
+  return `inline-flex items-center justify-center gap-2 font-semibold transition-all duration-150 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:active:scale-100 ${VARIANTES[variante]} ${TAILLES[taille]} ${extra}`;
 }
 
 /* --------------------------------- Cartes ---------------------------------- */
@@ -48,7 +48,7 @@ export function Carte({
   id?: string;
 }) {
   return (
-    <section id={id} className={`rounded-xl2 border border-gray-100 bg-white shadow-carte ${className}`}>
+    <section id={id} className={`rounded-xl2 border border-slate-200/80 bg-white shadow-carte ${className}`}>
       {children}
     </section>
   );
@@ -59,11 +59,11 @@ export function Carte({
 type TonBadge = "neutre" | "vert" | "ambre" | "rouge" | "bleu";
 
 const TONS: Record<TonBadge, string> = {
-  neutre: "bg-gray-100 text-gray-700",
-  vert: "bg-emerald-100 text-emerald-800",
-  ambre: "bg-amber-100 text-amber-800",
-  rouge: "bg-red-100 text-red-700",
-  bleu: "bg-sky-100 text-sky-800",
+  neutre: "bg-slate-100 text-slate-700 border border-slate-200/60",
+  vert: "bg-emerald-50 text-emerald-800 border border-emerald-200/60",
+  ambre: "bg-amber-50 text-amber-900 border border-amber-200/60",
+  rouge: "bg-rose-50 text-rose-800 border border-rose-200/60",
+  bleu: "bg-sky-50 text-sky-800 border border-sky-200/60",
 };
 
 export function Badge({
@@ -74,7 +74,7 @@ export function Badge({
   ton?: TonBadge;
 }) {
   return (
-    <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${TONS[ton]}`}>
+    <span className={`inline-block rounded-full px-2.5 py-0.5 text-[11px] font-bold ${TONS[ton]}`}>
       {children}
     </span>
   );

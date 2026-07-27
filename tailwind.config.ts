@@ -8,10 +8,11 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Marque : vert « NILE » (confiance, calme) + accent ambre pour prix/CTA.
+        // Marque : vert « NILE » (confiance, calme, émeraude) + accent ambre pour CTA.
         nile: {
           50: "#f0fdfa",
           100: "#ccfbf1",
+          200: "#99f6e4",
           500: "#14b8a6",
           600: "#0d9488",
           DEFAULT: "#0f766e",
@@ -19,28 +20,28 @@ const config: Config = {
           dark: "#0b5850",
           800: "#115e59",
           900: "#0a3d38",
-          950: "#06231f",
+          950: "#042f2e",
         },
         accent: {
           DEFAULT: "#f59e0b",
           dark: "#d97706",
+          light: "#fbbf24",
         },
-        // Prix de vente / promotions : rouge chaud « marketplace » (type Amazon/Alibaba).
+        // Prix de vente / promotions : rouge chaud marketplace.
         promo: {
-          DEFAULT: "#b12704",
-          dark: "#8a1e03",
+          DEFAULT: "#ef4444",
+          dark: "#dc2626",
+          deep: "#b91c1c",
         },
       },
       boxShadow: {
-        carte: "0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04)",
-        flottant: "0 8px 24px rgba(0,0,0,0.12)",
+        carte: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)",
+        "carte-hover": "0 10px 25px -5px rgba(15, 118, 110, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04)",
+        flottant: "0 12px 32px -4px rgba(15, 118, 110, 0.18)",
       },
       borderRadius: {
         xl2: "1rem",
       },
-      // Animations légères (transform/opacity uniquement, fluides sur mobile).
-      // Désactivées automatiquement si l'utilisateur préfère moins d'animation
-      // (voir la règle prefers-reduced-motion dans globals.css).
       keyframes: {
         "fondu-haut": {
           "0%": { opacity: "0", transform: "translateY(12px)" },

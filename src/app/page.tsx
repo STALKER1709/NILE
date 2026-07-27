@@ -40,7 +40,7 @@ export default async function AccueilPage() {
       </Carrousel>
 
       {/* Garanties (confiance) */}
-      <section className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <section className="grid grid-cols-1 gap-3.5 sm:grid-cols-3">
         <Garantie
           titre="Paiement à la livraison"
           texte="Payez en espèces quand vous recevez votre colis."
@@ -62,7 +62,7 @@ export default async function AccueilPage() {
         />
         <Garantie
           titre="Livraison partout au Cameroun"
-          texte="Vos commandes livrées dans tout le pays."
+          texte="Vos commandes livrées rapidement dans tout le pays."
           index={2}
           icone={
             <>
@@ -77,21 +77,21 @@ export default async function AccueilPage() {
       {/* Rayons */}
       {racines.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold">Explorer les rayons</h2>
+          <h2 className="mb-3.5 text-lg font-black tracking-tight text-slate-900">Explorer les rayons</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {racines.map((c, i) => (
               <Link
                 key={c.id}
                 href={`/catalogue?categorie=${c.slug}`}
                 style={{ animationDelay: `${i * 50}ms` }}
-                className="group flex animate-fondu-haut items-center gap-3 rounded-xl border border-gray-100 bg-white p-3 shadow-carte transition duration-200 hover:-translate-y-0.5 hover:border-nile hover:shadow-flottant"
+                className="group flex animate-fondu-haut items-center gap-3 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-carte transition-all duration-200 hover:-translate-y-0.5 hover:border-nile-500 hover:shadow-carte-hover"
               >
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-nile-50 text-nile transition-colors group-hover:bg-nile group-hover:text-white">
+                <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-nile-50 text-nile-700 transition-colors group-hover:bg-nile-600 group-hover:text-white shadow-xs">
                   <IconeCategorie nom={c.nom} />
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-gray-800">{c.nom}</span>
-                  <span className="text-xs text-nile">Voir le rayon</span>
+                  <span className="block truncate text-sm font-bold text-slate-900 transition-colors group-hover:text-nile-700">{c.nom}</span>
+                  <span className="text-xs font-medium text-nile-600">Voir le rayon →</span>
                 </span>
               </Link>
             ))}
@@ -102,13 +102,13 @@ export default async function AccueilPage() {
       {/* Boutiques à découvrir */}
       {boutiques.length > 0 && (
         <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="text-lg font-bold">Boutiques à découvrir</h2>
-            <Link href="/boutiques" className="text-sm font-medium text-nile hover:underline">
+          <div className="mb-3.5 flex items-center justify-between">
+            <h2 className="text-lg font-black tracking-tight text-slate-900">Boutiques à découvrir</h2>
+            <Link href="/boutiques" className="text-xs font-bold uppercase tracking-wider text-nile-700 hover:text-nile-800 hover:underline">
               Toutes les boutiques →
             </Link>
           </div>
-          <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
+          <div className="no-scrollbar flex gap-3.5 overflow-x-auto pb-2">
             {boutiques.map((b, i) => (
               <CarteBoutique key={b.id} boutique={b} compact index={i} />
             ))}
@@ -122,14 +122,14 @@ export default async function AccueilPage() {
       )}
 
       {/* Ruban livraison */}
-      <section className="flex items-center justify-center gap-3 rounded-xl2 bg-gradient-to-r from-nile-800 to-nile-700 px-4 py-3 text-white">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
+      <section className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-nile-900 via-nile-800 to-nile-950 px-5 py-4 text-white shadow-md">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className="text-amber-400 shrink-0" aria-hidden="true">
           <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" />
           <circle cx="7" cy="17" r="1.5" />
           <circle cx="17" cy="17" r="1.5" />
         </svg>
-        <p className="text-sm">
-          <strong>Livraison gratuite</strong> partout au Cameroun, sur toutes les commandes.
+        <p className="text-xs sm:text-sm">
+          <strong className="font-extrabold text-amber-400">Livraison gratuite</strong> partout au Cameroun, sur toutes les commandes.
         </p>
       </section>
 
@@ -157,14 +157,14 @@ function SectionProduits({
 }) {
   return (
     <section>
-      <div className="mb-3 flex items-center justify-between">
-        <h2 className="text-lg font-bold">{titre}</h2>
-        <Link href="/catalogue" className="text-sm font-medium text-nile hover:underline">
+      <div className="mb-3.5 flex items-center justify-between">
+        <h2 className="text-lg font-black tracking-tight text-slate-900">{titre}</h2>
+        <Link href="/catalogue" className="text-xs font-bold uppercase tracking-wider text-nile-700 hover:text-nile-800 hover:underline">
           Tout voir →
         </Link>
       </div>
       {produits.length === 0 ? (
-        <p className="rounded-xl2 border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500">
+        <p className="rounded-2xl border border-dashed border-slate-300 bg-white p-8 text-center text-sm text-slate-500">
           {vide ?? "Rien à afficher pour l'instant."}
         </p>
       ) : (
@@ -198,16 +198,16 @@ function Garantie({
   return (
     <div
       style={{ animationDelay: `${index * 80}ms` }}
-      className="flex animate-fondu-haut items-start gap-3 rounded-xl border border-gray-100 bg-white p-3.5 shadow-carte"
+      className="flex animate-fondu-haut items-start gap-3.5 rounded-xl border border-slate-200/80 bg-white p-4 shadow-carte transition-all hover:border-nile-500/30"
     >
-      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-nile-50 text-nile">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-nile-50 text-nile-700 shadow-xs">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
           {icone}
         </svg>
       </span>
       <div>
-        <p className="text-sm font-semibold text-gray-800">{titre}</p>
-        <p className="mt-0.5 text-xs text-gray-500">{texte}</p>
+        <p className="text-sm font-bold text-slate-900">{titre}</p>
+        <p className="mt-0.5 text-xs leading-relaxed text-slate-500">{texte}</p>
       </div>
     </div>
   );

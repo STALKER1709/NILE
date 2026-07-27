@@ -27,7 +27,7 @@ html {
 }
 
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply bg-slate-50 text-slate-900 antialiased selection:bg-nile-100 selection:text-nile-950;
 }
 
 /* Cible de tap confortable sur mobile + focus visible accessible. */
@@ -38,7 +38,7 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-nile ring-offset-1;
+    @apply outline-none ring-2 ring-nile ring-offset-2 ring-offset-slate-50;
   }
 }
 
