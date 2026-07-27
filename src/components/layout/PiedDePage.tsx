@@ -56,6 +56,8 @@ export function PiedDePage() {
       </div>
       <div className="space-y-2 border-t border-white/10 py-4 text-center text-xs text-white/50">
         <p className="space-x-3">
+          <Link href="/aide" className="hover:text-white">Aide</Link>
+          <span aria-hidden="true">·</span>
           <Link href="/contact" className="hover:text-white">Contact</Link>
           <span aria-hidden="true">·</span>
           <Link href="/conditions" className="hover:text-white">Conditions générales</Link>

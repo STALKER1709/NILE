@@ -92,7 +92,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
           <Link href="/catalogue?tri=populaire" className={`${classeLien(false)} whitespace-nowrap`}>
             Les mieux notés
           </Link>
-          <Link href="/contact" className={classeLien(chemin === "/contact")}>
+          <Link href="/aide" className={classeLien(chemin === "/aide")}>
             Aide
           </Link>
 
