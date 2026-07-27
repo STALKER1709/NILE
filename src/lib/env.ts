@@ -136,9 +136,18 @@ if (!parsed.success) {
   const details = parsed.error.issues
     .map((i) => `  - ${i.path.join(".")}: ${i.message}`)
     .join("\n");
+  // Journalisé séparément : lors d'un build hébergé (Vercel), l'erreur levée
+  // est ré-emballée et seule sa première ligne apparaît dans les logs, ce qui
+  // masquerait justement le nom des variables fautives.
+  console.error(
+    `[env] Variables d'environnement invalides :\n${details}\n` +
+      "Renseigne-les dans .env en local, ou dans Vercel > Settings > " +
+      "Environment Variables en production (voir .env.example).",
+  );
   throw new Error(
     `Variables d'environnement invalides :\n${details}\n` +
-      "Vérifie ton fichier .env (voir .env.example).",
+      "Vérifie ton .env en local, ou les Environment Variables du projet Vercel " +
+      "(voir .env.example).",
   );
 }
 
