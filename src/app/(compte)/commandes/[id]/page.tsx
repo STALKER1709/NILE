@@ -16,6 +16,31 @@ import {
 export const dynamic = "force-dynamic";
 
 const ETAPES = ["CONFIRMEE", "EN_PREPARATION", "EXPEDIEE", "LIVREE"] as const;
+const ICONES_ETAPE: Record<(typeof ETAPES)[number], React.ReactNode> = {
+  CONFIRMEE: <><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" /><rect x="9" y="3" width="6" height="4" rx="1" /><path d="m9 14 2 2 4-4" strokeLinecap="round" strokeLinejoin="round" /></>,
+  EN_PREPARATION: <><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z" strokeLinejoin="round" /><path d="M3 7.5 12 12l9-4.5M12 12v9" /></>,
+  EXPEDIEE: <><path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" strokeLinejoin="round" /><circle cx="7" cy="17" r="1.5" /><circle cx="17" cy="17" r="1.5" /></>,
+  LIVREE: <><circle cx="12" cy="12" r="9" /><path d="m8.5 12.5 2.5 2.5 4.5-5" strokeLinecap="round" strokeLinejoin="round" /></>,
+};
+
+/** Libellés lisibles des statuts de livraison (jamais l'énumération brute). */
+const LIVRAISON_LIB: Record<string, string> = {
+  EN_ATTENTE: "en attente de prise en charge",
+  AFFECTEE: "confiée au livreur",
+  EN_TRANSIT: "en cours d'acheminement",
+  LIVREE: "livrée",
+  ECHEC: "échec de livraison",
+  RETOURNEE: "retournée à la boutique",
+};
+
+/** Ce que chaque étape signifie concrètement pour l'acheteur. */
+const EXPLICATION: Record<(typeof ETAPES)[number], string> = {
+  CONFIRMEE: "Votre commande est enregistrée. La boutique va la préparer.",
+  EN_PREPARATION: "La boutique rassemble vos articles avant expédition.",
+  EXPEDIEE: "Votre colis est en route. Vérifiez-le à la réception avant de payer.",
+  LIVREE: "Colis livré. Merci de votre confiance !",
+};
+
 const ETAPE_LIB: Record<(typeof ETAPES)[number], string> = {
   CONFIRMEE: "Confirmée",
   EN_PREPARATION: "Préparation",
@@ -51,12 +76,34 @@ export default async function DetailCommandePage({
   const termine = commande.statutCommande === "ANNULEE" || commande.statutCommande === "REFUSEE";
   const etapeCourante = ETAPES.indexOf(commande.statutCommande as (typeof ETAPES)[number]);
   const alerte = ok ? ALERTES[ok] : undefined;
+  // Étape effectivement atteinte (repli sur la première si statut hors frise).
+  const etapeAffichee = ETAPES[Math.max(etapeCourante, 0)] ?? ETAPES[0];
 
   return (
-    <div className="mx-auto max-w-2xl space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">{commande.numero}</h1>
-        <Link href="/commandes" className="text-sm text-slate-500 hover:underline">← Mes commandes</Link>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <nav aria-label="Fil d'Ariane" className="flex items-center gap-2 text-corps-sm text-slate-500">
+            <Link href="/commandes" className="transition-colors hover:text-nile-700">Mes commandes</Link>
+            <span className="text-slate-300">›</span>
+            <span className="font-semibold text-slate-900">{commande.numero}</span>
+          </nav>
+          <h1 className="mt-1 text-titre-sm text-nile-800 sm:text-titre-md">Suivi de votre commande</h1>
+          <p className="mt-1 text-corps-sm text-slate-500">
+            Passée le{" "}
+            <span className="font-semibold text-slate-700">
+              {new Date(commande.dateCreation).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
+            </span>
+          </p>
+        </div>
+        <Link href="/aide" className={btn("secondaire", "md")}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" />
+            <path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.4V14" strokeLinecap="round" />
+            <path d="M12 17.5v.01" strokeLinecap="round" />
+          </svg>
+          Besoin d'aide ?
+        </Link>
       </div>
 
       {alerte && (
@@ -75,8 +122,10 @@ export default async function DetailCommandePage({
         </form>
       )}
 
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <div className="space-y-5 lg:col-span-2">
       {/* Statuts + chronologie */}
-      <Carte className="space-y-4 p-4">
+      <Carte className="space-y-4 p-5">
         <div className="flex flex-wrap gap-2">
           <BadgeStatutCommande statut={commande.statutCommande} />
           <BadgeStatutPaiement statut={commande.statutPaiement} />
@@ -88,13 +137,15 @@ export default async function DetailCommandePage({
               return (
                 <li key={etape} className="flex flex-1 items-center last:flex-none">
                   <div className="flex flex-col items-center">
-                    <span className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${atteinte ? "bg-nile text-white" : "bg-slate-100 text-slate-400"}`}>
-                      {i + 1}
+                    <span className={`grid h-11 w-11 place-items-center rounded-full transition-colors ${atteinte ? "bg-nile-700 text-white" : "border-2 border-contour-carte bg-white text-slate-300"}`}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                        {ICONES_ETAPE[etape]}
+                      </svg>
                     </span>
-                    <span className={`mt-1 text-[11px] ${atteinte ? "text-slate-700" : "text-slate-400"}`}>{ETAPE_LIB[etape]}</span>
+                    <span className={`mt-2 text-center text-etiquette-xs ${atteinte ? "font-semibold text-nile-800" : "text-slate-400"}`}>{ETAPE_LIB[etape]}</span>
                   </div>
                   {i < ETAPES.length - 1 && (
-                    <span className={`mx-1 h-0.5 flex-1 ${i < etapeCourante ? "bg-nile" : "bg-slate-200"}`} />
+                    <span className={`mx-1 mb-6 h-0.5 flex-1 ${i < etapeCourante ? "bg-nile-700" : "bg-contour-carte"}`} />
                   )}
                 </li>
               );
@@ -105,10 +156,22 @@ export default async function DetailCommandePage({
             {commande.statutCommande === "ANNULEE" ? "Cette commande a été annulée." : "Commande refusée à la livraison."}
           </p>
         )}
+
+        {!termine && (
+          <div className="rounded border-l-4 border-nile-700 bg-surface-basse p-4">
+            <p className="flex items-center gap-2 text-etiquette-md text-nile-800">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <circle cx="12" cy="12" r="9" /><path d="M12 11v5M12 8v.01" strokeLinecap="round" />
+              </svg>
+              Statut actuel : {ETAPE_LIB[etapeAffichee]}
+            </p>
+            <p className="mt-1 text-corps-sm text-slate-600">{EXPLICATION[etapeAffichee]}</p>
+          </div>
+        )}
       </Carte>
 
       {/* Articles */}
-      <Carte className="p-4">
+      <Carte className="p-5">
         <h2 className="mb-2 font-bold text-slate-900">Articles</h2>
         <ul className="space-y-1 text-sm text-slate-600">
           {commande.lignes.map((l) => (
@@ -127,15 +190,25 @@ export default async function DetailCommandePage({
         </p>
       </Carte>
 
+      {annulable && (
+        <form action={annulerCommandeAction}>
+          <input type="hidden" name="commandeId" value={commande.id} />
+          <button type="submit" className={btn("danger", "md")}>Annuler la commande</button>
+        </form>
+      )}
+      </div>
+
+      {/* Colonne latérale : adresse et récapitulatif */}
+      <div className="space-y-5 lg:col-span-1">
       {/* Livraison */}
-      <Carte className="p-4">
+      <Carte className="p-5">
         <h2 className="mb-2 font-bold text-slate-900">Livraison</h2>
         <p className="text-sm text-slate-700">{commande.destNom} · {commande.destTelephone}</p>
         <p className="text-sm text-slate-500">{commande.quartier}, {commande.ville}</p>
         {commande.reperes && <p className="text-sm text-slate-500">Repères : {commande.reperes}</p>}
         {commande.livraison && (
           <div className="mt-2 border-t border-slate-100 pt-2 text-sm text-slate-600">
-            <p>Suivi : <span className="font-medium">{commande.livraison.statut}</span>{commande.livraison.transporteur ? ` · ${commande.livraison.transporteur}` : ""}</p>
+            <p>Suivi : <span className="font-semibold text-slate-800">{LIVRAISON_LIB[commande.livraison.statut] ?? commande.livraison.statut}</span>{commande.livraison.transporteur ? ` · ${commande.livraison.transporteur}` : ""}</p>
             {commande.livraison.preuveUrl && (
               <div className="mt-2">
                 <p className="text-xs text-slate-500">Preuve de livraison</p>
@@ -146,12 +219,8 @@ export default async function DetailCommandePage({
         )}
       </Carte>
 
-      {annulable && (
-        <form action={annulerCommandeAction}>
-          <input type="hidden" name="commandeId" value={commande.id} />
-          <button type="submit" className={btn("danger", "md")}>Annuler la commande</button>
-        </form>
-      )}
+      </div>
+      </div>
     </div>
   );
 }
