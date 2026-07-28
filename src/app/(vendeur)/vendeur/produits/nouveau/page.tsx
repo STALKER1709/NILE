@@ -19,12 +19,12 @@ export default async function NouveauProduitPage({
   return (
     <div className="mx-auto max-w-lg space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Nouveau produit</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Nouveau produit</h1>
         <Link href="/vendeur/produits" className="text-sm text-slate-500 hover:underline">← Retour</Link>
       </div>
 
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       <Carte className="p-5">

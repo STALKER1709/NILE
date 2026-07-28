@@ -13,7 +13,7 @@ export default function ConditionsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Conditions générales</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Conditions générales</h1>
         <p className="mt-1 text-sm text-slate-500">Dernière mise à jour : {MAJ}</p>
       </div>
 
@@ -25,7 +25,7 @@ export default function ConditionsPage() {
             des vendeurs (y compris la boutique propre de la plateforme) et
             permet le paiement par Mobile Money ou à la livraison.
           </p>
-          <p className="rounded-lg bg-amber-50 px-3 py-2 text-amber-800">
+          <p className="rounded bg-accent-fixe px-3 py-2 text-amber-800">
             [À COMPLÉTER : raison sociale, forme juridique, RCCM, NIU, adresse
             du siège, contact officiel.]
           </p>

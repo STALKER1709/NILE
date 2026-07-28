@@ -38,7 +38,7 @@ export default async function VendeurPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">
+          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
             Tableau de bord
           </h1>
           <p className="mt-1 text-sm text-slate-500">
@@ -52,7 +52,7 @@ export default async function VendeurPage() {
       </div>
 
       {vendeur.statutValidation === "EN_ATTENTE" && (
-        <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+        <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
           Votre boutique est en attente de validation. Vous pouvez préparer vos
           produits ; la publication sera possible une fois validée.
         </p>
@@ -116,7 +116,7 @@ export default async function VendeurPage() {
 
       {/* Commandes récentes */}
       <Carte className="overflow-hidden">
-        <div className="flex items-center justify-between border-b border-slate-200/80 px-5 py-4">
+        <div className="flex items-center justify-between border-b border-contour-carte px-5 py-4">
           <h2 className="font-bold text-slate-900">Commandes récentes</h2>
           <Link
             href="/vendeur/commandes"
@@ -283,7 +283,7 @@ function Kpi({
         {icone && (
           <span
             className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${
-              accent ? "bg-amber-50 text-amber-600" : "bg-nile-50 text-nile-700"
+              accent ? "bg-accent-fixe text-accent-dark" : "bg-nile-50 text-nile-700"
             }`}
           >
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
@@ -294,8 +294,8 @@ function Kpi({
         <div className="min-w-0">
           <p className="text-xs uppercase tracking-wider text-slate-500">{label}</p>
           <p
-            className={`mt-0.5 text-lg font-black leading-tight ${
-              accent ? "text-amber-600" : "text-nile-800"
+            className={`mt-0.5 text-lg font-bold leading-tight ${
+              accent ? "text-accent-dark" : "text-nile-800"
             }`}
           >
             {valeur}

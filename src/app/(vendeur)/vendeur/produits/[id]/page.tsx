@@ -41,15 +41,15 @@ export default async function GestionProduitPage({
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="truncate text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">{produit.titre}</h1>
+        <h1 className="truncate text-titre-sm text-nile-800 sm:text-titre-md">{produit.titre}</h1>
         <Link href="/vendeur/produits" className="shrink-0 text-sm text-slate-500 hover:underline">← Mes produits</Link>
       </div>
 
       {ok && MESSAGES_OK[ok] && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{MESSAGES_OK[ok]}</p>
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{MESSAGES_OK[ok]}</p>
       )}
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       {/* Statut / publication */}
@@ -75,7 +75,7 @@ export default async function GestionProduitPage({
           <ul className="mt-3 flex flex-wrap gap-3">
             {produit.images.map((img) => (
               <li key={img.id}>
-                <Vignette url={img.url} alt="" sizes="80px" className="h-20 w-20 rounded-lg border border-slate-200/80" />
+                <Vignette url={img.url} alt="" sizes="80px" className="h-20 w-20 rounded border border-contour-carte" />
                 <form action={supprimerImageAction}>
                   <input type="hidden" name="produitId" value={produit.id} />
                   <input type="hidden" name="imageId" value={img.id} />

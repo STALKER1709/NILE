@@ -40,7 +40,7 @@ export default async function CommandesVendeurPage({
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mes commandes</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mes commandes</h1>
         <Link href="/vendeur" className="text-sm text-nile hover:underline">← Espace vendeur</Link>
       </div>
 
@@ -51,12 +51,12 @@ export default async function CommandesVendeurPage({
       </div>
 
       {ok && MESSAGES_OK[ok] && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           {MESSAGES_OK[ok]}
         </p>
       )}
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       <p className="text-sm text-slate-500">
@@ -107,7 +107,7 @@ export default async function CommandesVendeurPage({
                 <Prix montant={c.totalVendeur} className="text-nile" />
               </p>
 
-              <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+              <div className="mt-3 rounded bg-slate-50 px-3 py-2 text-xs text-slate-600">
                 <p className="font-medium text-slate-700">Livraison</p>
                 <p>
                   {c.destNom} · {c.destTelephone}

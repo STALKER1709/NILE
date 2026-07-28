@@ -33,10 +33,10 @@ export default async function CommanderPage({
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Passer la commande</h1>
+      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Passer la commande</h1>
 
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       <div className="grid gap-5 lg:grid-cols-3">
@@ -44,7 +44,7 @@ export default async function CommanderPage({
           <Carte className="space-y-4 p-5">
             <h2 className="font-bold text-slate-900">Adresse de livraison</h2>
             {derniere && (
-              <p className="rounded-lg bg-nile-50 px-3 py-2 text-xs text-nile-800">
+              <p className="rounded bg-nile-50 px-3 py-2 text-xs text-nile-800">
                 Adresse pré-remplie depuis ta dernière commande · modifie si besoin.
               </p>
             )}
@@ -74,14 +74,14 @@ export default async function CommanderPage({
 
           <Carte className="space-y-3 p-5">
             <h2 className="font-bold text-slate-900">Mode de paiement</h2>
-            <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
+            <label className="flex items-start gap-3 rounded border border-contour-carte p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
               <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond} className="mt-1" />
               <span>
                 <span className="font-medium">Paiement à la livraison</span>
                 <span className="block text-sm text-slate-500">Vous payez en espèces à la réception.</span>
               </span>
             </label>
-            <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
+            <label className="flex items-start gap-3 rounded border border-contour-carte p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
               <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond} className="mt-1" />
               <span>
                 <span className="font-medium">Mobile Money (Monetbil)</span>
@@ -89,7 +89,7 @@ export default async function CommanderPage({
               </span>
             </label>
             {depassePlafond && (
-              <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800">
+              <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-xs text-amber-800">
                 Le total dépasse le plafond du paiement à la livraison (<Prix montant={plafond} />).
                 Choisissez Mobile Money ou réduisez le panier.
               </p>

@@ -19,17 +19,17 @@ export default async function ModerationPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Modération du catalogue</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Modération du catalogue</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
-      {ok && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Produit mis à jour.</p>}
-      {erreur && <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
+      {ok && <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Produit mis à jour.</p>}
+      {erreur && <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
 
       <div className="space-y-2">
         {produits.map((p) => (
           <Carte key={p.id} className="flex items-center gap-3 p-3">
-            <Vignette url={p.images?.[0]?.url} alt="" sizes="48px" className="h-12 w-12 shrink-0 rounded-lg" />
+            <Vignette url={p.images?.[0]?.url} alt="" sizes="48px" className="h-12 w-12 shrink-0 rounded" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{p.titre}</p>
               <p className="text-xs text-slate-500">{p.vendeur.nomBoutique} · {p.categorie.nom} · <Prix montant={p.prix} /></p>

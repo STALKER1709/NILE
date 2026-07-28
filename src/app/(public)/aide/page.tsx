@@ -188,7 +188,7 @@ export default function AidePage() {
 
       {/* Contact direct */}
       <section className="text-center">
-        <h2 className="text-2xl font-black tracking-tight text-slate-900">
+        <h2 className="text-titre-sm text-slate-900 sm:text-titre-md">
           Vous n'avez pas trouvé ?
         </h2>
         <p className="mx-auto mt-2 max-w-xl text-sm text-slate-500">
@@ -203,7 +203,7 @@ export default function AidePage() {
         ) : (
           <div className="mx-auto mt-7 grid max-w-3xl grid-cols-1 gap-3.5 sm:grid-cols-2">
             {whatsapp && (
-              <div className="flex flex-col items-center rounded-xl border border-slate-200/80 bg-white p-6 shadow-carte">
+              <div className="flex flex-col items-center rounded-xl border border-contour-carte bg-white p-6 shadow-carte">
                 <span className="mb-3.5 grid h-14 w-14 place-items-center rounded-full bg-emerald-50 text-emerald-600">
                   <IconeWhatsApp taille={26} />
                 </span>
@@ -215,14 +215,14 @@ export default function AidePage() {
                   href={`https://wa.me/${whatsapp}?text=${encodeURIComponent("Bonjour NILE, j'ai une question :")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full rounded-lg bg-nile-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-nile-800"
+                  className="w-full rounded bg-nile-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-nile-800"
                 >
                   Nous écrire
                 </a>
               </div>
             )}
             {email && (
-              <div className="flex flex-col items-center rounded-xl border border-slate-200/80 bg-white p-6 shadow-carte">
+              <div className="flex flex-col items-center rounded-xl border border-contour-carte bg-white p-6 shadow-carte">
                 <span className="mb-3.5 grid h-14 w-14 place-items-center rounded-full bg-nile-50 text-nile-700">
                   <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                     <rect x="2" y="4" width="20" height="16" rx="2" />
@@ -235,7 +235,7 @@ export default function AidePage() {
                 </p>
                 <a
                   href={`mailto:${email}`}
-                  className="w-full rounded-lg bg-nile-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-nile-800"
+                  className="w-full rounded bg-nile-900 px-6 py-3 text-sm font-bold text-white transition-colors hover:bg-nile-800"
                 >
                   Envoyer un email
                 </a>

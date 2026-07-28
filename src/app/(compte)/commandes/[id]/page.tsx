@@ -26,7 +26,7 @@ const ETAPE_LIB: Record<(typeof ETAPES)[number], string> = {
 const ALERTES: Record<string, { classe: string; texte: string }> = {
   creee: { classe: "border-emerald-200 bg-emerald-50 text-emerald-700", texte: "Commande enregistrée ! Vous paierez à la livraison." },
   paye: { classe: "border-emerald-200 bg-emerald-50 text-emerald-700", texte: "Paiement confirmé. Merci !" },
-  annulee: { classe: "border-amber-200 bg-amber-50 text-amber-800", texte: "Commande annulée. Les articles ont été remis en stock." },
+  annulee: { classe: "border-amber-200 bg-accent-fixe text-amber-800", texte: "Commande annulée. Les articles ont été remis en stock." },
   echec: { classe: "border-red-200 bg-red-50 text-red-700", texte: "Le paiement a échoué. La commande a été annulée et le stock restitué." },
 };
 
@@ -55,17 +55,17 @@ export default async function DetailCommandePage({
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">{commande.numero}</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">{commande.numero}</h1>
         <Link href="/commandes" className="text-sm text-slate-500 hover:underline">← Mes commandes</Link>
       </div>
 
       {alerte && (
-        <p className={`rounded-lg border px-3 py-2 text-sm ${alerte.classe}`}>
+        <p className={`rounded border px-3 py-2 text-sm ${alerte.classe}`}>
           {alerte.texte}
         </p>
       )}
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       {paiementARelancer && (
@@ -139,7 +139,7 @@ export default async function DetailCommandePage({
             {commande.livraison.preuveUrl && (
               <div className="mt-2">
                 <p className="text-xs text-slate-500">Preuve de livraison</p>
-                <Vignette url={commande.livraison.preuveUrl} alt="Preuve de livraison" sizes="120px" className="mt-1 h-28 w-28 rounded-lg" />
+                <Vignette url={commande.livraison.preuveUrl} alt="Preuve de livraison" sizes="120px" className="mt-1 h-28 w-28 rounded" />
               </div>
             )}
           </div>

@@ -98,7 +98,7 @@ export function CentreAide({ questions }: { questions: Question[] }) {
     <>
       {/* Héro : recherche */}
       <section className="-mx-3 bg-nile-900 px-4 py-14 text-center text-white sm:-mx-4 sm:rounded-2xl sm:py-16">
-        <h1 className="text-3xl font-black tracking-tight sm:text-4xl">
+        <h1 className="text-titre-md sm:text-display-mobile">
           Comment pouvons-nous vous aider ?
         </h1>
         <p className="mx-auto mt-3 max-w-xl text-sm text-white/75 sm:text-base">
@@ -125,7 +125,7 @@ export function CentreAide({ questions }: { questions: Question[] }) {
             onChange={(e) => setTerme(e.target.value)}
             placeholder="Rechercher une question, un mot-clé…"
             aria-label="Rechercher dans l'aide"
-            className="h-14 w-full rounded-xl border-none bg-white pl-12 pr-4 text-sm text-slate-900 shadow-lg outline-none ring-amber-400 transition placeholder:text-slate-400 focus:ring-4"
+            className="h-14 w-full rounded-xl border-none bg-white pl-12 pr-4 text-sm text-slate-900 shadow-carte-hover outline-none ring-amber-400 transition placeholder:text-slate-400 focus:ring-4"
           />
         </div>
       </section>
@@ -141,7 +141,7 @@ export function CentreAide({ questions }: { questions: Question[] }) {
               onClick={() => setRubrique(actif ? null : r.cle)}
               aria-pressed={actif}
               className={`group rounded-xl border bg-white p-5 text-left shadow-carte transition-all duration-200 hover:-translate-y-0.5 hover:shadow-carte-hover ${
-                actif ? "border-nile-600 ring-1 ring-nile-600" : "border-slate-200/80"
+                actif ? "border-nile-600 ring-1 ring-nile-600" : "border-contour-carte"
               }`}
             >
               <span
@@ -165,7 +165,7 @@ export function CentreAide({ questions }: { questions: Question[] }) {
       {/* Questions fréquentes */}
       <section className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-1">
-          <h2 className="text-2xl font-black tracking-tight text-slate-900">
+          <h2 className="text-titre-sm text-slate-900 sm:text-titre-md">
             Questions fréquentes
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-slate-500">
@@ -181,7 +181,7 @@ export function CentreAide({ questions }: { questions: Question[] }) {
               ← Voir toutes les rubriques
             </button>
           )}
-          <div className="mt-6 rounded-xl border border-slate-200/80 bg-slate-50 p-5">
+          <div className="mt-6 rounded-xl border border-contour-carte bg-slate-50 p-5">
             <p className="text-xs font-bold uppercase tracking-wider text-slate-500">
               Conseil
             </p>
@@ -202,7 +202,7 @@ export function CentreAide({ questions }: { questions: Question[] }) {
             resultats.map((q) => (
               <details
                 key={q.question}
-                className="group rounded-xl border border-slate-200/80 bg-white transition-colors open:border-nile-600/40"
+                className="group rounded-xl border border-contour-carte bg-white transition-colors open:border-nile-600/40"
               >
                 <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-5 text-sm font-bold text-slate-900">
                   {q.question}

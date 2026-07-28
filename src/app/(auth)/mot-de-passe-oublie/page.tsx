@@ -17,7 +17,7 @@ export default async function MotDePasseOubliePage({
   return (
     <div className="mx-auto max-w-md space-y-4 py-6">
       <div className="text-center">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mot de passe oublié</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mot de passe oublié</h1>
         <p className="mt-1 text-sm text-slate-500">
           Indique ton email : nous t&apos;enverrons un lien pour choisir un
           nouveau mot de passe.
@@ -25,10 +25,10 @@ export default async function MotDePasseOubliePage({
       </div>
 
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
       {ok === "envoye" && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Si un compte existe avec cet email, un lien de réinitialisation vient
           d&apos;être envoyé. Pense à vérifier les spams.
         </p>

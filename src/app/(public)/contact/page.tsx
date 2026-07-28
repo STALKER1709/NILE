@@ -15,7 +15,7 @@ export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Nous contacter</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Nous contacter</h1>
         <p className="mt-1 text-sm text-slate-500">
           Une question sur une commande, une livraison, un produit ? On te répond.
         </p>
@@ -43,7 +43,7 @@ export default function ContactPage() {
             href={`https://wa.me/${whatsapp}?text=${encodeURIComponent("Bonjour NILE, j'ai une question :")}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 rounded-lg bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
+            className="shrink-0 rounded bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700"
           >
             Écrire
           </a>
@@ -64,7 +64,7 @@ export default function ContactPage() {
           </div>
           <a
             href={`mailto:${email}`}
-            className="shrink-0 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-nile hover:text-nile"
+            className="shrink-0 rounded border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-nile hover:text-nile"
           >
             Écrire
           </a>

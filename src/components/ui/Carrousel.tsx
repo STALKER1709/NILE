@@ -55,7 +55,7 @@ export function Carrousel({
       <div
         ref={piste}
         onScroll={surDefilement}
-        className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-xl2"
+        className="no-scrollbar flex snap-x snap-mandatory overflow-x-auto rounded-xl"
       >
         {slides.map((slide, i) => (
           <div key={i} className="w-full shrink-0 snap-start">

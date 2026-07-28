@@ -12,10 +12,10 @@ export function PiedDePage() {
         Retour en haut ↑
       </Link>
 
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-6 px-4 py-9 text-sm sm:grid-cols-4">
+      <div className="mx-auto grid max-w-conteneur grid-cols-2 gap-6 px-4 py-9 text-sm sm:grid-cols-4">
         <div className="col-span-2 sm:col-span-1">
-          <p className="flex items-center gap-1.5 text-lg font-extrabold">
-            <span className="grid h-7 w-7 place-items-center rounded-md bg-accent text-nile-950">N</span>
+          <p className="flex items-center gap-1.5 text-lg font-bold">
+            <span className="grid h-7 w-7 place-items-center rounded bg-accent text-nile-950">N</span>
             NILE
           </p>
           <p className="mt-2 text-white/60">
@@ -49,9 +49,9 @@ export function PiedDePage() {
       </div>
       <div className="border-t border-white/10 py-4">
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded-md bg-[#ffcb05] px-2.5 py-1 text-[11px] font-bold text-slate-900">MTN MoMo</span>
-          <span className="rounded-md bg-[#ff7900] px-2.5 py-1 text-[11px] font-bold text-white">Orange Money</span>
-          <span className="rounded-md border border-white/30 px-2.5 py-1 text-[11px] font-semibold text-white/85">Espèces à la livraison</span>
+          <span className="rounded bg-[#ffcb05] px-2.5 py-1 text-[11px] font-bold text-slate-900">MTN MoMo</span>
+          <span className="rounded bg-[#ff7900] px-2.5 py-1 text-[11px] font-bold text-white">Orange Money</span>
+          <span className="rounded border border-white/30 px-2.5 py-1 text-[11px] font-semibold text-white/85">Espèces à la livraison</span>
         </div>
       </div>
       <div className="space-y-2 border-t border-white/10 py-4 text-center text-xs text-white/50">

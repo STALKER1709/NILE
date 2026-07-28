@@ -20,7 +20,7 @@ export default function Error({
 
   return (
     <div className="mx-auto max-w-md space-y-4 py-10 text-center">
-      <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Une erreur est survenue</h1>
+      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Une erreur est survenue</h1>
       <p className="text-slate-600">
         Désolé, quelque chose s'est mal passé. Vous pouvez réessayer.
       </p>

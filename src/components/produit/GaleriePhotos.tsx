@@ -16,7 +16,7 @@ export function GaleriePhotos({
 
   return (
     <div className="space-y-2">
-      <div className="relative aspect-square w-full overflow-hidden rounded-xl2 border border-slate-200/80 bg-white">
+      <div className="relative aspect-square w-full overflow-hidden rounded-xl border border-contour-carte bg-white">
         {image ? (
           <Image
             key={image.id}
@@ -45,7 +45,7 @@ export function GaleriePhotos({
               onClick={() => setIndex(i)}
               aria-label={`Photo ${i + 1}`}
               aria-current={i === index}
-              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded-lg border bg-white transition ${
+              className={`relative h-16 w-16 shrink-0 overflow-hidden rounded border bg-white transition ${
                 i === index
                   ? "border-nile ring-2 ring-nile/30"
                   : "border-slate-200 hover:border-slate-300"

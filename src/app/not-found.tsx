@@ -4,7 +4,7 @@ export default function NotFound() {
   return (
     <div className="mx-auto max-w-md space-y-4 py-10 text-center">
       <p className="text-5xl font-bold text-nile">404</p>
-      <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Page introuvable</h1>
+      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Page introuvable</h1>
       <p className="text-slate-600">
         Cette page n'existe pas ou n'est plus disponible.
       </p>

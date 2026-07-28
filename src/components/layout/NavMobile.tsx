@@ -13,7 +13,7 @@ export function NavMobile({
   nbArticles: number;
 }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-slate-200/80 bg-white/90 backdrop-blur-md shadow-flottant sm:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-4 border-t border-contour-carte bg-white/90 backdrop-blur-md shadow-flottant sm:hidden">
       <Item href="/" libelle="Accueil">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 21V12h6v9" /></svg>
       </Item>
@@ -62,7 +62,7 @@ function Item({
       {badge !== undefined && (
         <BadgePanier
           initial={badge}
-          className="absolute right-1/2 top-1 translate-x-3 grid h-4 min-w-[1rem] place-items-center rounded-full bg-amber-500 px-1 text-[10px] font-black text-nile-950 shadow-xs"
+          className="absolute right-1/2 top-1 translate-x-3 grid h-4 min-w-[1rem] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-nile-950 shadow-xs"
         />
       )}
     </Link>

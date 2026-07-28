@@ -49,12 +49,12 @@ export default async function AdminDetailCommandePage({
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">{commande.numero}</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">{commande.numero}</h1>
         <Link href="/admin/commandes" className="text-sm text-slate-500 hover:underline">← Commandes</Link>
       </div>
 
-      {ok && MESSAGES_OK[ok] && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{MESSAGES_OK[ok]}</p>}
-      {erreur && <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
+      {ok && MESSAGES_OK[ok] && <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{MESSAGES_OK[ok]}</p>}
+      {erreur && <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
 
       <Carte className="space-y-3 p-4 text-sm">
         <div className="flex flex-wrap gap-2">
@@ -101,7 +101,7 @@ export default async function AdminDetailCommandePage({
         <div className="border-t border-slate-100 pt-3">
           <p className="text-xs font-medium text-slate-500">Preuve de livraison</p>
           {commande.livraison?.preuveUrl && (
-            <Vignette url={commande.livraison.preuveUrl} alt="Preuve" sizes="112px" className="mt-2 h-28 w-28 rounded-lg border border-slate-200/80" />
+            <Vignette url={commande.livraison.preuveUrl} alt="Preuve" sizes="112px" className="mt-2 h-28 w-28 rounded border border-contour-carte" />
           )}
           <form action={ajouterPreuveAction} encType="multipart/form-data" className="mt-2 flex items-end gap-2">
             <input type="hidden" name="commandeId" value={commande.id} />

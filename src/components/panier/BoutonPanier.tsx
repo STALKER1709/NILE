@@ -65,7 +65,7 @@ export function BoutonPanier({
   if (enRupture) {
     return (
       <span
-        className={`inline-flex w-full cursor-not-allowed items-center justify-center rounded-lg bg-slate-100 font-medium text-slate-400 ${hBtn}`}
+        className={`inline-flex w-full cursor-not-allowed items-center justify-center rounded bg-slate-100 font-medium text-slate-400 ${hBtn}`}
       >
         Rupture de stock
       </span>
@@ -79,7 +79,7 @@ export function BoutonPanier({
           type="button"
           onClick={() => appliquer(incrementerPanierAction)}
           disabled={enCours}
-          className={`inline-flex w-full items-center justify-center gap-1.5 rounded-lg bg-accent font-semibold text-nile-950 transition-colors hover:bg-accent-dark disabled:opacity-60 ${hBtn}`}
+          className={`inline-flex w-full items-center justify-center gap-1.5 rounded bg-accent font-semibold text-nile-950 transition-colors hover:bg-accent-dark disabled:opacity-60 ${hBtn}`}
         >
           <IconePanierPlus />
           Ajouter
@@ -92,14 +92,14 @@ export function BoutonPanier({
   return (
     <span className="block w-full">
       <span
-        className={`flex w-full items-stretch justify-between rounded-lg border-2 border-accent bg-white ${grand ? "" : ""}`}
+        className={`flex w-full items-stretch justify-between rounded border-2 border-accent bg-white ${grand ? "" : ""}`}
       >
         <button
           type="button"
           onClick={() => appliquer(decrementerPanierAction)}
           disabled={enCours}
           aria-label="Retirer une unité"
-          className={`grid place-items-center rounded-l-md font-bold text-accent-dark hover:bg-amber-50 disabled:opacity-50 ${hRond}`}
+          className={`grid place-items-center rounded-l-md font-bold text-accent-dark hover:bg-accent-fixe disabled:opacity-50 ${hRond}`}
         >
           {quantite === 1 ? <IconePoubelle grand={grand} /> : "−"}
         </button>
@@ -114,7 +114,7 @@ export function BoutonPanier({
           onClick={() => appliquer(incrementerPanierAction)}
           disabled={enCours || quantite >= stock}
           aria-label="Ajouter une unité"
-          className={`grid place-items-center rounded-r-md font-bold text-accent-dark hover:bg-amber-50 disabled:opacity-40 ${hRond}`}
+          className={`grid place-items-center rounded-r-md font-bold text-accent-dark hover:bg-accent-fixe disabled:opacity-40 ${hRond}`}
         >
           +
         </button>

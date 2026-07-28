@@ -41,7 +41,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
 
   const surCatalogue = chemin.startsWith("/catalogue");
   const classeLien = (actif: boolean) =>
-    `flex shrink-0 items-center gap-1.5 rounded-md px-2.5 py-1 transition-colors ${
+    `flex shrink-0 items-center gap-1.5 rounded px-2.5 py-1 transition-colors ${
       actif
         ? "bg-white/10 font-semibold text-white"
         : "text-white/85 hover:bg-white/10 hover:text-white"
@@ -49,7 +49,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
 
   return (
     <div className="bg-nile-800 shadow-inner">
-      <div ref={conteneur} className="relative mx-auto max-w-6xl px-2 sm:px-4">
+      <div ref={conteneur} className="relative mx-auto max-w-conteneur px-2 sm:px-4">
         <nav
           aria-label="Navigation principale"
           className="no-scrollbar flex items-center gap-1.5 overflow-x-auto py-1.5 text-xs font-medium sm:text-sm"
@@ -98,7 +98,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
 
           {/* Zone de livraison (repère de confiance, écrans larges) */}
           <span className="ml-auto hidden shrink-0 items-center gap-1.5 pl-3 text-xs text-white/70 lg:flex">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-amber-400" aria-hidden="true">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-accent" aria-hidden="true">
               <path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11z" strokeLinejoin="round" />
               <circle cx="12" cy="10" r="2.5" />
             </svg>
@@ -107,11 +107,11 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
         </nav>
 
         {ouvert && (
-          <div className="absolute inset-x-0 top-full z-50 mt-0.5 overflow-hidden rounded-b-xl border border-slate-200/80 bg-white shadow-flottant">
+          <div className="absolute inset-x-0 top-full z-50 mt-0.5 overflow-hidden rounded-b-xl border border-contour-carte bg-white shadow-flottant">
             <div className="grid grid-cols-2 gap-0.5 p-2 sm:grid-cols-4">
               <Link
                 href="/catalogue"
-                className="col-span-2 rounded-md px-3 py-2 text-sm font-bold text-nile-700 transition-colors hover:bg-nile-50 sm:col-span-4"
+                className="col-span-2 rounded px-3 py-2 text-sm font-bold text-nile-700 transition-colors hover:bg-nile-50 sm:col-span-4"
               >
                 Toutes les catégories →
               </Link>
@@ -119,7 +119,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
                 <Link
                   key={c.slug}
                   href={`/catalogue?categorie=${c.slug}`}
-                  className="truncate rounded-md px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-nile-700"
+                  className="truncate rounded px-3 py-2 text-sm text-slate-700 transition-colors hover:bg-slate-50 hover:text-nile-700"
                 >
                   {c.nom}
                 </Link>

@@ -1,101 +1,184 @@
-# Design System NILE Marketplace (Spécifications UI Stitch)
-
-Ce document récapitule les spécifications du système de design pour la marketplace **NILE** (mobile-first, responsive, Cameroun).
-
+---
+name: Lumina Nile
+colors:
+  surface: '#f7f9fb'
+  surface-dim: '#d8dadc'
+  surface-bright: '#f7f9fb'
+  surface-container-lowest: '#ffffff'
+  surface-container-low: '#f2f4f6'
+  surface-container: '#eceef0'
+  surface-container-high: '#e6e8ea'
+  surface-container-highest: '#e0e3e5'
+  on-surface: '#191c1e'
+  on-surface-variant: '#404946'
+  inverse-surface: '#2d3133'
+  inverse-on-surface: '#eff1f3'
+  outline: '#707976'
+  outline-variant: '#bfc9c5'
+  surface-tint: '#2d685f'
+  primary: '#00352f'
+  on-primary: '#ffffff'
+  primary-container: '#0a4d45'
+  on-primary-container: '#82bdb2'
+  inverse-primary: '#97d2c7'
+  secondary: '#855300'
+  on-secondary: '#ffffff'
+  secondary-container: '#fea619'
+  on-secondary-container: '#684000'
+  tertiary: '#242f41'
+  on-tertiary: '#ffffff'
+  tertiary-container: '#3a4558'
+  on-tertiary-container: '#a7b2c9'
+  error: '#ba1a1a'
+  on-error: '#ffffff'
+  error-container: '#ffdad6'
+  on-error-container: '#93000a'
+  primary-fixed: '#b2eee3'
+  primary-fixed-dim: '#97d2c7'
+  on-primary-fixed: '#00201c'
+  on-primary-fixed-variant: '#0f5048'
+  secondary-fixed: '#ffddb8'
+  secondary-fixed-dim: '#ffb95f'
+  on-secondary-fixed: '#2a1700'
+  on-secondary-fixed-variant: '#653e00'
+  tertiary-fixed: '#d8e3fb'
+  tertiary-fixed-dim: '#bcc7de'
+  on-tertiary-fixed: '#111c2d'
+  on-tertiary-fixed-variant: '#3c475a'
+  background: '#f7f9fb'
+  on-background: '#191c1e'
+  surface-variant: '#e0e3e5'
+  nile-deep: '#062C29'
+  accent-gold: '#D97706'
+  slate-900: '#0F172A'
+  surface-subtle: '#F1F5F9'
+typography:
+  display-lg:
+    fontFamily: Hanken Grotesk
+    fontSize: 48px
+    fontWeight: '700'
+    lineHeight: 56px
+    letterSpacing: -0.02em
+  display-lg-mobile:
+    fontFamily: Hanken Grotesk
+    fontSize: 36px
+    fontWeight: '700'
+    lineHeight: 44px
+    letterSpacing: -0.02em
+  headline-md:
+    fontFamily: Hanken Grotesk
+    fontSize: 30px
+    fontWeight: '600'
+    lineHeight: 38px
+    letterSpacing: -0.01em
+  headline-sm:
+    fontFamily: Hanken Grotesk
+    fontSize: 24px
+    fontWeight: '600'
+    lineHeight: 32px
+  body-lg:
+    fontFamily: Inter
+    fontSize: 18px
+    fontWeight: '400'
+    lineHeight: 28px
+  body-md:
+    fontFamily: Inter
+    fontSize: 16px
+    fontWeight: '400'
+    lineHeight: 24px
+  body-sm:
+    fontFamily: Inter
+    fontSize: 14px
+    fontWeight: '400'
+    lineHeight: 20px
+  label-md:
+    fontFamily: Inter
+    fontSize: 14px
+    fontWeight: '600'
+    lineHeight: 20px
+    letterSpacing: 0.01em
+  label-xs:
+    fontFamily: Inter
+    fontSize: 12px
+    fontWeight: '500'
+    lineHeight: 16px
+rounded:
+  sm: 0.25rem
+  DEFAULT: 0.5rem
+  md: 0.75rem
+  lg: 1rem
+  xl: 1.5rem
+  full: 9999px
+spacing:
+  base: 8px
+  container-max: 1280px
+  gutter: 24px
+  margin-mobile: 16px
+  margin-desktop: 40px
+  stack-sm: 8px
+  stack-md: 16px
+  stack-lg: 32px
+  section-padding: 80px
 ---
 
-## 1. Palette de Couleurs (Color System)
+## Brand & Style
 
-### Couleurs Principales (NILE Brand - Teal / Émeraude)
-- **`nile-50`** : `#f0fdfa` (Fond d'accentuation ultra-léger, badges doux)
-- **`nile-100`** : `#ccfbf1` (Surbrillance, sélection, badges d'état)
-- **`nile-200`** : `#99f6e4` (Bordures actives, séparateurs subtils)
-- **`nile-500`** : `#14b8a6` (Éléments interactifs secondaires, icônes)
-- **`nile-600`** : `#0d9488` (Boutons principaux, états survolés)
-- **`nile-700`** : `#0f766e` (Couleur de marque primaire, accent fort)
-- **`nile-800`** : `#115e59` (Bannières secondaires, barres de navigation)
-- **`nile-900`** : `#0a3d38` (En-tête principal, typographie forte)
-- **`nile-950`** : `#042f2e` (Pied de page, cartes sombres)
+The design system is rooted in the concepts of "Flow and Precision." It targets a sophisticated audience that values both innovation and the reliability of established institutions. The brand personality is professional, calm, and forward-thinking, evoking an emotional response of security paired with cutting-edge capability.
 
-### Couleurs d'Accentuation & CTA (Warm Gold / Amber)
-- **`accent-400`** : `#fbbf24` (Avis / Étoiles)
-- **`accent-500` (DEFAULT)** : `#f59e0b` (Boutons d'achat rapide, badges de panier, CTA secondaire)
-- **`accent-600` (DARK)** : `#d97706` (Survol des boutons d'accent)
+The visual style is **Corporate Modern with a Minimalist edge**. It leverages high-quality typography and generous whitespace to create a premium feel. Subtle depth is achieved through tonal layering rather than aggressive shadows, ensuring the interface feels light, fast, and structured. This approach avoids the clutter of traditional enterprise software while maintaining the "trustworthy" essence of the original Nile brand.
 
-### Prix & Offres Promotions (Marketplace Coral / Red)
-- **`promo-500` (DEFAULT)** : `#ef4444` (Badges de réduction, prix barrés, promo)
-- **`promo-600`** : `#dc2626` (Prix fort)
-- **`promo-700` (DARK)** : `#b91c1c` (Urgence / fin de stock)
+## Colors
 
-### Neutres & Arrière-plans (Slate / Neutral Gray)
-- **`bg-page`** : `#f8fafc` (Fond global de la plateforme)
-- **`bg-card`** : `#ffffff` (Fond des cartes produits, boutiques et conteneurs)
-- **`text-primary`** : `#0f172a` (Titres, noms de produits, prix)
-- **`text-secondary`** : `#475569` (Descriptions, sous-titres, libellés)
-- **`text-muted`** : `#94a3b8` (Texte secondaire, placeholders, dates)
-- **`border-subtle`** : `#f1f5f9` (Bordures légères)
-- **`border-default`** : `#e2e8f0` (Bordures de cartes et champs de formulaire)
+The palette is a refined evolution of the original colors. The primary green (`#0A4D45`) has been slightly adjusted for better accessibility and a more modern, jewel-toned depth. It represents stability and growth. The secondary gold (`#F59E0B`) is used sparingly as an "action" or "highlight" color to draw attention to critical conversion points without overwhelming the professional aesthetic.
 
-### Paiements Mobiles & Confiance
-- **`momo-yellow`** : `#ffcc00` (Signal visuel MTN MoMo)
-- **`orange-money`** : `#ff6600` (Signal visuel Orange Money)
-- **`success-green`** : `#10b981` (Paiement à la livraison / En stock)
+The neutral palette shifts toward a cooler "Slate" spectrum to ensure the interface feels crisp and modern. We utilize a "Light" default mode with high-contrast text (`#0F172A`) to ensure maximum legibility and a premium, paper-like quality. Backgrounds use very subtle grays to distinguish between different content zones without needing heavy borders.
 
----
+## Typography
 
-## 2. Typographie (Typography Scale)
+This design system utilizes a dual-font strategy to balance character with utility. **Hanken Grotesk** is used for headlines; its sharp, contemporary geometry provides a "designed" feel that signals innovation. For body text and data-heavy interfaces, **Inter** is employed for its exceptional legibility and neutral, systematic tone.
 
-| Token | Taille (rem / px) | Interlignage | Usage |
-| :--- | :--- | :--- | :--- |
-| `text-2xs` | `0.65rem` / `10.4px` | `1rem` | Micro-badges, métadonnées de stock |
-| `text-xs` | `0.75rem` / `12px` | `1rem` | Étiquettes, avis, dates, garanties |
-| `text-sm` | `0.875rem` / `14px` | `1.25rem` | Descriptions, boutons secondaires, filtres |
-| `text-base` | `1rem` / `16px` | `1.5rem` | Corps de texte, nom de produit, inputs |
-| `text-lg` | `1.125rem` / `18px` | `1.75rem` | Titres de sections, sous-en-têtes |
-| `text-xl` | `1.25rem` / `20px` | `1.75rem` | Prix principaux, titres de cartes héro |
-| `text-2xl` | `1.5rem` / `24px` | `2rem` | Grands prix, en-têtes de pages |
-| `text-3xl` | `1.875rem` / `30px` | `2.25rem` | Bannières promotionnelles, héros |
+Text hierarchy is strictly enforced through weight and scale. Large display headers use tight letter spacing to feel more cohesive, while small labels use slightly increased tracking to ensure clarity at small sizes. All body text is optimized for a comfortable 1.5x line height to promote reading endurance.
 
----
+## Layout & Spacing
 
-## 3. Rayons de Bordure (Border Radii)
+The layout follows a **12-column fluid grid** for desktop and a **4-column grid** for mobile. A consistent 8px base unit (the "spacing rhythm") governs all margins and paddings, ensuring mathematical harmony across the interface.
 
-- **`rounded-sm`** (`0.25rem` / `4px`) : Badges ultra-compacts
-- **`rounded-md`** (`0.375rem` / `6px`) : Icônes d'en-tête, petits boutons
-- **`rounded-lg`** (`0.5rem` / `8px`) : Champs de saisie (inputs), boutons standards
-- **`rounded-xl`** (`0.75rem` / `12px`) : Cartes produits, blocs de garanties
-- **`rounded-2xl`** (`1rem` / `16px`) : Bannières de carrousel, conteneurs principaux, modals
-- **`rounded-full`** (`9999px`) : Pills de stock, pastilles de notification panier, bulles de chat
+On desktop, the container is centered with a maximum width of 1280px to prevent line lengths from becoming unreadable. Whitespace is used intentionally as a structural element—sections are separated by significant vertical padding (`80px`) to create a sense of "premium" breathing room. Elements should be "stacked" using the defined stack variables to maintain consistent grouping logic.
 
----
+## Elevation & Depth
 
-## 4. Ombres & Effets Visuels (Shadows & Effects)
+This design system moves away from traditional heavy shadows in favor of **Tonal Layers** and **Low-Contrast Outlines**. 
 
-- **`shadow-carte`** : `0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)`
-  - *Usage* : État repos des cartes produits, catégories et boutiques.
-- **`shadow-carte-hover`** : `0 10px 25px -5px rgba(15, 118, 110, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04)`
-  - *Usage* : État survol (hover/active) avec lueur subtile NILE.
-- **`shadow-flottant`** : `0 12px 32px -4px rgba(15, 118, 110, 0.18)`
-  - *Usage* : Modals, dropdowns, navigation mobile fixe.
-- **`glassmorphism`** : `backdrop-blur-md bg-white/90 border border-white/20`
-  - *Usage* : En-tête fixe et éléments superposés.
+1.  **Level 0 (Base):** The primary background color (`#F8FAFC`).
+2.  **Level 1 (Cards/Surface):** White background with a 1px border (`#E2E8F0`). No shadow.
+3.  **Level 2 (Interaction):** White background with a very soft, ambient shadow (Color: `#0A4D45` at 4% opacity, 12px blur, 4px Y-offset). Used for hovered states or menus.
+4.  **Overlays:** High-diffusion "shadow-glows" using the primary green tint are reserved for modals to suggest focus without using harsh blacks.
 
----
+## Shapes
 
-## 5. Espacements & Structure des Composants
+The shape language is "Refined-Rounded." By using a **0.5rem (8px)** base roundedness, we avoid the clinical feel of sharp corners while remaining more professional than fully pill-shaped "playful" designs. 
 
-### Grille & Conteneurs
-- **Conteneur Principal** : `max-w-6xl mx-auto px-3 sm:px-4 lg:px-6`
-- **Grille Produit Mobile-First** : `grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6`
-- **Grille de Rayons / Garanties** : `grid grid-cols-1 sm:grid-cols-3 gap-3`
+Buttons, input fields, and cards all share this 8px radius to create a unified visual language. Larger components, like hero sections or large containers, may scale up to `rounded-xl` (1.5rem) to emphasize their role as structural containers.
 
-### Composants Clés
-1. **`CarteProduit`** :
-   - Hauteur uniforme, image responsive avec ratio 1:1, badge promo en haut à gauche.
-   - Prix mis en valeur (`text-nile-900` ou `text-promo`), statut de stock et bouton rapide « Ajouter au panier ».
-2. **`Entete`** :
-   - Fond sombre `nile-900` hautement contrasté, barre de recherche centrale responsive, indicateur de livraison Cameroun 🇨🇲, accès direct au panier avec badge dynamique.
-3. **`NavMobile`** :
-   - Fixée en bas de l'écran (`fixed bottom-0 left-0 right-0 z-40`), effet verre dépoli (`backdrop-blur-md bg-white/95`), icônes tactiles de 44px+ pour un confort optimal sur mobile.
-4. **`Carrousel` & `Bannières`** :
-   - Coins arrondis `rounded-2xl`, gradients dynamiques `from-nile-900 via-nile-800 to-nile-950` avec éléments d'appel à l'action clairs.
+## Components
+
+### Buttons
+- **Primary:** Solid primary green (`#0A4D45`) with white text. 8px radius.
+- **Secondary:** Transparent background with a 1px border of primary green.
+- **Tertiary:** Text-only with a subtle background hover state (`#F1F5F9`).
+- **Interaction:** All buttons should have a 150ms transition on hover, slightly darkening the background.
+
+### Input Fields
+- Inputs use a white background, 1px slate-200 border, and `body-md` typography.
+- On focus, the border changes to primary green with a 2px "soft glow" (box-shadow) in the same color at 10% opacity.
+
+### Cards
+- Cards are the primary container for information. They feature a white background, 1px `#E2E8F0` border, and 24px internal padding. 
+- Avoid heavy shadows; use a subtle 1px border to define the edge.
+
+### Chips & Tags
+- Used for categorization. These should have a `rounded-full` (pill) shape to contrast against the 8px corners of larger containers. 
+- Use low-saturation background tints of the primary or secondary colors with dark text for high legibility.
+
+### Data Tables
+- Use `body-sm` for table content. Row separators should be minimal (`1px solid #F1F5F9`). Headers should use `label-xs` (uppercase) for clear distinction.

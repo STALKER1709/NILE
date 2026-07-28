@@ -8,7 +8,7 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="rounded-xl border border-slate-200/80 bg-white p-4 shadow-carte">
+          <div key={i} className="rounded-xl border border-contour-carte bg-white p-4 shadow-carte">
             <div className="flex items-center gap-3">
               <div className="skeleton h-12 w-12 shrink-0 rounded-full" />
               <div className="flex-1 space-y-2">

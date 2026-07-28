@@ -73,7 +73,7 @@ export default async function CataloguePage({
   return (
     <div className="space-y-5">
       <div className="flex items-baseline justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Catalogue</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Catalogue</h1>
         <span className="text-sm text-slate-500">
           {total} produit{total > 1 ? "s" : ""}
         </span>
@@ -99,8 +99,8 @@ export default async function CataloguePage({
               <option value="prix_asc">Prix croissant</option>
               <option value="prix_desc">Prix décroissant</option>
             </select>
-            <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min FCFA" className={`${champClass} sm:w-28`} />
-            <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max FCFA" className={`${champClass} sm:w-28`} />
+            <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min FCFA" className={`${champClass} sm:w-32`} />
+            <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max FCFA" className={`${champClass} sm:w-32`} />
             <button type="submit" className={btn("primaire", "md")}>Filtrer</button>
           </form>
         );
@@ -108,7 +108,7 @@ export default async function CataloguePage({
           <>
             {/* Mobile : repliable, ouvert seulement si un filtre est déjà actif. */}
             <details
-              className="group rounded-xl2 border border-slate-200/80 bg-white shadow-carte sm:hidden"
+              className="group rounded-xl border border-contour-carte bg-white shadow-carte sm:hidden"
               open={filtreActif}
             >
               <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium">
@@ -118,7 +118,7 @@ export default async function CataloguePage({
               {formulaire}
             </details>
             {/* Desktop : toujours visible. */}
-            <div className="hidden rounded-xl2 border border-slate-200/80 bg-white shadow-carte sm:block">
+            <div className="hidden rounded-xl border border-contour-carte bg-white shadow-carte sm:block">
               {formulaire}
             </div>
           </>
@@ -126,7 +126,7 @@ export default async function CataloguePage({
       })()}
 
       {boutiques.length > 0 && (
-        <section className="rounded-xl2 border border-slate-200/80 bg-white p-4 shadow-carte">
+        <section className="rounded-xl border border-contour-carte bg-white p-4 shadow-carte">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Boutiques pour « {q} »
           </h2>
@@ -135,7 +135,7 @@ export default async function CataloguePage({
               <Link
                 key={b.id}
                 href={`/boutique/${b.id}`}
-                className="flex min-w-[13rem] shrink-0 items-center gap-3 rounded-lg border border-slate-200/80 p-3 transition hover:-translate-y-0.5 hover:border-nile-100 hover:shadow-flottant"
+                className="flex min-w-[13rem] shrink-0 items-center gap-3 rounded border border-contour-carte p-3 transition hover:-translate-y-0.5 hover:border-nile-100 hover:shadow-flottant"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-nile text-lg font-bold text-white">
                   {b.nomBoutique.charAt(0).toUpperCase()}

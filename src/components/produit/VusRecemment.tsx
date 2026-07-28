@@ -58,13 +58,13 @@ export function VusRecemment({ slugCourant }: { slugCourant: string }) {
 
   return (
     <section>
-      <h2 className="mb-3 text-lg font-black tracking-tight text-slate-900">Vus récemment</h2>
+      <h2 className="mb-3 text-titre-sm text-slate-900">Vus récemment</h2>
       <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
         {produits.map((p) => (
           <Link
             key={p.slug}
             href={`/produit/${p.slug}`}
-            className="w-32 shrink-0 overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-carte transition hover:-translate-y-0.5 hover:shadow-flottant"
+            className="w-32 shrink-0 overflow-hidden rounded border border-contour-carte bg-white shadow-carte transition hover:-translate-y-0.5 hover:shadow-flottant"
           >
             <div className="relative aspect-square w-full bg-white">
               {p.image ? (

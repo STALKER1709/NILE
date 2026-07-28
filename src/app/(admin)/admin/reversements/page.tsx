@@ -22,7 +22,7 @@ export default async function ReversementsPage({
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Reversements vendeurs</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Reversements vendeurs</h1>
         <Link href="/admin" className="text-sm text-nile hover:underline">← Back-office</Link>
       </div>
 
@@ -33,12 +33,12 @@ export default async function ReversementsPage({
       </p>
 
       {ok === "enregistre" && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Reversement enregistré.
         </p>
       )}
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       <Carte className="p-4">

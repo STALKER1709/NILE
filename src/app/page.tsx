@@ -77,14 +77,14 @@ export default async function AccueilPage() {
       {/* Rayons */}
       {racines.length > 0 && (
         <section>
-          <h2 className="mb-3.5 text-lg font-black tracking-tight text-slate-900">Explorer les rayons</h2>
+          <h2 className="mb-3.5 text-titre-sm text-slate-900">Explorer les rayons</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             {racines.map((c, i) => (
               <Link
                 key={c.id}
                 href={`/catalogue?categorie=${c.slug}`}
                 style={{ animationDelay: `${i * 50}ms` }}
-                className="group flex animate-fondu-haut items-center gap-3 rounded-xl border border-slate-200/80 bg-white p-3.5 shadow-carte transition-all duration-200 hover:-translate-y-0.5 hover:border-nile-500 hover:shadow-carte-hover"
+                className="group flex animate-fondu-haut items-center gap-3 rounded-xl border border-contour-carte bg-white p-3.5 shadow-carte transition-all duration-200 hover:-translate-y-0.5 hover:border-nile-500 hover:shadow-carte-hover"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-nile-50 text-nile-700 transition-colors group-hover:bg-nile-600 group-hover:text-white shadow-xs">
                   <IconeCategorie nom={c.nom} />
@@ -103,7 +103,7 @@ export default async function AccueilPage() {
       {boutiques.length > 0 && (
         <section>
           <div className="mb-3.5 flex items-center justify-between">
-            <h2 className="text-lg font-black tracking-tight text-slate-900">Boutiques à découvrir</h2>
+            <h2 className="text-titre-sm text-slate-900">Boutiques à découvrir</h2>
             <Link href="/boutiques" className="text-xs font-bold uppercase tracking-wider text-nile-700 hover:text-nile-800 hover:underline">
               Toutes les boutiques →
             </Link>
@@ -122,14 +122,14 @@ export default async function AccueilPage() {
       )}
 
       {/* Ruban livraison */}
-      <section className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-nile-900 via-nile-800 to-nile-950 px-5 py-4 text-white shadow-md">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className="text-amber-400 shrink-0" aria-hidden="true">
+      <section className="flex items-center justify-center gap-3 rounded-2xl bg-gradient-to-r from-nile-900 via-nile-800 to-nile-950 px-5 py-4 text-white shadow-carte-hover">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className="text-accent shrink-0" aria-hidden="true">
           <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" />
           <circle cx="7" cy="17" r="1.5" />
           <circle cx="17" cy="17" r="1.5" />
         </svg>
         <p className="text-xs sm:text-sm">
-          <strong className="font-extrabold text-amber-400">Livraison gratuite</strong> partout au Cameroun, sur toutes les commandes.
+          <strong className="font-bold text-accent">Livraison gratuite</strong> partout au Cameroun, sur toutes les commandes.
         </p>
       </section>
 
@@ -158,7 +158,7 @@ function SectionProduits({
   return (
     <section>
       <div className="mb-3.5 flex items-center justify-between">
-        <h2 className="text-lg font-black tracking-tight text-slate-900">{titre}</h2>
+        <h2 className="text-titre-sm text-slate-900">{titre}</h2>
         <Link href="/catalogue" className="text-xs font-bold uppercase tracking-wider text-nile-700 hover:text-nile-800 hover:underline">
           Tout voir →
         </Link>
@@ -198,7 +198,7 @@ function Garantie({
   return (
     <div
       style={{ animationDelay: `${index * 80}ms` }}
-      className="flex animate-fondu-haut items-start gap-3.5 rounded-xl border border-slate-200/80 bg-white p-4 shadow-carte transition-all hover:border-nile-500/30"
+      className="flex animate-fondu-haut items-start gap-3.5 rounded-xl border border-contour-carte bg-white p-4 shadow-carte transition-all hover:border-nile-500/30"
     >
       <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-nile-50 text-nile-700 shadow-xs">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">

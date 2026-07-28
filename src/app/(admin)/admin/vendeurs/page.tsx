@@ -31,12 +31,12 @@ export default async function AdminVendeursPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Vendeurs</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Vendeurs</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
-      {ok && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Statut mis à jour.</p>}
-      {erreur && <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
+      {ok && <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Statut mis à jour.</p>}
+      {erreur && <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
 
       {vendeurs.length === 0 ? (
         <EtatVide titre="Aucun vendeur." />

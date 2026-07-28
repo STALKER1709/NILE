@@ -25,12 +25,12 @@ export default async function AdminCategoriesPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Catégories</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Catégories</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
-      {ok === "cree" && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Catégorie créée.</p>}
-      {erreur && <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
+      {ok === "cree" && <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Catégorie créée.</p>}
+      {erreur && <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
 
       <Carte className="p-5">
         <h2 className="mb-3 text-sm font-bold text-slate-900">Ajouter une catégorie</h2>

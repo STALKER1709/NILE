@@ -121,7 +121,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       <form
         method="get"
         action="/catalogue"
-        className="flex w-full overflow-hidden rounded-lg bg-white shadow-sm ring-1 ring-white/20 transition-all focus-within:ring-2 focus-within:ring-amber-400"
+        className="flex w-full overflow-hidden rounded bg-white shadow-sm ring-1 ring-white/20 transition-all focus-within:ring-2 focus-within:ring-amber-400"
         autoComplete="off"
       >
         <input
@@ -144,7 +144,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
         <button
           type="submit"
           aria-label="Lancer la recherche"
-          className="grid w-11 place-items-center bg-gradient-to-br from-amber-400 to-amber-500 font-bold text-nile-950 transition-all hover:brightness-105 active:scale-95"
+          className="grid w-11 place-items-center bg-gradient-to-br from-accent to-accent-dark font-bold text-nile-950 transition-all hover:brightness-105 active:scale-95"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="11" cy="11" r="7" />
@@ -156,7 +156,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       {afficherListe && (
         <ul
           role="listbox"
-          className="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-slate-200/80 bg-white py-1 text-left shadow-flottant"
+          className="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded border border-contour-carte bg-white py-1 text-left shadow-flottant"
         >
           {boutiques.length > 0 && (
             <li className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">

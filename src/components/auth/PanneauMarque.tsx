@@ -4,13 +4,13 @@
  */
 export function PanneauMarque() {
   return (
-    <div className="hidden flex-col justify-between overflow-hidden rounded-xl2 bg-gradient-to-br from-nile-900 via-nile-800 to-nile-700 p-8 text-white lg:flex">
+    <div className="hidden flex-col justify-between overflow-hidden rounded-xl bg-gradient-to-br from-nile-900 via-nile-800 to-nile-700 p-8 text-white lg:flex">
       <div>
-        <p className="flex items-center gap-2 text-lg font-extrabold">
-          <span className="grid h-9 w-9 place-items-center rounded-lg bg-accent text-nile-950">N</span>
+        <p className="flex items-center gap-2 text-lg font-bold">
+          <span className="grid h-9 w-9 place-items-center rounded bg-accent text-nile-950">N</span>
           NILE Marketplace
         </p>
-        <h2 className="mt-6 text-2xl font-extrabold leading-snug">
+        <h2 className="mt-6 text-2xl font-bold leading-snug">
           Le shopping en ligne, à la camerounaise.
         </h2>
         <p className="mt-2 text-sm text-white/75">

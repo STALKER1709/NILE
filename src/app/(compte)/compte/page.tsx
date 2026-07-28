@@ -34,7 +34,7 @@ export default async function ComptePage({
   return (
     <div className="space-y-5">
       {ok === "mdp" && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Ton mot de passe a bien été modifié.
         </p>
       )}
@@ -42,11 +42,11 @@ export default async function ComptePage({
       {/* En-tête de profil */}
       <Carte className="p-6">
         <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-          <span className="grid h-24 w-24 shrink-0 place-items-center rounded-full bg-gradient-to-br from-nile-800 to-nile-600 text-4xl font-black text-amber-400 shadow-sm">
+          <span className="grid h-24 w-24 shrink-0 place-items-center rounded-full bg-gradient-to-br from-nile-800 to-nile-600 text-4xl font-bold text-accent shadow-sm">
             {utilisateur.nom.charAt(0).toUpperCase()}
           </span>
           <div className="min-w-0 flex-1 text-center sm:text-left">
-            <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">
+            <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
               {utilisateur.nom}
             </h1>
             <p className="mt-2 flex items-center justify-center gap-2 text-sm text-slate-500 sm:justify-start">
@@ -74,7 +74,7 @@ export default async function ComptePage({
         </div>
 
         {/* Chiffres clés */}
-        <div className="mt-6 grid grid-cols-3 gap-3 border-t border-slate-200/80 pt-5">
+        <div className="mt-6 grid grid-cols-3 gap-3 border-t border-contour-carte pt-5">
           <Kpi label="En cours" valeur={String(stats.enCours)} accent={stats.enCours > 0} />
           <Kpi label="Livrées" valeur={String(stats.livrees)} />
           <Kpi label="Total dépensé" valeur={<Prix montant={stats.totalDepense} />} />
@@ -85,7 +85,7 @@ export default async function ComptePage({
         {/* Commandes récentes */}
         <div className="lg:col-span-2">
           <Carte className="overflow-hidden">
-            <div className="flex items-center justify-between border-b border-slate-200/80 px-5 py-4">
+            <div className="flex items-center justify-between border-b border-contour-carte px-5 py-4">
               <h2 className="font-bold text-slate-900">Commandes récentes</h2>
               <Link href="/commandes" className="text-sm font-bold text-nile-700 hover:underline">
                 Tout l'historique
@@ -147,7 +147,7 @@ export default async function ComptePage({
         {/* Réglages du compte */}
         <div className="space-y-5 lg:col-span-1">
           <Carte className="overflow-hidden">
-            <div className="border-b border-slate-200/80 px-5 py-4">
+            <div className="border-b border-contour-carte px-5 py-4">
               <h2 className="font-bold text-slate-900">Mon espace</h2>
             </div>
             <nav className="p-2">
@@ -228,7 +228,7 @@ function LigneReglage({
   return (
     <Link
       href={href}
-      className="group flex items-center justify-between gap-3 rounded-lg p-3 transition-colors hover:bg-slate-50"
+      className="group flex items-center justify-between gap-3 rounded p-3 transition-colors hover:bg-slate-50"
     >
       <span className="flex items-center gap-3">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-slate-400 transition-colors group-hover:text-nile-700" aria-hidden="true">
@@ -254,7 +254,7 @@ function Kpi({
 }) {
   return (
     <div className="rounded-xl bg-slate-50 p-3 text-center">
-      <p className={`text-lg font-black leading-tight ${accent ? "text-amber-600" : "text-nile-800"}`}>
+      <p className={`text-lg font-bold leading-tight ${accent ? "text-accent-dark" : "text-nile-800"}`}>
         {valeur}
       </p>
       <p className="mt-0.5 text-xs text-slate-500">{label}</p>

@@ -62,7 +62,7 @@ export default async function BoutiquePage({
 
   return (
     <div className="space-y-5">
-      <div className="overflow-hidden rounded-xl2 border border-slate-200/80 bg-white shadow-carte">
+      <div className="overflow-hidden rounded-xl border border-contour-carte bg-white shadow-carte">
         <div className="h-20 bg-gradient-to-r from-nile-800 via-nile-700 to-emerald-700 sm:h-24" />
         <div className="p-5 pt-0">
         <div className="-mt-7 flex flex-wrap items-end gap-3">
@@ -70,7 +70,7 @@ export default async function BoutiquePage({
             {boutique.nomBoutique.charAt(0).toUpperCase()}
           </span>
           <div className="min-w-0">
-            <h1 className="text-xl font-black leading-tight tracking-tight text-nile-900 sm:text-2xl">{boutique.nomBoutique}</h1>
+            <h1 className="text-titre-sm leading-tight text-nile-800">{boutique.nomBoutique}</h1>
             <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
               <Badge ton="vert">Boutique vérifiée</Badge>
               <span>
@@ -111,7 +111,7 @@ export default async function BoutiquePage({
       </div>
 
       <div className="flex items-baseline justify-between">
-        <h2 className="text-lg font-black tracking-tight text-slate-900">Produits</h2>
+        <h2 className="text-titre-sm text-slate-900">Produits</h2>
         <span className="text-sm text-slate-500">
           {produits.length} produit{produits.length > 1 ? "s" : ""}
         </span>

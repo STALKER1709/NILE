@@ -43,7 +43,7 @@ export function BarreAchatMobile({
       <div className="flex items-center gap-3">
         <div className="shrink-0">
           <p className="text-[11px] leading-none text-slate-500">Prix</p>
-          <p className="text-lg font-extrabold text-promo">{formaterXAF(prix)}</p>
+          <p className="text-lg font-bold text-promo">{formaterXAF(prix)}</p>
         </div>
         <div className="flex-1">
           <BoutonPanier

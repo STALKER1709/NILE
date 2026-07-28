@@ -62,13 +62,13 @@ function Slide({
         <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70 sm:text-xs">
           {kicker}
         </p>
-        <h2 className="mt-1 text-xl font-extrabold leading-tight text-white sm:text-3xl">
+        <h2 className="mt-1 text-xl font-bold leading-tight text-white sm:text-3xl">
           {titre}
         </h2>
         <p className="mt-1.5 hidden text-sm text-white/80 sm:block">{texte}</p>
         <Link
           href={ctaHref}
-          className={`mt-3 inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold sm:mt-4 ${
+          className={`mt-3 inline-flex items-center rounded px-4 py-2 text-sm font-semibold sm:mt-4 ${
             ctaClair
               ? "bg-white text-slate-900 hover:bg-slate-100"
               : "bg-accent text-nile-950 hover:bg-accent-dark"

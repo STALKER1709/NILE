@@ -17,7 +17,7 @@ export function RepartitionAvis({
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
       {/* Note globale */}
       <div className="flex shrink-0 flex-col items-center justify-center rounded-xl bg-slate-50 px-6 py-4 sm:w-40">
-        <span className="text-3xl font-extrabold text-slate-900">
+        <span className="text-3xl font-bold text-slate-900">
           {moyenne.toFixed(1)}
         </span>
         <Etoiles note={moyenne} taille="md" />

@@ -15,7 +15,7 @@ export default async function BoutiquesPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Boutiques</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Boutiques</h1>
         <p className="mt-1 text-sm text-slate-500">
           {boutiques.length} boutique{boutiques.length > 1 ? "s" : ""} vérifiée
           {boutiques.length > 1 ? "s" : ""} · vendeurs de confiance au Cameroun

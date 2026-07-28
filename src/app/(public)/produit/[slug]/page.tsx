@@ -70,8 +70,8 @@ function FicheInfo({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-slate-200/80 bg-white p-3">
-      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-nile-50 text-nile-700">
+    <div className="flex items-center gap-3 rounded-xl border border-contour-carte bg-white p-3">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded bg-nile-50 text-nile-700">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
           {children}
         </svg>
@@ -95,8 +95,8 @@ function PuceMoyenPaiement({
   couleur: string;
 }) {
   return (
-    <span className="flex items-center gap-2 rounded-full border border-slate-200/80 bg-white py-1.5 pl-1.5 pr-3.5">
-      <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[10px] font-black ${couleur}`}>
+    <span className="flex items-center gap-2 rounded-full border border-contour-carte bg-white py-1.5 pl-1.5 pr-3.5">
+      <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[10px] font-bold ${couleur}`}>
         {sigle}
       </span>
       <span className="text-xs font-bold text-slate-700">{libelle}</span>
@@ -158,11 +158,11 @@ export default async function FicheProduitPage({
               <p className="text-sm text-slate-400">Pas encore d'avis</p>
             )}
 
-            <h1 className="mt-1.5 text-3xl font-black leading-tight tracking-tight text-nile-900 sm:text-4xl">
+            <h1 className="mt-1.5 text-titre-md leading-tight text-nile-800 sm:text-display-mobile">
               {produit.titre}
             </h1>
 
-            <p className="mt-3 text-3xl font-black text-slate-900">
+            <p className="mt-3 text-3xl font-bold text-slate-900">
               <Prix montant={produit.prix} />
             </p>
             <p className="mt-0.5 text-xs text-slate-500">Prix TTC · FCFA (XAF), sans frais cachés</p>
@@ -173,7 +173,7 @@ export default async function FicheProduitPage({
                 enRupture
                   ? "text-promo"
                   : produit.stock <= 5
-                    ? "text-amber-600"
+                    ? "text-accent-dark"
                     : "text-emerald-600"
               }`}
             >
@@ -182,7 +182,7 @@ export default async function FicheProduitPage({
                   enRupture
                     ? "bg-promo"
                     : produit.stock <= 5
-                      ? "animate-pulse bg-amber-500"
+                      ? "animate-pulse bg-accent"
                       : "bg-emerald-500"
                 }`}
               />
@@ -205,16 +205,16 @@ export default async function FicheProduitPage({
           </div>
 
           {erreur && (
-            <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+            <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
           )}
           {ok === "avis" && (
-            <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+            <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
               Merci, votre avis a été publié.
             </p>
           )}
 
           {/* Description mise en avant */}
-          <div className="rounded-xl border border-slate-200/80 bg-slate-50 p-5">
+          <div className="rounded-xl border border-contour-carte bg-slate-50 p-5">
             <p className="whitespace-pre-line text-[15px] leading-relaxed text-slate-700">
               {produit.description}
             </p>
@@ -249,7 +249,7 @@ export default async function FicheProduitPage({
           </div>
 
           {/* Paiements acceptés */}
-          <div className="border-t border-slate-200/80 pt-5">
+          <div className="border-t border-contour-carte pt-5">
             <h2 className="mb-3 text-sm font-bold text-slate-900">Paiements acceptés</h2>
             <div className="flex flex-wrap gap-2.5">
               <PuceMoyenPaiement libelle="MTN MoMo" sigle="MTN" couleur="bg-[#ffcc00] text-slate-900" />
@@ -293,7 +293,7 @@ export default async function FicheProduitPage({
         />
 
         {peutNoter && (
-          <form action={creerAvisAction} className="space-y-2 rounded-lg border border-slate-200 p-3">
+          <form action={creerAvisAction} className="space-y-2 rounded border border-contour-carte p-3">
             <input type="hidden" name="produitId" value={produit.id} />
             <input type="hidden" name="slug" value={produit.slug} />
             <div>
@@ -328,7 +328,7 @@ export default async function FicheProduitPage({
       {/* Produits similaires */}
       {similaires.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-black tracking-tight text-slate-900">Vous aimerez aussi</h2>
+          <h2 className="mb-3 text-titre-sm text-slate-900">Vous aimerez aussi</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {similaires.map((p, i) => (
               <CarteProduit

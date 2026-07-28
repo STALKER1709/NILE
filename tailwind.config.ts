@@ -7,40 +7,105 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      // Jeu de couleurs « Lumina Nile » (voir DESIGN.md).
       colors: {
-        // Marque : vert « NILE » (confiance, calme, émeraude) + accent ambre pour CTA.
+        // Vert de marque : primaire profond + conteneur, déclinés en échelle
+        // pour les fonds, bordures et états survolés.
         nile: {
-          50: "#f0fdfa",
-          100: "#ccfbf1",
-          200: "#99f6e4",
-          500: "#14b8a6",
-          600: "#0d9488",
-          DEFAULT: "#0f766e",
-          700: "#0f766e",
-          dark: "#0b5850",
-          800: "#115e59",
-          900: "#0a3d38",
-          950: "#042f2e",
+          50: "#eef6f4",
+          100: "#d3e9e5",
+          200: "#b2eee3", // primary-fixed
+          300: "#97d2c7", // primary-fixed-dim / inverse-primary
+          500: "#2d685f", // surface-tint
+          600: "#0f5048", // on-primary-fixed-variant
+          DEFAULT: "#0a4d45", // primary-container
+          700: "#0a4d45",
+          dark: "#00352f",
+          800: "#00352f", // primary
+          900: "#00201c", // on-primary-fixed
+          950: "#062c29", // nile-deep
+          conteneur: "#0a4d45",
+          surConteneur: "#82bdb2",
         },
+        // Or d'action : réservé aux points de conversion (usage parcimonieux).
         accent: {
-          DEFAULT: "#f59e0b",
-          dark: "#d97706",
-          light: "#fbbf24",
+          DEFAULT: "#fea619", // secondary-container
+          dark: "#d97706", // accent-gold
+          deep: "#855300", // secondary
+          sur: "#684000", // on-secondary-container
+          fixe: "#ffddb8",
         },
-        // Prix de vente / promotions : rouge chaud marketplace.
+        // Erreur / urgence (prix barrés, ruptures).
         promo: {
-          DEFAULT: "#ef4444",
-          dark: "#dc2626",
-          deep: "#b91c1c",
+          DEFAULT: "#ba1a1a", // error
+          dark: "#93000a", // on-error-container
+          deep: "#93000a",
+          conteneur: "#ffdad6",
+        },
+        // Surfaces et texte : spectre « slate » froid.
+        surface: {
+          DEFAULT: "#f7f9fb",
+          basse: "#f2f4f6",
+          moyenne: "#eceef0",
+          haute: "#e6e8ea",
+          extreme: "#e0e3e5",
+          subtile: "#f1f5f9",
+          inverse: "#2d3133",
+        },
+        contour: {
+          DEFAULT: "#707976",
+          clair: "#bfc9c5",
+          carte: "#e2e8f0",
+        },
+        tertiaire: {
+          DEFAULT: "#242f41",
+          conteneur: "#3a4558",
+          fixe: "#d8e3fb",
         },
       },
-      boxShadow: {
-        carte: "0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05)",
-        "carte-hover": "0 10px 25px -5px rgba(15, 118, 110, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.04)",
-        flottant: "0 12px 32px -4px rgba(15, 118, 110, 0.18)",
+      fontFamily: {
+        // Titres : géométrie contemporaine. Corps : lisibilité systématique.
+        titre: ["var(--police-titre)", "system-ui", "sans-serif"],
+        sans: ["var(--police-corps)", "system-ui", "sans-serif"],
       },
+      fontSize: {
+        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "display-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "titre-md": ["30px", { lineHeight: "38px", letterSpacing: "-0.01em", fontWeight: "600" }],
+        "titre-sm": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+        "corps-lg": ["18px", { lineHeight: "28px" }],
+        "corps-md": ["16px", { lineHeight: "24px" }],
+        "corps-sm": ["14px", { lineHeight: "20px" }],
+        "etiquette-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }],
+        "etiquette-xs": ["12px", { lineHeight: "16px", fontWeight: "500" }],
+      },
+      // Profondeur par couches tonales : surface = bordure seule (niveau 1),
+      // ombre ambiante teintée réservée aux états survolés (niveau 2).
+      boxShadow: {
+        carte: "none",
+        "carte-hover": "0 4px 12px 0 rgba(10, 77, 69, 0.04)",
+        flottant: "0 8px 24px -4px rgba(10, 77, 69, 0.10)",
+        modale: "0 24px 60px -12px rgba(10, 77, 69, 0.22)",
+      },
+      // Forme « arrondi maîtrisé » : 8px de base, conteneurs jusqu'à 1,5rem.
       borderRadius: {
-        xl2: "1rem",
+        sm: "0.25rem",
+        DEFAULT: "0.5rem",
+        md: "0.75rem",
+        lg: "1rem",
+        xl: "1.5rem",
+        xl2: "1.5rem",
+      },
+      spacing: {
+        base: "8px",
+        gouttiere: "24px",
+        "pile-sm": "8px",
+        "pile-md": "16px",
+        "pile-lg": "32px",
+        section: "80px",
+      },
+      maxWidth: {
+        conteneur: "1280px",
       },
       keyframes: {
         "fondu-haut": {

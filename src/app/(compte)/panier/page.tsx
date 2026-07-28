@@ -33,7 +33,7 @@ export default async function PanierPage({
 
     return (
       <div className="space-y-5">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mon panier</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
 
         {lignes.length === 0 ? (
           <EtatVide titre="Votre panier est vide.">
@@ -52,7 +52,7 @@ export default async function PanierPage({
                       url={l.produit.images[0]?.url}
                       alt={l.produit.titre}
                       sizes="80px"
-                      className="h-20 w-20 shrink-0 rounded-lg"
+                      className="h-20 w-20 shrink-0 rounded"
                     />
                     <div className="min-w-0 flex-1">
                       <Link href={`/produit/${l.produit.slug}`} className="line-clamp-2 font-medium hover:underline">
@@ -123,15 +123,15 @@ export default async function PanierPage({
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mon panier</h1>
+      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
 
       {ok === "ajoute" && (
-        <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Produit ajouté au panier.
         </p>
       )}
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       {panier.lignes.length === 0 ? (
@@ -152,7 +152,7 @@ export default async function PanierPage({
                     url={l.produit.images[0]?.url}
                     alt={l.produit.titre}
                     sizes="80px"
-                    className="h-20 w-20 shrink-0 rounded-lg"
+                    className="h-20 w-20 shrink-0 rounded"
                   />
                   <div className="min-w-0 flex-1">
                     <Link href={`/produit/${l.produit.slug}`} className="line-clamp-2 font-medium hover:underline">
@@ -174,7 +174,7 @@ export default async function PanierPage({
                       </div>
                       <form action={retirerLigneAction}>
                         <input type="hidden" name="ligneId" value={l.id} />
-                        <button type="submit" className="rounded-lg px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 hover:underline">
+                        <button type="submit" className="rounded px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 hover:underline">
                           Retirer
                         </button>
                       </form>

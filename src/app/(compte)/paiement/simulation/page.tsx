@@ -31,7 +31,7 @@ export default async function SimulationPaiementPage({
 
   return (
     <div className="mx-auto max-w-md space-y-5">
-      <div className="rounded-lg border-2 border-dashed border-nile/40 bg-white p-5 text-center shadow-sm">
+      <div className="rounded border-2 border-dashed border-nile/40 bg-white p-5 text-center shadow-sm">
         <p className="text-xs font-semibold uppercase tracking-wide text-nile">
           Simulation de paiement (mode test)
         </p>

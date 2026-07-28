@@ -16,7 +16,7 @@ export default async function AdminCommandesPage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Commandes & livraisons</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Commandes & livraisons</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 

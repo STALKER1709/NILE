@@ -20,12 +20,12 @@ export default async function ConnexionPage({
       <PanneauMarque />
       <div className="mx-auto w-full max-w-md space-y-4 lg:mx-0">
       <div className="text-center">
-        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Content de vous revoir</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Content de vous revoir</h1>
         <p className="mt-1 text-sm text-slate-500">Connectez-vous à votre compte NILE.</p>
       </div>
 
       {erreur && (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       <Carte className="p-6">
