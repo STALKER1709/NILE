@@ -70,60 +70,134 @@ export default async function CataloguePage({
     return `/catalogue?${params.toString()}`;
   };
 
-  return (
-    <div className="space-y-5">
-      <div className="flex items-baseline justify-between">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Catalogue</h1>
-        <span className="text-sm text-slate-500">
-          {total} produit{total > 1 ? "s" : ""}
-        </span>
+  // Lien conservant les filtres actifs, en changeant une seule clé.
+  const lienFiltre = (cle: string, valeur: string | null) => {
+    const params = new URLSearchParams();
+    for (const [k, v] of Object.entries({
+      q: sp.q, categorie: sp.categorie, prixMin: sp.prixMin,
+      prixMax: sp.prixMax, tri: sp.tri,
+    })) {
+      if (v && k !== cle) params.set(k, v);
+    }
+    if (valeur) params.set(cle, valeur);
+    const qs = params.toString();
+    return qs ? `/catalogue?${qs}` : "/catalogue";
+  };
+  const filtreActif = !!(sp.q || sp.categorie || sp.prixMin || sp.prixMax);
+
+  // Colonne de filtres : catégories cliquables + fourchette de prix.
+  const filtres = (
+    <>
+      <div>
+        <h2 className="mb-3 flex items-center gap-2 text-etiquette-md uppercase tracking-wider text-slate-500">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+          Catégories
+        </h2>
+        <div className="flex flex-col gap-0.5">
+          <Link
+            href={lienFiltre("categorie", null)}
+            className={`rounded px-3 py-2 text-corps-sm transition-colors ${
+              !sp.categorie ? "bg-nile-50 font-semibold text-nile-700" : "text-slate-600 hover:bg-surface-subtile"
+            }`}
+          >
+            Toutes les catégories
+          </Link>
+          {optionsCat.map((c) => {
+            const cat = categories.find((x) => x.id === c.id);
+            const actif = sp.categorie === cat?.slug;
+            return (
+              <Link
+                key={c.id}
+                href={lienFiltre("categorie", cat?.slug ?? null)}
+                className={`truncate rounded px-3 py-2 text-corps-sm transition-colors ${
+                  actif ? "bg-nile-50 font-semibold text-nile-700" : "text-slate-600 hover:bg-surface-subtile"
+                }`}
+              >
+                {c.label}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Filtres : repliés par défaut sur mobile (le 1er produit reste visible
-          sans défiler), toujours visibles sur grand écran. Sans JavaScript. */}
-      {(() => {
-        const filtreActif = !!(sp.q || sp.categorie || sp.prixMin || sp.prixMax || sp.tri);
-        const formulaire = (
-          <form method="get" className="flex flex-col gap-3 p-4 pt-0 sm:flex-row sm:flex-wrap sm:items-end sm:pt-4">
-            <input name="q" defaultValue={sp.q ?? ""} placeholder="Rechercher…" className={`${champClass} sm:min-w-[12rem] sm:flex-1`} />
-            <select name="categorie" defaultValue={sp.categorie ?? ""} className={`${champClass} sm:w-48`}>
-              <option value="">Toutes catégories</option>
-              {optionsCat.map((c) => {
-                const cat = categories.find((x) => x.id === c.id);
-                return <option key={c.id} value={cat?.slug ?? ""}>{c.label}</option>;
-              })}
-            </select>
-            <select name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} sm:w-40`}>
-              <option value="recent">Plus récents</option>
-              <option value="populaire">Les mieux notés</option>
+      {/* Fourchette de prix : vrai formulaire GET, fonctionne sans JavaScript. */}
+      <form method="get" className="border-t border-contour-carte pt-4">
+        {sp.categorie && <input type="hidden" name="categorie" value={sp.categorie} />}
+        {sp.q && <input type="hidden" name="q" value={sp.q} />}
+        {sp.tri && <input type="hidden" name="tri" value={sp.tri} />}
+        <h2 className="mb-3 text-etiquette-md uppercase tracking-wider text-slate-500">
+          Plage de prix (FCFA)
+        </h2>
+        <div className="flex items-center gap-2">
+          <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min" aria-label="Prix minimum" className={`${champClass} w-full`} />
+          <span className="text-slate-400">–</span>
+          <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max" aria-label="Prix maximum" className={`${champClass} w-full`} />
+        </div>
+        <button type="submit" className={btn("primaire", "sm", "mt-3 w-full")}>
+          Appliquer
+        </button>
+      </form>
+
+      {filtreActif && (
+        <Link href="/catalogue" className="block border-t border-contour-carte pt-4 text-corps-sm font-semibold text-nile-700 hover:underline">
+          Réinitialiser les filtres
+        </Link>
+      )}
+    </>
+  );
+
+  return (
+    <div className="flex flex-col gap-gouttiere lg:flex-row">
+      {/* Colonne de filtres : latérale et collante sur grand écran, repliable
+          sur mobile pour que le premier produit reste visible sans défiler. */}
+      <aside className="lg:w-64 lg:shrink-0">
+        <div className="hidden space-y-4 rounded-xl border border-contour-carte bg-white p-5 lg:sticky lg:top-24 lg:block">
+          {filtres}
+        </div>
+        <details className="group rounded-xl border border-contour-carte bg-white lg:hidden" open={filtreActif}>
+          <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-semibold text-slate-900">
+            Filtres
+            <span className="text-slate-400 transition-transform group-open:rotate-180">▾</span>
+          </summary>
+          <div className="space-y-4 p-5 pt-0">{filtres}</div>
+        </details>
+      </aside>
+
+      <div className="min-w-0 flex-1 space-y-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
+              {categorieChoisie ? categorieChoisie.nom : "Tous les produits"}
+            </h1>
+            <p className="mt-1 text-corps-sm text-slate-500">
+              {q
+                ? `${total} résultat${total > 1 ? "s" : ""} pour « ${q} »`
+                : "Découvrez nos meilleures offres sélectionnées pour vous."}
+            </p>
+          </div>
+          {/* Tri : soumission automatique si JavaScript, bouton sinon. */}
+          <form method="get" className="flex shrink-0 items-center gap-2">
+            {sp.q && <input type="hidden" name="q" value={sp.q} />}
+            {sp.categorie && <input type="hidden" name="categorie" value={sp.categorie} />}
+            {sp.prixMin && <input type="hidden" name="prixMin" value={sp.prixMin} />}
+            {sp.prixMax && <input type="hidden" name="prixMax" value={sp.prixMax} />}
+            <label htmlFor="tri" className="whitespace-nowrap text-corps-sm text-slate-500">
+              Trier par
+            </label>
+            <select id="tri" name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} w-44`}>
+              <option value="recent">Plus récent</option>
+              <option value="populaire">Mieux notés</option>
               <option value="prix_asc">Prix croissant</option>
               <option value="prix_desc">Prix décroissant</option>
             </select>
-            <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min FCFA" className={`${champClass} sm:w-32`} />
-            <input name="prixMax" type="number" min={0} defaultValue={sp.prixMax ?? ""} placeholder="Max FCFA" className={`${champClass} sm:w-32`} />
-            <button type="submit" className={btn("primaire", "md")}>Filtrer</button>
+            <button type="submit" className={btn("secondaire", "sm")}>OK</button>
           </form>
-        );
-        return (
-          <>
-            {/* Mobile : repliable, ouvert seulement si un filtre est déjà actif. */}
-            <details
-              className="group rounded-xl border border-contour-carte bg-white shadow-carte sm:hidden"
-              open={filtreActif}
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium">
-                Filtres & recherche
-                <span className="text-slate-400 transition-transform group-open:rotate-180">▾</span>
-              </summary>
-              {formulaire}
-            </details>
-            {/* Desktop : toujours visible. */}
-            <div className="hidden rounded-xl border border-contour-carte bg-white shadow-carte sm:block">
-              {formulaire}
-            </div>
-          </>
-        );
-      })()}
+        </div>
 
       {boutiques.length > 0 && (
         <section className="rounded-xl border border-contour-carte bg-white p-4 shadow-carte">
@@ -190,6 +264,7 @@ export default async function CataloguePage({
           )}
         </nav>
       )}
+      </div>
     </div>
   );
 }
