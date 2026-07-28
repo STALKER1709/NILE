@@ -96,7 +96,7 @@ export function ActiverNotifications({ clePublique }: { clePublique: string }) {
   if (etat === "chargement") return null;
   if (etat === "non-supporte") {
     return (
-      <p className="text-xs text-gray-400">
+      <p className="text-xs text-slate-400">
         Notifications non prises en charge par ce navigateur. Sur iPhone :
         ajoute d&apos;abord NILE à l&apos;écran d&apos;accueil.
       </p>
@@ -104,7 +104,7 @@ export function ActiverNotifications({ clePublique }: { clePublique: string }) {
   }
   if (etat === "refuse") {
     return (
-      <p className="text-xs text-gray-500">
+      <p className="text-xs text-slate-500">
         Notifications bloquées par le navigateur · autorise-les dans les
         réglages du site pour être prévenu des nouvelles commandes.
       </p>
@@ -122,7 +122,7 @@ export function ActiverNotifications({ clePublique }: { clePublique: string }) {
             type="button"
             onClick={desactiver}
             disabled={enCours}
-            className="text-xs text-gray-500 hover:text-gray-800 hover:underline disabled:opacity-50"
+            className="text-xs text-slate-500 hover:text-slate-800 hover:underline disabled:opacity-50"
           >
             Désactiver sur cet appareil
           </button>

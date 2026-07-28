@@ -19,8 +19,8 @@ export default async function ModerationPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Modération du catalogue</h1>
-        <Link href="/admin" className="text-sm text-gray-500 hover:underline">← Back-office</Link>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Modération du catalogue</h1>
+        <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
       {ok && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Produit mis à jour.</p>}
@@ -32,7 +32,7 @@ export default async function ModerationPage({
             <Vignette url={p.images?.[0]?.url} alt="" sizes="48px" className="h-12 w-12 shrink-0 rounded-lg" />
             <div className="min-w-0 flex-1">
               <p className="truncate font-medium">{p.titre}</p>
-              <p className="text-xs text-gray-500">{p.vendeur.nomBoutique} · {p.categorie.nom} · <Prix montant={p.prix} /></p>
+              <p className="text-xs text-slate-500">{p.vendeur.nomBoutique} · {p.categorie.nom} · <Prix montant={p.prix} /></p>
             </div>
             <Badge ton={p.statut === "ACTIF" ? "vert" : p.statut === "REJETE" ? "rouge" : "neutre"}>{p.statut}</Badge>
             {p.statut !== "REJETE" ? (

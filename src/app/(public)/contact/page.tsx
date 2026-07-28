@@ -15,14 +15,14 @@ export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Nous contacter</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Nous contacter</h1>
+        <p className="mt-1 text-sm text-slate-500">
           Une question sur une commande, une livraison, un produit ? On te répond.
         </p>
       </div>
 
       {!whatsapp && !email && (
-        <Carte className="p-6 text-sm text-gray-600">
+        <Carte className="p-6 text-sm text-slate-600">
           Nos coordonnées de contact seront affichées ici très prochainement.
           En attendant, les vendeurs sont joignables via leur boutique.
         </Carte>
@@ -35,7 +35,7 @@ export default function ContactPage() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-semibold">WhatsApp</p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500">
               Réponse rapide aux heures ouvrées · le canal le plus simple.
             </p>
           </div>
@@ -60,19 +60,19 @@ export default function ContactPage() {
           </span>
           <div className="min-w-0 flex-1">
             <p className="font-semibold">Email</p>
-            <p className="truncate text-sm text-gray-500">{email}</p>
+            <p className="truncate text-sm text-slate-500">{email}</p>
           </div>
           <a
             href={`mailto:${email}`}
-            className="shrink-0 rounded-lg border border-gray-300 px-4 py-2.5 text-sm font-semibold text-gray-700 hover:border-nile hover:text-nile"
+            className="shrink-0 rounded-lg border border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-700 hover:border-nile hover:text-nile"
           >
             Écrire
           </a>
         </Carte>
       )}
 
-      <Carte className="p-5 text-sm text-gray-600">
-        <p className="font-semibold text-gray-800">Avant de nous écrire</p>
+      <Carte className="p-5 text-sm text-slate-600">
+        <p className="font-semibold text-slate-800">Avant de nous écrire</p>
         <ul className="mt-2 list-disc space-y-1 pl-5">
           <li>Le suivi de ta commande est dans « Mes commandes » (statut en temps réel).</li>
           <li>Indique ton numéro de commande (NILE-…) pour une réponse plus rapide.</li>

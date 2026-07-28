@@ -106,7 +106,7 @@ export function Etoiles({
   return (
     <span className={`${cls} text-amber-400`} aria-label={`Note ${note} sur 5`}>
       {"★".repeat(pleines)}
-      <span className="text-gray-300">{"★".repeat(5 - pleines)}</span>
+      <span className="text-slate-300">{"★".repeat(5 - pleines)}</span>
     </span>
   );
 }
@@ -121,7 +121,7 @@ export function EtatVide({
   children?: ReactNode;
 }) {
   return (
-    <div className="rounded-xl2 border border-dashed border-gray-300 bg-white px-6 py-12 text-center">
+    <div className="rounded-xl2 border border-dashed border-slate-300 bg-white px-6 py-12 text-center">
       <svg
         width="40"
         height="40"
@@ -131,15 +131,15 @@ export function EtatVide({
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="mx-auto mb-3 text-gray-300"
+        className="mx-auto mb-3 text-slate-300"
         aria-hidden="true"
       >
         <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
         <path d="M3 6h18" />
         <path d="M16 10a4 4 0 0 1-8 0" />
       </svg>
-      <p className="font-medium text-gray-700">{titre}</p>
-      {children && <div className="mt-2 text-sm text-gray-500">{children}</div>}
+      <p className="font-medium text-slate-700">{titre}</p>
+      {children && <div className="mt-2 text-sm text-slate-500">{children}</div>}
     </div>
   );
 }

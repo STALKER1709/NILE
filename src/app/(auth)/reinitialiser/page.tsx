@@ -17,8 +17,8 @@ export default async function ReinitialiserPage({
   return (
     <div className="mx-auto max-w-md space-y-4 py-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">Nouveau mot de passe</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Nouveau mot de passe</h1>
+        <p className="mt-1 text-sm text-slate-500">
           Choisis un nouveau mot de passe pour ton compte (8 caractères minimum).
         </p>
       </div>
@@ -59,7 +59,7 @@ export default async function ReinitialiserPage({
         </form>
       </Carte>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-slate-600">
         Lien expiré ?{" "}
         <Link href="/mot-de-passe-oublie" className="font-medium text-nile hover:underline">
           Redemander un email

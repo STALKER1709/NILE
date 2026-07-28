@@ -19,8 +19,8 @@ export default async function NouveauProduitPage({
   return (
     <div className="mx-auto max-w-lg space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Nouveau produit</h1>
-        <Link href="/vendeur/produits" className="text-sm text-gray-500 hover:underline">← Retour</Link>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Nouveau produit</h1>
+        <Link href="/vendeur/produits" className="text-sm text-slate-500 hover:underline">← Retour</Link>
       </div>
 
       {erreur && (
@@ -60,7 +60,7 @@ export default async function NouveauProduitPage({
           <div>
             <label htmlFor="images" className={labelClass}>Images (facultatif)</label>
             <input id="images" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple className={`${champClass} mt-1`} />
-            <p className="mt-1 text-xs text-gray-500">JPEG, PNG ou WEBP · 2 Mo max par image.</p>
+            <p className="mt-1 text-xs text-slate-500">JPEG, PNG ou WEBP · 2 Mo max par image.</p>
           </div>
           <BoutonSoumettre enCours="Création (envoi des images)…" className={btn("primaire", "lg", "w-full")}>Créer le produit</BoutonSoumettre>
         </form>

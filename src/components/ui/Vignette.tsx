@@ -33,7 +33,7 @@ export function Vignette({
   const contenir = ajustement === "contenir";
   return (
     <div
-      className={`relative overflow-hidden ${contenir ? "bg-white" : "bg-gray-100"} ${className}`}
+      className={`relative overflow-hidden ${contenir ? "bg-white" : "bg-slate-100"} ${className}`}
     >
       {url ? (
         <Image
@@ -45,7 +45,7 @@ export function Vignette({
           className={`${contenir ? "object-contain p-1.5" : "object-cover"} ${classImage}`}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-gray-50 text-gray-300">
+        <div className="flex h-full w-full items-center justify-center bg-slate-50 text-slate-300">
           <svg width="40%" height="40%" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v8.6l3.5-3.5 2.5 2.5L15 10l4 4V7H5zm3 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
           </svg>

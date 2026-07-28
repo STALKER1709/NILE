@@ -11,17 +11,17 @@ export function RepartitionAvis({
   parNote: Record<1 | 2 | 3 | 4 | 5, number>;
 }) {
   if (total === 0) {
-    return <p className="text-sm text-gray-500">Aucun avis pour l&apos;instant.</p>;
+    return <p className="text-sm text-slate-500">Aucun avis pour l&apos;instant.</p>;
   }
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
       {/* Note globale */}
-      <div className="flex shrink-0 flex-col items-center justify-center rounded-xl bg-gray-50 px-6 py-4 sm:w-40">
-        <span className="text-3xl font-extrabold text-gray-900">
+      <div className="flex shrink-0 flex-col items-center justify-center rounded-xl bg-slate-50 px-6 py-4 sm:w-40">
+        <span className="text-3xl font-extrabold text-slate-900">
           {moyenne.toFixed(1)}
         </span>
         <Etoiles note={moyenne} taille="md" />
-        <span className="mt-1 text-xs text-gray-500">
+        <span className="mt-1 text-xs text-slate-500">
           {total} avis vérifié{total > 1 ? "s" : ""}
         </span>
       </div>
@@ -32,9 +32,9 @@ export function RepartitionAvis({
           const nb = parNote[n];
           const pct = total > 0 ? Math.round((nb / total) * 100) : 0;
           return (
-            <div key={n} className="flex items-center gap-2 text-xs text-gray-500">
+            <div key={n} className="flex items-center gap-2 text-xs text-slate-500">
               <span className="w-8 shrink-0 text-right">{n} ★</span>
-              <span className="h-2 flex-1 overflow-hidden rounded-full bg-gray-100">
+              <span className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
                 <span
                   className="block h-full rounded-full bg-amber-400"
                   style={{ width: `${pct}%` }}

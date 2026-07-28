@@ -49,7 +49,7 @@ export function PiedDePage() {
       </div>
       <div className="border-t border-white/10 py-4">
         <div className="flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded-md bg-[#ffcb05] px-2.5 py-1 text-[11px] font-bold text-gray-900">MTN MoMo</span>
+          <span className="rounded-md bg-[#ffcb05] px-2.5 py-1 text-[11px] font-bold text-slate-900">MTN MoMo</span>
           <span className="rounded-md bg-[#ff7900] px-2.5 py-1 text-[11px] font-bold text-white">Orange Money</span>
           <span className="rounded-md border border-white/30 px-2.5 py-1 text-[11px] font-semibold text-white/85">Espèces à la livraison</span>
         </div>

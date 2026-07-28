@@ -36,11 +36,11 @@ export default async function SimulationPaiementPage({
           Simulation de paiement (mode test)
         </p>
         <h1 className="mt-2 text-lg font-bold">Paiement Mobile Money</h1>
-        <p className="mt-1 text-sm text-gray-500">Commande {paiement.commande.numero}</p>
+        <p className="mt-1 text-sm text-slate-500">Commande {paiement.commande.numero}</p>
         <p className="mt-4 text-3xl font-bold text-nile">
           {formaterXAF(montantAffiche)}
         </p>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-slate-400">
           En production, cette étape est le vrai widget Monetbil (MTN MoMo / Orange Money).
         </p>
 
@@ -60,7 +60,7 @@ export default async function SimulationPaiementPage({
             <input type="hidden" name="resultat" value="echec" />
             <button
               type="submit"
-              className="w-full rounded border border-gray-300 px-4 py-3 text-sm font-medium text-gray-700 hover:bg-gray-50"
+              className="w-full rounded border border-slate-300 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
             >
               Simuler un échec
             </button>
@@ -68,7 +68,7 @@ export default async function SimulationPaiementPage({
         </div>
       </div>
 
-      <p className="text-center text-xs text-gray-400">
+      <p className="text-center text-xs text-slate-400">
         La commande ne sera marquée « payée » que par la notification serveur vérifiée.
       </p>
     </div>

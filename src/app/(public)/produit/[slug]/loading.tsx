@@ -8,7 +8,7 @@ export default function Loading() {
         <div className="space-y-4">
           <div className="skeleton h-7 w-3/4 rounded" />
           <div className="skeleton h-4 w-40 rounded" />
-          <div className="space-y-3 rounded-xl2 border border-gray-100 bg-white p-4 shadow-carte">
+          <div className="space-y-3 rounded-xl2 border border-slate-200/80 bg-white p-4 shadow-carte">
             <div className="skeleton h-9 w-40 rounded" />
             <div className="skeleton h-4 w-32 rounded" />
             <div className="skeleton h-12 w-full rounded-lg" />

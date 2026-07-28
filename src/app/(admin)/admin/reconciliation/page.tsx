@@ -28,8 +28,8 @@ export default async function ReconciliationPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Réconciliation cash (COD)</h1>
-        <Link href="/admin" className="text-sm text-gray-500 hover:underline">← Back-office</Link>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Réconciliation cash (COD)</h1>
+        <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
       {ok && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{ok === "collecte" ? "Cash marqué comme collecté." : "Cash marqué comme reversé."}</p>}
@@ -43,7 +43,7 @@ export default async function ReconciliationPage({
             <Carte key={c.id} className="flex flex-wrap items-center gap-3 p-4">
               <div className="min-w-0 flex-1">
                 <p className="truncate font-medium">{c.numero}</p>
-                <p className="text-xs text-gray-500"><Prix montant={c.total} /> · {c.statutCommande} · paiement {c.statutPaiement}</p>
+                <p className="text-xs text-slate-500"><Prix montant={c.total} /> · {c.statutCommande} · paiement {c.statutPaiement}</p>
               </div>
               <Badge ton={TON_CASH[c.livraison?.statutCash ?? "NON_APPLICABLE"]}>cash : {c.livraison?.statutCash ?? "-"}</Badge>
               {c.livraison?.statutCash === "NON_COLLECTE" && (

@@ -17,8 +17,8 @@ export default async function MotDePasseOubliePage({
   return (
     <div className="mx-auto max-w-md space-y-4 py-6">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">Mot de passe oublié</h1>
-        <p className="mt-1 text-sm text-gray-500">
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mot de passe oublié</h1>
+        <p className="mt-1 text-sm text-slate-500">
           Indique ton email : nous t&apos;enverrons un lien pour choisir un
           nouveau mot de passe.
         </p>
@@ -46,7 +46,7 @@ export default async function MotDePasseOubliePage({
         </form>
       </Carte>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-slate-600">
         <Link href="/connexion" className="font-medium text-nile hover:underline">← Retour à la connexion</Link>
       </p>
     </div>

@@ -20,8 +20,8 @@ export default async function ConnexionPage({
       <PanneauMarque />
       <div className="mx-auto w-full max-w-md space-y-4 lg:mx-0">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">Content de vous revoir</h1>
-        <p className="mt-1 text-sm text-gray-500">Connectez-vous à votre compte NILE.</p>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Content de vous revoir</h1>
+        <p className="mt-1 text-sm text-slate-500">Connectez-vous à votre compte NILE.</p>
       </div>
 
       {erreur && (
@@ -48,7 +48,7 @@ export default async function ConnexionPage({
         </form>
       </Carte>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-slate-600">
         Pas encore de compte ?{" "}
         <Link
           href={suiteSure ? `/inscription?suite=${encodeURIComponent(suiteSure)}` : "/inscription"}

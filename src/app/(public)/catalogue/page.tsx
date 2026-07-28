@@ -73,8 +73,8 @@ export default async function CataloguePage({
   return (
     <div className="space-y-5">
       <div className="flex items-baseline justify-between">
-        <h1 className="text-xl font-bold">Catalogue</h1>
-        <span className="text-sm text-gray-500">
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Catalogue</h1>
+        <span className="text-sm text-slate-500">
           {total} produit{total > 1 ? "s" : ""}
         </span>
       </div>
@@ -108,17 +108,17 @@ export default async function CataloguePage({
           <>
             {/* Mobile : repliable, ouvert seulement si un filtre est déjà actif. */}
             <details
-              className="group rounded-xl2 border border-gray-100 bg-white shadow-carte sm:hidden"
+              className="group rounded-xl2 border border-slate-200/80 bg-white shadow-carte sm:hidden"
               open={filtreActif}
             >
               <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-medium">
                 Filtres & recherche
-                <span className="text-gray-400 transition-transform group-open:rotate-180">▾</span>
+                <span className="text-slate-400 transition-transform group-open:rotate-180">▾</span>
               </summary>
               {formulaire}
             </details>
             {/* Desktop : toujours visible. */}
-            <div className="hidden rounded-xl2 border border-gray-100 bg-white shadow-carte sm:block">
+            <div className="hidden rounded-xl2 border border-slate-200/80 bg-white shadow-carte sm:block">
               {formulaire}
             </div>
           </>
@@ -126,8 +126,8 @@ export default async function CataloguePage({
       })()}
 
       {boutiques.length > 0 && (
-        <section className="rounded-xl2 border border-gray-100 bg-white p-4 shadow-carte">
-          <h2 className="mb-3 text-sm font-semibold text-gray-700">
+        <section className="rounded-xl2 border border-slate-200/80 bg-white p-4 shadow-carte">
+          <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Boutiques pour « {q} »
           </h2>
           <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
@@ -135,16 +135,16 @@ export default async function CataloguePage({
               <Link
                 key={b.id}
                 href={`/boutique/${b.id}`}
-                className="flex min-w-[13rem] shrink-0 items-center gap-3 rounded-lg border border-gray-100 p-3 transition hover:-translate-y-0.5 hover:border-nile-100 hover:shadow-flottant"
+                className="flex min-w-[13rem] shrink-0 items-center gap-3 rounded-lg border border-slate-200/80 p-3 transition hover:-translate-y-0.5 hover:border-nile-100 hover:shadow-flottant"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-nile text-lg font-bold text-white">
                   {b.nomBoutique.charAt(0).toUpperCase()}
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate text-sm font-semibold text-gray-900">
+                  <span className="block truncate text-sm font-semibold text-slate-900">
                     {b.nomBoutique}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-slate-500">
                     Boutique vérifiée · {b.nbProduits} produit
                     {b.nbProduits > 1 ? "s" : ""}
                   </span>
@@ -184,7 +184,7 @@ export default async function CataloguePage({
           {page > 1 && (
             <Link href={lienPage(page - 1)} className={btn("secondaire", "sm")}>← Précédent</Link>
           )}
-          <span className="text-gray-500">Page {page} / {pages}</span>
+          <span className="text-slate-500">Page {page} / {pages}</span>
           {page < pages && (
             <Link href={lienPage(page + 1)} className={btn("secondaire", "sm")}>Suivant →</Link>
           )}

@@ -65,7 +65,7 @@ export function BoutonPanier({
   if (enRupture) {
     return (
       <span
-        className={`inline-flex w-full cursor-not-allowed items-center justify-center rounded-lg bg-gray-100 font-medium text-gray-400 ${hBtn}`}
+        className={`inline-flex w-full cursor-not-allowed items-center justify-center rounded-lg bg-slate-100 font-medium text-slate-400 ${hBtn}`}
       >
         Rupture de stock
       </span>
@@ -104,7 +104,7 @@ export function BoutonPanier({
           {quantite === 1 ? <IconePoubelle grand={grand} /> : "−"}
         </button>
         <span
-          className={`grid flex-1 place-items-center font-bold text-gray-900 ${grand ? "text-lg" : "text-sm"}`}
+          className={`grid flex-1 place-items-center font-bold text-slate-900 ${grand ? "text-lg" : "text-sm"}`}
           aria-live="polite"
         >
           {enCours ? "…" : quantite}
@@ -120,7 +120,7 @@ export function BoutonPanier({
         </button>
       </span>
       {quantite >= stock && !message && (
-        <span className="mt-1 block text-center text-[11px] text-gray-400">
+        <span className="mt-1 block text-center text-[11px] text-slate-400">
           Stock maximum atteint
         </span>
       )}

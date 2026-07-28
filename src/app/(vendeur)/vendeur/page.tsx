@@ -23,7 +23,7 @@ export default async function VendeurPage() {
     include: { _count: { select: { produits: true } } },
   });
   if (!vendeur) {
-    return <p className="text-sm text-gray-500">Profil boutique introuvable.</p>;
+    return <p className="text-sm text-slate-500">Profil boutique introuvable.</p>;
   }
   const [solde, compteurs, stats, commandes] = await Promise.all([
     vendeur.estBoutiqueMaison ? Promise.resolve(null) : getSoldeVendeur(vendeur.id),
@@ -181,7 +181,7 @@ export default async function VendeurPage() {
       <div className="grid gap-5 lg:grid-cols-2">
         {/* Actions rapides */}
         <Carte className="p-5">
-          <h2 className="font-semibold">Gérer ma boutique</h2>
+          <h2 className="font-bold text-slate-900">Gérer ma boutique</h2>
           {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
             <div className="mt-3">
               <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
@@ -207,13 +207,13 @@ export default async function VendeurPage() {
 
         {/* Alerte stock */}
         <Carte className="p-5">
-          <h2 className="font-semibold">Stock en alerte</h2>
+          <h2 className="font-bold text-slate-900">Stock en alerte</h2>
           {stats.produitsEnAlerte.length === 0 ? (
-            <p className="mt-2 text-sm text-gray-500">
+            <p className="mt-2 text-sm text-slate-500">
               Aucun produit actif à 2 unités ou moins. 👍
             </p>
           ) : (
-            <ul className="mt-2 divide-y divide-gray-100 text-sm">
+            <ul className="mt-2 divide-y divide-slate-100 text-sm">
               {stats.produitsEnAlerte.map((p) => (
                 <li key={p.id} className="flex items-center justify-between gap-2 py-2">
                   <Link
@@ -235,26 +235,26 @@ export default async function VendeurPage() {
       {/* Gains (vendeurs tiers uniquement) */}
       {solde && (
         <Carte className="p-5">
-          <h2 className="font-semibold">Mes gains</h2>
-          <p className="mt-1 text-xs text-gray-500">
+          <h2 className="font-bold text-slate-900">Mes gains</h2>
+          <p className="mt-1 text-xs text-slate-500">
             Une vente est comptée quand la commande est livrée et payée.
             Commission NILE : {solde.tauxPourcent} %.
           </p>
           <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
             <div>
-              <dt className="text-xs text-gray-500">Ventes livrées</dt>
+              <dt className="text-xs text-slate-500">Ventes livrées</dt>
               <dd className="font-medium"><Prix montant={solde.brut} /></dd>
             </div>
             <div>
-              <dt className="text-xs text-gray-500">Net vendeur</dt>
+              <dt className="text-xs text-slate-500">Net vendeur</dt>
               <dd className="font-medium"><Prix montant={solde.net} /></dd>
             </div>
             <div>
-              <dt className="text-xs text-gray-500">Déjà reversé</dt>
+              <dt className="text-xs text-slate-500">Déjà reversé</dt>
               <dd className="font-medium"><Prix montant={solde.dejaReverse} /></dd>
             </div>
             <div>
-              <dt className="text-xs text-gray-500">Reste à recevoir</dt>
+              <dt className="text-xs text-slate-500">Reste à recevoir</dt>
               <dd className="text-lg font-bold text-nile"><Prix montant={solde.solde} /></dd>
             </div>
           </dl>

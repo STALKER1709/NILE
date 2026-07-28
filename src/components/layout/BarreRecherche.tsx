@@ -156,10 +156,10 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       {afficherListe && (
         <ul
           role="listbox"
-          className="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-gray-100 bg-white py-1 text-left shadow-flottant"
+          className="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded-lg border border-slate-200/80 bg-white py-1 text-left shadow-flottant"
         >
           {boutiques.length > 0 && (
-            <li className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+            <li className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
               Boutiques
             </li>
           )}
@@ -173,21 +173,21 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
                 }}
                 onMouseEnter={() => setActif(i)}
                 className={`flex w-full items-center gap-3 px-3 py-2 text-left ${
-                  i === actif ? "bg-nile-50" : "hover:bg-gray-50"
+                  i === actif ? "bg-nile-50" : "hover:bg-slate-50"
                 }`}
               >
                 <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-nile text-sm font-bold text-white">
                   {b.nomBoutique.charAt(0).toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
-                  <span className="block truncate text-sm font-medium text-gray-800">
+                  <span className="block truncate text-sm font-medium text-slate-800">
                     {b.nomBoutique}
                   </span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-xs text-slate-500">
                     Boutique · {b.nbProduits} produit{b.nbProduits > 1 ? "s" : ""}
                   </span>
                 </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-gray-300" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-slate-300" aria-hidden="true">
                   <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </button>
@@ -195,7 +195,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
           ))}
 
           {produits.length > 0 && boutiques.length > 0 && (
-            <li className="mt-1 border-t border-gray-100 px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-gray-400">
+            <li className="mt-1 border-t border-slate-100 px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wide text-slate-400">
               Produits
             </li>
           )}
@@ -211,21 +211,21 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
                   }}
                   onMouseEnter={() => setActif(idx)}
                   className={`flex w-full items-center gap-3 px-3 py-2 text-left ${
-                    idx === actif ? "bg-nile-50" : "hover:bg-gray-50"
+                    idx === actif ? "bg-nile-50" : "hover:bg-slate-50"
                   }`}
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded bg-gray-50">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded bg-slate-50">
                     {s.image ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={s.image} alt="" className="h-full w-full object-contain" />
                     ) : (
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-gray-300" aria-hidden="true">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className="text-slate-300" aria-hidden="true">
                         <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" />
                       </svg>
                     )}
                   </span>
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-gray-800">{s.titre}</span>
+                    <span className="block truncate text-sm text-slate-800">{s.titre}</span>
                     <span className="text-xs font-semibold text-promo">{formaterXAF(s.prix)}</span>
                   </span>
                 </button>
@@ -241,7 +241,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
                 setOuvert(false);
                 router.push(`/catalogue?q=${encodeURIComponent(terme.trim())}`);
               }}
-              className="w-full border-t border-gray-100 px-3 py-2 text-left text-xs font-medium text-nile hover:bg-gray-50"
+              className="w-full border-t border-slate-100 px-3 py-2 text-left text-xs font-medium text-nile hover:bg-slate-50"
             >
               Voir tous les résultats pour « {terme.trim()} »
             </button>

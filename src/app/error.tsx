@@ -20,8 +20,8 @@ export default function Error({
 
   return (
     <div className="mx-auto max-w-md space-y-4 py-10 text-center">
-      <h1 className="text-xl font-bold">Une erreur est survenue</h1>
-      <p className="text-gray-600">
+      <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Une erreur est survenue</h1>
+      <p className="text-slate-600">
         Désolé, quelque chose s'est mal passé. Vous pouvez réessayer.
       </p>
       <div className="flex justify-center gap-3">
@@ -31,7 +31,7 @@ export default function Error({
         >
           Réessayer
         </button>
-        <a href="/" className="rounded border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50">
+        <a href="/" className="rounded border border-slate-300 px-4 py-2 text-sm hover:bg-slate-50">
           Accueil
         </a>
       </div>

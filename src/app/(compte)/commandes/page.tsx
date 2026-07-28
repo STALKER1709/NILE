@@ -16,7 +16,7 @@ export default async function MesCommandesPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-bold">Mes commandes</h1>
+      <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mes commandes</h1>
 
       {commandes.length === 0 ? (
         <EtatVide titre="Aucune commande pour l'instant.">
@@ -29,7 +29,7 @@ export default async function MesCommandesPage() {
               <Carte className="flex items-center justify-between gap-3 p-4 transition hover:shadow-flottant">
                 <div className="min-w-0">
                   <p className="font-semibold">{c.numero}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500">
                     {new Date(c.dateCreation).toLocaleDateString("fr-FR")} · {c._count.lignes} article{c._count.lignes > 1 ? "s" : ""}
                   </p>
                   <div className="mt-2 flex flex-wrap gap-1.5">

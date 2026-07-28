@@ -40,7 +40,7 @@ export default async function CommandesVendeurPage({
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-xl font-bold">Mes commandes</h1>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mes commandes</h1>
         <Link href="/vendeur" className="text-sm text-nile hover:underline">← Espace vendeur</Link>
       </div>
 
@@ -59,7 +59,7 @@ export default async function CommandesVendeurPage({
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-slate-500">
         <strong>Ta boutique pilote la livraison</strong> de ses commandes :
         préparation, expédition, livraison · l&apos;acheteur est prévenu
         automatiquement à chaque étape, et NILE supervise. Un colis refusé à la
@@ -78,7 +78,7 @@ export default async function CommandesVendeurPage({
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-semibold">{c.numero}</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-slate-500">
                     {new Date(c.dateCreation).toLocaleDateString("fr-FR", {
                       day: "numeric",
                       month: "long",
@@ -92,23 +92,23 @@ export default async function CommandesVendeurPage({
                 </div>
               </div>
 
-              <ul className="mt-3 space-y-1 border-t border-gray-100 pt-3 text-sm">
+              <ul className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-sm">
                 {c.lignes.map((l) => (
                   <li key={l.id} className="flex justify-between gap-2">
                     <span className="min-w-0 truncate">
                       {l.titreProduit} × {l.quantite}
                     </span>
-                    <Prix montant={l.sousTotal} className="shrink-0 text-gray-700" />
+                    <Prix montant={l.sousTotal} className="shrink-0 text-slate-700" />
                   </li>
                 ))}
               </ul>
-              <p className="mt-2 flex justify-between border-t border-gray-100 pt-2 text-sm font-bold">
+              <p className="mt-2 flex justify-between border-t border-slate-100 pt-2 text-sm font-bold">
                 <span>Total de tes articles</span>
                 <Prix montant={c.totalVendeur} className="text-nile" />
               </p>
 
-              <div className="mt-3 rounded-lg bg-gray-50 px-3 py-2 text-xs text-gray-600">
-                <p className="font-medium text-gray-700">Livraison</p>
+              <div className="mt-3 rounded-lg bg-slate-50 px-3 py-2 text-xs text-slate-600">
+                <p className="font-medium text-slate-700">Livraison</p>
                 <p>
                   {c.destNom} · {c.destTelephone}
                 </p>
@@ -123,7 +123,7 @@ export default async function CommandesVendeurPage({
 
               {/* Pilotage du suivi par la boutique (commande entièrement à elle). */}
               {c.gereeParVendeur ? (
-                <div className="mt-3 border-t border-gray-100 pt-3">
+                <div className="mt-3 border-t border-slate-100 pt-3">
                   {c.statutCommande === "CONFIRMEE" && (
                     <form
                       action={affecterTransporteurVendeurAction}
@@ -131,7 +131,7 @@ export default async function CommandesVendeurPage({
                     >
                       <input type="hidden" name="commandeId" value={c.id} />
                       <div className="flex-1">
-                        <label htmlFor={`tr-${c.id}`} className="block text-xs text-gray-500">
+                        <label htmlFor={`tr-${c.id}`} className="block text-xs text-slate-500">
                           Qui livre ? (transporteur, livreur, ou toi-même)
                         </label>
                         <input
@@ -153,7 +153,7 @@ export default async function CommandesVendeurPage({
                       <BoutonSoumettre enCours="Un instant…" className={btn("primaire", "md")}>
                         Marquer expédiée
                       </BoutonSoumettre>
-                      <span className="ml-2 text-xs text-gray-500">
+                      <span className="ml-2 text-xs text-slate-500">
                         L&apos;acheteur recevra la notification d&apos;expédition.
                       </span>
                     </form>
@@ -165,7 +165,7 @@ export default async function CommandesVendeurPage({
                         Marquer livrée
                       </BoutonSoumettre>
                       {c.modePaiement === "COD" && (
-                        <span className="ml-2 text-xs text-gray-500">
+                        <span className="ml-2 text-xs text-slate-500">
                           Encaisse <Prix montant={c.total} /> à la remise du colis.
                         </span>
                       )}
@@ -173,7 +173,7 @@ export default async function CommandesVendeurPage({
                   )}
                 </div>
               ) : (
-                <p className="mt-3 border-t border-gray-100 pt-3 text-xs text-gray-500">
+                <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">
                   Commande multi-boutiques : le suivi est coordonné par NILE.
                 </p>
               )}
@@ -199,7 +199,7 @@ function Compteur({
       <p className={`text-2xl font-bold ${accent && valeur > 0 ? "text-accent-dark" : "text-nile"}`}>
         {valeur}
       </p>
-      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-xs text-slate-500">{label}</p>
     </Carte>
   );
 }

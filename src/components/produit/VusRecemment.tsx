@@ -58,19 +58,19 @@ export function VusRecemment({ slugCourant }: { slugCourant: string }) {
 
   return (
     <section>
-      <h2 className="mb-3 text-lg font-bold">Vus récemment</h2>
+      <h2 className="mb-3 text-lg font-black tracking-tight text-slate-900">Vus récemment</h2>
       <div className="no-scrollbar flex gap-3 overflow-x-auto pb-1">
         {produits.map((p) => (
           <Link
             key={p.slug}
             href={`/produit/${p.slug}`}
-            className="w-32 shrink-0 overflow-hidden rounded-lg border border-gray-100 bg-white shadow-carte transition hover:-translate-y-0.5 hover:shadow-flottant"
+            className="w-32 shrink-0 overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-carte transition hover:-translate-y-0.5 hover:shadow-flottant"
           >
             <div className="relative aspect-square w-full bg-white">
               {p.image ? (
                 <Image src={p.image} alt={p.titre} fill sizes="128px" className="object-contain p-1.5" />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gray-50 text-gray-300">
+                <div className="flex h-full w-full items-center justify-center bg-slate-50 text-slate-300">
                   <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                     <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v8.6l3.5-3.5 2.5 2.5L15 10l4 4V7H5z" />
                   </svg>
@@ -78,7 +78,7 @@ export function VusRecemment({ slugCourant }: { slugCourant: string }) {
               )}
             </div>
             <div className="p-2">
-              <p className="ligne-2 min-h-[2.2rem] text-[11px] leading-snug text-gray-700">
+              <p className="ligne-2 min-h-[2.2rem] text-[11px] leading-snug text-slate-700">
                 {p.titre}
               </p>
               <p className="mt-0.5 text-sm font-bold text-promo">{formaterXAF(p.prix)}</p>

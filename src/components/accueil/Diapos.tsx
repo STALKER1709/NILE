@@ -70,7 +70,7 @@ function Slide({
           href={ctaHref}
           className={`mt-3 inline-flex items-center rounded-md px-4 py-2 text-sm font-semibold sm:mt-4 ${
             ctaClair
-              ? "bg-white text-gray-900 hover:bg-gray-100"
+              ? "bg-white text-slate-900 hover:bg-slate-100"
               : "bg-accent text-nile-950 hover:bg-accent-dark"
           }`}
         >

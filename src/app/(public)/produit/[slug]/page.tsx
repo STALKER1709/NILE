@@ -278,13 +278,13 @@ export default async function FicheProduitPage({
 
       {/* Description complète (rappel accessible + SEO) */}
       <Carte className="p-5 lg:hidden">
-        <h2 className="mb-2 font-semibold">Description</h2>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-gray-700">{produit.description}</p>
+        <h2 className="mb-2 font-bold text-slate-900">Description</h2>
+        <p className="whitespace-pre-line text-sm leading-relaxed text-slate-700">{produit.description}</p>
       </Carte>
 
       {/* Avis */}
       <Carte className="space-y-4 p-5">
-        <h2 className="font-semibold">Avis clients ({produit.nbAvis})</h2>
+        <h2 className="font-bold text-slate-900">Avis clients ({produit.nbAvis})</h2>
 
         <RepartitionAvis
           total={repartition.total}
@@ -293,11 +293,11 @@ export default async function FicheProduitPage({
         />
 
         {peutNoter && (
-          <form action={creerAvisAction} className="space-y-2 rounded-lg border border-gray-200 p-3">
+          <form action={creerAvisAction} className="space-y-2 rounded-lg border border-slate-200 p-3">
             <input type="hidden" name="produitId" value={produit.id} />
             <input type="hidden" name="slug" value={produit.slug} />
             <div>
-              <label htmlFor="note" className="block text-xs text-gray-500">Votre note</label>
+              <label htmlFor="note" className="block text-xs text-slate-500">Votre note</label>
               <select id="note" name="note" defaultValue="5" className={`${champClass} mt-1 w-28`}>
                 {[5, 4, 3, 2, 1].map((n) => <option key={n} value={n}>{n} / 5</option>)}
               </select>
@@ -308,15 +308,15 @@ export default async function FicheProduitPage({
         )}
 
         {avis.length > 0 && (
-          <ul className="divide-y divide-gray-100 border-t border-gray-100 pt-1">
+          <ul className="divide-y divide-slate-100 border-t border-slate-100 pt-1">
             {avis.map((a) => (
               <li key={a.id} className="py-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <Etoiles note={a.note} />
                   <BadgeAchatVerifie />
                 </div>
-                {a.commentaire && <p className="mt-1 text-sm text-gray-700">{a.commentaire}</p>}
-                <p className="mt-0.5 text-xs text-gray-400">
+                {a.commentaire && <p className="mt-1 text-sm text-slate-700">{a.commentaire}</p>}
+                <p className="mt-0.5 text-xs text-slate-400">
                   {a.acheteur.nom} · {new Date(a.dateCreation).toLocaleDateString("fr-FR")}
                 </p>
               </li>
@@ -328,7 +328,7 @@ export default async function FicheProduitPage({
       {/* Produits similaires */}
       {similaires.length > 0 && (
         <section>
-          <h2 className="mb-3 text-lg font-bold">Vous aimerez aussi</h2>
+          <h2 className="mb-3 text-lg font-black tracking-tight text-slate-900">Vous aimerez aussi</h2>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {similaires.map((p, i) => (
               <CarteProduit

@@ -22,11 +22,11 @@ export default async function ReversementsPage({
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-xl font-bold">Reversements vendeurs</h1>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Reversements vendeurs</h1>
         <Link href="/admin" className="text-sm text-nile hover:underline">← Back-office</Link>
       </div>
 
-      <p className="text-sm text-gray-500">
+      <p className="text-sm text-slate-500">
         Une vente devient due au vendeur quand la commande est <strong>livrée et payée</strong>.
         {taux !== undefined && <> Commission NILE : <strong>{taux} %</strong> (clé <code>commission_pourcent</code> en configuration).</>}{" "}
         La boutique maison n&apos;apparaît pas ici (son chiffre revient à la plateforme).
@@ -42,7 +42,7 @@ export default async function ReversementsPage({
       )}
 
       <Carte className="p-4">
-        <p className="text-sm text-gray-500">Total dû aux vendeurs tiers</p>
+        <p className="text-sm text-slate-500">Total dû aux vendeurs tiers</p>
         <Prix montant={totalDu} className="mt-1 block text-2xl font-bold text-nile" />
       </Carte>
 
@@ -55,7 +55,7 @@ export default async function ReversementsPage({
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <div className="min-w-0">
                   <p className="font-semibold">{v.nomBoutique}</p>
-                  <p className="truncate text-xs text-gray-500">{v.emailVendeur}</p>
+                  <p className="truncate text-xs text-slate-500">{v.emailVendeur}</p>
                 </div>
                 <p className="text-lg font-bold text-nile">
                   Solde : <Prix montant={v.solde} />
@@ -72,11 +72,11 @@ export default async function ReversementsPage({
               {v.solde > 0 && (
                 <form
                   action={enregistrerReversementAction}
-                  className="mt-3 flex flex-col gap-2 border-t border-gray-100 pt-3 sm:flex-row sm:items-end"
+                  className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-end"
                 >
                   <input type="hidden" name="vendeurId" value={v.vendeurId} />
                   <div className="sm:w-44">
-                    <label htmlFor={`montant-${v.vendeurId}`} className="block text-xs text-gray-500">
+                    <label htmlFor={`montant-${v.vendeurId}`} className="block text-xs text-slate-500">
                       Montant reversé (FCFA)
                     </label>
                     <input
@@ -91,7 +91,7 @@ export default async function ReversementsPage({
                     />
                   </div>
                   <div className="flex-1">
-                    <label htmlFor={`commentaire-${v.vendeurId}`} className="block text-xs text-gray-500">
+                    <label htmlFor={`commentaire-${v.vendeurId}`} className="block text-xs text-slate-500">
                       Référence (facultatif · ex. n° transfert MoMo)
                     </label>
                     <input
@@ -125,8 +125,8 @@ function Info({
 }) {
   return (
     <div>
-      <dt className="text-xs text-gray-500">{label}</dt>
-      <dd className={`font-medium ${negatif ? "text-red-600" : "text-gray-800"}`}>
+      <dt className="text-xs text-slate-500">{label}</dt>
+      <dd className={`font-medium ${negatif ? "text-red-600" : "text-slate-800"}`}>
         {negatif && montant > 0 ? "− " : ""}
         <Prix montant={montant} />
       </dd>

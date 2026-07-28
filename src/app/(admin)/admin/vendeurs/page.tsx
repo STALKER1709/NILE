@@ -31,8 +31,8 @@ export default async function AdminVendeursPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Vendeurs</h1>
-        <Link href="/admin" className="text-sm text-gray-500 hover:underline">← Back-office</Link>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Vendeurs</h1>
+        <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
       {ok && <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">Statut mis à jour.</p>}
@@ -49,7 +49,7 @@ export default async function AdminVendeursPage({
                   {v.nomBoutique}
                   {v.estBoutiqueMaison && <span className="ml-2"><Badge ton="bleu">maison</Badge></span>}
                 </p>
-                <p className="text-xs text-gray-500">{v.utilisateur.nom} · {v.utilisateur.email} · {v._count.produits} produit(s)</p>
+                <p className="text-xs text-slate-500">{v.utilisateur.nom} · {v.utilisateur.email} · {v._count.produits} produit(s)</p>
               </div>
               <Badge ton={v.statutValidation === "VALIDE" ? "vert" : v.statutValidation === "EN_ATTENTE" ? "ambre" : "rouge"}>{v.statutValidation}</Badge>
               <div className="flex gap-2">

@@ -7,7 +7,7 @@ export default function Loading() {
         {Array.from({ length: 10 }).map((_, i) => (
           <div
             key={i}
-            className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-carte"
+            className="overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-carte"
           >
             <div className="skeleton aspect-square w-full" />
             <div className="space-y-2 p-3">

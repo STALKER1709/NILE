@@ -25,7 +25,7 @@ export default async function ListeProduitsVendeurPage({
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">Mes produits</h1>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Mes produits</h1>
         <Link href="/vendeur/produits/nouveau" className={btn("primaire", "md")}>+ Nouveau</Link>
       </div>
 
@@ -52,7 +52,7 @@ export default async function ListeProduitsVendeurPage({
                 <Vignette url={p.images[0]?.url} alt="" sizes="56px" className="h-14 w-14 shrink-0 rounded-lg" />
                 <div className="min-w-0 flex-1">
                   <p className="truncate font-medium">{p.titre}</p>
-                  <p className="text-sm text-gray-500"><Prix montant={p.prix} /> · stock {p.stock}</p>
+                  <p className="text-sm text-slate-500"><Prix montant={p.prix} /> · stock {p.stock}</p>
                 </div>
                 <Badge ton={p.statut === "ACTIF" ? "vert" : p.statut === "REJETE" ? "rouge" : "neutre"}>{p.statut}</Badge>
               </Carte>

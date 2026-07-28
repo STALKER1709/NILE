@@ -36,13 +36,13 @@ export function BarreAchatMobile({
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-14 z-30 border-t border-gray-200 bg-white/95 px-3 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur transition-transform duration-300 sm:hidden ${
+      className={`fixed inset-x-0 bottom-14 z-30 border-t border-slate-200 bg-white/95 px-3 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur transition-transform duration-300 sm:hidden ${
         visible ? "translate-y-0" : "translate-y-[130%]"
       }`}
     >
       <div className="flex items-center gap-3">
         <div className="shrink-0">
-          <p className="text-[11px] leading-none text-gray-500">Prix</p>
+          <p className="text-[11px] leading-none text-slate-500">Prix</p>
           <p className="text-lg font-extrabold text-promo">{formaterXAF(prix)}</p>
         </div>
         <div className="flex-1">

@@ -13,11 +13,11 @@ export default function ConditionsPage() {
   return (
     <div className="mx-auto max-w-3xl space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Conditions générales</h1>
-        <p className="mt-1 text-sm text-gray-500">Dernière mise à jour : {MAJ}</p>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Conditions générales</h1>
+        <p className="mt-1 text-sm text-slate-500">Dernière mise à jour : {MAJ}</p>
       </div>
 
-      <Carte className="space-y-6 p-6 text-sm leading-relaxed text-gray-700">
+      <Carte className="space-y-6 p-6 text-sm leading-relaxed text-slate-700">
         <Section titre="1. Présentation">
           <p>
             NILE Marketplace (« NILE », « nous ») est une plateforme de commerce
@@ -126,7 +126,7 @@ export default function ConditionsPage() {
 function Section({ titre, children }: { titre: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h2 className="font-semibold text-gray-900">{titre}</h2>
+      <h2 className="font-semibold text-slate-900">{titre}</h2>
       {children}
     </section>
   );

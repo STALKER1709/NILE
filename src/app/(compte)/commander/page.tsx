@@ -33,7 +33,7 @@ export default async function CommanderPage({
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-bold">Passer la commande</h1>
+      <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Passer la commande</h1>
 
       {erreur && (
         <p className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
@@ -42,7 +42,7 @@ export default async function CommanderPage({
       <div className="grid gap-5 lg:grid-cols-3">
         <form action={passerCommandeAction} className="space-y-5 lg:col-span-2">
           <Carte className="space-y-4 p-5">
-            <h2 className="font-semibold">Adresse de livraison</h2>
+            <h2 className="font-bold text-slate-900">Adresse de livraison</h2>
             {derniere && (
               <p className="rounded-lg bg-nile-50 px-3 py-2 text-xs text-nile-800">
                 Adresse pré-remplie depuis ta dernière commande · modifie si besoin.
@@ -73,19 +73,19 @@ export default async function CommanderPage({
           </Carte>
 
           <Carte className="space-y-3 p-5">
-            <h2 className="font-semibold">Mode de paiement</h2>
-            <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
+            <h2 className="font-bold text-slate-900">Mode de paiement</h2>
+            <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
               <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond} className="mt-1" />
               <span>
                 <span className="font-medium">Paiement à la livraison</span>
-                <span className="block text-sm text-gray-500">Vous payez en espèces à la réception.</span>
+                <span className="block text-sm text-slate-500">Vous payez en espèces à la réception.</span>
               </span>
             </label>
-            <label className="flex items-start gap-3 rounded-lg border border-gray-200 p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
+            <label className="flex items-start gap-3 rounded-lg border border-slate-200 p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
               <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond} className="mt-1" />
               <span>
                 <span className="font-medium">Mobile Money (Monetbil)</span>
-                <span className="block text-sm text-gray-500">MTN MoMo / Orange Money, avant expédition.</span>
+                <span className="block text-sm text-slate-500">MTN MoMo / Orange Money, avant expédition.</span>
               </span>
             </label>
             {depassePlafond && (
@@ -107,8 +107,8 @@ export default async function CommanderPage({
 
         <div className="lg:col-span-1">
           <Carte className="sticky top-24 space-y-2 p-4">
-            <h2 className="font-semibold">Votre commande</h2>
-            <ul className="space-y-1 text-sm text-gray-600">
+            <h2 className="font-bold text-slate-900">Votre commande</h2>
+            <ul className="space-y-1 text-sm text-slate-600">
               {panier.lignes.map((l) => (
                 <li key={l.id} className="flex justify-between gap-2">
                   <span className="truncate">{l.produit.titre} × {l.quantite}</span>
@@ -116,14 +116,14 @@ export default async function CommanderPage({
                 </li>
               ))}
             </ul>
-            <div className="flex justify-between text-sm text-gray-600">
+            <div className="flex justify-between text-sm text-slate-600">
               <span>Livraison</span>
               <span className="font-medium text-emerald-700">Gratuite</span>
             </div>
             {env.DELAI_LIVRAISON_TEXTE && (
-              <p className="text-xs text-gray-500">Délai estimé : {env.DELAI_LIVRAISON_TEXTE}</p>
+              <p className="text-xs text-slate-500">Délai estimé : {env.DELAI_LIVRAISON_TEXTE}</p>
             )}
-            <div className="flex justify-between border-t border-gray-100 pt-2 font-bold">
+            <div className="flex justify-between border-t border-slate-100 pt-2 font-bold">
               <span>Total</span>
               <Prix montant={total} className="text-nile" />
             </div>

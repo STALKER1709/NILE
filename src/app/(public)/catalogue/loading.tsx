@@ -9,7 +9,7 @@ export default function Loading() {
       <div className="skeleton h-14 w-full rounded-xl2" />
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         {Array.from({ length: 10 }).map((_, i) => (
-          <div key={i} className="overflow-hidden rounded-lg border border-gray-100 bg-white shadow-carte">
+          <div key={i} className="overflow-hidden rounded-lg border border-slate-200/80 bg-white shadow-carte">
             <div className="skeleton aspect-square w-full" />
             <div className="space-y-2 p-2.5">
               <div className="skeleton h-3 w-full rounded" />

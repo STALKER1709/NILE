@@ -20,8 +20,8 @@ export default async function InscriptionPage({
       <PanneauMarque />
       <div className="mx-auto w-full max-w-md space-y-4 lg:mx-0">
       <div className="text-center">
-        <h1 className="text-2xl font-bold">Créer un compte</h1>
-        <p className="mt-1 text-sm text-gray-500">Rejoignez NILE Marketplace en quelques secondes.</p>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Créer un compte</h1>
+        <p className="mt-1 text-sm text-slate-500">Rejoignez NILE Marketplace en quelques secondes.</p>
       </div>
 
       {erreur && (
@@ -46,7 +46,7 @@ export default async function InscriptionPage({
           <div>
             <label htmlFor="motDePasse" className={labelClass}>Mot de passe</label>
             <input id="motDePasse" name="motDePasse" type="password" required minLength={8} autoComplete="new-password" className={`${champClass} mt-1`} />
-            <p className="mt-1 text-xs text-gray-500">Au moins 8 caractères.</p>
+            <p className="mt-1 text-xs text-slate-500">Au moins 8 caractères.</p>
           </div>
           <div>
             <label htmlFor="role" className={labelClass}>Je veux</label>
@@ -57,16 +57,16 @@ export default async function InscriptionPage({
           </div>
           <div>
             <label htmlFor="nomBoutique" className={labelClass}>
-              Nom de la boutique <span className="text-gray-400">(vendeurs)</span>
+              Nom de la boutique <span className="text-slate-400">(vendeurs)</span>
             </label>
             <input id="nomBoutique" name="nomBoutique" className={`${champClass} mt-1`} />
-            <p className="mt-1 text-xs text-gray-500">Requis si vous vendez. Boutique validée par un administrateur.</p>
+            <p className="mt-1 text-xs text-slate-500">Requis si vous vendez. Boutique validée par un administrateur.</p>
           </div>
           <BoutonSoumettre enCours="Création du compte…" className={btn("primaire", "lg", "w-full")}>Créer mon compte</BoutonSoumettre>
         </form>
       </Carte>
 
-      <p className="text-center text-sm text-gray-600">
+      <p className="text-center text-sm text-slate-600">
         Déjà un compte ?{" "}
         <Link
           href={suiteSure ? `/connexion?suite=${encodeURIComponent(suiteSure)}` : "/connexion"}

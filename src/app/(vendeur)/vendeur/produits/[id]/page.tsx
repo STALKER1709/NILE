@@ -41,8 +41,8 @@ export default async function GestionProduitPage({
   return (
     <div className="mx-auto max-w-lg space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="truncate text-xl font-bold">{produit.titre}</h1>
-        <Link href="/vendeur/produits" className="shrink-0 text-sm text-gray-500 hover:underline">← Mes produits</Link>
+        <h1 className="truncate text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">{produit.titre}</h1>
+        <Link href="/vendeur/produits" className="shrink-0 text-sm text-slate-500 hover:underline">← Mes produits</Link>
       </div>
 
       {ok && MESSAGES_OK[ok] && (
@@ -70,12 +70,12 @@ export default async function GestionProduitPage({
 
       {/* Images */}
       <Carte className="p-4">
-        <h2 className="text-sm font-semibold">Images</h2>
+        <h2 className="text-sm font-bold text-slate-900">Images</h2>
         {produit.images.length > 0 ? (
           <ul className="mt-3 flex flex-wrap gap-3">
             {produit.images.map((img) => (
               <li key={img.id}>
-                <Vignette url={img.url} alt="" sizes="80px" className="h-20 w-20 rounded-lg border border-gray-100" />
+                <Vignette url={img.url} alt="" sizes="80px" className="h-20 w-20 rounded-lg border border-slate-200/80" />
                 <form action={supprimerImageAction}>
                   <input type="hidden" name="produitId" value={produit.id} />
                   <input type="hidden" name="imageId" value={img.id} />
@@ -85,7 +85,7 @@ export default async function GestionProduitPage({
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-gray-500">Aucune image.</p>
+          <p className="mt-2 text-sm text-slate-500">Aucune image.</p>
         )}
         <form action={ajouterImageAction} encType="multipart/form-data" className="mt-3 flex items-end gap-2">
           <input type="hidden" name="produitId" value={produit.id} />
@@ -96,7 +96,7 @@ export default async function GestionProduitPage({
 
       {/* Informations */}
       <Carte className="p-4">
-        <h2 className="mb-3 text-sm font-semibold">Informations</h2>
+        <h2 className="mb-3 text-sm font-bold text-slate-900">Informations</h2>
         <form action={mettreAJourProduitAction} className="space-y-4">
           <input type="hidden" name="produitId" value={produit.id} />
           <div>

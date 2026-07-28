@@ -40,7 +40,7 @@ export default async function AdminPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-xl font-bold">Back-office</h1>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">Back-office</h1>
         {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
           <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
         )}
@@ -91,24 +91,24 @@ export default async function AdminPage() {
 
         <Carte className="p-5">
           <div className="flex items-baseline justify-between">
-            <h2 className="font-semibold">Dernières commandes</h2>
+            <h2 className="font-bold text-slate-900">Dernières commandes</h2>
             <Link href="/admin/commandes" className="text-xs text-nile hover:underline">
               Tout voir →
             </Link>
           </div>
           {stats.dernieresCommandes.length === 0 ? (
-            <p className="mt-2 text-sm text-gray-500">Aucune commande.</p>
+            <p className="mt-2 text-sm text-slate-500">Aucune commande.</p>
           ) : (
-            <ul className="mt-2 divide-y divide-gray-100">
+            <ul className="mt-2 divide-y divide-slate-100">
               {stats.dernieresCommandes.map((c) => (
                 <li key={c.id}>
                   <Link
                     href={`/admin/commandes/${c.id}`}
-                    className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm hover:bg-gray-50"
+                    className="flex flex-wrap items-center justify-between gap-2 py-2 text-sm hover:bg-slate-50"
                   >
                     <span className="min-w-0">
                       <span className="block font-medium">{c.numero}</span>
-                      <span className="block truncate text-xs text-gray-500">
+                      <span className="block truncate text-xs text-slate-500">
                         {c.acheteur.nom} · <Prix montant={c.total} />
                       </span>
                     </span>
@@ -129,7 +129,7 @@ export default async function AdminPage() {
           <Link key={l.href} href={l.href}>
             <Carte className="p-4 transition hover:shadow-flottant">
               <p className="font-semibold text-nile">{l.titre}</p>
-              <p className="text-sm text-gray-500">{l.desc}</p>
+              <p className="text-sm text-slate-500">{l.desc}</p>
             </Carte>
           </Link>
         ))}
@@ -155,11 +155,11 @@ function Kpi({
 }) {
   return (
     <Carte className="h-full p-4 transition hover:shadow-flottant">
-      <p className="text-xs text-gray-500">{label}</p>
+      <p className="text-xs text-slate-500">{label}</p>
       <p className={`mt-1 truncate text-xl font-bold ${accent ? "text-accent-dark" : "text-nile"}`}>
         {valeur}
       </p>
-      {sousTitre && <p className="mt-0.5 text-[11px] text-gray-400">{sousTitre}</p>}
+      {sousTitre && <p className="mt-0.5 text-[11px] text-slate-400">{sousTitre}</p>}
     </Carte>
   );
 }

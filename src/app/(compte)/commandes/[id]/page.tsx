@@ -55,8 +55,8 @@ export default async function DetailCommandePage({
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold">{commande.numero}</h1>
-        <Link href="/commandes" className="text-sm text-gray-500 hover:underline">← Mes commandes</Link>
+        <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">{commande.numero}</h1>
+        <Link href="/commandes" className="text-sm text-slate-500 hover:underline">← Mes commandes</Link>
       </div>
 
       {alerte && (
@@ -88,20 +88,20 @@ export default async function DetailCommandePage({
               return (
                 <li key={etape} className="flex flex-1 items-center last:flex-none">
                   <div className="flex flex-col items-center">
-                    <span className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${atteinte ? "bg-nile text-white" : "bg-gray-100 text-gray-400"}`}>
+                    <span className={`grid h-7 w-7 place-items-center rounded-full text-xs font-bold ${atteinte ? "bg-nile text-white" : "bg-slate-100 text-slate-400"}`}>
                       {i + 1}
                     </span>
-                    <span className={`mt-1 text-[11px] ${atteinte ? "text-gray-700" : "text-gray-400"}`}>{ETAPE_LIB[etape]}</span>
+                    <span className={`mt-1 text-[11px] ${atteinte ? "text-slate-700" : "text-slate-400"}`}>{ETAPE_LIB[etape]}</span>
                   </div>
                   {i < ETAPES.length - 1 && (
-                    <span className={`mx-1 h-0.5 flex-1 ${i < etapeCourante ? "bg-nile" : "bg-gray-200"}`} />
+                    <span className={`mx-1 h-0.5 flex-1 ${i < etapeCourante ? "bg-nile" : "bg-slate-200"}`} />
                   )}
                 </li>
               );
             })}
           </ol>
         ) : (
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-slate-500">
             {commande.statutCommande === "ANNULEE" ? "Cette commande a été annulée." : "Commande refusée à la livraison."}
           </p>
         )}
@@ -109,8 +109,8 @@ export default async function DetailCommandePage({
 
       {/* Articles */}
       <Carte className="p-4">
-        <h2 className="mb-2 font-semibold">Articles</h2>
-        <ul className="space-y-1 text-sm text-gray-600">
+        <h2 className="mb-2 font-bold text-slate-900">Articles</h2>
+        <ul className="space-y-1 text-sm text-slate-600">
           {commande.lignes.map((l) => (
             <li key={l.id} className="flex justify-between gap-2">
               <span className="truncate">{l.titreProduit} × {l.quantite}</span>
@@ -118,27 +118,27 @@ export default async function DetailCommandePage({
             </li>
           ))}
         </ul>
-        <div className="mt-2 flex justify-between border-t border-gray-100 pt-2 font-bold">
+        <div className="mt-2 flex justify-between border-t border-slate-100 pt-2 font-bold">
           <span>Total</span>
           <Prix montant={commande.total} className="text-nile" />
         </div>
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-1 text-xs text-slate-400">
           Paiement : {commande.modePaiement === "COD" ? "à la livraison" : "Mobile Money"}
         </p>
       </Carte>
 
       {/* Livraison */}
       <Carte className="p-4">
-        <h2 className="mb-2 font-semibold">Livraison</h2>
-        <p className="text-sm text-gray-700">{commande.destNom} · {commande.destTelephone}</p>
-        <p className="text-sm text-gray-500">{commande.quartier}, {commande.ville}</p>
-        {commande.reperes && <p className="text-sm text-gray-500">Repères : {commande.reperes}</p>}
+        <h2 className="mb-2 font-bold text-slate-900">Livraison</h2>
+        <p className="text-sm text-slate-700">{commande.destNom} · {commande.destTelephone}</p>
+        <p className="text-sm text-slate-500">{commande.quartier}, {commande.ville}</p>
+        {commande.reperes && <p className="text-sm text-slate-500">Repères : {commande.reperes}</p>}
         {commande.livraison && (
-          <div className="mt-2 border-t border-gray-100 pt-2 text-sm text-gray-600">
+          <div className="mt-2 border-t border-slate-100 pt-2 text-sm text-slate-600">
             <p>Suivi : <span className="font-medium">{commande.livraison.statut}</span>{commande.livraison.transporteur ? ` · ${commande.livraison.transporteur}` : ""}</p>
             {commande.livraison.preuveUrl && (
               <div className="mt-2">
-                <p className="text-xs text-gray-500">Preuve de livraison</p>
+                <p className="text-xs text-slate-500">Preuve de livraison</p>
                 <Vignette url={commande.livraison.preuveUrl} alt="Preuve de livraison" sizes="120px" className="mt-1 h-28 w-28 rounded-lg" />
               </div>
             )}
