@@ -3,7 +3,8 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { getLignesInvite } from "@/modules/commande/panier-invite";
 import { calculerTotal } from "@/modules/commande/commande-core";
-import { retirerLigneAction } from "@/app/(compte)/panier/actions";
+import { retirerLigneAction, viderPanierAction } from "@/app/(compte)/panier/actions";
+import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
 import { Vignette } from "@/components/ui/Vignette";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { Carte, Prix, btn, EtatVide } from "@/components/ui/kit";
@@ -33,7 +34,26 @@ export default async function PanierPage({
 
     return (
       <div className="space-y-5">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
+          {lignes.length > 0 && (
+            <form action={viderPanierAction}>
+              <BoutonConfirme
+                question="Vider entièrement votre panier ? Cette action est irréversible."
+                enCours="Suppression…"
+                className={btn("danger", "sm")}
+              >
+                Vider le panier
+              </BoutonConfirme>
+            </form>
+          )}
+        </div>
+
+        {ok === "vide" && (
+          <p className="rounded border border-nile-100 bg-nile-50 px-3 py-2 text-sm text-nile-800">
+            Votre panier a été vidé.
+          </p>
+        )}
 
         {lignes.length === 0 ? (
           <EtatVide titre="Votre panier est vide.">
@@ -123,8 +143,26 @@ export default async function PanierPage({
 
   return (
     <div className="space-y-5">
-      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
+        {panier.lignes.length > 0 && (
+          <form action={viderPanierAction}>
+            <BoutonConfirme
+              question="Vider entièrement votre panier ? Cette action est irréversible."
+              enCours="Suppression…"
+              className={btn("danger", "sm")}
+            >
+              Vider le panier
+            </BoutonConfirme>
+          </form>
+        )}
+      </div>
 
+      {ok === "vide" && (
+        <p className="rounded border border-nile-100 bg-nile-50 px-3 py-2 text-sm text-nile-800">
+          Votre panier a été vidé.
+        </p>
+      )}
       {ok === "ajoute" && (
         <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Produit ajouté au panier.

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { exigerVendeur } from "@/modules/auth/access";
 import { listerProduitsVendeur } from "@/modules/catalogue/produits";
+import { supprimerProduitAction } from "@/app/(vendeur)/vendeur/produits/actions";
+import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
 import { Vignette } from "@/components/ui/Vignette";
 import { Carte, Prix, Badge, btn, EtatVide } from "@/components/ui/kit";
 
@@ -123,10 +125,23 @@ export default async function ListeProduitsVendeurPage({
                           </span>
                         </span>
                       </td>
-                      <td className="px-5 py-3.5 text-right">
-                        <Link href={`/vendeur/produits/${p.id}`} className={btn("ghost", "sm")}>
-                          Modifier
-                        </Link>
+                      <td className="px-5 py-3.5">
+                        <div className="flex items-center justify-end gap-1">
+                          <Link href={`/vendeur/produits/${p.id}`} className={btn("ghost", "sm")}>
+                            Modifier
+                          </Link>
+                          <form action={supprimerProduitAction}>
+                            <input type="hidden" name="produitId" value={p.id} />
+                            <BoutonConfirme
+                              question={`Supprimer définitivement « ${p.titre} » ? Cette action est irréversible.`}
+                              enCours="…"
+                              titre="Supprimer ce produit"
+                              className="rounded px-2.5 py-1.5 text-etiquette-xs text-promo transition-colors hover:bg-promo-conteneur disabled:opacity-50"
+                            >
+                              Supprimer
+                            </BoutonConfirme>
+                          </form>
+                        </div>
                       </td>
                     </tr>
                   );

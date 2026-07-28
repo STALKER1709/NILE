@@ -7,11 +7,13 @@ import {
   ajouterAuPanier,
   retirerUneUnite,
   retirerLigne,
+  viderPanier,
   compterArticlesPanier,
 } from "@/modules/commande/panier";
 import {
   ajouterInvite,
   retirerInvite,
+  viderInvite,
   compterArticlesInvite,
 } from "@/modules/commande/panier-invite";
 
@@ -72,6 +74,21 @@ export async function decrementerPanierAction(
   if (!res.ok) return { ok: false, message: messagePanier(res.code) };
   const totalArticles = await compterArticlesPanier(utilisateur.id);
   return { ok: true, quantite: res.quantite, totalArticles };
+}
+
+/**
+ * Vide entièrement le panier. Fonctionne pour un visiteur (cookie) comme pour
+ * un utilisateur connecté (lignes en base) : aucune connexion n'est exigée,
+ * sinon un visiteur ne pourrait pas vider le sien.
+ */
+export async function viderPanierAction(): Promise<void> {
+  const utilisateur = await getUtilisateurCourant();
+  if (utilisateur) {
+    await viderPanier(utilisateur.id);
+  } else {
+    await viderInvite();
+  }
+  redirect("/panier?ok=vide");
 }
 
 export async function retirerLigneAction(formData: FormData): Promise<void> {

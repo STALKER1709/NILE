@@ -162,6 +162,25 @@ export async function retirerLigne(
   return { ok: true };
 }
 
+/**
+ * Vide entièrement le panier d'un utilisateur. Le panier est retrouvé par
+ * l'identifiant de l'utilisateur (jamais par un identifiant fourni par le
+ * client), donc aucun panier tiers ne peut être visé.
+ */
+export async function viderPanier(
+  utilisateurId: string,
+): Promise<{ retirees: number }> {
+  const panier = await prisma.panier.findUnique({
+    where: { utilisateurId },
+    select: { id: true },
+  });
+  if (!panier) return { retirees: 0 };
+  const { count } = await prisma.lignePanier.deleteMany({
+    where: { panierId: panier.id },
+  });
+  return { retirees: count };
+}
+
 /** Nombre total d'articles dans le panier (pour le badge de navigation). */
 export async function compterArticlesPanier(
   utilisateurId: string,

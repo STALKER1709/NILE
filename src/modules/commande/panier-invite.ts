@@ -111,6 +111,11 @@ export async function retirerInvite(
 }
 
 /** Nombre total d'articles du panier invité (badge d'en-tête). */
+/** Vide le panier visiteur : supprime simplement le cookie. */
+export async function viderInvite(): Promise<void> {
+  await ecrireQuantitesInvite({});
+}
+
 export async function compterArticlesInvite(): Promise<number> {
   const map = await lireQuantitesInvite();
   return Object.values(map).reduce((s, q) => s + q, 0);
