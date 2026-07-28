@@ -3,6 +3,9 @@ import { exigerConnexion } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 import { deconnexionAction } from "@/app/(auth)/actions";
 import { statsAcheteur } from "@/modules/stats/stats";
+import { listerCommandesAcheteur } from "@/modules/commande/commande";
+import { env } from "@/lib/env";
+import { ActiverNotifications } from "@/components/push/ActiverNotifications";
 import {
   BadgeStatutCommande,
   BadgeStatutPaiement,
@@ -19,103 +22,224 @@ export default async function ComptePage({
 }) {
   const { ok } = await searchParams;
   const utilisateur = await exigerConnexion();
-  const [vendeur, stats] = await Promise.all([
+  const [vendeur, stats, toutesCommandes] = await Promise.all([
     utilisateur.role === "VENDEUR"
       ? prisma.vendeur.findUnique({ where: { utilisateurId: utilisateur.id } })
       : Promise.resolve(null),
     statsAcheteur(utilisateur.id),
+    listerCommandesAcheteur(utilisateur.id),
   ]);
+  const recentes = toutesCommandes.slice(0, 4);
 
   return (
     <div className="space-y-5">
-      <h1 className="text-xl font-bold">Mon compte</h1>
-
       {ok === "mdp" && (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Ton mot de passe a bien été modifié.
         </p>
       )}
 
-      {/* Mes achats en un coup d'œil */}
-      <div className="grid grid-cols-3 gap-3">
-        <Kpi label="En cours" valeur={String(stats.enCours)} accent={stats.enCours > 0} />
-        <Kpi label="Livrées" valeur={String(stats.livrees)} />
-        <Kpi label="Total dépensé" valeur={<Prix montant={stats.totalDepense} />} />
-      </div>
-
-      {stats.derniereCommande && (
-        <Carte className="p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="min-w-0">
-              <p className="text-xs text-gray-500">Dernière commande</p>
-              <p className="font-semibold">{stats.derniereCommande.numero}</p>
-              <p className="text-xs text-gray-500">
-                {new Date(stats.derniereCommande.dateCreation).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                })}{" "}
-                · {stats.derniereCommande._count.lignes} article
-                {stats.derniereCommande._count.lignes > 1 ? "s" : ""} ·{" "}
-                <Prix montant={stats.derniereCommande.total} />
-              </p>
+      {/* En-tête de profil */}
+      <Carte className="p-6">
+        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
+          <span className="grid h-24 w-24 shrink-0 place-items-center rounded-full bg-gradient-to-br from-nile-800 to-nile-600 text-4xl font-black text-amber-400 shadow-sm">
+            {utilisateur.nom.charAt(0).toUpperCase()}
+          </span>
+          <div className="min-w-0 flex-1 text-center sm:text-left">
+            <h1 className="text-2xl font-black tracking-tight text-nile-900 sm:text-3xl">
+              {utilisateur.nom}
+            </h1>
+            <p className="mt-2 flex items-center justify-center gap-2 text-sm text-slate-500 sm:justify-start">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0" aria-hidden="true">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="m22 7-10 6L2 7" />
+              </svg>
+              <span className="truncate">{utilisateur.email}</span>
+            </p>
+            <p className="mt-1 flex items-center justify-center gap-2 text-sm text-slate-500 sm:justify-start">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0" aria-hidden="true">
+                <path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z" strokeLinejoin="round" />
+              </svg>
+              {utilisateur.telephone}
+            </p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start">
+              <Badge ton="bleu">{utilisateur.role}</Badge>
+              {vendeur && (
+                <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
+                  {vendeur.nomBoutique}
+                </Badge>
+              )}
             </div>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <BadgeStatutCommande statut={stats.derniereCommande.statutCommande} />
-              <BadgeStatutPaiement statut={stats.derniereCommande.statutPaiement} />
-              <Link
-                href={`/commandes/${stats.derniereCommande.id}`}
-                className={btn("secondaire", "sm")}
-              >
-                Suivre
+          </div>
+        </div>
+
+        {/* Chiffres clés */}
+        <div className="mt-6 grid grid-cols-3 gap-3 border-t border-slate-200/80 pt-5">
+          <Kpi label="En cours" valeur={String(stats.enCours)} accent={stats.enCours > 0} />
+          <Kpi label="Livrées" valeur={String(stats.livrees)} />
+          <Kpi label="Total dépensé" valeur={<Prix montant={stats.totalDepense} />} />
+        </div>
+      </Carte>
+
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+        {/* Commandes récentes */}
+        <div className="lg:col-span-2">
+          <Carte className="overflow-hidden">
+            <div className="flex items-center justify-between border-b border-slate-200/80 px-5 py-4">
+              <h2 className="font-bold text-slate-900">Commandes récentes</h2>
+              <Link href="/commandes" className="text-sm font-bold text-nile-700 hover:underline">
+                Tout l'historique
               </Link>
             </div>
-          </div>
-        </Carte>
-      )}
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Raccourci href="/commandes" libelle="Mes commandes" />
-        <Raccourci href="/panier" libelle="Mon panier" />
-        <Raccourci href="/catalogue" libelle="Catalogue" />
-        {utilisateur.role === "VENDEUR" && <Raccourci href="/vendeur" libelle="Espace vendeur" />}
-        {utilisateur.role === "ADMIN" && <Raccourci href="/admin" libelle="Back-office" />}
+            {recentes.length === 0 ? (
+              <div className="px-5 py-10 text-center">
+                <p className="text-sm text-slate-500">
+                  Vous n'avez pas encore commandé.
+                </p>
+                <Link href="/catalogue" className={btn("primaire", "md", "mt-4")}>
+                  Parcourir le catalogue
+                </Link>
+              </div>
+            ) : (
+              <ul className="divide-y divide-slate-100">
+                {recentes.map((c) => (
+                  <li key={c.id} className="flex flex-wrap items-start gap-3 p-4 transition-colors hover:bg-slate-50">
+                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-nile-50 text-nile-700">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
+                        <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" strokeLinejoin="round" />
+                        <path d="M8 9a4 4 0 0 1 8 0" />
+                      </svg>
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-bold text-slate-900">{c.numero}</p>
+                      <p className="text-xs text-slate-500">
+                        {new Date(c.dateCreation).toLocaleDateString("fr-FR", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}{" "}
+                        · {c._count.lignes} article{c._count.lignes > 1 ? "s" : ""}
+                      </p>
+                      <p className="mt-1 text-sm font-bold text-slate-900">
+                        <Prix montant={c.total} />
+                      </p>
+                    </div>
+                    <div className="flex w-full shrink-0 flex-row items-center justify-between gap-2 border-t border-slate-100 pt-2.5 sm:w-auto sm:flex-col sm:items-end sm:border-0 sm:pt-0">
+                      <div className="flex flex-wrap gap-1.5 sm:justify-end">
+                        <BadgeStatutCommande statut={c.statutCommande} />
+                        <BadgeStatutPaiement statut={c.statutPaiement} />
+                      </div>
+                      <Link
+                        href={`/commandes/${c.id}`}
+                        className="text-sm font-bold text-nile-700 hover:underline"
+                      >
+                        Suivre →
+                      </Link>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Carte>
+        </div>
+
+        {/* Réglages du compte */}
+        <div className="space-y-5 lg:col-span-1">
+          <Carte className="overflow-hidden">
+            <div className="border-b border-slate-200/80 px-5 py-4">
+              <h2 className="font-bold text-slate-900">Mon espace</h2>
+            </div>
+            <nav className="p-2">
+              <LigneReglage href="/commandes" libelle="Mes commandes">
+                <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" strokeLinejoin="round" />
+                <path d="M8 9a4 4 0 0 1 8 0" />
+              </LigneReglage>
+              <LigneReglage href="/panier" libelle="Mon panier">
+                <circle cx="9" cy="21" r="1" />
+                <circle cx="20" cy="21" r="1" />
+                <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
+              </LigneReglage>
+              <LigneReglage href="/catalogue" libelle="Continuer mes achats">
+                <circle cx="11" cy="11" r="7" />
+                <path d="m21 21-4.3-4.3" strokeLinecap="round" />
+              </LigneReglage>
+              {utilisateur.role === "VENDEUR" && (
+                <LigneReglage href="/vendeur" libelle="Espace vendeur">
+                  <path d="M4 9h16l-1 11H5L4 9z" strokeLinejoin="round" />
+                  <path d="M9 9V6a3 3 0 0 1 6 0v3" />
+                </LigneReglage>
+              )}
+              {utilisateur.role === "ADMIN" && (
+                <LigneReglage href="/admin" libelle="Back-office">
+                  <rect x="3" y="3" width="7" height="9" rx="1" />
+                  <rect x="14" y="3" width="7" height="5" rx="1" />
+                  <rect x="14" y="12" width="7" height="9" rx="1" />
+                  <rect x="3" y="16" width="7" height="5" rx="1" />
+                </LigneReglage>
+              )}
+              <LigneReglage href="/aide" libelle="Aide et contact">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.4V14" strokeLinecap="round" />
+                <path d="M12 17.5v.01" strokeLinecap="round" />
+              </LigneReglage>
+            </nav>
+          </Carte>
+
+          {/* Notifications push (si configurées) */}
+          {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
+            <Carte className="p-5">
+              <h2 className="font-bold text-slate-900">Notifications</h2>
+              <p className="mb-3 mt-1 text-sm text-slate-500">
+                Soyez prévenu de l'avancement de vos commandes.
+              </p>
+              <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
+            </Carte>
+          )}
+
+          {/* Session : seul accès à la déconnexion sur mobile */}
+          <Carte className="p-5">
+            <h2 className="font-bold text-slate-900">Session</h2>
+            <p className="mb-3 mt-1 text-sm text-slate-500">
+              Connecté en tant que {utilisateur.email}.
+            </p>
+            <form action={deconnexionAction}>
+              <button type="submit" className={btn("danger", "md", "w-full")}>
+                Se déconnecter
+              </button>
+            </form>
+          </Carte>
+        </div>
       </div>
-
-      <Carte className="p-5">
-        <h2 className="mb-3 font-semibold">Informations</h2>
-        <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-          <Info label="Nom" valeur={utilisateur.nom} />
-          <Info label="Email" valeur={utilisateur.email} />
-          <Info label="Téléphone" valeur={utilisateur.telephone} />
-          <div>
-            <dt className="text-gray-500">Rôle</dt>
-            <dd className="mt-0.5"><Badge ton="bleu">{utilisateur.role}</Badge></dd>
-          </div>
-        </dl>
-      </Carte>
-
-      {vendeur && (
-        <Carte className="p-5">
-          <h2 className="font-semibold">Ma boutique</h2>
-          <p className="mt-1 text-sm text-gray-600">{vendeur.nomBoutique}</p>
-          <div className="mt-2"><Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>{vendeur.statutValidation}</Badge></div>
-          <Link href="/vendeur" className={btn("secondaire", "sm", "mt-3")}>Gérer mes produits</Link>
-        </Carte>
-      )}
-
-      {/* Déconnexion : seul accès sur mobile (l'en-tête ne l'affiche qu'en grand écran) */}
-      <Carte className="p-5">
-        <h2 className="mb-1 font-semibold">Session</h2>
-        <p className="mb-3 text-sm text-gray-500">
-          Connecté en tant que {utilisateur.email}.
-        </p>
-        <form action={deconnexionAction}>
-          <button type="submit" className={btn("danger", "md", "w-full sm:w-auto")}>
-            Se déconnecter
-          </button>
-        </form>
-      </Carte>
     </div>
+  );
+}
+
+/** Ligne du menu « Mon espace » : icône, libellé, chevron. */
+function LigneReglage({
+  href,
+  libelle,
+  children,
+}: {
+  href: string;
+  libelle: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group flex items-center justify-between gap-3 rounded-lg p-3 transition-colors hover:bg-slate-50"
+    >
+      <span className="flex items-center gap-3">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-slate-400 transition-colors group-hover:text-nile-700" aria-hidden="true">
+          {children}
+        </svg>
+        <span className="text-sm font-semibold text-slate-800">{libelle}</span>
+      </span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-slate-300" aria-hidden="true">
+        <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </Link>
   );
 }
 
@@ -129,28 +253,13 @@ function Kpi({
   accent?: boolean;
 }) {
   return (
-    <Carte className="p-4 text-center">
-      <p className={`truncate text-xl font-bold ${accent ? "text-accent-dark" : "text-nile"}`}>
+    <div className="rounded-xl bg-slate-50 p-3 text-center">
+      <p className={`text-lg font-black leading-tight ${accent ? "text-amber-600" : "text-nile-800"}`}>
         {valeur}
       </p>
-      <p className="text-xs text-gray-500">{label}</p>
-    </Carte>
-  );
-}
-
-function Raccourci({ href, libelle }: { href: string; libelle: string }) {
-  return (
-    <Link href={href} className="rounded-xl2 border border-gray-100 bg-white p-4 text-center text-sm font-medium text-gray-700 shadow-carte transition hover:border-nile hover:text-nile">
-      {libelle}
-    </Link>
-  );
-}
-
-function Info({ label, valeur }: { label: string; valeur: string }) {
-  return (
-    <div>
-      <dt className="text-gray-500">{label}</dt>
-      <dd className="mt-0.5 font-medium">{valeur}</dd>
+      <p className="mt-0.5 text-xs text-slate-500">{label}</p>
     </div>
   );
 }
+
+
