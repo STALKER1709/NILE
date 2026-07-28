@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Carte } from "@/components/ui/kit";
 
 export const metadata: Metadata = {
@@ -9,16 +10,67 @@ export const metadata: Metadata = {
 
 const MAJ = "10 juillet 2026";
 
+/** Sommaire du document (ancres des sections ci-dessous). */
+const SOMMAIRE = [
+  { ancre: "presentation", libelle: "Présentation" },
+  { ancre: "comptes", libelle: "Comptes" },
+  { ancre: "commandes", libelle: "Commandes et prix" },
+  { ancre: "paiement", libelle: "Paiement" },
+  { ancre: "livraison", libelle: "Livraison" },
+  { ancre: "verification", libelle: "Vérification · ventes fermes" },
+  { ancre: "vendeurs", libelle: "Vendeurs tiers" },
+  { ancre: "avis", libelle: "Avis" },
+  { ancre: "responsabilite", libelle: "Responsabilité" },
+  { ancre: "droit", libelle: "Droit applicable" },
+];
+
 export default function ConditionsPage() {
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
+    <div className="flex flex-col gap-gouttiere lg:flex-row">
+      {/* Sommaire : colonne collante sur grand écran, replié sur mobile. */}
+      <aside className="lg:w-64 lg:shrink-0">
+        <div className="lg:sticky lg:top-24">
+          <h2 className="mb-3 hidden text-etiquette-xs uppercase tracking-widest text-slate-500 lg:block">
+            Sommaire
+          </h2>
+          <details className="rounded border border-contour-carte bg-white lg:border-0 lg:bg-transparent" open>
+            <summary className="cursor-pointer list-none p-4 font-semibold text-slate-900 lg:hidden">
+              Sommaire
+            </summary>
+            <nav className="flex flex-col border-l border-contour-carte px-4 pb-4 lg:px-0 lg:pb-0">
+              {SOMMAIRE.map((e) => (
+                <a
+                  key={e.ancre}
+                  href={`#${e.ancre}`}
+                  className="border-l-2 border-transparent py-2 pl-3 text-corps-sm text-slate-600 transition-colors hover:border-nile-700 hover:bg-surface-subtile hover:text-nile-800"
+                >
+                  {e.libelle}
+                </a>
+              ))}
+            </nav>
+          </details>
+
+          <div className="mt-6 rounded border border-contour-carte bg-nile-800 p-5 text-white">
+            <p className="text-etiquette-md">Besoin d&apos;aide ?</p>
+            <p className="mb-4 mt-1 text-corps-sm text-white/75">
+              Une question sur ces conditions ou sur une commande ? Notre équipe
+              répond aux heures ouvrées.
+            </p>
+            <Link href="/aide" className="block rounded bg-white px-4 py-2.5 text-center text-etiquette-md text-nile-800 transition-colors hover:bg-surface-basse">
+              Contacter le support
+            </Link>
+          </div>
+        </div>
+      </aside>
+
+      <div className="min-w-0 flex-1 space-y-5">
       <div>
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Conditions générales</h1>
-        <p className="mt-1 text-sm text-slate-500">Dernière mise à jour : {MAJ}</p>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Conditions générales de vente et d&apos;utilisation</h1>
+        <p className="mt-1 text-sm italic text-slate-500">Dernière mise à jour : {MAJ}</p>
       </div>
 
-      <Carte className="space-y-6 p-6 text-sm leading-relaxed text-slate-700">
-        <Section titre="1. Présentation">
+      <Carte className="space-y-8 p-6 text-sm leading-relaxed text-slate-700 sm:p-8">
+        <Section titre="1. Présentation" ancre="presentation">
           <p>
             NILE Marketplace (« NILE », « nous ») est une plateforme de commerce
             en ligne opérant au Cameroun. Elle met en relation des acheteurs et
@@ -31,7 +83,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="2. Comptes">
+        <Section titre="2. Comptes" ancre="comptes">
           <p>
             La création d&apos;un compte est nécessaire pour commander ou vendre.
             Vous êtes responsable de la confidentialité de vos identifiants et
@@ -40,7 +92,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="3. Commandes et prix">
+        <Section titre="3. Commandes et prix" ancre="commandes">
           <p>
             Les prix sont affichés en francs CFA (XAF), toutes taxes comprises,
             sans décimales. Une commande est confirmée après validation du
@@ -50,7 +102,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="4. Paiement">
+        <Section titre="4. Paiement" ancre="paiement">
           <p>
             Deux modes de paiement sont proposés : le paiement mobile (MTN
             Mobile Money, Orange Money) via l&apos;agrégateur Monetbil, et le
@@ -61,7 +113,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="5. Livraison">
+        <Section titre="5. Livraison" ancre="livraison">
           <p>
             La livraison est <strong>gratuite</strong> et assurée au Cameroun à
             l&apos;adresse indiquée par l&apos;acheteur (ville, quartier, points
@@ -69,7 +121,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="6. Vérification à la livraison · ventes fermes">
+        <Section titre="6. Vérification à la livraison · ventes fermes" ancre="verification">
           <p>
             L&apos;acheteur est invité à <strong>vérifier son colis au moment de
             la livraison</strong>, avant paiement en cas de paiement à la
@@ -85,7 +137,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="7. Vendeurs tiers">
+        <Section titre="7. Vendeurs tiers" ancre="vendeurs">
           <p>
             Les vendeurs tiers sont responsables de la conformité, de la
             description et de la disponibilité de leurs produits. Toute boutique
@@ -95,14 +147,14 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="8. Avis">
+        <Section titre="8. Avis" ancre="avis">
           <p>
             Seuls les acheteurs ayant reçu un produit peuvent laisser un avis.
             Les avis frauduleux, injurieux ou hors sujet peuvent être retirés.
           </p>
         </Section>
 
-        <Section titre="9. Responsabilité">
+        <Section titre="9. Responsabilité" ancre="responsabilite">
           <p>
             NILE met tout en œuvre pour assurer la disponibilité et la sécurité
             de la plateforme, sans garantie d&apos;absence totale
@@ -111,7 +163,7 @@ export default function ConditionsPage() {
           </p>
         </Section>
 
-        <Section titre="10. Droit applicable">
+        <Section titre="10. Droit applicable" ancre="droit">
           <p>
             Les présentes conditions sont régies par le droit camerounais. Tout
             litige sera soumis aux juridictions compétentes du Cameroun, après
@@ -119,14 +171,24 @@ export default function ConditionsPage() {
           </p>
         </Section>
       </Carte>
+      </div>
     </div>
   );
 }
 
-function Section({ titre, children }: { titre: string; children: React.ReactNode }) {
+function Section({
+  titre,
+  ancre,
+  children,
+}: {
+  titre: string;
+  /** Cible du lien de sommaire. */
+  ancre: string;
+  children: React.ReactNode;
+}) {
   return (
-    <section className="space-y-2">
-      <h2 className="font-semibold text-slate-900">{titre}</h2>
+    <section id={ancre} className="scroll-mt-28 space-y-2">
+      <h2 className="text-titre-sm text-slate-900">{titre}</h2>
       {children}
     </section>
   );
