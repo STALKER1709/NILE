@@ -38,6 +38,17 @@ const LIENS: { href: string; libelle: string; icone: ReactNode; exact?: boolean 
       </>
     ),
   },
+  {
+    href: "/vendeur/finances",
+    libelle: "Finances",
+    icone: (
+      <>
+        <rect x="2" y="6" width="20" height="12" rx="2" />
+        <circle cx="12" cy="12" r="2.75" />
+        <path d="M6 10v4M18 10v4" strokeLinecap="round" />
+      </>
+    ),
+  },
 ];
 
 /**

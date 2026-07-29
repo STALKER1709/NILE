@@ -50,3 +50,30 @@ export function serieParJour(
 export function debutDuMois(maintenant: Date = new Date()): Date {
   return new Date(maintenant.getFullYear(), maintenant.getMonth(), 1);
 }
+
+/**
+ * Bornes du mois précédent : [debut, fin[. `fin` vaut le premier instant du
+ * mois en cours, de sorte que les deux fenêtres ne se chevauchent pas et
+ * qu'aucune vente ne soit comptée deux fois.
+ */
+export function bornesMoisPrecedent(
+  maintenant: Date = new Date(),
+): { debut: Date; fin: Date } {
+  const fin = debutDuMois(maintenant);
+  const debut = new Date(fin.getFullYear(), fin.getMonth() - 1, 1);
+  return { debut, fin };
+}
+
+/**
+ * Variation en pourcentage entre deux périodes, arrondie à l'entier.
+ * Renvoie `null` quand la période de référence est vide : on ne peut pas
+ * exprimer une évolution par rapport à zéro, et afficher « +100 % »
+ * induirait en erreur.
+ */
+export function calculerVariationPourcent(
+  actuel: number,
+  precedent: number,
+): number | null {
+  if (precedent <= 0) return null;
+  return Math.round(((actuel - precedent) / precedent) * 100);
+}
