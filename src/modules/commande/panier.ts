@@ -163,6 +163,27 @@ export async function retirerLigne(
 }
 
 /**
+ * Retire complètement un produit du panier d'un utilisateur, quelle que soit
+ * sa quantité. La suppression est bornée au panier de l'utilisateur passé en
+ * argument : un identifiant de produit fourni par le client ne peut donc pas
+ * toucher le panier d'un tiers.
+ */
+export async function retirerProduit(
+  utilisateurId: string,
+  produitId: string,
+): Promise<ResultatPanier> {
+  const panier = await prisma.panier.findUnique({
+    where: { utilisateurId },
+    select: { id: true },
+  });
+  if (!panier) return { ok: false, code: "INTROUVABLE" };
+  const { count } = await prisma.lignePanier.deleteMany({
+    where: { panierId: panier.id, produitId },
+  });
+  return count > 0 ? { ok: true } : { ok: false, code: "INTROUVABLE" };
+}
+
+/**
  * Vide entièrement le panier d'un utilisateur. Le panier est retrouvé par
  * l'identifiant de l'utilisateur (jamais par un identifiant fourni par le
  * client), donc aucun panier tiers ne peut être visé.

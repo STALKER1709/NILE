@@ -3,14 +3,24 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { getLignesInvite } from "@/modules/commande/panier-invite";
 import { calculerTotal } from "@/modules/commande/commande-core";
-import { retirerLigneAction, viderPanierAction } from "@/app/(compte)/panier/actions";
+import { viderPanierAction } from "@/app/(compte)/panier/actions";
 import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
-import { Vignette } from "@/components/ui/Vignette";
-import { BoutonPanier } from "@/components/panier/BoutonPanier";
-import { Carte, Prix, btn, EtatVide } from "@/components/ui/kit";
+import {
+  CarteArticlePanier,
+  BlocLivraison,
+  RecapitulatifPanier,
+  type ArticlePanier,
+} from "@/components/panier/BlocsPanier";
+import { btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Mon panier" };
+
+const MESSAGES_OK: Record<string, string> = {
+  vide: "Votre panier a été vidé.",
+  retire: "Article retiré du panier.",
+  ajoute: "Produit ajouté au panier.",
+};
 
 export default async function PanierPage({
   searchParams,
@@ -20,132 +30,56 @@ export default async function PanierPage({
   const { ok, erreur } = await searchParams;
   const utilisateur = await getUtilisateurCourant();
 
-  // ------------------------- VISITEUR (panier invité) -------------------------
-  if (!utilisateur) {
+  // Les deux parcours produisent la même liste d'articles : la mise en page
+  // qui suit est donc unique.
+  let articles: ArticlePanier[];
+  if (utilisateur) {
+    const panier = await getPanierAvecLignes(utilisateur.id);
+    articles = panier.lignes.map((l) => ({
+      produitId: l.produit.id,
+      slug: l.produit.slug,
+      titre: l.produit.titre,
+      prix: l.produit.prix,
+      stock: l.produit.stock,
+      quantite: l.quantite,
+      imageUrl: l.produit.images[0]?.url,
+      indisponible:
+        l.produit.statut !== "ACTIF" ||
+        l.produit.vendeur.statutValidation !== "VALIDE",
+    }));
+  } else {
     const lignes = await getLignesInvite();
-    const disponibles = lignes.filter(
-      (l) =>
-        l.produit.statut === "ACTIF" &&
-        l.produit.vendeur.statutValidation === "VALIDE",
-    );
-    const total = calculerTotal(
-      disponibles.map((l) => ({ prix: l.produit.prix, quantite: l.quantite })),
-    );
-
-    return (
-      <div className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
-          {lignes.length > 0 && (
-            <form action={viderPanierAction}>
-              <BoutonConfirme
-                question="Vider entièrement votre panier ? Cette action est irréversible."
-                enCours="Suppression…"
-                className={btn("danger", "sm")}
-              >
-                Vider le panier
-              </BoutonConfirme>
-            </form>
-          )}
-        </div>
-
-        {ok === "vide" && (
-          <p className="rounded border border-nile-100 bg-nile-50 px-3 py-2 text-sm text-nile-800">
-            Votre panier a été vidé.
-          </p>
-        )}
-
-        {lignes.length === 0 ? (
-          <EtatVide titre="Votre panier est vide.">
-            <Link href="/catalogue" className="text-nile hover:underline">Parcourir le catalogue</Link>
-          </EtatVide>
-        ) : (
-          <div className="grid gap-5 lg:grid-cols-3">
-            <div className="space-y-3 lg:col-span-2">
-              {lignes.map((l) => {
-                const indispo =
-                  l.produit.statut !== "ACTIF" ||
-                  l.produit.vendeur.statutValidation !== "VALIDE";
-                return (
-                  <Carte key={l.produit.id} className="flex gap-3 p-3">
-                    <Vignette
-                      url={l.produit.images[0]?.url}
-                      alt={l.produit.titre}
-                      sizes="80px"
-                      className="h-20 w-20 shrink-0 rounded"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <Link href={`/produit/${l.produit.slug}`} className="line-clamp-2 font-medium hover:underline">
-                        {l.produit.titre}
-                      </Link>
-                      <Prix montant={l.produit.prix} className="mt-0.5 block text-sm text-slate-500" />
-                      {indispo && (
-                        <p className="text-xs font-medium text-red-600">Produit indisponible · retirez-le.</p>
-                      )}
-                      <div className="mt-2 max-w-[10rem]">
-                        <BoutonPanier
-                          produitId={l.produit.id}
-                          stock={l.produit.stock}
-                          quantiteInitiale={l.quantite}
-                          rafraichirApres
-                        />
-                      </div>
-                      <Prix
-                        montant={l.produit.prix * l.quantite}
-                        className="mt-1.5 block font-bold text-nile sm:hidden"
-                      />
-                    </div>
-                    <Prix
-                      montant={l.produit.prix * l.quantite}
-                      className="hidden shrink-0 self-center font-bold text-nile sm:block"
-                    />
-                  </Carte>
-                );
-              })}
-            </div>
-
-            <div className="lg:col-span-1">
-              <Carte className="sticky top-24 space-y-3 p-4">
-                <h2 className="font-bold text-slate-900">Récapitulatif</h2>
-                <div className="flex justify-between text-sm text-slate-600">
-                  <span>Sous-total</span>
-                  <Prix montant={total} />
-                </div>
-                <div className="flex justify-between border-t border-slate-100 pt-3 text-lg font-bold">
-                  <span>Total</span>
-                  <Prix montant={total} className="text-nile" />
-                </div>
-                <Link
-                  href={`/connexion?suite=${encodeURIComponent("/commander")}`}
-                  className={btn("accent", "lg", "w-full")}
-                >
-                  Passer la commande
-                </Link>
-                <p className="text-center text-xs text-slate-500">
-                  Identifie-toi pour valider · ton panier sera conservé.{" "}
-                  <Link href={`/inscription?suite=${encodeURIComponent("/commander")}`} className="text-nile hover:underline">
-                    Créer un compte
-                  </Link>
-                </p>
-              </Carte>
-            </div>
-          </div>
-        )}
-      </div>
-    );
+    articles = lignes.map((l) => ({
+      produitId: l.produit.id,
+      slug: l.produit.slug,
+      titre: l.produit.titre,
+      prix: l.produit.prix,
+      stock: l.produit.stock,
+      quantite: l.quantite,
+      imageUrl: l.produit.images[0]?.url,
+      indisponible:
+        l.produit.statut !== "ACTIF" ||
+        l.produit.vendeur.statutValidation !== "VALIDE",
+    }));
   }
 
-  // ------------------------------ CONNECTÉ (base) -----------------------------
-  const panier = await getPanierAvecLignes(utilisateur.id);
+  // Le total ne compte que les articles réellement commandables.
   const total = calculerTotal(
-    panier.lignes.map((l) => ({ prix: l.produit.prix, quantite: l.quantite })),
+    articles
+      .filter((a) => !a.indisponible)
+      .map((a) => ({ prix: a.prix, quantite: a.quantite })),
   );
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
-        {panier.lignes.length > 0 && (
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
+          <p className="mt-2 text-corps-md text-slate-600">
+            Vérifiez vos articles avant de passer commande.
+          </p>
+        </div>
+        {articles.length > 0 && (
           <form action={viderPanierAction}>
             <BoutonConfirme
               question="Vider entièrement votre panier ? Cette action est irréversible."
@@ -158,96 +92,69 @@ export default async function PanierPage({
         )}
       </div>
 
-      {ok === "vide" && (
+      {ok && MESSAGES_OK[ok] && (
         <p className="rounded border border-nile-100 bg-nile-50 px-3 py-2 text-sm text-nile-800">
-          Votre panier a été vidé.
-        </p>
-      )}
-      {ok === "ajoute" && (
-        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-          Produit ajouté au panier.
+          {MESSAGES_OK[ok]}
         </p>
       )}
       {erreur && (
         <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
-      {panier.lignes.length === 0 ? (
+      {articles.length === 0 ? (
         <EtatVide titre="Votre panier est vide.">
-          <Link href="/catalogue" className="text-nile hover:underline">Parcourir le catalogue</Link>
+          <Link href="/catalogue" className="text-nile hover:underline">
+            Parcourir le catalogue
+          </Link>
         </EtatVide>
       ) : (
-        <div className="grid gap-5 lg:grid-cols-3">
-          <div className="space-y-3 lg:col-span-2">
-            {panier.lignes.map((l) => {
-              const indispo =
-                l.produit.statut !== "ACTIF" ||
-                l.produit.vendeur.statutValidation !== "VALIDE";
-              const stockInsuffisant = l.produit.stock < l.quantite;
-              return (
-                <Carte key={l.id} className="flex gap-3 p-3">
-                  <Vignette
-                    url={l.produit.images[0]?.url}
-                    alt={l.produit.titre}
-                    sizes="80px"
-                    className="h-20 w-20 shrink-0 rounded"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <Link href={`/produit/${l.produit.slug}`} className="line-clamp-2 font-medium hover:underline">
-                      {l.produit.titre}
-                    </Link>
-                    <Prix montant={l.produit.prix} className="mt-0.5 block text-sm text-slate-500" />
-                    {indispo && <p className="text-xs font-medium text-red-600">Produit indisponible · à retirer.</p>}
-                    {!indispo && stockInsuffisant && (
-                      <p className="text-xs font-medium text-red-600">Stock restant : {l.produit.stock}.</p>
-                    )}
-                    <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1.5">
-                      <div className="max-w-[10rem] flex-1">
-                        <BoutonPanier
-                          produitId={l.produit.id}
-                          stock={l.produit.stock}
-                          quantiteInitiale={l.quantite}
-                          rafraichirApres
-                        />
-                      </div>
-                      <form action={retirerLigneAction}>
-                        <input type="hidden" name="ligneId" value={l.id} />
-                        <button type="submit" className="rounded px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 hover:underline">
-                          Retirer
-                        </button>
-                      </form>
-                    </div>
-                    {/* Total de ligne : sous les infos sur mobile (évite le débordement) */}
-                    <Prix
-                      montant={l.produit.prix * l.quantite}
-                      className="mt-1.5 block font-bold text-nile sm:hidden"
-                    />
-                  </div>
-                  <Prix
-                    montant={l.produit.prix * l.quantite}
-                    className="hidden shrink-0 self-center font-bold text-nile sm:block"
-                  />
-                </Carte>
-              );
-            })}
+        <div className="grid grid-cols-1 items-start gap-gouttiere lg:grid-cols-12">
+          <div className="space-y-gouttiere lg:col-span-8">
+            {articles.map((a) => (
+              <CarteArticlePanier key={a.produitId} article={a} />
+            ))}
+            <BlocLivraison />
           </div>
 
-          <div className="lg:col-span-1">
-            <Carte className="sticky top-24 space-y-3 p-4">
-              <h2 className="font-bold text-slate-900">Récapitulatif</h2>
-              <div className="flex justify-between text-sm text-slate-600">
-                <span>Sous-total</span>
-                <Prix montant={total} />
-              </div>
-              <div className="flex justify-between border-t border-slate-100 pt-3 text-lg font-bold">
-                <span>Total</span>
-                <Prix montant={total} className="text-nile" />
-              </div>
-              <Link href="/commander" className={btn("accent", "lg", "w-full")}>
-                Passer la commande
-              </Link>
-            </Carte>
-          </div>
+          <aside className="lg:col-span-4">
+            <RecapitulatifPanier total={total}>
+              {utilisateur ? (
+                <>
+                  <Link href="/commander" className={btn("primaire", "lg", "w-full")}>
+                    Passer la commande
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </Link>
+                  <p className="mt-4 text-center text-etiquette-xs text-slate-500">
+                    Paiement Mobile Money via Monetbil, ou en espèces à la
+                    livraison. Vous choisirez à l&apos;étape suivante.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <Link
+                    href={`/connexion?suite=${encodeURIComponent("/commander")}`}
+                    className={btn("primaire", "lg", "w-full")}
+                  >
+                    Passer la commande
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </Link>
+                  <p className="mt-4 text-center text-etiquette-xs text-slate-500">
+                    Identifiez-vous pour valider · votre panier sera conservé.{" "}
+                    <Link
+                      href={`/inscription?suite=${encodeURIComponent("/commander")}`}
+                      className="text-nile-700 hover:underline"
+                    >
+                      Créer un compte
+                    </Link>
+                  </p>
+                </>
+              )}
+            </RecapitulatifPanier>
+          </aside>
         </div>
       )}
     </div>

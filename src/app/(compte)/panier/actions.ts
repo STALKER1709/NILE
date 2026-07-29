@@ -1,18 +1,19 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { exigerConnexion, getUtilisateurCourant } from "@/modules/auth/access";
+import { getUtilisateurCourant } from "@/modules/auth/access";
 import { ajoutPanierSchema } from "@/validators/commande";
 import {
   ajouterAuPanier,
   retirerUneUnite,
-  retirerLigne,
+  retirerProduit,
   viderPanier,
   compterArticlesPanier,
 } from "@/modules/commande/panier";
 import {
   ajouterInvite,
   retirerInvite,
+  retirerToutInvite,
   viderInvite,
   compterArticlesInvite,
 } from "@/modules/commande/panier-invite";
@@ -91,9 +92,20 @@ export async function viderPanierAction(): Promise<void> {
   redirect("/panier?ok=vide");
 }
 
-export async function retirerLigneAction(formData: FormData): Promise<void> {
-  const utilisateur = await exigerConnexion();
-  const ligneId = String(formData.get("ligneId") ?? "");
-  await retirerLigne(utilisateur.id, ligneId);
-  redirect("/panier");
+/**
+ * Retire complètement un article du panier (bouton « Retirer »), pour un
+ * visiteur comme pour un utilisateur connecté. Aucune connexion n'est
+ * exigée, sinon un visiteur ne pourrait pas retirer un article du sien.
+ */
+export async function retirerArticleAction(formData: FormData): Promise<void> {
+  const produitId = String(formData.get("produitId") ?? "");
+  if (!produitId) redirect("/panier?erreur=Article%20introuvable.");
+
+  const utilisateur = await getUtilisateurCourant();
+  if (utilisateur) {
+    await retirerProduit(utilisateur.id, produitId);
+  } else {
+    await retirerToutInvite(produitId);
+  }
+  redirect("/panier?ok=retire");
 }

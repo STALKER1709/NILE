@@ -110,6 +110,17 @@ export async function retirerInvite(
   return { ok: true, quantite: actuelle - 1 };
 }
 
+/**
+ * Retire complètement un produit du panier invité, quelle que soit sa
+ * quantité (bouton « Retirer » de la page panier).
+ */
+export async function retirerToutInvite(produitId: string): Promise<void> {
+  const map = await lireQuantitesInvite();
+  if (!(produitId in map)) return;
+  delete map[produitId];
+  await ecrireQuantitesInvite(map);
+}
+
 /** Nombre total d'articles du panier invité (badge d'en-tête). */
 /** Vide le panier visiteur : supprime simplement le cookie. */
 export async function viderInvite(): Promise<void> {
