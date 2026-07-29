@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Carte } from "@/components/ui/kit";
+import { SommaireActif } from "@/components/conditions/SommaireActif";
 
 export const metadata: Metadata = {
   title: "Conditions générales",
@@ -37,17 +38,7 @@ export default function ConditionsPage() {
             <summary className="cursor-pointer list-none p-4 font-semibold text-slate-900 lg:hidden">
               Sommaire
             </summary>
-            <nav className="flex flex-col border-l border-contour-carte px-4 pb-4 lg:px-0 lg:pb-0">
-              {SOMMAIRE.map((e) => (
-                <a
-                  key={e.ancre}
-                  href={`#${e.ancre}`}
-                  className="border-l-2 border-transparent py-2 pl-3 text-corps-sm text-slate-600 transition-colors hover:border-nile-700 hover:bg-surface-subtile hover:text-nile-800"
-                >
-                  {e.libelle}
-                </a>
-              ))}
-            </nav>
+            <SommaireActif entrees={SOMMAIRE} />
           </details>
 
           <div className="mt-6 rounded border border-contour-carte bg-nile-800 p-5 text-white">
@@ -111,6 +102,13 @@ export default function ConditionsPage() {
             considéré comme reçu qu&apos;après confirmation par
             l&apos;agrégateur.
           </p>
+          {/* Uniquement les moyens réellement acceptés : ni carte bancaire,
+              ni virement, que la plateforme ne traite pas. */}
+          <ul className="grid grid-cols-1 gap-3 pt-2 sm:grid-cols-3">
+            <MoyenAccepte libelle="MTN Mobile Money" pastille="MTN" fond="bg-[#ffcb05]" couleurTexte="text-black" />
+            <MoyenAccepte libelle="Orange Money" pastille="OM" fond="bg-[#ff7900]" couleurTexte="text-white" />
+            <MoyenAccepte libelle="Espèces à la livraison" />
+          </ul>
         </Section>
 
         <Section titre="5. Livraison" ancre="livraison">
@@ -173,6 +171,36 @@ export default function ConditionsPage() {
       </Carte>
       </div>
     </div>
+  );
+}
+
+/** Vignette d'un moyen de paiement accepté par la plateforme. */
+function MoyenAccepte({
+  libelle,
+  pastille,
+  fond = "bg-surface-haute",
+  couleurTexte = "text-nile-800",
+}: {
+  libelle: string;
+  /** Sigle de l'opérateur ; absent pour le paiement en espèces. */
+  pastille?: string;
+  fond?: string;
+  couleurTexte?: string;
+}) {
+  return (
+    <li className="flex flex-col items-center gap-2 rounded border border-contour-carte p-4 text-center">
+      <span className={`grid h-10 w-10 place-items-center rounded-full ${fond}`}>
+        {pastille ? (
+          <span className={`text-[10px] font-bold ${couleurTexte}`}>{pastille}</span>
+        ) : (
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={couleurTexte} aria-hidden="true">
+            <rect x="2" y="6" width="20" height="12" rx="2" />
+            <circle cx="12" cy="12" r="2.5" />
+          </svg>
+        )}
+      </span>
+      <span className="text-etiquette-md text-nile-800">{libelle}</span>
+    </li>
   );
 }
 

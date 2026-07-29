@@ -35,6 +35,67 @@ export async function listerProduitsVendeur(vendeurId: string) {
   });
 }
 
+/**
+ * Page de l'inventaire d'un vendeur, avec recherche par titre.
+ * La recherche est insensible à la casse ; le filtre reste borné au vendeur
+ * passé en argument, jamais à un identifiant venant du client.
+ */
+export async function rechercherProduitsVendeur(
+  vendeurId: string,
+  options: { q?: string; page: number; parPage: number },
+) {
+  const where: Prisma.ProduitWhereInput = { vendeurId };
+  if (options.q) {
+    where.titre = { contains: options.q, mode: "insensitive" };
+  }
+  const page = Math.max(1, options.page);
+
+  const [produits, total] = await Promise.all([
+    prisma.produit.findMany({
+      where,
+      orderBy: { dateMaj: "desc" },
+      skip: (page - 1) * options.parPage,
+      take: options.parPage,
+      include: { images: { orderBy: { ordre: "asc" }, take: 1 }, categorie: true },
+    }),
+    prisma.produit.count({ where }),
+  ]);
+
+  return {
+    produits,
+    total,
+    page,
+    pages: Math.max(1, Math.ceil(total / options.parPage)),
+  };
+}
+
+/**
+ * Indicateurs d'inventaire d'un vendeur, calculés par agrégation sur TOUT le
+ * catalogue de la boutique — ils ne doivent pas dépendre de la page affichée.
+ */
+export async function statsInventaireVendeur(vendeurId: string): Promise<{
+  total: number;
+  enLigne: number;
+  stockFaible: number;
+  valeurStock: number;
+}> {
+  const [total, enLigne, stockFaible, produits] = await Promise.all([
+    prisma.produit.count({ where: { vendeurId } }),
+    prisma.produit.count({ where: { vendeurId, statut: "ACTIF" } }),
+    prisma.produit.count({ where: { vendeurId, statut: "ACTIF", stock: { lte: 2 } } }),
+    // prix * stock n'est pas exprimable en agrégat SQL via Prisma : on ne
+    // récupère que les deux colonnes nécessaires au calcul.
+    prisma.produit.findMany({ where: { vendeurId }, select: { prix: true, stock: true } }),
+  ]);
+
+  return {
+    total,
+    enLigne,
+    stockFaible,
+    valeurStock: produits.reduce((s, p) => s + p.prix * p.stock, 0),
+  };
+}
+
 export async function getProduitDuVendeur(
   vendeurId: string,
   produitId: string,
@@ -256,6 +317,7 @@ export async function rechercherProduitsCatalogue(options: OptionsCatalogue) {
       include: {
         images: { orderBy: { ordre: "asc" }, take: 1 },
         vendeur: { select: { id: true, nomBoutique: true } },
+        categorie: { select: { nom: true } },
       },
     }),
     prisma.produit.count({ where }),

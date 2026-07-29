@@ -13,6 +13,8 @@ export interface ProduitCarte {
   nbAvis: number;
   images: { url: string }[];
   vendeur: { id?: string; nomBoutique: string };
+  /** Rayon du produit, affiché en surtitre quand il est connu. */
+  categorie?: { nom: string } | null;
 }
 
 export function CarteProduit({
@@ -58,6 +60,11 @@ export function CarteProduit({
       </Link>
 
       <div className="flex flex-1 flex-col gap-1 p-3">
+        {produit.categorie && (
+          <p className="truncate text-[10px] font-medium uppercase tracking-wider text-slate-400">
+            {produit.categorie.nom}
+          </p>
+        )}
         <Link href={lien}>
           <p className="ligne-2 min-h-[2.4rem] text-[13px] font-medium leading-snug text-slate-800 transition-colors group-hover:text-nile-700">
             {produit.titre}

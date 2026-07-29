@@ -10,6 +10,9 @@ import { normaliserParamsRecherche } from "@/modules/catalogue/recherche";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
+import { IconeCategorie } from "@/components/categorie/IconeCategorie";
+import { Pagination } from "@/components/ui/Pagination";
+import { bornesAffichage } from "@/modules/catalogue/pagination";
 import { champClass, btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -110,15 +113,23 @@ export default async function CataloguePage({
           {optionsCat.map((c) => {
             const cat = categories.find((x) => x.id === c.id);
             const actif = sp.categorie === cat?.slug;
+            // Les sous-catégories sont indentées par `label` (« - Téléphones ») :
+            // seules les racines portent une icône, pour garder la hiérarchie lisible.
+            const racine = !c.label.startsWith("- ");
             return (
               <Link
                 key={c.id}
                 href={lienFiltre("categorie", cat?.slug ?? null)}
-                className={`truncate rounded px-3 py-2 text-corps-sm transition-colors ${
+                className={`flex items-center gap-2.5 truncate rounded px-3 py-2 text-corps-sm transition-colors ${
                   actif ? "bg-nile-50 font-semibold text-nile-700" : "text-slate-600 hover:bg-surface-subtile"
                 }`}
               >
-                {c.label}
+                {racine && cat && (
+                  <span className={`shrink-0 ${actif ? "text-nile-700" : "text-slate-400"}`}>
+                    <IconeCategorie nom={cat.nom} />
+                  </span>
+                )}
+                <span className="truncate">{c.label}</span>
               </Link>
             );
           })}
@@ -254,15 +265,15 @@ export default async function CataloguePage({
       )}
 
       {pages > 1 && (
-        <nav className="flex items-center justify-center gap-4 pt-2 text-sm">
-          {page > 1 && (
-            <Link href={lienPage(page - 1)} className={btn("secondaire", "sm")}>← Précédent</Link>
-          )}
-          <span className="text-slate-500">Page {page} / {pages}</span>
-          {page < pages && (
-            <Link href={lienPage(page + 1)} className={btn("secondaire", "sm")}>Suivant →</Link>
-          )}
-        </nav>
+        <div className="space-y-3 pt-2">
+          <Pagination page={page} pages={pages} lien={lienPage} etiquette="Pages du catalogue" />
+          <p className="text-center text-corps-sm text-slate-500">
+            {(() => {
+              const { debut, fin } = bornesAffichage(page, PAR_PAGE, total);
+              return `Produits ${debut} à ${fin} sur ${total}`;
+            })()}
+          </p>
+        </div>
       )}
       </div>
     </div>
