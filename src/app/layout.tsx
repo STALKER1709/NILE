@@ -70,7 +70,9 @@ export default async function RootLayout({
 
   return (
     <html lang="fr" suppressHydrationWarning className={`${policeTitre.variable} ${policeCorps.variable}`}>
-      <body id="top" suppressHydrationWarning className="min-h-screen">
+      {/* overflow-x-clip : absorbe les sections `.pleine-largeur` (100vw) sans
+          créer de conteneur de défilement — l'en-tête `sticky` reste collant. */}
+      <body id="top" suppressHydrationWarning className="min-h-screen overflow-x-clip">
         <Entete
           utilisateur={
             utilisateur ? { nom: utilisateur.nom, role: utilisateur.role } : null
@@ -79,7 +81,9 @@ export default async function RootLayout({
           categories={rayons}
         />
         {/* pb-24 : laisse la place à la barre de navigation mobile fixe */}
-        <main className="mx-auto max-w-conteneur px-4 py-5 pb-24 sm:px-10 sm:pb-8">{children}</main>
+        <main className="mx-auto max-w-conteneur px-4 py-5 pb-24 sm:px-10 sm:pb-8">
+          {children}
+        </main>
         <PiedDePage />
         <NavMobile connecte={!!utilisateur} nbArticles={nbArticles} />
         {env.CONTACT_WHATSAPP && <BulleWhatsApp numero={env.CONTACT_WHATSAPP} />}

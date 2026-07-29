@@ -5,7 +5,7 @@ import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
 import { listerBoutiques } from "@/modules/catalogue/boutiques";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
-import { CarteProduit } from "@/components/produit/CarteProduit";
+import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { CarteBoutique } from "@/components/boutique/CarteBoutique";
 import { Carrousel } from "@/components/ui/Carrousel";
 import { DiapoMarque, DiapoLivraison, DiapoMomo } from "@/components/accueil/Diapos";
@@ -27,7 +27,7 @@ export default async function AccueilPage() {
     quantites,
   ] = await Promise.all([
     listerCategories(),
-    rechercherProduitsCatalogue({ tri: "recent", page: 1, parPage: 12 }),
+    rechercherProduitsCatalogue({ tri: "recent", page: 1, parPage: 6 }),
     rechercherProduitsCatalogue({ tri: "populaire", page: 1, parPage: 6 }),
     listerBoutiques({ tri: "populaire", limite: 8 }),
     getQuantitesAffichees(utilisateur?.id ?? null),
@@ -40,7 +40,7 @@ export default async function AccueilPage() {
   );
 
   return (
-    <div className="space-y-10 sm:space-y-14">
+    <div className="space-y-8 sm:space-y-16">
       {/* Bannière éditoriale (carrousel plein cadre) */}
       <h1 className="sr-only">NILE Marketplace, achats en ligne au Cameroun</h1>
       <Carrousel etiquette="Offres et services NILE">
@@ -96,7 +96,7 @@ export default async function AccueilPage() {
                   key={c.id}
                   href={`/catalogue?categorie=${c.slug}`}
                   style={{ animationDelay: `${i * 60}ms` }}
-                  className="group relative flex h-40 animate-fondu-haut items-center overflow-hidden rounded-xl border border-contour-carte bg-surface-moyenne sm:h-48"
+                  className="group relative flex h-48 animate-fondu-haut items-center overflow-hidden rounded-xl border border-contour-carte bg-surface-moyenne"
                 >
                   <div className="z-10 max-w-[60%] p-6 sm:p-10">
                     <h3 className="text-titre-sm text-nile-800">{c.nom}</h3>
@@ -173,25 +173,27 @@ export default async function AccueilPage() {
       {/* Paiements flexibles */}
       <SectionPaiement />
 
-      {/* Appel à l'action final */}
-      <section className="rounded-xl bg-nile-dark px-6 py-12 text-center text-white sm:px-10 sm:py-16">
-        <h2 className="font-titre text-titre-sm sm:text-titre-md">Prêt à faire de bonnes affaires ?</h2>
-        <p className="mx-auto mt-4 max-w-2xl text-corps-md text-nile-surConteneur">
-          Créez votre compte en quelques instants et payez comme vous voulez :
-          Mobile Money ou en espèces à la livraison.
-        </p>
-        <div className="mt-8 flex flex-wrap justify-center gap-4">
-          <Link href="/catalogue" className={btn("accent", "lg")}>
-            Parcourir le catalogue
-          </Link>
-          {!utilisateur && (
-            <Link
-              href="/inscription"
-              className="inline-flex items-center justify-center rounded border border-nile-surConteneur px-8 py-3 text-etiquette-md font-bold text-white transition-colors hover:bg-nile-conteneur"
-            >
-              S'inscrire gratuitement
+      {/* Appel à l'action final : bandeau pleine largeur, contenu centré */}
+      <section className="pleine-largeur bg-nile-dark py-16 text-white sm:py-section">
+        <div className="mx-auto max-w-conteneur px-4 text-center sm:px-10">
+          <h2 className="font-titre text-titre-sm sm:text-titre-md">Prêt à faire de bonnes affaires ?</h2>
+          <p className="mx-auto mt-4 max-w-2xl text-corps-md text-nile-surConteneur">
+            Créez votre compte en quelques instants et payez comme vous voulez :
+            Mobile Money ou en espèces à la livraison.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-4">
+            <Link href="/catalogue" className={btn("accent", "lg")}>
+              Parcourir le catalogue
             </Link>
-          )}
+            {!utilisateur && (
+              <Link
+                href="/inscription"
+                className="inline-flex items-center justify-center rounded border border-nile-surConteneur px-8 py-3 text-etiquette-md font-bold text-white transition-colors hover:bg-nile-conteneur"
+              >
+                S'inscrire gratuitement
+              </Link>
+            )}
+          </div>
         </div>
       </section>
     </div>
@@ -224,7 +226,7 @@ function EnteteSection({
  */
 function SectionPaiement() {
   return (
-    <section className="overflow-hidden rounded-xl border border-contour-carte bg-white p-6 sm:p-12">
+    <section className="rounded-xl2 border border-contour-carte bg-white p-6 sm:p-12">
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
           <span className="block text-etiquette-xs font-bold uppercase tracking-[0.2em] text-accent-deep">
@@ -254,7 +256,7 @@ function SectionPaiement() {
         </div>
 
         <div className="relative">
-          <div className="overflow-hidden rounded-xl shadow-flottant lg:rotate-2">
+          <div className="overflow-hidden rounded-[1.5rem] shadow-flottant lg:rotate-2">
             <Image
               src="/bannieres/momo.jpg"
               alt="Paiement par téléphone mobile"
@@ -264,7 +266,9 @@ function SectionPaiement() {
               className="aspect-[4/3] w-full object-cover"
             />
           </div>
-          <span className="absolute -bottom-4 -left-4 grid h-16 w-16 place-items-center rounded-xl bg-accent text-accent-sur shadow-flottant">
+          {/* Pastille « vérifié » : animation désactivée si l'utilisateur
+              a demandé de réduire les animations. */}
+          <span className="absolute -bottom-5 -left-5 grid h-[4.5rem] w-[4.5rem] place-items-center rounded-xl2 bg-accent text-accent-sur shadow-flottant motion-safe:animate-bounce">
             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
               <path d="M12 3l7.5 3v6c0 4.2-3 7.6-7.5 9-4.5-1.4-7.5-4.8-7.5-9V6z" strokeLinejoin="round" />
               <path d="m8.8 12 2.2 2.2 4.2-4.4" strokeLinecap="round" strokeLinejoin="round" />
@@ -301,7 +305,7 @@ function SectionProduits({
   vide,
 }: {
   titre: string;
-  produits: React.ComponentProps<typeof CarteProduit>["produit"][];
+  produits: React.ComponentProps<typeof CarteProduitVitrine>["produit"][];
   quantites: Record<string, number>;
   vide?: string;
 }) {
@@ -313,13 +317,13 @@ function SectionProduits({
           {vide ?? "Rien à afficher pour l'instant."}
         </p>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
+        <div className="grid grid-cols-1 gap-gouttiere sm:grid-cols-2 lg:grid-cols-3">
           {produits.map((p, i) => (
-            <CarteProduit
+            <CarteProduitVitrine
               key={p.slug}
               produit={p}
               quantitePanier={quantites[p.id] ?? 0}
-              priority={i < 6}
+              priority={i < 3}
               index={i}
             />
           ))}

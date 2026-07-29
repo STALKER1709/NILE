@@ -72,6 +72,21 @@ body {
     scrollbar-width: none;
   }
 
+  /*
+   * Section pleine largeur écran depuis l'intérieur du gabarit centré
+   * (`main` est limité à 1280 px). Le fond déborde jusqu'aux bords, le
+   * contenu reste cadré par son propre conteneur.
+   *
+   * `body` porte `overflow-x: clip` pour absorber le dépassement de 100vw
+   * quand une barre de défilement classique est présente. On utilise `clip`
+   * et non `hidden` : `clip` ne crée pas de conteneur de défilement, donc
+   * l'en-tête et les filtres `sticky` continuent de fonctionner.
+   */
+  .pleine-largeur {
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+  }
+
   /* Bloc de chargement (skeleton) avec reflet qui balaie. */
   .skeleton {
     position: relative;

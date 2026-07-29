@@ -20,6 +20,7 @@ export function Vignette({
   classImage = "",
   ajustement = "contenir",
   priority = false,
+  fond,
 }: {
   url?: string | null;
   alt: string;
@@ -29,12 +30,13 @@ export function Vignette({
   classImage?: string;
   ajustement?: "contenir" | "couvrir";
   priority?: boolean;
+  /** Fond du cadre, pour remplacer le blanc/gris par défaut (ex. surface tonale). */
+  fond?: string;
 }) {
   const contenir = ajustement === "contenir";
+  const fondCadre = fond ?? (contenir ? "bg-white" : "bg-slate-100");
   return (
-    <div
-      className={`relative overflow-hidden ${contenir ? "bg-white" : "bg-slate-100"} ${className}`}
-    >
+    <div className={`relative overflow-hidden ${fondCadre} ${className}`}>
       {url ? (
         <Image
           src={url}
@@ -45,7 +47,7 @@ export function Vignette({
           className={`${contenir ? "object-contain p-1.5" : "object-cover"} ${classImage}`}
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-slate-50 text-slate-300">
+        <div className={`flex h-full w-full items-center justify-center text-slate-300 ${fond ? "" : "bg-slate-50"}`}>
           <svg width="40%" height="40%" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1zm1 2v8.6l3.5-3.5 2.5 2.5L15 10l4 4V7H5zm3 3a1.5 1.5 0 1 0 0-3 1.5 1.5 0 0 0 0 3z" />
           </svg>
