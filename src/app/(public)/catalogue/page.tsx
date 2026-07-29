@@ -9,7 +9,7 @@ import { rechercherBoutiques } from "@/modules/catalogue/boutiques";
 import { normaliserParamsRecherche } from "@/modules/catalogue/recherche";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
-import { CarteProduit } from "@/components/produit/CarteProduit";
+import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { IconeCategorie } from "@/components/categorie/IconeCategorie";
 import { Pagination } from "@/components/ui/Pagination";
 import { bornesAffichage } from "@/modules/catalogue/pagination";
@@ -92,8 +92,8 @@ export default async function CataloguePage({
   const filtres = (
     <>
       <div>
-        <h2 className="mb-3 flex items-center gap-2 text-etiquette-md uppercase tracking-wider text-slate-500">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+        <h2 className="mb-4 flex items-center gap-2 text-titre-sm text-nile-800">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-nile-700" aria-hidden="true">
             <rect x="3" y="3" width="7" height="7" rx="1" />
             <rect x="14" y="3" width="7" height="7" rx="1" />
             <rect x="3" y="14" width="7" height="7" rx="1" />
@@ -141,9 +141,7 @@ export default async function CataloguePage({
         {sp.categorie && <input type="hidden" name="categorie" value={sp.categorie} />}
         {sp.q && <input type="hidden" name="q" value={sp.q} />}
         {sp.tri && <input type="hidden" name="tri" value={sp.tri} />}
-        <h2 className="mb-3 text-etiquette-md uppercase tracking-wider text-slate-500">
-          Plage de prix (FCFA)
-        </h2>
+        <h2 className="mb-3 text-etiquette-md text-nile-800">Plage de prix (FCFA)</h2>
         <div className="flex items-center gap-2">
           <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min" aria-label="Prix minimum" className={`${champClass} w-full`} />
           <span className="text-slate-400">–</span>
@@ -251,14 +249,17 @@ export default async function CataloguePage({
           </EtatVide>
         )
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-gouttiere sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {produits.map((p, i) => (
-            <CarteProduit
+            <CarteProduitVitrine
               key={p.id}
               produit={p}
               quantitePanier={quantites[p.id] ?? 0}
-              priority={i < 5}
+              priority={i < 4}
               index={i}
+              actions="simple"
+              afficherCategorie
+              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 280px"
             />
           ))}
         </div>

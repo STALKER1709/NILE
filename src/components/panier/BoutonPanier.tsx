@@ -20,6 +20,7 @@ export function BoutonPanier({
   quantiteInitiale,
   taille = "sm",
   rafraichirApres = false,
+  libelle = "Ajouter",
 }: {
   produitId: string;
   stock: number;
@@ -27,6 +28,8 @@ export function BoutonPanier({
   taille?: "sm" | "lg";
   /** Rafraîchit les données serveur après chaque clic (page panier : totaux). */
   rafraichirApres?: boolean;
+  /** Texte du premier clic (« Ajouter au panier » sur les grandes cartes). */
+  libelle?: string;
 }) {
   const router = useRouter();
   const [quantite, setQuantite] = useState(quantiteInitiale);
@@ -82,7 +85,7 @@ export function BoutonPanier({
           className={`inline-flex w-full items-center justify-center gap-1.5 rounded bg-accent font-semibold text-nile-950 transition-colors hover:bg-accent-dark disabled:opacity-60 ${hBtn}`}
         >
           <IconePanierPlus />
-          Ajouter
+          {libelle}
         </button>
         {message && <MessageErreur texte={message} />}
       </span>
