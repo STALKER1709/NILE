@@ -9,6 +9,7 @@ import { Entete } from "@/components/layout/Entete";
 import { PiedDePage } from "@/components/layout/PiedDePage";
 import { NavMobile } from "@/components/layout/NavMobile";
 import { BulleWhatsApp } from "@/components/layout/BulleWhatsApp";
+import { RetourHaut } from "@/components/layout/RetourHaut";
 
 /* Stratégie à deux polices (voir DESIGN.md) : Hanken Grotesk pour les titres,
    Inter pour le corps et les interfaces denses. Auto-hébergées par Next :
@@ -82,6 +83,7 @@ export default async function RootLayout({
         <PiedDePage />
         <NavMobile connecte={!!utilisateur} nbArticles={nbArticles} />
         {env.CONTACT_WHATSAPP && <BulleWhatsApp numero={env.CONTACT_WHATSAPP} />}
+        <RetourHaut />
       </body>
     </html>
   );

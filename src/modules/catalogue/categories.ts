@@ -77,6 +77,36 @@ export function aplatirPourSelect(
   return options;
 }
 
+/**
+ * Pour chaque catégorie racine donnée, l'URL d'une image réelle d'un de ses
+ * produits actifs (la catégorie elle-même ou une de ses sous-catégories).
+ * Sert d'illustration aux cartes de rayon sur l'accueil : aucune image
+ * n'est inventée, on réutilise le catalogue existant. Une racine sans
+ * produit illustré est simplement absente du résultat.
+ */
+export async function imagesParRayon(
+  racineIds: string[],
+  toutes: Pick<Categorie, "id" | "parentId">[],
+): Promise<Record<string, string>> {
+  const resultats = await Promise.all(
+    racineIds.map(async (racineId) => {
+      const ids = collecterIdsCategorieEtDescendants(racineId, toutes);
+      const produit = await prisma.produit.findFirst({
+        where: { statut: "ACTIF", categorieId: { in: ids }, images: { some: {} } },
+        orderBy: { dateCreation: "desc" },
+        select: { images: { orderBy: { ordre: "asc" }, take: 1, select: { url: true } } },
+      });
+      return [racineId, produit?.images[0]?.url] as const;
+    }),
+  );
+
+  const parRacine: Record<string, string> = {};
+  for (const [racineId, url] of resultats) {
+    if (url) parRacine[racineId] = url;
+  }
+  return parRacine;
+}
+
 export type ResultatCreationCategorie =
   | { ok: true; categorie: Categorie }
   | { ok: false; code: "PARENT_INTROUVABLE" | "ERREUR" };

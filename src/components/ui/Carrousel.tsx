@@ -65,15 +65,16 @@ export function Carrousel({
       </div>
 
       {slides.length > 1 && (
-        <div className="absolute bottom-3 left-1/2 flex -translate-x-1/2 gap-1.5">
+        <div className="absolute bottom-6 left-1/2 flex -translate-x-1/2 gap-2">
           {slides.map((_, i) => (
             <button
               key={i}
               type="button"
               aria-label={`Aller à la diapositive ${i + 1}`}
+              aria-current={i === index}
               onClick={() => aller(i)}
-              className={`h-1.5 rounded-full transition-all ${
-                i === index ? "w-5 bg-white" : "w-1.5 bg-white/50 hover:bg-white/80"
+              className={`h-1.5 w-8 rounded-full transition-all ${
+                i === index ? "bg-accent" : "bg-white/30 hover:bg-white/60"
               }`}
             />
           ))}

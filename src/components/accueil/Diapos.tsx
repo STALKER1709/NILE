@@ -29,6 +29,7 @@ function Slide({
   illustration,
   photo,
   voile,
+  prioritaire = false,
 }: {
   fond: string;
   kicker: string;
@@ -41,44 +42,53 @@ function Slide({
   photo?: string;
   /** Dégradé posé sur la photo pour garder le texte lisible. */
   voile?: string;
+  /** Seule la première diapo est préchargée (les autres sont hors écran). */
+  prioritaire?: boolean;
 }) {
   const avecPhoto = PHOTOS_ACTIVES && photo;
   return (
-    <div className={`relative flex h-52 items-center overflow-hidden sm:h-64 ${fond}`}>
+    <div className={`group relative flex h-[26rem] items-center overflow-hidden sm:h-[32.5rem] ${fond}`}>
       {avecPhoto && (
         <>
           <Image
             src={photo}
             alt=""
             fill
-            priority
+            priority={prioritaire}
             sizes="100vw"
-            className="object-cover"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
-          <div className={`absolute inset-0 ${voile ?? "bg-gradient-to-r from-nile-950/85 via-nile-900/60 to-nile-900/10"}`} />
+          {/* Voile dégradé : opaque à gauche (texte), transparent à droite (photo). */}
+          <div
+            className={`absolute inset-0 ${
+              voile ?? "bg-gradient-to-r from-nile-950/90 via-nile-900/65 to-nile-900/15 sm:via-nile-900/40 sm:to-transparent"
+            }`}
+          />
         </>
       )}
-      <div className="relative z-10 max-w-[62%] px-5 py-6 sm:max-w-[55%] sm:px-10">
-        <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70 sm:text-xs">
+      <div className="relative z-10 flex max-w-3xl flex-col px-6 py-8 sm:px-16">
+        <span className="text-etiquette-xs font-bold uppercase tracking-[0.2em] text-accent">
           {kicker}
-        </p>
-        <h2 className="mt-1 text-xl font-bold leading-tight text-white sm:text-3xl">
+        </span>
+        <h2 className="mt-4 font-titre text-display-mobile text-white sm:text-display-lg">
           {titre}
         </h2>
-        <p className="mt-1.5 hidden text-sm text-white/80 sm:block">{texte}</p>
-        <Link
-          href={ctaHref}
-          className={`mt-3 inline-flex items-center rounded px-4 py-2 text-sm font-semibold sm:mt-4 ${
-            ctaClair
-              ? "bg-white text-slate-900 hover:bg-slate-100"
-              : "bg-accent text-nile-950 hover:bg-accent-dark"
-          }`}
-        >
-          {cta}
-        </Link>
+        <p className="mt-5 max-w-xl text-corps-md text-white/90 sm:text-corps-lg">{texte}</p>
+        <div>
+          <Link
+            href={ctaHref}
+            className={`mt-7 inline-flex items-center rounded px-8 py-4 text-etiquette-md font-bold transition-all active:scale-95 ${
+              ctaClair
+                ? "bg-white text-nile-800 hover:bg-surface-basse"
+                : "bg-accent text-accent-sur hover:bg-accent-dark hover:text-white"
+            }`}
+          >
+            {cta}
+          </Link>
+        </div>
       </div>
       {!avecPhoto && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 flex w-[45%] items-center justify-center">
+        <div className="pointer-events-none absolute inset-y-0 right-0 hidden w-[40%] items-center justify-center sm:flex">
           {illustration}
         </div>
       )}
@@ -178,11 +188,12 @@ export function DiapoMarque() {
       fond="bg-gradient-to-r from-nile-900 via-nile-800 to-nile-700"
       kicker="La marketplace du Cameroun"
       titre="Achetez malin, payez comme vous voulez"
-      texte="Des produits vérifiés, livrés gratuitement partout au pays."
+      texte="Des produits vérifiés, livrés gratuitement partout au pays. Profitez de l'expérience d'achat la plus sûre du Cameroun."
       cta="Parcourir le catalogue"
       ctaHref="/catalogue"
       illustration={<SacsShopping />}
       photo={PHOTOS.marche}
+      prioritaire
     />
   );
 }
