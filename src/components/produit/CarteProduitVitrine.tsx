@@ -37,12 +37,13 @@ export function CarteProduitVitrine({
   sizes?: string;
 }) {
   const lien = `/produit/${produit.slug}`;
+  const enPromo = produit.prixPromo != null && produit.prixPromo < produit.prix;
   return (
     <article
       style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
       className="group flex animate-fondu-haut flex-col rounded-xl border border-contour-carte bg-white p-4 transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-carte-hover"
     >
-      <Link href={lien} className="mb-4 block overflow-hidden rounded">
+      <Link href={lien} className="relative mb-4 block overflow-hidden rounded">
         <Vignette
           url={produit.images[0]?.url}
           alt={produit.titre}
@@ -52,6 +53,11 @@ export function CarteProduitVitrine({
           classImage="transition-transform duration-300 group-hover:scale-105"
           sizes={sizes}
         />
+        {enPromo && (
+          <span className="absolute left-2 top-2 rounded-full bg-promo px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+            -{produit.pourcentageReduction}%
+          </span>
+        )}
       </Link>
 
       {afficherCategorie && produit.categorie && (
@@ -78,7 +84,14 @@ export function CarteProduitVitrine({
       </div>
 
       <div className="mt-auto">
-        <Prix montant={produit.prix} className="block text-titre-sm text-nile-800" />
+        {enPromo ? (
+          <span className="flex flex-wrap items-baseline gap-2">
+            <Prix montant={produit.prixPromo as number} className="block text-titre-sm text-promo" />
+            <Prix montant={produit.prix} className="text-etiquette-xs text-slate-400 line-through" />
+          </span>
+        ) : (
+          <Prix montant={produit.prix} className="block text-titre-sm text-nile-800" />
+        )}
         {produit.vendeur.id ? (
           <Link
             href={`/boutique/${produit.vendeur.id}`}

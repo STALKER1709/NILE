@@ -8,6 +8,9 @@ export interface ProduitCarte {
   slug: string;
   titre: string;
   prix: number;
+  /** Prix réduit si une promotion est active, sinon absent/null. */
+  prixPromo?: number | null;
+  pourcentageReduction?: number | null;
   stock: number;
   noteMoyenne: number;
   nbAvis: number;
@@ -31,6 +34,7 @@ export function CarteProduit({
   index?: number;
 }) {
   const enRupture = produit.stock === 0;
+  const enPromo = produit.prixPromo != null && produit.prixPromo < produit.prix;
   const lien = `/produit/${produit.slug}`;
   // Apparition en cascade, plafonnée pour que la grille ne traîne pas.
   const delai = `${Math.min(index, 11) * 45}ms`;
@@ -48,12 +52,17 @@ export function CarteProduit({
           classImage="transition-transform duration-300 group-hover:scale-105"
           sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 200px"
         />
+        {enPromo && (
+          <span className="absolute left-2 top-2 rounded-full bg-promo px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
+            -{produit.pourcentageReduction}%
+          </span>
+        )}
         {enRupture ? (
-          <span className="absolute left-2 top-2 rounded bg-rose-600/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm backdrop-blur-xs">
+          <span className="absolute right-2 top-2 rounded bg-rose-600/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm backdrop-blur-xs">
             Rupture
           </span>
         ) : (
-          <span className="absolute left-2 top-2 rounded bg-nile-900/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-nile-100 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <span className="absolute right-2 top-2 rounded bg-nile-900/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-nile-100 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             En stock
           </span>
         )}
@@ -84,10 +93,23 @@ export function CarteProduit({
         </div>
 
         <div className="mt-auto pt-1">
-          <Prix
-            montant={produit.prix}
-            className="text-[17px] font-bold tracking-tight text-promo"
-          />
+          {enPromo ? (
+            <span className="flex flex-wrap items-baseline gap-1.5">
+              <Prix
+                montant={produit.prixPromo as number}
+                className="text-[17px] font-bold tracking-tight text-promo"
+              />
+              <Prix
+                montant={produit.prix}
+                className="text-[12px] text-slate-400 line-through"
+              />
+            </span>
+          ) : (
+            <Prix
+              montant={produit.prix}
+              className="text-[17px] font-bold tracking-tight text-promo"
+            />
+          )}
           {produit.vendeur.id ? (
             <Link
               href={`/boutique/${produit.vendeur.id}`}

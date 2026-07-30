@@ -86,6 +86,14 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
             Boutiques
           </Link>
 
+          <Link href="/promotions" className={`${classeLien(chemin === "/promotions")} whitespace-nowrap`}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className="text-accent">
+              <path d="M4 4h7l9 9-7 7-9-9z" />
+              <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" />
+            </svg>
+            Promotions
+          </Link>
+
           <Link href="/catalogue?tri=recent" className={`${classeLien(false)} whitespace-nowrap`}>
             Nouveautés
           </Link>

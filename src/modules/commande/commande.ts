@@ -9,6 +9,7 @@ import {
 import { getPaymentProvider } from "@/modules/paiement";
 import { notifierCommandeConfirmee } from "@/modules/email/notifications";
 import { notifierPushNouvelleCommande } from "@/modules/push/push";
+import { resoudrePrixEffectifTx } from "@/modules/promotion/promotion";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -207,13 +208,21 @@ async function creerCommandeTransaction(
       });
       if (maj.count === 0) throw new ErreurCommande("STOCK_INSUFFISANT", p.titre);
 
-      const sousTotal = p.prix * ligne.quantite;
+      // Prix effectif = prix courant, réduit d'une éventuelle promotion active
+      // AU MOMENT DU PAIEMENT (relu sous la même transaction, pas depuis le
+      // panier affiché plus tôt) : c'est ce prix qui est figé dans la commande.
+      const prixUnitaire = await resoudrePrixEffectifTx(tx, {
+        id: p.id,
+        prix: p.prix,
+        vendeurId: p.vendeurId,
+      });
+      const sousTotal = prixUnitaire * ligne.quantite;
       total += sousTotal;
       lignesData.push({
         produitId: p.id,
         vendeurId: p.vendeurId, // snapshot vendeur (commande multi-vendeurs)
         titreProduit: p.titre, // snapshot titre
-        prixUnitaire: p.prix, // snapshot prix
+        prixUnitaire, // snapshot prix (promotion éventuelle incluse)
         quantite: ligne.quantite,
         sousTotal,
       });

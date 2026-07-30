@@ -10,6 +10,7 @@ import {
   type TriProduits,
 } from "@/modules/catalogue/recherche";
 import { getStorageProvider } from "@/modules/stockage";
+import { enrichirProduitsPourCartes } from "@/modules/promotion/promotion";
 import {
   TYPES_IMAGE_ACCEPTES,
   TAILLE_IMAGE_MAX_OCTETS,
@@ -324,7 +325,7 @@ export async function rechercherProduitsCatalogue(options: OptionsCatalogue) {
   ]);
 
   return {
-    produits,
+    produits: await enrichirProduitsPourCartes(produits),
     total,
     page,
     pages: Math.max(1, Math.ceil(total / parPage)),
@@ -362,7 +363,7 @@ export async function getProduitsSimilaires(
   produitIdExclu: string,
   limite = 6,
 ) {
-  return prisma.produit.findMany({
+  const produits = await prisma.produit.findMany({
     where: {
       categorieId,
       id: { not: produitIdExclu },
@@ -376,6 +377,7 @@ export async function getProduitsSimilaires(
       vendeur: { select: { id: true, nomBoutique: true } },
     },
   });
+  return enrichirProduitsPourCartes(produits);
 }
 
 /**

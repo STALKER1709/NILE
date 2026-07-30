@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { exigerConnexion } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { calculerTotal } from "@/modules/commande/commande-core";
+import { chargerAffichagePrixPourProduits } from "@/modules/promotion/promotion";
 import { env } from "@/lib/env";
 import { getPlafondCOD } from "@/modules/commande/config";
 import { getDerniereAdresse } from "@/modules/commande/commande";
@@ -25,8 +26,14 @@ export default async function CommanderPage({
   const panier = await getPanierAvecLignes(utilisateur.id);
   if (panier.lignes.length === 0) redirect("/panier");
 
+  const affichages = await chargerAffichagePrixPourProduits(
+    panier.lignes.map((l) => ({ id: l.produit.id, prix: l.produit.prix, vendeurId: l.produit.vendeurId })),
+  );
+  const prixEffectif = (produitId: string, prix: number) =>
+    affichages.get(produitId)?.prixPromo ?? prix;
+
   const total = calculerTotal(
-    panier.lignes.map((l) => ({ prix: l.produit.prix, quantite: l.quantite })),
+    panier.lignes.map((l) => ({ prix: prixEffectif(l.produit.id, l.produit.prix), quantite: l.quantite })),
   );
   const [plafond, derniere] = await Promise.all([
     getPlafondCOD(),
@@ -159,28 +166,40 @@ export default async function CommanderPage({
             {/* Liste défilante : un panier long ne doit pas repousser le total
                 hors de l'écran. */}
             <ul className="max-h-[19rem] divide-y divide-slate-100 overflow-y-auto">
-              {panier.lignes.map((l) => (
-                <li key={l.id} className="flex items-center gap-3 px-5 py-3">
-                  <Vignette
-                    url={l.produit.images[0]?.url}
-                    alt={l.produit.titre}
-                    sizes="48px"
-                    className="h-12 w-12 shrink-0 rounded border border-contour-carte"
-                  />
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-corps-sm font-semibold text-slate-900">
-                      {l.produit.titre}
-                    </span>
-                    <span className="block text-etiquette-xs text-slate-500">
-                      Quantité : {l.quantite}
-                    </span>
-                    <Prix
-                      montant={l.produit.prix * l.quantite}
-                      className="block text-corps-sm font-bold text-slate-900"
+              {panier.lignes.map((l) => {
+                const prixLigne = prixEffectif(l.produit.id, l.produit.prix);
+                const enPromo = prixLigne < l.produit.prix;
+                return (
+                  <li key={l.id} className="flex items-center gap-3 px-5 py-3">
+                    <Vignette
+                      url={l.produit.images[0]?.url}
+                      alt={l.produit.titre}
+                      sizes="48px"
+                      className="h-12 w-12 shrink-0 rounded border border-contour-carte"
                     />
-                  </span>
-                </li>
-              ))}
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-corps-sm font-semibold text-slate-900">
+                        {l.produit.titre}
+                      </span>
+                      <span className="block text-etiquette-xs text-slate-500">
+                        Quantité : {l.quantite}
+                      </span>
+                      <span className="flex items-center gap-2">
+                        <Prix
+                          montant={prixLigne * l.quantite}
+                          className="block text-corps-sm font-bold text-slate-900"
+                        />
+                        {enPromo && (
+                          <Prix
+                            montant={l.produit.prix * l.quantite}
+                            className="text-etiquette-xs text-slate-400 line-through"
+                          />
+                        )}
+                      </span>
+                    </span>
+                  </li>
+                );
+              })}
             </ul>
             <div className="space-y-2 bg-surface-basse px-5 py-4">
               <div className="flex justify-between text-corps-sm text-slate-600">

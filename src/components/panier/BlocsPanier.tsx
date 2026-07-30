@@ -15,6 +15,9 @@ export interface ArticlePanier {
   slug: string;
   titre: string;
   prix: number;
+  /** Prix réellement facturé : égal à `prix` sauf promotion active. */
+  prixEffectif: number;
+  pourcentageReduction?: number | null;
   stock: number;
   quantite: number;
   imageUrl?: string | null;
@@ -25,6 +28,7 @@ export interface ArticlePanier {
 /** Carte d'un article : visuel, désignation, quantité, total de ligne. */
 export function CarteArticlePanier({ article }: { article: ArticlePanier }) {
   const stockInsuffisant = !article.indisponible && article.stock < article.quantite;
+  const enPromo = article.prixEffectif < article.prix;
   return (
     <div className="flex flex-col gap-6 rounded border border-contour-carte bg-white p-4 transition-shadow duration-300 hover:shadow-carte-hover sm:flex-row sm:p-6">
       <Link
@@ -49,10 +53,22 @@ export function CarteArticlePanier({ article }: { article: ArticlePanier }) {
             >
               {article.titre}
             </Link>
-            <Prix
-              montant={article.prix}
-              className="mt-1 block text-corps-sm text-slate-500"
-            />
+            {enPromo ? (
+              <span className="mt-1 flex items-center gap-2">
+                <Prix montant={article.prixEffectif} className="text-corps-sm font-bold text-promo" />
+                <Prix montant={article.prix} className="text-etiquette-xs text-slate-400 line-through" />
+                {article.pourcentageReduction ? (
+                  <span className="rounded-full bg-promo-conteneur px-1.5 py-0.5 text-[10px] font-bold text-promo-dark">
+                    -{article.pourcentageReduction}%
+                  </span>
+                ) : null}
+              </span>
+            ) : (
+              <Prix
+                montant={article.prix}
+                className="mt-1 block text-corps-sm text-slate-500"
+              />
+            )}
             {article.indisponible ? (
               <span className="mt-2 inline-block rounded-full bg-promo-conteneur px-3 py-1 text-etiquette-xs text-promo-dark">
                 Indisponible · à retirer
@@ -70,7 +86,7 @@ export function CarteArticlePanier({ article }: { article: ArticlePanier }) {
           {/* Total de ligne : un cran plus petit sur mobile pour laisser de
               la largeur au titre du produit. */}
           <Prix
-            montant={article.prix * article.quantite}
+            montant={article.prixEffectif * article.quantite}
             className="shrink-0 text-corps-lg font-bold text-nile-800 sm:text-titre-sm"
           />
         </div>

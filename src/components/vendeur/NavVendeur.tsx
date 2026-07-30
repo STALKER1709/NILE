@@ -50,6 +50,26 @@ const LIENS: { href: string; libelle: string; icone: ReactNode; exact?: boolean 
     ),
   },
   {
+    href: "/vendeur/promotions",
+    libelle: "Promotions",
+    icone: (
+      <>
+        <path d="M4 4h7l9 9-7 7-9-9z" strokeLinejoin="round" />
+        <circle cx="8.5" cy="8.5" r="1.5" />
+      </>
+    ),
+  },
+  {
+    href: "/vendeur/annonces",
+    libelle: "Annonces NILE",
+    icone: (
+      <>
+        <path d="M4 10v4a1 1 0 0 0 1 1h2l7 4V5L7 9H5a1 1 0 0 0-1 1z" strokeLinejoin="round" />
+        <path d="M18 9a4 4 0 0 1 0 6" strokeLinecap="round" />
+      </>
+    ),
+  },
+  {
     href: "/compte/profil",
     libelle: "Ma boutique",
     icone: (

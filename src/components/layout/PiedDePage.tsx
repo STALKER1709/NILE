@@ -26,6 +26,7 @@ export function PiedDePage() {
           <p className="font-semibold">Acheter</p>
           <ul className="mt-2 space-y-1.5 text-white/60">
             <li><Link href="/catalogue" className="hover:text-white">Catalogue</Link></li>
+            <li><Link href="/promotions" className="hover:text-white">Promotions</Link></li>
             <li><Link href="/boutiques" className="hover:text-white">Boutiques</Link></li>
             <li><Link href="/panier" className="hover:text-white">Mon panier</Link></li>
             <li><Link href="/commandes" className="hover:text-white">Mes commandes</Link></li>

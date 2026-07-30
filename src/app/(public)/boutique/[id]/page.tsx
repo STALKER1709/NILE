@@ -4,6 +4,7 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 import { Badge, EtatVide, Etoiles } from "@/components/ui/kit";
+import { enrichirProduitsPourCartes } from "@/modules/promotion/promotion";
 
 export const dynamic = "force-dynamic";
 
@@ -41,7 +42,7 @@ export default async function BoutiquePage({
   if (!boutique) notFound();
 
   const utilisateur = await getUtilisateurCourant();
-  const [produits, quantites] = await Promise.all([
+  const [produitsBruts, quantites] = await Promise.all([
     prisma.produit.findMany({
       where: { vendeurId: boutique.id, statut: "ACTIF" },
       orderBy: { dateMaj: "desc" },
@@ -52,6 +53,7 @@ export default async function BoutiquePage({
     }),
     getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
+  const produits = await enrichirProduitsPourCartes(produitsBruts);
 
   // Note globale de la boutique : moyenne pondérée des avis de ses produits.
   const totalAvis = produits.reduce((s, p) => s + p.nbAvis, 0);

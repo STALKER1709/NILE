@@ -13,6 +13,7 @@ import {
   getRepartitionNotes,
 } from "@/modules/avis/avis";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
+import { getAffichagePrixProduit } from "@/modules/promotion/promotion";
 import { creerAvisAction } from "@/app/(public)/produit/[slug]/actions";
 import { GaleriePhotos } from "@/components/produit/GaleriePhotos";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
@@ -118,15 +119,18 @@ export default async function FicheProduitPage({
   if (!produit) notFound();
 
   const utilisateur = await getUtilisateurCourant();
-  const [avis, peutNoter, quantites, repartition, similaires] = await Promise.all([
+  const [avis, peutNoter, quantites, repartition, similaires, affichagePrix] = await Promise.all([
     listerAvisProduit(produit.id),
     utilisateur ? peutLaisserAvis(utilisateur.id, produit.id) : Promise.resolve(false),
     getQuantitesAffichees(utilisateur?.id ?? null),
     getRepartitionNotes(produit.id),
     getProduitsSimilaires(produit.categorieId, produit.id, 6),
+    getAffichagePrixProduit({ id: produit.id, prix: produit.prix, vendeurId: produit.vendeurId }),
   ]);
   const enRupture = produit.stock === 0;
   const quantitePanier = quantites[produit.id] ?? 0;
+  const enPromo = affichagePrix.prixPromo != null;
+  const prixEffectif = affichagePrix.prixPromo ?? produit.prix;
 
   return (
     <div className="space-y-6">
@@ -162,9 +166,23 @@ export default async function FicheProduitPage({
               {produit.titre}
             </h1>
 
-            <p className="mt-3 text-3xl font-bold text-slate-900">
-              <Prix montant={produit.prix} />
-            </p>
+            {enPromo ? (
+              <p className="mt-3 flex flex-wrap items-baseline gap-2.5">
+                <span className="text-3xl font-bold text-promo">
+                  <Prix montant={prixEffectif} />
+                </span>
+                <span className="text-lg text-slate-400 line-through">
+                  <Prix montant={produit.prix} />
+                </span>
+                <span className="rounded-full bg-promo-conteneur px-2.5 py-1 text-xs font-bold text-promo-dark">
+                  -{affichagePrix.pourcentageReduction}%
+                </span>
+              </p>
+            ) : (
+              <p className="mt-3 text-3xl font-bold text-slate-900">
+                <Prix montant={produit.prix} />
+              </p>
+            )}
             <p className="mt-0.5 text-xs text-slate-500">Prix TTC · FCFA (XAF), sans frais cachés</p>
 
             {/* Disponibilité (pastille colorée) */}
@@ -359,7 +377,7 @@ export default async function FicheProduitPage({
           produitId={produit.id}
           stock={produit.stock}
           quantiteInitiale={quantitePanier}
-          prix={produit.prix}
+          prix={prixEffectif}
         />
       )}
     </div>

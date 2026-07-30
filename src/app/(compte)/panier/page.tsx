@@ -3,6 +3,7 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { getLignesInvite } from "@/modules/commande/panier-invite";
 import { calculerTotal } from "@/modules/commande/commande-core";
+import { chargerAffichagePrixPourProduits } from "@/modules/promotion/promotion";
 import { viderPanierAction } from "@/app/(compte)/panier/actions";
 import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
 import {
@@ -32,42 +33,41 @@ export default async function PanierPage({
 
   // Les deux parcours produisent la même liste d'articles : la mise en page
   // qui suit est donc unique.
-  let articles: ArticlePanier[];
+  type LigneBrute = { produit: { id: string; slug: string; titre: string; prix: number; stock: number; statut: string; vendeurId: string; vendeur: { statutValidation: string }; images: { url: string }[] }; quantite: number };
+  let lignesBrutes: LigneBrute[];
   if (utilisateur) {
     const panier = await getPanierAvecLignes(utilisateur.id);
-    articles = panier.lignes.map((l) => ({
-      produitId: l.produit.id,
-      slug: l.produit.slug,
-      titre: l.produit.titre,
-      prix: l.produit.prix,
-      stock: l.produit.stock,
-      quantite: l.quantite,
-      imageUrl: l.produit.images[0]?.url,
-      indisponible:
-        l.produit.statut !== "ACTIF" ||
-        l.produit.vendeur.statutValidation !== "VALIDE",
-    }));
+    lignesBrutes = panier.lignes;
   } else {
-    const lignes = await getLignesInvite();
-    articles = lignes.map((l) => ({
+    lignesBrutes = await getLignesInvite();
+  }
+
+  const affichages = await chargerAffichagePrixPourProduits(
+    lignesBrutes.map((l) => ({ id: l.produit.id, prix: l.produit.prix, vendeurId: l.produit.vendeurId })),
+  );
+  const articles: ArticlePanier[] = lignesBrutes.map((l) => {
+    const affichage = affichages.get(l.produit.id);
+    return {
       produitId: l.produit.id,
       slug: l.produit.slug,
       titre: l.produit.titre,
       prix: l.produit.prix,
+      prixEffectif: affichage?.prixPromo ?? l.produit.prix,
+      pourcentageReduction: affichage?.pourcentageReduction ?? null,
       stock: l.produit.stock,
       quantite: l.quantite,
       imageUrl: l.produit.images[0]?.url,
       indisponible:
         l.produit.statut !== "ACTIF" ||
         l.produit.vendeur.statutValidation !== "VALIDE",
-    }));
-  }
+    };
+  });
 
   // Le total ne compte que les articles réellement commandables.
   const total = calculerTotal(
     articles
       .filter((a) => !a.indisponible)
-      .map((a) => ({ prix: a.prix, quantite: a.quantite })),
+      .map((a) => ({ prix: a.prixEffectif, quantite: a.quantite })),
   );
 
   return (

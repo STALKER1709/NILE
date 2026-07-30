@@ -22,6 +22,7 @@ const LIENS = [
   { href: "/admin/categories", titre: "Catégories", desc: "Gérer l'arborescence" },
   { href: "/admin/reconciliation", titre: "Réconciliation COD", desc: "Cash collecté / reversé" },
   { href: "/admin/reversements", titre: "Reversements vendeurs", desc: "Soldes dus et paiements aux vendeurs tiers" },
+  { href: "/admin/annonces", titre: "Annonces vendeurs", desc: "Actualités et briefs diffusés aux vendeurs" },
 ];
 
 export default async function AdminPage() {
