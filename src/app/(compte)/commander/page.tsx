@@ -9,6 +9,7 @@ import { getDerniereAdresse } from "@/modules/commande/commande";
 import { passerCommandeAction } from "@/app/(compte)/commander/actions";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 import { Vignette } from "@/components/ui/Vignette";
+import { ChampVille } from "@/components/commande/ChampVille";
 import { Carte, Prix, btn, champClass, labelClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -77,10 +78,7 @@ export default async function CommanderPage({
               </div>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <label htmlFor="ville" className={labelClass}>Ville</label>
-                <input id="ville" name="ville" required defaultValue={derniere?.ville ?? ""} placeholder="Douala" className={`${champClass} mt-1`} />
-              </div>
+              <ChampVille valeurInitiale={derniere?.ville ?? ""} />
               <div>
                 <label htmlFor="quartier" className={labelClass}>Quartier</label>
                 <input id="quartier" name="quartier" required defaultValue={derniere?.quartier ?? ""} placeholder="Akwa" className={`${champClass} mt-1`} />

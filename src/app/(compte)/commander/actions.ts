@@ -6,6 +6,7 @@ import { z } from "zod";
 import { exigerConnexion } from "@/modules/auth/access";
 import { adresseLivraisonSchema } from "@/validators/commande";
 import { passerCommande, type ResultatCommande } from "@/modules/commande/commande";
+import { resoudreVille } from "@/modules/commande/villes";
 
 const modeSchema = z.enum(["COD", "MONETBIL"]);
 
@@ -42,7 +43,12 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
   const parsed = adresseLivraisonSchema.safeParse({
     destNom: formData.get("destNom"),
     destTelephone: formData.get("destTelephone"),
-    ville: formData.get("ville"),
+    // Le select propose les villes principales ; « Autre ville » renvoie vers
+    // un champ libre. La validation qui suit rejette les deux cas vides.
+    ville: resoudreVille(
+      formData.get("ville")?.toString(),
+      formData.get("villeAutre")?.toString(),
+    ),
     quartier: formData.get("quartier"),
     reperes: formData.get("reperes") || undefined,
   });
