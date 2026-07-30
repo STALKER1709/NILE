@@ -303,7 +303,20 @@ export async function listerCommandesAcheteur(utilisateurId: string) {
   return prisma.commande.findMany({
     where: { acheteurId: utilisateurId },
     orderBy: { dateCreation: "desc" },
-    include: { _count: { select: { lignes: true } } },
+    include: {
+      _count: { select: { lignes: true } },
+      // Première ligne seulement : sert de vignette représentative de la
+      // commande dans les listes (compte, historique).
+      lignes: {
+        take: 1,
+        select: {
+          titreProduit: true,
+          produit: {
+            select: { images: { orderBy: { ordre: "asc" }, take: 1, select: { url: true } } },
+          },
+        },
+      },
+    },
   });
 }
 

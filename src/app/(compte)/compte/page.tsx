@@ -10,6 +10,7 @@ import {
   BadgeStatutCommande,
   BadgeStatutPaiement,
 } from "@/components/commande/StatutBadges";
+import { Vignette } from "@/components/ui/Vignette";
 import { Carte, Badge, Prix, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -41,8 +42,9 @@ export default async function ComptePage({
 
       {/* En-tête de profil */}
       <Carte className="p-6">
-        <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
-          <span className="grid h-24 w-24 shrink-0 place-items-center rounded-full bg-gradient-to-br from-nile-800 to-nile-600 text-4xl font-bold text-accent shadow-sm">
+        <div className="flex flex-col items-center gap-6 sm:flex-row sm:items-start sm:gap-8">
+          {/* Initiale plutôt qu'une photo : aucun avatar n'est stocké. */}
+          <span className="grid h-28 w-28 shrink-0 place-items-center rounded-full border-4 border-surface-haute bg-gradient-to-br from-nile-800 to-nile-600 text-5xl font-bold text-accent shadow-carte-hover sm:h-32 sm:w-32">
             {utilisateur.nom.charAt(0).toUpperCase()}
           </span>
           <div className="min-w-0 flex-1 text-center sm:text-left">
@@ -81,36 +83,42 @@ export default async function ComptePage({
         </div>
       </Carte>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
+      <div className="grid grid-cols-1 items-start gap-gouttiere lg:grid-cols-12">
         {/* Commandes récentes */}
-        <div className="lg:col-span-2">
-          <Carte className="overflow-hidden">
-            <div className="flex items-center justify-between border-b border-contour-carte px-5 py-4">
-              <h2 className="font-bold text-slate-900">Commandes récentes</h2>
-              <Link href="/commandes" className="text-sm font-bold text-nile-700 hover:underline">
-                Tout l'historique
+        <div className="lg:col-span-8">
+          <Carte className="p-5 sm:p-6">
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="text-titre-sm text-nile-800">Commandes récentes</h2>
+              <Link href="/commandes" className="shrink-0 text-etiquette-md text-accent-deep hover:underline">
+                Tout l&apos;historique
               </Link>
             </div>
 
             {recentes.length === 0 ? (
-              <div className="px-5 py-10 text-center">
-                <p className="text-sm text-slate-500">
-                  Vous n'avez pas encore commandé.
+              <div className="py-10 text-center">
+                <p className="text-corps-sm text-slate-500">
+                  Vous n&apos;avez pas encore commandé.
                 </p>
                 <Link href="/catalogue" className={btn("primaire", "md", "mt-4")}>
                   Parcourir le catalogue
                 </Link>
               </div>
             ) : (
-              <ul className="divide-y divide-slate-100">
+              <ul className="space-y-4">
                 {recentes.map((c) => (
-                  <li key={c.id} className="flex flex-wrap items-start gap-3 p-4 transition-colors hover:bg-slate-50">
-                    <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-nile-50 text-nile-700">
-                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" aria-hidden="true">
-                        <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" strokeLinejoin="round" />
-                        <path d="M8 9a4 4 0 0 1 8 0" />
-                      </svg>
-                    </span>
+                  <li key={c.id} className="flex flex-wrap items-start gap-4 rounded border border-transparent bg-surface-basse p-4 transition-colors hover:border-contour-clair">
+                    <Link
+                      href={`/commandes/${c.id}`}
+                      className="h-16 w-16 shrink-0 overflow-hidden rounded"
+                    >
+                      <Vignette
+                        url={c.lignes[0]?.produit.images[0]?.url}
+                        alt={c.lignes[0]?.titreProduit ?? ""}
+                        sizes="64px"
+                        fond="bg-surface-haute"
+                        className="h-full w-full"
+                      />
+                    </Link>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-bold text-slate-900">{c.numero}</p>
                       <p className="text-xs text-slate-500">
@@ -125,14 +133,14 @@ export default async function ComptePage({
                         <Prix montant={c.total} />
                       </p>
                     </div>
-                    <div className="flex w-full shrink-0 flex-row items-center justify-between gap-2 border-t border-slate-100 pt-2.5 sm:w-auto sm:flex-col sm:items-end sm:border-0 sm:pt-0">
+                    <div className="flex w-full shrink-0 flex-row items-center justify-between gap-2 border-t border-contour-carte pt-2.5 sm:w-auto sm:flex-col sm:items-end sm:border-0 sm:pt-0">
                       <div className="flex flex-wrap gap-1.5 sm:justify-end">
                         <BadgeStatutCommande statut={c.statutCommande} />
                         <BadgeStatutPaiement statut={c.statutPaiement} />
                       </div>
                       <Link
                         href={`/commandes/${c.id}`}
-                        className="text-sm font-bold text-nile-700 hover:underline"
+                        className="text-etiquette-md text-nile-700 hover:underline"
                       >
                         Suivre →
                       </Link>
@@ -145,7 +153,7 @@ export default async function ComptePage({
         </div>
 
         {/* Réglages du compte */}
-        <div className="space-y-5 lg:col-span-1">
+        <div className="space-y-gouttiere lg:col-span-4">
           <Carte className="overflow-hidden">
             <div className="border-b border-contour-carte px-5 py-4">
               <h2 className="font-bold text-slate-900">Mon espace</h2>
@@ -196,6 +204,26 @@ export default async function ComptePage({
               <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
             </Carte>
           )}
+
+          {/* Aide : reprend la carte d'assistance de la maquette. */}
+          <div className="rounded border border-contour-carte bg-surface-basse p-5">
+            <h2 className="text-etiquette-md text-nile-800">
+              Un problème avec une commande ?
+            </h2>
+            <p className="mt-2 text-corps-sm text-slate-600">
+              Notre équipe répond aux heures ouvrées sur vos livraisons et vos
+              paiements.
+            </p>
+            <Link
+              href="/aide"
+              className="mt-4 inline-flex items-center gap-2 text-etiquette-md text-nile-700 transition-transform hover:translate-x-1"
+            >
+              Contacter le support
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          </div>
 
           {/* Session : seul accès à la déconnexion sur mobile */}
           <Carte className="p-5">
