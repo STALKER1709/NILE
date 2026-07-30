@@ -65,5 +65,49 @@ export const nouveauMotDePasseSchema = z
     message: "Les deux mots de passe ne correspondent pas.",
   });
 
+/**
+ * Édition du profil. L'email n'y figure pas : il sert d'identifiant
+ * d'authentification et l'interface AuthProvider n'expose aucune opération de
+ * changement d'email — le proposer serait un champ sans effet.
+ */
+export const profilSchema = z.object({
+  nom: z.string().trim().min(2, "Le nom est trop court.").max(120),
+  telephone: telephoneSchema,
+});
+
+/** Édition de la boutique par le vendeur lui-même. */
+export const boutiqueSchema = z.object({
+  nomBoutique: z
+    .string()
+    .trim()
+    .min(2, "Le nom de la boutique est trop court.")
+    .max(120),
+  description: z
+    .string()
+    .trim()
+    .max(1000, "La description ne peut pas dépasser 1000 caractères.")
+    .optional()
+    .transform((v) => (v ? v : undefined)),
+});
+
+/**
+ * Coordonnées de reversement du vendeur : les numéros Mobile Money sur
+ * lesquels NILE lui envoie ses gains. Les deux sont facultatifs, mais au
+ * moins un doit être renseigné pour qu'un reversement soit possible.
+ */
+export const infosPaiementSchema = z
+  .object({
+    momoMtn: telephoneSchema.optional().or(z.literal("").transform(() => undefined)),
+    momoOrange: telephoneSchema.optional().or(z.literal("").transform(() => undefined)),
+    titulaire: z.string().trim().max(120).optional().transform((v) => (v ? v : undefined)),
+  })
+  .refine((v) => v.momoMtn || v.momoOrange, {
+    path: ["momoMtn"],
+    message: "Renseignez au moins un numéro MTN MoMo ou Orange Money.",
+  });
+
 export type InscriptionInput = z.infer<typeof inscriptionSchema>;
 export type ConnexionInput = z.infer<typeof connexionSchema>;
+export type ProfilInput = z.infer<typeof profilSchema>;
+export type BoutiqueInput = z.infer<typeof boutiqueSchema>;
+export type InfosPaiementInput = z.infer<typeof infosPaiementSchema>;

@@ -49,6 +49,16 @@ const LIENS: { href: string; libelle: string; icone: ReactNode; exact?: boolean 
       </>
     ),
   },
+  {
+    href: "/compte/profil",
+    libelle: "Ma boutique",
+    icone: (
+      <>
+        <path d="M4 9h16l-1 11H5L4 9z" strokeLinejoin="round" />
+        <path d="M9 9V6a3 3 0 0 1 6 0v3" />
+      </>
+    ),
+  },
 ];
 
 /**

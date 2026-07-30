@@ -2,6 +2,7 @@ import Link from "next/link";
 import { exigerVendeur } from "@/modules/auth/access";
 import { getFinancesVendeur } from "@/modules/reversement/finances";
 import { hauteursRelatives } from "@/modules/reversement/finances-core";
+import { lireInfosPaiement, aDesInfosPaiement } from "@/modules/compte/profil";
 import { Carte, Prix, EtatVide, btn } from "@/components/ui/kit";
 import { HistoriqueTransactions } from "@/components/vendeur/HistoriqueTransactions";
 
@@ -16,6 +17,7 @@ const MOIS = [
 export default async function FinancesVendeurPage() {
   const { vendeur } = await exigerVendeur();
   const finances = await getFinancesVendeur(vendeur.id);
+  const infosPaiement = lireInfosPaiement(vendeur.infosPaiement);
 
   if (!finances) {
     return (
@@ -105,8 +107,6 @@ export default async function FinancesVendeurPage() {
           </p>
         </Carte>
 
-        {/* Détail du calcul : ce qui remplace un « moyen de paiement lié »,
-            car aucune coordonnée de reversement n'est stockée aujourd'hui. */}
         <Carte className="flex flex-col p-6">
           <p className="mb-4 text-etiquette-md text-slate-500">Détail du solde</p>
           <dl className="space-y-2.5 text-corps-sm">
@@ -126,6 +126,54 @@ export default async function FinancesVendeurPage() {
           </dl>
         </Carte>
       </div>
+
+      {/* Coordonnées de reversement : renseignées par le vendeur dans son profil. */}
+      <Carte className="p-5 sm:p-6">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <h2 className="text-titre-sm text-nile-800">Où vous êtes payé</h2>
+            <p className="text-corps-sm text-slate-500">
+              Les numéros Mobile Money utilisés pour vos reversements.
+            </p>
+          </div>
+          <Link href="/compte/profil" className={btn("secondaire", "sm")}>
+            {aDesInfosPaiement(infosPaiement) ? "Modifier" : "Renseigner"}
+          </Link>
+        </div>
+
+        {aDesInfosPaiement(infosPaiement) ? (
+          <ul className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {infosPaiement.momoMtn && (
+              <NumeroReversement
+                libelle="MTN MoMo"
+                numero={infosPaiement.momoMtn}
+                pastille="MTN"
+                fond="bg-[#ffcb05]"
+                couleurTexte="text-black"
+              />
+            )}
+            {infosPaiement.momoOrange && (
+              <NumeroReversement
+                libelle="Orange Money"
+                numero={infosPaiement.momoOrange}
+                pastille="OM"
+                fond="bg-[#ff7900]"
+                couleurTexte="text-white"
+              />
+            )}
+          </ul>
+        ) : (
+          <p className="mt-4 rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
+            Aucun numéro enregistré : NILE ne peut pas encore vous reverser vos
+            gains. Renseignez au moins un numéro Mobile Money.
+          </p>
+        )}
+        {infosPaiement.titulaire && (
+          <p className="mt-3 text-etiquette-xs text-slate-500">
+            Titulaire déclaré : {infosPaiement.titulaire}
+          </p>
+        )}
+      </Carte>
 
       {/* Revenus des 7 derniers jours */}
       <Carte className="p-6 sm:p-8">
@@ -181,6 +229,33 @@ export default async function FinancesVendeurPage() {
         .
       </p>
     </div>
+  );
+}
+
+/** Numéro Mobile Money sur lequel le vendeur reçoit ses reversements. */
+function NumeroReversement({
+  libelle,
+  numero,
+  pastille,
+  fond,
+  couleurTexte,
+}: {
+  libelle: string;
+  numero: string;
+  pastille: string;
+  fond: string;
+  couleurTexte: string;
+}) {
+  return (
+    <li className="flex items-center gap-3 rounded border border-contour-carte bg-surface-basse px-4 py-3">
+      <span className={`grid h-8 w-8 shrink-0 place-items-center rounded ${fond}`}>
+        <span className={`text-[10px] font-bold ${couleurTexte}`}>{pastille}</span>
+      </span>
+      <span className="min-w-0">
+        <span className="block text-etiquette-md text-nile-800">{libelle}</span>
+        <span className="block truncate text-corps-sm text-slate-600">{numero}</span>
+      </span>
+    </li>
   );
 }
 

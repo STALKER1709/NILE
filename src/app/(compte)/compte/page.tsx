@@ -159,6 +159,10 @@ export default async function ComptePage({
               <h2 className="font-bold text-slate-900">Mon espace</h2>
             </div>
             <nav className="p-2">
+              <LigneReglage href="/compte/profil" libelle="Mon profil">
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21c0-4 3.6-6.5 8-6.5s8 2.5 8 6.5" strokeLinecap="round" />
+              </LigneReglage>
               <LigneReglage href="/commandes" libelle="Mes commandes">
                 <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" strokeLinejoin="round" />
                 <path d="M8 9a4 4 0 0 1 8 0" />
