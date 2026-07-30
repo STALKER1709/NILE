@@ -11,6 +11,7 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { IconeCategorie } from "@/components/categorie/IconeCategorie";
+import { SelectTri } from "@/components/catalogue/SelectTri";
 import { Pagination } from "@/components/ui/Pagination";
 import { bornesAffichage } from "@/modules/catalogue/pagination";
 import { champClass, btn, EtatVide } from "@/components/ui/kit";
@@ -189,7 +190,9 @@ export default async function CataloguePage({
                 : "Découvrez nos meilleures offres sélectionnées pour vous."}
             </p>
           </div>
-          {/* Tri : soumission automatique si JavaScript, bouton sinon. */}
+          {/* Tri : soumis dès le changement de valeur, sans bouton.
+              Le formulaire reste un vrai GET, donc « ?tri=… » est une URL
+              partageable et l'état du tri survit à un rechargement. */}
           <form method="get" className="flex shrink-0 items-center gap-2">
             {sp.q && <input type="hidden" name="q" value={sp.q} />}
             {sp.categorie && <input type="hidden" name="categorie" value={sp.categorie} />}
@@ -198,13 +201,7 @@ export default async function CataloguePage({
             <label htmlFor="tri" className="whitespace-nowrap text-corps-sm text-slate-500">
               Trier par
             </label>
-            <select id="tri" name="tri" defaultValue={sp.tri ?? "recent"} className={`${champClass} w-44`}>
-              <option value="recent">Plus récent</option>
-              <option value="populaire">Mieux notés</option>
-              <option value="prix_asc">Prix croissant</option>
-              <option value="prix_desc">Prix décroissant</option>
-            </select>
-            <button type="submit" className={btn("secondaire", "sm")}>OK</button>
+            <SelectTri valeur={sp.tri ?? "recent"} className={`${champClass} w-44`} />
           </form>
         </div>
 
