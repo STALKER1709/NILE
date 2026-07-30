@@ -3,42 +3,146 @@
 import { useState } from "react";
 
 /**
- * Partage d'un produit. Utilise le partage natif du téléphone si disponible
- * (Android/iOS), sinon ouvre WhatsApp (canal roi au Cameroun). L'URL est lue
- * côté client pour être toujours correcte, quel que soit le domaine.
+ * Icônes de partage d'une fiche produit.
+ *
+ * WhatsApp et Facebook acceptent un lien pré-rempli en paramètre d'URL : le
+ * partage s'y fait en un clic, sans quitter la page.
+ *
+ * Instagram et TikTok n'offrent PAS d'équivalent public pour partager un lien
+ * externe depuis un site web (contrairement à WhatsApp `wa.me` ou au
+ * `sharer.php` de Facebook) : leurs SDK de partage ne couvrent que du contenu
+ * déjà hébergé chez eux. Un bouton qui prétendrait « partager » directement y
+ * échouerait silencieusement. On copie donc le lien dans le presse-papiers et
+ * on ouvre le réseau, avec un message explicite : l'utilisateur colle
+ * lui-même le lien dans sa story ou son message.
  */
 export function BoutonPartage({ titre }: { titre: string }) {
-  const [copie, setCopie] = useState(false);
+  const [copie, setCopie] = useState<"whatsapp" | "instagram" | "tiktok" | null>(null);
 
-  async function partager() {
+  function urlEtTexte() {
     const url = window.location.href;
-    const texte = `${titre} — sur NILE`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: titre, text: texte, url });
-        return;
-      } catch {
-        // partage annulé par l'utilisateur : on ne fait rien de plus.
-        return;
-      }
+    return { url, texte: `${titre} — sur NILE` };
+  }
+
+  function partagerWhatsApp() {
+    const { url, texte } = urlEtTexte();
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(`${texte} ${url}`)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }
+
+  function partagerFacebook() {
+    const { url } = urlEtTexte();
+    // Fenêtre de partage officielle de Facebook : accepte un lien en
+    // paramètre, sans avoir besoin d'app ID pour ce cas simple.
+    window.open(
+      `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
+      "_blank",
+      "noopener,noreferrer,width=560,height=600",
+    );
+  }
+
+  /** Copie le lien puis ouvre le réseau : seule voie possible sans SDK natif. */
+  async function copierEtOuvrir(reseau: "instagram" | "tiktok", site: string) {
+    const { url } = urlEtTexte();
+    try {
+      await navigator.clipboard.writeText(url);
+    } catch {
+      // Presse-papiers indisponible (permission refusée, contexte non
+      // sécurisé) : on ouvre quand même le réseau, l'utilisateur copiera
+      // l'adresse manuellement depuis la barre du navigateur.
     }
-    // Repli : ouvre WhatsApp avec le message pré-rempli.
-    const lien = `https://wa.me/?text=${encodeURIComponent(`${texte} ${url}`)}`;
-    window.open(lien, "_blank", "noopener,noreferrer");
-    setCopie(true);
-    setTimeout(() => setCopie(false), 2000);
+    window.open(site, "_blank", "noopener,noreferrer");
+    setCopie(reseau);
+    setTimeout(() => setCopie(null), 3000);
   }
 
   return (
+    <div className="flex items-center gap-1.5">
+      <IconePartage
+        libelle="Partager sur WhatsApp"
+        onClick={partagerWhatsApp}
+        classeIcone="text-[#25D366]"
+      >
+        <path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.1 8.1 0 0 1-4.1-1.1l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1-.2.2-.6.8-.8 1-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.6-1.3.1-.2 0-.4 0-.5l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.5.1-.7.3-.2.3-.9.9-.9 2.2s.9 2.5 1.1 2.7c.1.2 1.8 2.8 4.4 3.9 1.6.7 2.3.8 3.1.7.5-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2 0-.2-.2-.2-.4-.3z" />
+      </IconePartage>
+
+      <IconePartage
+        libelle="Partager sur Facebook"
+        onClick={partagerFacebook}
+        classeIcone="text-[#1877F2]"
+      >
+        <path d="M22 12a10 10 0 1 0-11.5 9.87v-6.98H7.9V12h2.6V9.8c0-2.57 1.53-3.99 3.87-3.99 1.12 0 2.3.2 2.3.2v2.53h-1.3c-1.28 0-1.68.8-1.68 1.62V12h2.86l-.46 2.89h-2.4v6.98A10 10 0 0 0 22 12z" />
+      </IconePartage>
+
+      <IconePartage
+        libelle="Copier le lien pour Instagram"
+        titre={copie === "instagram" ? "Lien copié — collez-le sur Instagram" : undefined}
+        onClick={() => copierEtOuvrir("instagram", "https://www.instagram.com/")}
+        classeIcone="text-[#E1306C]"
+        rempli={false}
+      >
+        <rect x="2.5" y="2.5" width="19" height="19" rx="5" />
+        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+        <circle cx="17.5" cy="6.5" r="0.6" fill="currentColor" stroke="none" />
+      </IconePartage>
+
+      <IconePartage
+        libelle="Copier le lien pour TikTok"
+        titre={copie === "tiktok" ? "Lien copié — collez-le sur TikTok" : undefined}
+        onClick={() => copierEtOuvrir("tiktok", "https://www.tiktok.com/")}
+        classeIcone="text-slate-900"
+      >
+        <path d="M16.6 5.82a4.28 4.28 0 0 1-1.03-2.75h-3.05v13.02a2.6 2.6 0 1 1-1.84-2.49v-3.1a5.72 5.72 0 1 0 4.9 5.66V9.35a7.4 7.4 0 0 0 4.32 1.38V7.68a4.27 4.27 0 0 1-3.3-1.86z" />
+      </IconePartage>
+
+      {(copie === "instagram" || copie === "tiktok") && (
+        <span className="text-[11px] font-medium text-nile-700" role="status">
+          Lien copié
+        </span>
+      )}
+    </div>
+  );
+}
+
+function IconePartage({
+  libelle,
+  titre,
+  onClick,
+  classeIcone,
+  rempli = true,
+  children,
+}: {
+  libelle: string;
+  /** Info-bulle temporaire (confirmation de copie), distincte du libellé accessible. */
+  titre?: string;
+  onClick: () => void;
+  classeIcone: string;
+  /** false = tracé en contour (Instagram) plutôt qu'en aplat. */
+  rempli?: boolean;
+  children: React.ReactNode;
+}) {
+  return (
     <button
       type="button"
-      onClick={partager}
-      className="inline-flex items-center gap-1.5 rounded border border-contour-carte px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-nile hover:text-nile"
+      onClick={onClick}
+      aria-label={libelle}
+      title={titre ?? libelle}
+      className={`grid h-8 w-8 shrink-0 place-items-center rounded-full border border-contour-carte transition-colors hover:border-current hover:bg-surface-basse ${classeIcone}`}
     >
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-        <path d="M12.04 2c-5.46 0-9.9 4.44-9.9 9.9 0 1.75.46 3.45 1.32 4.95L2 22l5.3-1.39c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.9-4.44 9.9-9.9S17.5 2 12.04 2zm0 18.15c-1.48 0-2.93-.4-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.2 8.2 0 0 1-1.26-4.39c0-4.54 3.7-8.24 8.24-8.24s8.23 3.7 8.23 8.24-3.69 8.24-8.23 8.24zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.16.25-.64.81-.79.98-.14.16-.29.18-.54.06-.25-.12-1.05-.39-1.99-1.23-.74-.66-1.23-1.47-1.38-1.72-.14-.25-.01-.38.11-.51.11-.11.25-.29.37-.43.13-.14.17-.25.25-.41.08-.16.04-.31-.02-.43-.06-.12-.56-1.35-.76-1.85-.2-.48-.4-.42-.56-.43h-.48c-.16 0-.43.06-.65.31-.22.25-.86.84-.86 2.05s.88 2.38 1 2.54c.12.16 1.73 2.64 4.19 3.7.59.25 1.04.4 1.4.51.59.19 1.12.16 1.54.1.47-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.14-1.18-.06-.11-.22-.17-.47-.29z" />
+      <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill={rempli ? "currentColor" : "none"}
+        stroke={rempli ? "none" : "currentColor"}
+        strokeWidth={rempli ? undefined : 1.8}
+        aria-hidden="true"
+      >
+        {children}
       </svg>
-      {copie ? "WhatsApp ouvert" : "Partager"}
     </button>
   );
 }
