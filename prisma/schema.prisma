@@ -55,6 +55,13 @@ enum StatutCommande {
   REFUSEE
 }
 
+// Cycle de vie d'un versement au vendeur.
+enum StatutReversement {
+  DEMANDE // demandé par le vendeur, pas encore payé
+  PAYE
+  REJETE
+}
+
 // Statut du paiement (indépendant du statut de la commande).
 enum StatutPaiement {
   EN_ATTENTE
@@ -344,12 +351,19 @@ model AbonnementPush {
 // par l'admin, enregistré ici). Le solde dû = ventes livrées ET payées,
 // moins la commission NILE, moins la somme des reversements.
 model Reversement {
-  id           String   @id @default(uuid())
-  vendeurId    String
-  vendeur      Vendeur  @relation(fields: [vendeurId], references: [id])
-  montant      Int // FCFA versés au vendeur
-  commentaire  String? // ex. référence du transfert Mobile Money
-  dateCreation DateTime @default(now())
+  id        String  @id @default(uuid())
+  vendeurId String
+  vendeur   Vendeur @relation(fields: [vendeurId], references: [id])
+  montant   Int // FCFA versés au vendeur
+  // DEMANDE réserve le montant sur le solde du vendeur sans être un paiement :
+  // sans cette réservation, il pourrait demander deux fois la même somme.
+  // Le défaut PAYE sert la migration : les lignes existantes sont des
+  // transferts réellement effectués. Le code passe toujours le statut.
+  statut         StatutReversement @default(PAYE)
+  commentaire    String? // référence du transfert, ou motif du refus
+  dateCreation   DateTime          @default(now())
+  dateTraitement DateTime? // date du paiement ou du refus par l'admin
 
   @@index([vendeurId])
+  @@index([statut])
 }

@@ -16,10 +16,18 @@ export interface CalculSolde {
   commission: number;
   /** Ce que le vendeur a gagné (brut - commission). */
   net: number;
-  /** Déjà reversé au vendeur. */
+  /** Déjà reversé au vendeur (versements effectivement payés). */
   dejaReverse: number;
-  /** Reste à lui verser (net - dejaReverse, jamais négatif). */
+  /**
+   * Demandes de versement en attente de traitement. Réservé sur le solde sans
+   * être payé : sans cette réservation, le vendeur pourrait demander deux fois
+   * la même somme.
+   */
+  enAttente: number;
+  /** Montant que le vendeur peut demander maintenant (jamais négatif). */
   solde: number;
+  /** Dû total restant, demandes en attente incluses (net - dejaReverse). */
+  restantDu: number;
 }
 
 export function calculerCommission(
@@ -35,6 +43,8 @@ export function calculerSolde(params: {
   brut: number;
   tauxPourcent: number;
   dejaReverse: number;
+  /** Demandes en attente de traitement. Absent = aucune (0). */
+  enAttente?: number;
   exempteCommission: boolean;
 }): CalculSolde {
   const brut = Math.max(0, params.brut);
@@ -45,12 +55,17 @@ export function calculerSolde(params: {
   );
   const net = brut - commission;
   const dejaReverse = Math.max(0, params.dejaReverse);
+  const enAttente = Math.max(0, params.enAttente ?? 0);
   return {
     brut,
     commission,
     net,
     dejaReverse,
-    solde: Math.max(0, net - dejaReverse),
+    enAttente,
+    restantDu: Math.max(0, net - dejaReverse),
+    // Les demandes en attente sont retirées du disponible : elles sont déjà
+    // engagées, même si l'argent n'est pas encore parti.
+    solde: Math.max(0, net - dejaReverse - enAttente),
   };
 }
 

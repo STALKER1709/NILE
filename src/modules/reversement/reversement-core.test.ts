@@ -32,6 +32,8 @@ describe("calculerSolde", () => {
       commission: 10000,
       net: 90000,
       dejaReverse: 30000,
+      enAttente: 0,
+      restantDu: 60000,
       solde: 60000,
     });
   });
@@ -43,6 +45,57 @@ describe("calculerSolde", () => {
       exempteCommission: false,
     });
     expect(s.solde).toBe(0);
+  });
+
+  it("une demande en attente est réservée : elle sort du disponible sans compter comme payée", () => {
+    const s = calculerSolde({
+      brut: 100000,
+      tauxPourcent: 10,
+      dejaReverse: 30000,
+      enAttente: 20000,
+      exempteCommission: false,
+    });
+    // Le dû total ne bouge pas : l'argent n'est pas encore parti.
+    expect(s.restantDu).toBe(60000);
+    expect(s.dejaReverse).toBe(30000);
+    // Mais le vendeur ne peut plus demander que le reste.
+    expect(s.enAttente).toBe(20000);
+    expect(s.solde).toBe(40000);
+  });
+
+  it("une demande couvrant tout le dû ramène le disponible à zéro (pas de double demande)", () => {
+    const s = calculerSolde({
+      brut: 100000,
+      tauxPourcent: 10,
+      dejaReverse: 0,
+      enAttente: 90000,
+      exempteCommission: false,
+    });
+    expect(s.solde).toBe(0);
+    expect(s.restantDu).toBe(90000);
+  });
+
+  it("des demandes supérieures au dû ne rendent pas le solde négatif", () => {
+    const s = calculerSolde({
+      brut: 10000,
+      tauxPourcent: 10,
+      dejaReverse: 0,
+      enAttente: 999999,
+      exempteCommission: false,
+    });
+    expect(s.solde).toBe(0);
+  });
+
+  it("un montant négatif d'attente est ramené à zéro", () => {
+    const s = calculerSolde({
+      brut: 100000,
+      tauxPourcent: 10,
+      dejaReverse: 0,
+      enAttente: -5000,
+      exempteCommission: false,
+    });
+    expect(s.enAttente).toBe(0);
+    expect(s.solde).toBe(90000);
   });
 });
 

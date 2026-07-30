@@ -1,7 +1,14 @@
 import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
-import { listerSoldesVendeurs } from "@/modules/reversement/reversement";
-import { enregistrerReversementAction } from "@/app/(admin)/admin/reversements/actions";
+import {
+  listerSoldesVendeurs,
+  listerDemandesReversement,
+} from "@/modules/reversement/reversement";
+import {
+  enregistrerReversementAction,
+  traiterDemandeAction,
+} from "@/app/(admin)/admin/reversements/actions";
+import { lireInfosPaiement } from "@/modules/compte/profil";
 import { Carte, Prix, btn, champClass, EtatVide } from "@/components/ui/kit";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
@@ -15,7 +22,10 @@ export default async function ReversementsPage({
 }) {
   await exigerRole("ADMIN");
   const { ok, erreur } = await searchParams;
-  const soldes = await listerSoldesVendeurs();
+  const [soldes, demandes] = await Promise.all([
+    listerSoldesVendeurs(),
+    listerDemandesReversement(),
+  ]);
   const totalDu = soldes.reduce((s, v) => s + v.solde, 0);
   const taux = soldes[0]?.tauxPourcent;
 
@@ -37,14 +47,113 @@ export default async function ReversementsPage({
           Reversement enregistré.
         </p>
       )}
+      {ok === "paye" && (
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          Demande marquée payée.
+        </p>
+      )}
+      {ok === "rejete" && (
+        <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
+          Demande refusée. Le montant redevient disponible pour le vendeur.
+        </p>
+      )}
       {erreur && (
         <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
       <Carte className="p-4">
-        <p className="text-sm text-slate-500">Total dû aux vendeurs tiers</p>
+        <p className="text-sm text-slate-500">Total disponible à demander</p>
         <Prix montant={totalDu} className="mt-1 block text-2xl font-bold text-nile" />
       </Carte>
+
+      {/* Demandes émises par les vendeurs, les plus anciennes d'abord. */}
+      <section>
+        <h2 className="mb-3 text-titre-sm text-nile-800">
+          Demandes en attente{demandes.length > 0 && ` (${demandes.length})`}
+        </h2>
+        {demandes.length === 0 ? (
+          <Carte className="p-5">
+            <p className="text-corps-sm text-slate-500">
+              Aucune demande à traiter.
+            </p>
+          </Carte>
+        ) : (
+          <div className="space-y-3">
+            {demandes.map((d) => {
+              const infos = lireInfosPaiement(d.vendeur.infosPaiement);
+              return (
+                <Carte key={d.id} className="border-l-4 border-l-accent p-4">
+                  <div className="flex flex-wrap items-baseline justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-semibold text-slate-900">{d.vendeur.nomBoutique}</p>
+                      <p className="truncate text-xs text-slate-500">
+                        {d.vendeur.utilisateur.email} · demandé le{" "}
+                        {d.dateCreation.toLocaleDateString("fr-FR", {
+                          day: "numeric", month: "long", year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <Prix montant={d.montant} className="text-lg font-bold text-nile-800" />
+                  </div>
+
+                  {/* Où payer : coordonnées déclarées par le vendeur. */}
+                  <div className="mt-3 flex flex-wrap gap-3 rounded bg-surface-basse p-3 text-corps-sm">
+                    {infos.momoMtn && (
+                      <span className="flex items-center gap-2">
+                        <span className="grid h-6 w-9 place-items-center rounded bg-[#ffcb05] text-[9px] font-bold text-black">MTN</span>
+                        {infos.momoMtn}
+                      </span>
+                    )}
+                    {infos.momoOrange && (
+                      <span className="flex items-center gap-2">
+                        <span className="grid h-6 w-9 place-items-center rounded bg-[#ff7900] text-[9px] font-bold text-white">OM</span>
+                        {infos.momoOrange}
+                      </span>
+                    )}
+                    {infos.titulaire && (
+                      <span className="text-slate-600">Titulaire : {infos.titulaire}</span>
+                    )}
+                    {!infos.momoMtn && !infos.momoOrange && (
+                      <span className="text-promo">
+                        Aucun numéro déclaré : impossible de payer en l&apos;état.
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-end gap-3">
+                    <form action={traiterDemandeAction} className="flex flex-wrap items-end gap-2">
+                      <input type="hidden" name="reversementId" value={d.id} />
+                      <input type="hidden" name="decision" value="PAYE" />
+                      <div>
+                        <label htmlFor={`ref-${d.id}`} className="block text-etiquette-xs text-slate-500">
+                          Référence du transfert (facultatif)
+                        </label>
+                        <input id={`ref-${d.id}`} name="commentaire" maxLength={200} placeholder="Ex : MoMo #123456" className={`${champClass} mt-1 w-56`} />
+                      </div>
+                      <BoutonSoumettre enCours="…" className={btn("primaire", "md")}>
+                        Marquer payée
+                      </BoutonSoumettre>
+                    </form>
+                    <form action={traiterDemandeAction} className="flex flex-wrap items-end gap-2">
+                      <input type="hidden" name="reversementId" value={d.id} />
+                      <input type="hidden" name="decision" value="REJETE" />
+                      <div>
+                        <label htmlFor={`motif-${d.id}`} className="block text-etiquette-xs text-slate-500">
+                          Motif du refus
+                        </label>
+                        <input id={`motif-${d.id}`} name="commentaire" maxLength={200} placeholder="Ex : numéro incorrect" className={`${champClass} mt-1 w-56`} />
+                      </div>
+                      <BoutonSoumettre enCours="…" className={btn("danger", "md")}>
+                        Refuser
+                      </BoutonSoumettre>
+                    </form>
+                  </div>
+                </Carte>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {soldes.length === 0 ? (
         <EtatVide titre="Aucun vendeur tiers pour l'instant." />

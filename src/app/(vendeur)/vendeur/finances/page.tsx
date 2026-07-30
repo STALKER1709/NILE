@@ -3,7 +3,10 @@ import { exigerVendeur } from "@/modules/auth/access";
 import { getFinancesVendeur } from "@/modules/reversement/finances";
 import { hauteursRelatives } from "@/modules/reversement/finances-core";
 import { lireInfosPaiement, aDesInfosPaiement } from "@/modules/compte/profil";
-import { Carte, Prix, EtatVide, btn } from "@/components/ui/kit";
+import { Carte, Prix, EtatVide, btn, champClass } from "@/components/ui/kit";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
+import { demanderVersementAction } from "@/app/(vendeur)/vendeur/finances/actions";
+import { listerDemandesDuVendeur } from "@/modules/reversement/reversement";
 import { HistoriqueTransactions } from "@/components/vendeur/HistoriqueTransactions";
 
 export const dynamic = "force-dynamic";
@@ -14,10 +17,19 @@ const MOIS = [
   "juillet", "août", "septembre", "octobre", "novembre", "décembre",
 ];
 
-export default async function FinancesVendeurPage() {
+export default async function FinancesVendeurPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ok?: string; erreur?: string }>;
+}) {
+  const { ok, erreur } = await searchParams;
   const { vendeur } = await exigerVendeur();
-  const finances = await getFinancesVendeur(vendeur.id);
+  const [finances, demandes] = await Promise.all([
+    getFinancesVendeur(vendeur.id),
+    listerDemandesDuVendeur(vendeur.id),
+  ]);
   const infosPaiement = lireInfosPaiement(vendeur.infosPaiement);
+  const coordonneesPretes = aDesInfosPaiement(infosPaiement);
 
   if (!finances) {
     return (
@@ -42,19 +54,34 @@ export default async function FinancesVendeurPage() {
         </p>
       </div>
 
+      {ok === "demande" && (
+        <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+          Demande envoyée. NILE la traite et vous verse le montant par Mobile Money.
+        </p>
+      )}
+      {erreur && (
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+      )}
+
       {/* Vue d'ensemble */}
       <div className="grid grid-cols-1 gap-gouttiere lg:grid-cols-3">
-        {/* Solde restant dû */}
+        {/* Solde demandable */}
         <div className="relative flex flex-col justify-between overflow-hidden rounded-xl border border-nile-700/20 bg-nile-conteneur p-6 text-white">
           <div className="relative z-10">
-            <p className="text-etiquette-md text-nile-surConteneur">Reste à vous verser</p>
+            <p className="text-etiquette-md text-nile-surConteneur">Disponible à demander</p>
             <p className="mt-2 whitespace-nowrap font-titre text-display-mobile font-bold">
               <Prix montant={solde.solde} />
             </p>
           </div>
           <p className="relative z-10 mt-6 max-w-[22rem] text-etiquette-xs leading-relaxed text-nile-surConteneur">
-            NILE effectue les reversements par Mobile Money. Vous n&apos;avez
-            rien à demander.
+            {solde.enAttente > 0 ? (
+              <>
+                <Prix montant={solde.enAttente} /> déjà demandé et en attente de
+                traitement par NILE.
+              </>
+            ) : (
+              "Demandez un versement quand vous le souhaitez : NILE le règle par Mobile Money."
+            )}
           </p>
           <svg
             width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -117,8 +144,11 @@ export default async function FinancesVendeurPage() {
               valeur={-solde.commission}
             />
             <LigneDetail libelle="Déjà reversé" valeur={-solde.dejaReverse} />
+            {solde.enAttente > 0 && (
+              <LigneDetail libelle="Demandes en attente" valeur={-solde.enAttente} />
+            )}
             <div className="flex items-baseline justify-between gap-2 border-t border-contour-carte pt-2.5 text-etiquette-md text-nile-800">
-              <dt>Reste dû</dt>
+              <dt>Disponible</dt>
               <dd className="whitespace-nowrap font-bold">
                 <Prix montant={solde.solde} />
               </dd>
@@ -126,6 +156,84 @@ export default async function FinancesVendeurPage() {
           </dl>
         </Carte>
       </div>
+
+      {/* Demande de versement */}
+      <Carte className="p-5 sm:p-6">
+        <h2 className="text-titre-sm text-nile-800">Demander un versement</h2>
+        {!coordonneesPretes ? (
+          <>
+            <p className="mt-2 text-corps-sm text-slate-600">
+              Renseignez d&apos;abord un numéro Mobile Money : sans lui, NILE ne
+              peut pas vous payer.
+            </p>
+            <Link href="/compte/profil" className={btn("primaire", "md", "mt-4")}>
+              Renseigner mes coordonnées
+            </Link>
+          </>
+        ) : solde.solde <= 0 ? (
+          <p className="mt-2 text-corps-sm text-slate-600">
+            {solde.enAttente > 0 ? (
+              <>
+                Votre dû est déjà entièrement demandé (
+                <Prix montant={solde.enAttente} /> en attente).
+              </>
+            ) : (
+              "Rien à demander pour l'instant : vos ventes doivent être livrées et payées pour alimenter votre solde."
+            )}
+          </p>
+        ) : (
+          <>
+            <p className="mt-2 text-corps-sm text-slate-600">
+              Jusqu&apos;à <Prix montant={solde.solde} className="font-semibold text-nile-800" />{" "}
+              disponible. NILE règle par Mobile Money sur le numéro de votre profil.
+            </p>
+            <form action={demanderVersementAction} className="mt-4 flex flex-wrap items-end gap-3">
+              <div>
+                <label htmlFor="montant" className="block text-etiquette-md text-slate-700">
+                  Montant (FCFA)
+                </label>
+                <input
+                  id="montant"
+                  name="montant"
+                  type="number"
+                  required
+                  min={1}
+                  max={solde.solde}
+                  step={1}
+                  placeholder={String(solde.solde)}
+                  className={`${champClass} mt-1 w-44`}
+                />
+              </div>
+              <BoutonSoumettre enCours="Envoi…" className={btn("accent", "md")}>
+                Envoyer la demande
+              </BoutonSoumettre>
+            </form>
+          </>
+        )}
+
+        {demandes.length > 0 && (
+          <ul className="mt-5 space-y-2 border-t border-contour-carte pt-4">
+            {demandes.map((d) => (
+              <li key={d.id} className="flex flex-wrap items-center justify-between gap-2 text-corps-sm">
+                <span className="text-slate-600">
+                  Demande du{" "}
+                  {d.dateCreation.toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+                <span className="flex items-center gap-3">
+                  <Prix montant={d.montant} className="font-bold text-slate-900" />
+                  <span className="rounded-full bg-accent-fixe px-2.5 py-1 text-[11px] font-bold uppercase text-accent-sur">
+                    En attente
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Carte>
 
       {/* Coordonnées de reversement : renseignées par le vendeur dans son profil. */}
       <Carte className="p-5 sm:p-6">
