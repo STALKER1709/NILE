@@ -246,7 +246,10 @@ export default async function CataloguePage({
           </EtatVide>
         )
       ) : (
-        <div className="grid grid-cols-1 gap-gouttiere sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        // 2 colonnes dès le plus petit écran : la maquette en prévoyait une
+        // seule, mais 12 grandes cartes empilées font ~6 900 px de défilement.
+        // La data mobile est chère au Cameroun, on privilégie la densité.
+        <div className="grid grid-cols-2 gap-3 sm:gap-gouttiere lg:grid-cols-3 xl:grid-cols-4">
           {produits.map((p, i) => (
             <CarteProduitVitrine
               key={p.id}
