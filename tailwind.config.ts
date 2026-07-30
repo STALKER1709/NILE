@@ -128,6 +128,12 @@ const config: Config = {
         brillance: {
           "100%": { transform: "translateX(100%)" },
         },
+        // Pulsation discrète : signale l'étape en cours d'un suivi de commande
+        // sans attirer l'œil comme un clignotement.
+        "pulse-douce": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
       },
       animation: {
         "fondu-haut": "fondu-haut .5s ease-out both",
@@ -135,6 +141,7 @@ const config: Config = {
         apparition: "apparition .3s ease-out both",
         pop: "pop .35s ease-out",
         brillance: "brillance 1.5s infinite",
+        "pulse-douce": "pulse-douce 3s cubic-bezier(.4,0,.6,1) infinite",
       },
     },
   },

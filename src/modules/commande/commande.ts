@@ -313,7 +313,21 @@ export async function getCommandeAcheteur(
 ) {
   const commande = await prisma.commande.findUnique({
     where: { id: commandeId },
-    include: { lignes: true, livraison: true, paiements: true },
+    include: {
+      // slug + 1re image : vignettes cliquables du récapitulatif d'articles.
+      lignes: {
+        include: {
+          produit: {
+            select: {
+              slug: true,
+              images: { orderBy: { ordre: "asc" }, take: 1, select: { url: true } },
+            },
+          },
+        },
+      },
+      livraison: true,
+      paiements: true,
+    },
   });
   if (!commande || commande.acheteurId !== utilisateurId) return null;
   return commande;

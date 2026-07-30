@@ -78,6 +78,8 @@ export default async function DetailCommandePage({
   const alerte = ok ? ALERTES[ok] : undefined;
   // Étape effectivement atteinte (repli sur la première si statut hors frise).
   const etapeAffichee = ETAPES[Math.max(etapeCourante, 0)] ?? ETAPES[0];
+  // Nombre d'unités commandées, pas de lignes : 2 exemplaires = 2 articles.
+  const nbArticles = commande.lignes.reduce((s, l) => s + l.quantite, 0);
 
   return (
     <div className="space-y-5">
@@ -122,30 +124,44 @@ export default async function DetailCommandePage({
         </form>
       )}
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-      <div className="space-y-5 lg:col-span-2">
+      <div className="grid grid-cols-1 items-start gap-gouttiere lg:grid-cols-12">
+      <div className="space-y-gouttiere lg:col-span-8">
       {/* Statuts + chronologie */}
-      <Carte className="space-y-4 p-5">
+      <Carte className="space-y-5 p-5 sm:p-6">
         <div className="flex flex-wrap gap-2">
           <BadgeStatutCommande statut={commande.statutCommande} />
           <BadgeStatutPaiement statut={commande.statutPaiement} />
         </div>
         {!termine ? (
-          <ol className="flex items-center">
+          <ol className="flex items-start">
             {ETAPES.map((etape, i) => {
               const atteinte = i <= etapeCourante;
+              const courante = i === etapeCourante;
               return (
-                <li key={etape} className="flex flex-1 items-center last:flex-none">
-                  <div className="flex flex-col items-center">
-                    <span className={`grid h-11 w-11 place-items-center rounded-full transition-colors ${atteinte ? "bg-nile-700 text-white" : "border-2 border-contour-carte bg-white text-slate-300"}`}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                <li key={etape} className="flex flex-1 items-start last:flex-none">
+                  <div className="flex w-full min-w-0 flex-col items-center">
+                    <span
+                      className={`grid h-12 w-12 place-items-center rounded-full transition-colors ${
+                        atteinte
+                          ? "bg-nile-700 text-white shadow-carte-hover"
+                          : "border-2 border-contour-carte bg-surface-moyenne text-slate-400"
+                      } ${courante ? "motion-safe:animate-pulse-douce" : ""}`}
+                    >
+                      <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
                         {ICONES_ETAPE[etape]}
                       </svg>
                     </span>
-                    <span className={`mt-2 text-center text-etiquette-xs ${atteinte ? "font-semibold text-nile-800" : "text-slate-400"}`}>{ETAPE_LIB[etape]}</span>
+                    <span className={`mt-2.5 px-1 text-center text-etiquette-xs ${atteinte ? "font-semibold text-nile-800" : "text-slate-400"}`}>
+                      {ETAPE_LIB[etape]}
+                    </span>
+                    {/* Aucune date par étape : la plateforme ne conserve pas
+                        l'historique des changements de statut. */}
+                    <span className="mt-0.5 text-center text-[11px] text-slate-400">
+                      {courante ? "en cours" : atteinte ? "fait" : "à venir"}
+                    </span>
                   </div>
                   {i < ETAPES.length - 1 && (
-                    <span className={`mx-1 mb-6 h-0.5 flex-1 ${i < etapeCourante ? "bg-nile-700" : "bg-contour-carte"}`} />
+                    <span className={`mx-1 mt-6 h-0.5 flex-1 ${i < etapeCourante ? "bg-nile-700" : "bg-contour-carte"}`} />
                   )}
                 </li>
               );
@@ -170,25 +186,54 @@ export default async function DetailCommandePage({
         )}
       </Carte>
 
-      {/* Articles */}
-      <Carte className="p-5">
-        <h2 className="mb-2 font-bold text-slate-900">Articles</h2>
-        <ul className="space-y-1 text-sm text-slate-600">
-          {commande.lignes.map((l) => (
-            <li key={l.id} className="flex justify-between gap-2">
-              <span className="truncate">{l.titreProduit} × {l.quantite}</span>
-              <Prix montant={l.sousTotal} className="shrink-0" />
-            </li>
-          ))}
-        </ul>
-        <div className="mt-2 flex justify-between border-t border-slate-100 pt-2 font-bold">
-          <span>Total</span>
-          <Prix montant={commande.total} className="text-nile" />
+      {/* Rappel des conditions de réception. Occupe la place que la maquette
+          réservait à la carte de suivi GPS et à la fiche du livreur, dont
+          aucune donnée n'existe. Contenu aligné sur les CGV. */}
+      {!termine && (
+        <div className="grid grid-cols-1 gap-gouttiere md:grid-cols-2">
+          <Carte className="p-5 sm:p-6">
+            <h2 className="flex items-center gap-2 text-etiquette-md text-nile-800">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-nile-700" aria-hidden="true">
+                <path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z" strokeLinejoin="round" />
+                <path d="m8.5 12 2.5 2.5 4.5-5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+              À la réception
+            </h2>
+            <ul className="mt-3 space-y-2 text-corps-sm text-slate-600">
+              <li>Vérifiez votre colis devant le livreur.</li>
+              {commande.modePaiement === "COD" && (
+                <li>Vous payez en espèces <strong>après</strong> vérification.</li>
+              )}
+              <li>
+                S&apos;il ne correspond pas, vous pouvez le refuser : la commande
+                est annulée{commande.statutPaiement === "PAYE" ? " et remboursée" : ""}.
+              </li>
+            </ul>
+          </Carte>
+
+          <Carte className="p-5 sm:p-6">
+            <h2 className="flex items-center gap-2 text-etiquette-md text-nile-800">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className="shrink-0 text-nile-700" aria-hidden="true">
+                <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" />
+                <circle cx="7" cy="17" r="1.5" />
+                <circle cx="17" cy="17" r="1.5" />
+              </svg>
+              Livraison
+            </h2>
+            <ul className="mt-3 space-y-2 text-corps-sm text-slate-600">
+              <li><strong>Gratuite</strong>, partout au Cameroun.</li>
+              <li>Les délais annoncés sont indicatifs.</li>
+              <li>
+                Une fois le colis accepté, les ventes sont fermes —{" "}
+                <Link href="/conditions#verification" className="font-semibold text-nile-700 hover:underline">
+                  voir les conditions
+                </Link>
+                .
+              </li>
+            </ul>
+          </Carte>
         </div>
-        <p className="mt-1 text-xs text-slate-400">
-          Paiement : {commande.modePaiement === "COD" ? "à la livraison" : "Mobile Money"}
-        </p>
-      </Carte>
+      )}
 
       {annulable && (
         <form action={annulerCommandeAction}>
@@ -198,20 +243,39 @@ export default async function DetailCommandePage({
       )}
       </div>
 
-      {/* Colonne latérale : adresse et récapitulatif */}
-      <div className="space-y-5 lg:col-span-1">
-      {/* Livraison */}
-      <Carte className="p-5">
-        <h2 className="mb-2 font-bold text-slate-900">Livraison</h2>
-        <p className="text-sm text-slate-700">{commande.destNom} · {commande.destTelephone}</p>
-        <p className="text-sm text-slate-500">{commande.quartier}, {commande.ville}</p>
-        {commande.reperes && <p className="text-sm text-slate-500">Repères : {commande.reperes}</p>}
+      {/* Colonne latérale : adresse, articles, aide */}
+      <div className="space-y-gouttiere lg:col-span-4">
+      {/* Adresse de livraison */}
+      <Carte className="p-5 sm:p-6">
+        <EnteteLaterale
+          libelle="Adresse de livraison"
+          icone={
+            <>
+              <path d="M12 21s7-5.6 7-11a7 7 0 1 0-14 0c0 5.4 7 11 7 11z" strokeLinejoin="round" />
+              <circle cx="12" cy="10" r="2.5" />
+            </>
+          }
+        />
+        <p className="font-semibold text-slate-900">{commande.destNom}</p>
+        <p className="text-corps-sm text-slate-600">{commande.destTelephone}</p>
+        <p className="mt-1 text-corps-sm text-slate-600">{commande.quartier}, {commande.ville}</p>
+        {commande.reperes && (
+          <p className="text-corps-sm text-slate-600">Repères : {commande.reperes}</p>
+        )}
+        <p className="text-corps-sm text-slate-600">Cameroun</p>
+
         {commande.livraison && (
-          <div className="mt-2 border-t border-slate-100 pt-2 text-sm text-slate-600">
-            <p>Suivi : <span className="font-semibold text-slate-800">{LIVRAISON_LIB[commande.livraison.statut] ?? commande.livraison.statut}</span>{commande.livraison.transporteur ? ` · ${commande.livraison.transporteur}` : ""}</p>
+          <div className="mt-4 border-t border-contour-carte pt-4 text-corps-sm text-slate-600">
+            <p>
+              Suivi :{" "}
+              <span className="font-semibold text-slate-800">
+                {LIVRAISON_LIB[commande.livraison.statut] ?? commande.livraison.statut}
+              </span>
+              {commande.livraison.transporteur ? ` · ${commande.livraison.transporteur}` : ""}
+            </p>
             {commande.livraison.preuveUrl && (
               <div className="mt-2">
-                <p className="text-xs text-slate-500">Preuve de livraison</p>
+                <p className="text-etiquette-xs text-slate-500">Preuve de livraison</p>
                 <Vignette url={commande.livraison.preuveUrl} alt="Preuve de livraison" sizes="120px" className="mt-1 h-28 w-28 rounded" />
               </div>
             )}
@@ -219,8 +283,110 @@ export default async function DetailCommandePage({
         )}
       </Carte>
 
+      {/* Articles commandés */}
+      <Carte className="p-5 sm:p-6">
+        <EnteteLaterale
+          libelle={`Articles (${nbArticles})`}
+          icone={
+            <>
+              <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" strokeLinejoin="round" />
+              <path d="M8 9a4 4 0 0 1 8 0" />
+            </>
+          }
+        />
+        <ul className="space-y-4">
+          {commande.lignes.map((l) => (
+            <li key={l.id} className="flex gap-4">
+              <Link
+                href={`/produit/${l.produit.slug}`}
+                className="h-16 w-16 shrink-0 overflow-hidden rounded"
+              >
+                <Vignette
+                  url={l.produit.images[0]?.url}
+                  alt={l.titreProduit}
+                  sizes="64px"
+                  fond="bg-surface-basse"
+                  className="h-full w-full"
+                />
+              </Link>
+              <div className="min-w-0 flex-1">
+                <Link
+                  href={`/produit/${l.produit.slug}`}
+                  className="block truncate text-corps-sm font-semibold text-slate-900 hover:text-nile-700 hover:underline"
+                >
+                  {l.titreProduit}
+                </Link>
+                <p className="text-etiquette-xs text-slate-500">Quantité : {l.quantite}</p>
+                <Prix montant={l.sousTotal} className="text-etiquette-md text-nile-800" />
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-5 space-y-2 border-t border-contour-carte pt-4 text-corps-sm">
+          <div className="flex justify-between">
+            <span className="text-slate-600">Sous-total</span>
+            <Prix montant={commande.total} className="text-slate-900" />
+          </div>
+          <div className="flex justify-between">
+            <span className="text-slate-600">Livraison</span>
+            <span className="font-semibold text-accent-deep">GRATUITE</span>
+          </div>
+          <div className="flex items-baseline justify-between border-t border-contour-carte pt-3 text-corps-lg font-bold">
+            <span className="text-slate-900">Total</span>
+            <Prix montant={commande.total} className="whitespace-nowrap text-nile-800" />
+          </div>
+          <p className="pt-1 text-etiquette-xs text-slate-500">
+            Paiement : {commande.modePaiement === "COD" ? "en espèces à la livraison" : "Mobile Money"}
+          </p>
+        </div>
+      </Carte>
+
+      {/* Aide */}
+      <div className="relative overflow-hidden rounded border border-contour-carte bg-nile-dark p-5 text-white sm:p-6">
+        <div className="relative z-10">
+          <h2 className="text-titre-sm">Besoin d&apos;aide ?</h2>
+          <p className="mt-2 text-corps-sm text-nile-surConteneur">
+            Un problème avec cette commande ? Notre équipe répond aux heures
+            ouvrées.
+          </p>
+          <Link href="/aide" className="mt-4 inline-flex items-center gap-2 text-etiquette-md font-bold text-white hover:underline">
+            Contacter le support
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </Link>
+        </div>
+        <svg
+          width="130" height="130" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.1"
+          aria-hidden="true" className="absolute -bottom-6 -right-5 text-white/[0.07]"
+        >
+          <circle cx="12" cy="12" r="9" />
+          <path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.4V14" strokeLinecap="round" />
+          <path d="M12 17.5v.01" strokeLinecap="round" />
+        </svg>
+      </div>
+
       </div>
       </div>
     </div>
+  );
+}
+
+/** Intitulé des cartes de la colonne latérale : icône + libellé en capitales. */
+function EnteteLaterale({
+  libelle,
+  icone,
+}: {
+  libelle: string;
+  icone: React.ReactNode;
+}) {
+  return (
+    <h2 className="mb-4 flex items-center gap-2 text-etiquette-md uppercase tracking-wider text-slate-500">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0" aria-hidden="true">
+        {icone}
+      </svg>
+      {libelle}
+    </h2>
   );
 }
