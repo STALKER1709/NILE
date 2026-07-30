@@ -32,6 +32,8 @@ export default async function CommanderPage({
     getDerniereAdresse(utilisateur.id),
   ]);
   const depassePlafond = total > plafond;
+  // Unités commandées, pas lignes : 2 exemplaires comptent pour 2 articles.
+  const nbArticles = panier.lignes.reduce((s, l) => s + l.quantite, 0);
 
   return (
     <div className="space-y-5">
@@ -64,15 +66,17 @@ export default async function CommanderPage({
                 Adresse pré-remplie depuis ta dernière commande · modifie si besoin.
               </p>
             )}
-            <div>
-              <label htmlFor="destNom" className={labelClass}>Nom du destinataire</label>
-              <input id="destNom" name="destNom" required defaultValue={derniere?.destNom ?? utilisateur.nom} className={`${champClass} mt-1`} />
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+              <div>
+                <label htmlFor="destNom" className={labelClass}>Nom du destinataire</label>
+                <input id="destNom" name="destNom" required defaultValue={derniere?.destNom ?? utilisateur.nom} className={`${champClass} mt-1`} />
+              </div>
+              <div>
+                <label htmlFor="destTelephone" className={labelClass}>Téléphone de contact</label>
+                <input id="destTelephone" name="destTelephone" required defaultValue={derniere?.destTelephone ?? utilisateur.telephone} placeholder="6XX XXX XXX" className={`${champClass} mt-1`} />
+              </div>
             </div>
-            <div>
-              <label htmlFor="destTelephone" className={labelClass}>Téléphone de contact</label>
-              <input id="destTelephone" name="destTelephone" required defaultValue={derniere?.destTelephone ?? utilisateur.telephone} placeholder="6XX XXX XXX" className={`${champClass} mt-1`} />
-            </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor="ville" className={labelClass}>Ville</label>
                 <input id="ville" name="ville" required defaultValue={derniere?.ville ?? ""} placeholder="Douala" className={`${champClass} mt-1`} />
@@ -96,18 +100,34 @@ export default async function CommanderPage({
               </svg>
               Mode de paiement
             </h2>
-            <label className="flex items-start gap-3 rounded border border-contour-carte p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
-              <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond} className="mt-1" />
-              <span>
-                <span className="font-medium">Paiement à la livraison</span>
-                <span className="block text-sm text-slate-500">Vous payez en espèces à la réception.</span>
+            <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
+              <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond} className="mt-1 accent-nile-700" />
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded bg-surface-haute">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-nile-800" aria-hidden="true">
+                  <rect x="2" y="6" width="20" height="12" rx="2" />
+                  <circle cx="12" cy="12" r="2.5" />
+                </svg>
+              </span>
+              <span className="min-w-0">
+                <span className="block text-etiquette-md text-slate-900">Paiement à la livraison</span>
+                <span className="block text-corps-sm text-slate-500">
+                  Vous payez en espèces à la réception, après vérification du colis.
+                </span>
               </span>
             </label>
-            <label className="flex items-start gap-3 rounded border border-contour-carte p-3 has-[:checked]:border-nile has-[:checked]:bg-nile-50">
-              <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond} className="mt-1" />
-              <span>
-                <span className="font-medium">Mobile Money (Monetbil)</span>
-                <span className="block text-sm text-slate-500">MTN MoMo / Orange Money, avant expédition.</span>
+
+            <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
+              <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond} className="mt-1 accent-nile-700" />
+              <span className="flex shrink-0 gap-1.5">
+                <span className="grid h-8 w-8 place-items-center rounded bg-[#ffcb05] text-[10px] font-bold text-black">MTN</span>
+                <span className="grid h-8 w-8 place-items-center rounded bg-[#ff7900] text-[10px] font-bold text-white">OM</span>
+              </span>
+              <span className="min-w-0">
+                <span className="block text-etiquette-md text-slate-900">Mobile Money</span>
+                <span className="block text-corps-sm text-slate-500">
+                  MTN MoMo ou Orange Money. Vous choisirez l&apos;opérateur et
+                  saisirez votre numéro sur la page de paiement sécurisée.
+                </span>
               </span>
             </label>
             {depassePlafond && (
@@ -120,19 +140,27 @@ export default async function CommanderPage({
 
           <BoutonSoumettre
             enCours="Commande en cours…"
-            className={btn("accent", "lg", "w-full flex-wrap")}
+            className={btn("accent", "lg", "h-14 w-full flex-wrap")}
           >
             <span>Confirmer la commande</span>
             <Prix montant={total} className="whitespace-nowrap" />
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+              <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
           </BoutonSoumettre>
         </form>
 
         <div className="lg:col-span-1">
           <Carte className="sticky top-24 overflow-hidden">
             <h2 className="border-b border-contour-carte px-5 py-4 text-titre-sm text-slate-900">
-              Votre commande
+              Votre commande{" "}
+              <span className="text-corps-sm font-normal text-slate-500">
+                ({nbArticles} article{nbArticles > 1 ? "s" : ""})
+              </span>
             </h2>
-            <ul className="divide-y divide-slate-100">
+            {/* Liste défilante : un panier long ne doit pas repousser le total
+                hors de l'écran. */}
+            <ul className="max-h-[19rem] divide-y divide-slate-100 overflow-y-auto">
               {panier.lignes.map((l) => (
                 <li key={l.id} className="flex items-center gap-3 px-5 py-3">
                   <Vignette
