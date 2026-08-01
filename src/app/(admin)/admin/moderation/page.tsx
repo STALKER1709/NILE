@@ -2,7 +2,9 @@ import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
 import { listerProduitsModeration } from "@/modules/admin/moderation";
 import { modererProduitAction } from "@/app/(admin)/admin/moderation/actions";
+import { supprimerProduitAdminAction } from "@/app/(admin)/admin/maintenance/actions";
 import { Vignette } from "@/components/ui/Vignette";
+import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
 import { Carte, Prix, Badge, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -48,6 +50,23 @@ export default async function ModerationPage({
                 <button type="submit" className={btn("primaire", "sm")}>Réactiver</button>
               </form>
             )}
+            {/* Suppression : définitive si le produit n'a jamais été commandé,
+                mise en corbeille sinon — la commande le référence. */}
+            <form action={supprimerProduitAdminAction}>
+              <input type="hidden" name="produitId" value={p.id} />
+              <input type="hidden" name="retour" value="/admin/moderation" />
+              <BoutonConfirme
+                question={`Supprimer « ${p.titre} » ? S'il figure dans des commandes, il sera mis en corbeille au lieu d'être effacé.`}
+                enCours="…"
+                titre="Supprimer ce produit"
+                className="grid h-8 w-8 shrink-0 place-items-center rounded text-slate-400 transition-colors hover:bg-promo-conteneur hover:text-promo disabled:opacity-50"
+              >
+                <span className="sr-only">Supprimer {p.titre}</span>
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+              </BoutonConfirme>
+            </form>
           </Carte>
         ))}
       </div>

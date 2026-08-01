@@ -23,6 +23,7 @@ const LIENS = [
   { href: "/admin/reconciliation", titre: "Réconciliation COD", desc: "Cash collecté / reversé" },
   { href: "/admin/reversements", titre: "Reversements vendeurs", desc: "Soldes dus et paiements aux vendeurs tiers" },
   { href: "/admin/annonces", titre: "Annonces vendeurs", desc: "Actualités et briefs diffusés aux vendeurs" },
+  { href: "/admin/maintenance", titre: "Maintenance", desc: "Supprimer un compte, purger les données" },
 ];
 
 export default async function AdminPage() {

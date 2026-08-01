@@ -90,9 +90,11 @@ export class MockAuthProvider implements AuthProvider {
   }
 
   async deleteIdentity(authId: string): Promise<void> {
-    await prisma.mockCredential
-      .delete({ where: { authId } })
-      .catch(() => undefined); // best-effort
+    // `deleteMany` plutôt que `delete` : l'opération est documentée comme
+    // best-effort, et supprimer une identité déjà absente est un cas normal
+    // (purge en masse, nettoyage après échec). `delete` lèverait — et Prisma
+    // journaliserait une erreur — pour un cas qui n'en est pas un.
+    await prisma.mockCredential.deleteMany({ where: { authId } });
   }
 
   async demanderReinitialisation(
