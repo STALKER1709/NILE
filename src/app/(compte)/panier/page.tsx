@@ -21,14 +21,15 @@ const MESSAGES_OK: Record<string, string> = {
   vide: "Votre panier a été vidé.",
   retire: "Article retiré du panier.",
   ajoute: "Produit ajouté au panier.",
+  rachat: "Les articles de votre commande ont été ajoutés au panier.",
 };
 
 export default async function PanierPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ok?: string; erreur?: string }>;
+  searchParams: Promise<{ ok?: string; erreur?: string; avertissement?: string }>;
 }) {
-  const { ok, erreur } = await searchParams;
+  const { ok, erreur, avertissement } = await searchParams;
   const utilisateur = await getUtilisateurCourant();
 
   // Les deux parcours produisent la même liste d'articles : la mise en page
@@ -95,6 +96,11 @@ export default async function PanierPage({
       {ok && MESSAGES_OK[ok] && (
         <p className="rounded border border-nile-100 bg-nile-50 px-3 py-2 text-sm text-nile-800">
           {MESSAGES_OK[ok]}
+        </p>
+      )}
+      {avertissement && (
+        <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
+          {avertissement}
         </p>
       )}
       {erreur && (

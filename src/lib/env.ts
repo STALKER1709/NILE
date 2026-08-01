@@ -86,6 +86,11 @@ const schema = z
     // (journalisés) tant qu'aucun template n'est validé.
     WHATSAPP_TEMPLATE_STATUT: z.string().optional(),
 
+    // Secret partagé protégeant les routes déclenchées par un planificateur
+    // externe (GitHub Actions) : rappels de confirmation de réception.
+    // Vide = ces routes répondent 503 (fonction inactive), jamais ouvertes.
+    CRON_SECRET: z.string().min(16).optional(),
+
     COD_PLAFOND_XAF: z.coerce.number().int().positive().default(150000),
     // Commission NILE (%) sur les ventes des vendeurs tiers (reversements).
     COMMISSION_POURCENT: z.coerce.number().min(0).max(100).default(10),

@@ -5,7 +5,10 @@ import { getCommandeAcheteur } from "@/modules/commande/commande";
 import {
   annulerCommandeAction,
   reprendrePaiementAction,
+  racheterCommandeAction,
+  confirmerReceptionAction,
 } from "@/app/(compte)/commandes/actions";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 import { Vignette } from "@/components/ui/Vignette";
 import { Carte, Prix, btn } from "@/components/ui/kit";
 import {
@@ -55,6 +58,7 @@ const ALERTES: Record<string, { classe: string; texte: string }> = {
   paye: { classe: "border-emerald-200 bg-emerald-50 text-emerald-700", texte: "Paiement confirmé. Merci !" },
   annulee: { classe: "border-amber-200 bg-accent-fixe text-amber-800", texte: "Commande annulée. Les articles ont été remis en stock." },
   echec: { classe: "border-red-200 bg-red-50 text-red-700", texte: "Le paiement a échoué. La commande a été annulée et le stock restitué." },
+  reception: { classe: "border-emerald-200 bg-emerald-50 text-emerald-700", texte: "Merci ! Vous avez confirmé avoir reçu cette commande." },
 };
 
 export default async function DetailCommandePage({
@@ -209,6 +213,52 @@ export default async function DetailCommandePage({
         )}
       </Carte>
 
+      {/* Attestation de réception par l'acheteur. Distincte du « Livrée »
+          déclaré par le vendeur/livreur : elle ne conditionne ni le règlement
+          du vendeur, ni le droit de noter — c'est une trace de confiance. */}
+      {commande.statutCommande === "LIVREE" && (
+        <Carte className="p-5 sm:p-6">
+          {commande.livraison?.confirmationAcheteur ? (
+            <p className="flex items-center gap-2.5 text-corps-sm text-nile-800">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-nile-100 text-nile-700">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                  <path d="m5 12.5 4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </span>
+              <span>
+                Réception confirmée le{" "}
+                <strong>
+                  {new Date(commande.livraison.confirmationAcheteur).toLocaleDateString("fr-FR", {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </strong>
+                . Merci !
+              </span>
+            </p>
+          ) : (
+            <>
+              <h2 className="text-titre-sm text-nile-800">Avez-vous bien reçu votre colis ?</h2>
+              <p className="mt-1.5 text-corps-sm text-slate-600">
+                Le livreur a marqué cette commande comme livrée. Confirmez-le de
+                votre côté : c&apos;est ce qui permet à NILE de repérer les
+                livraisons qui se passent mal.
+              </p>
+              <form action={confirmerReceptionAction} className="mt-4">
+                <input type="hidden" name="commandeId" value={commande.id} />
+                <BoutonSoumettre enCours="Confirmation…" className={btn("primaire", "md")}>
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
+                    <path d="m5 12.5 4.5 4.5L19 7.5" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                  J&apos;ai bien reçu ma commande
+                </BoutonSoumettre>
+              </form>
+            </>
+          )}
+        </Carte>
+      )}
+
       {/* Rappel des conditions de réception. Occupe la place que la maquette
           réservait à la carte de suivi GPS et à la fiche du livreur, dont
           aucune donnée n'existe. Contenu aligné sur les CGV. */}
@@ -258,12 +308,28 @@ export default async function DetailCommandePage({
         </div>
       )}
 
-      {annulable && (
-        <form action={annulerCommandeAction}>
+      {/* Racheter : disponible sur toute commande passée, quel que soit son
+          statut. Les prix ne sont pas repris de l'ancienne commande — le
+          panier lit toujours le prix courant, promotions comprises. */}
+      <div className="flex flex-wrap gap-2">
+        <form action={racheterCommandeAction}>
           <input type="hidden" name="commandeId" value={commande.id} />
-          <button type="submit" className={btn("danger", "md")}>Annuler la commande</button>
+          <BoutonSoumettre enCours="Ajout…" className={btn("secondaire", "md")}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" />
+              <path d="M2 3h3l2.4 11.2a1.5 1.5 0 0 0 1.5 1.2h8.6a1.5 1.5 0 0 0 1.5-1.2L21 7H6" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Ajouter au panier actuel
+          </BoutonSoumettre>
         </form>
-      )}
+
+        {annulable && (
+          <form action={annulerCommandeAction}>
+            <input type="hidden" name="commandeId" value={commande.id} />
+            <button type="submit" className={btn("danger", "md")}>Annuler la commande</button>
+          </form>
+        )}
+      </div>
       </div>
 
       {/* Colonne latérale : adresse, articles, aide */}

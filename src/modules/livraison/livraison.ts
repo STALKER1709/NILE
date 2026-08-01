@@ -12,6 +12,7 @@ import {
   peutExpedier,
   peutLivrer,
   peutRefuser,
+  peutConfirmerReception,
 } from "@/modules/livraison/livraison-core";
 
 export type ResultatLivraison =
@@ -104,6 +105,45 @@ export async function marquerLivree(
   await notifierStatutCommande(commandeId, "LIVREE");
   await notifierCommandeWhatsApp(commandeId, "LIVREE");
   return { ok: true };
+}
+
+export type ResultatConfirmation =
+  | { ok: true }
+  | { ok: false; code: "INTROUVABLE" | "ETAT_INVALIDE" | "DEJA_CONFIRMEE" };
+
+/**
+ * Attestation de réception par l'ACHETEUR lui-même.
+ *
+ * Purement déclarative : elle ne conditionne ni le reversement au vendeur
+ * (qui reste dû dès que la commande est LIVREE et PAYEE), ni le droit de
+ * laisser un avis. Elle sert de trace de confiance côté acheteur.
+ *
+ * La commande est retrouvée par (id, acheteurId) : un identifiant fourni par
+ * le client ne peut pas confirmer la commande d'un tiers.
+ */
+export async function confirmerReceptionAcheteur(
+  utilisateurId: string,
+  commandeId: string,
+): Promise<ResultatConfirmation> {
+  const commande = await prisma.commande.findFirst({
+    where: { id: commandeId, acheteurId: utilisateurId },
+    select: { statutCommande: true, livraison: { select: { confirmationAcheteur: true } } },
+  });
+  if (!commande || !commande.livraison) return { ok: false, code: "INTROUVABLE" };
+  if (commande.livraison.confirmationAcheteur !== null) {
+    return { ok: false, code: "DEJA_CONFIRMEE" };
+  }
+  if (!peutConfirmerReception(commande.statutCommande, commande.livraison.confirmationAcheteur)) {
+    return { ok: false, code: "ETAT_INVALIDE" };
+  }
+
+  // Filtré sur confirmationAcheteur=null : deux clics concurrents ne peuvent
+  // pas écraser la première attestation.
+  const { count } = await prisma.livraison.updateMany({
+    where: { commandeId, confirmationAcheteur: null },
+    data: { confirmationAcheteur: new Date() },
+  });
+  return count > 0 ? { ok: true } : { ok: false, code: "DEJA_CONFIRMEE" };
 }
 
 /** Enregistre une preuve de livraison (image). */

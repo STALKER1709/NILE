@@ -40,6 +40,21 @@ export function vendeursAvecTotaux(
   return map;
 }
 
+/**
+ * Rappel à l'ACHETEUR : le livreur a déclaré la commande livrée, mais
+ * l'acheteur n'a pas encore attesté l'avoir reçue.
+ */
+export function chargeRappelConfirmation(params: {
+  numero: string;
+  commandeId: string;
+}): ChargePush {
+  return {
+    titre: "Avez-vous bien reçu votre commande ?",
+    corps: `Confirmez la réception de la commande ${params.numero} en un clic.`,
+    url: `/commandes/${params.commandeId}`,
+  };
+}
+
 /** Notification « nouvelle commande » pour les ADMINS (vue globale). */
 export function chargeNouvelleCommandeAdmin(params: {
   numero: string;

@@ -314,6 +314,18 @@ model Livraison {
   dateAffectation    DateTime?
   dateLivraison      DateTime?
   note               String?
+  // Attestation de réception par l'ACHETEUR lui-même, distincte de
+  // `dateLivraison` (déclarée par le vendeur/livreur). Purement déclarative :
+  // elle ne conditionne ni le paiement du vendeur, ni le droit de noter.
+  confirmationAcheteur     DateTime?
+  // Rappel push « avez-vous bien reçu ? » envoyé 30 min après la livraison
+  // déclarée. Un seul rappel par commande, jamais de relance en boucle.
+  rappelConfirmationEnvoye Boolean   @default(false)
+
+  // Retrouver les livraisons à rappeler sans balayer toute la table. Nom
+  // explicite : l'auto-généré dépasserait la limite de 63 caractères de
+  // Postgres et serait tronqué silencieusement.
+  @@index([statut, confirmationAcheteur, rappelConfirmationEnvoye], map: "Livraison_rappel_idx")
 }
 
 model Avis {

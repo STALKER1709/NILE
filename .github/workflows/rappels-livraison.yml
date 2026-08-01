@@ -1,0 +1,43 @@
+name: Rappels de confirmation de réception
+
+# Vercel Hobby ne permet qu'une exécution planifiée par jour : la cadence
+# vient donc d'ici. GitHub applique un délai variable aux tâches planifiées
+# (quelques minutes selon la charge) — sans importance, le rappel n'a pas
+# besoin d'être à la minute près.
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  # Permet de déclencher manuellement depuis l'onglet Actions (test).
+  workflow_dispatch:
+
+# Deux exécutions ne doivent pas se chevaucher.
+concurrency:
+  group: rappels-livraison
+  cancel-in-progress: false
+
+jobs:
+  rappels:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déclencher les rappels
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          URL_SITE: ${{ vars.URL_SITE || 'https://nile-beige.vercel.app' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET absent des secrets du dépôt : rien à faire."
+            exit 0
+          fi
+          code=$(curl -sS -o /tmp/reponse.json -w "%{http_code}" \
+            -X POST "$URL_SITE/api/cron/rappels-livraison" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          echo "HTTP $code"
+          cat /tmp/reponse.json
+          echo
+          # 503 = fonction non configurée côté app : on ne fait pas échouer le
+          # workflow pour autant (rien de cassé, la variable n'est pas posée).
+          if [ "$code" = "503" ]; then
+            echo "Route inactive (CRON_SECRET non configuré sur Vercel)."
+            exit 0
+          fi
+          [ "$code" = "200" ]
