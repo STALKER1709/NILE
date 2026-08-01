@@ -116,6 +116,10 @@ model Utilisateur {
   statut                  StatutUtilisateur @default(ACTIF)
   // Compteur anti-fraude COD : commandes refusées/annulées à la livraison.
   nbCommandesNonAbouties  Int               @default(0)
+  // Dernier message WhatsApp reçu de cet utilisateur + 24h (fenêtre de
+  // service Meta) : tant qu'elle est dans le futur, on peut lui répondre
+  // gratuitement en texte libre plutôt qu'avec un template payant.
+  whatsappFenetreOuverteJusqua DateTime?
   dateCreation            DateTime          @default(now())
 
   vendeur   Vendeur?

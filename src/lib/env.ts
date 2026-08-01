@@ -64,6 +64,28 @@ const schema = z
     EMAIL_EXPEDITEUR: z.string().email().optional(),
     EMAIL_EXPEDITEUR_NOM: z.string().default("NILE Marketplace"),
 
+    // Notifications de commande par WhatsApp (WhatsApp Cloud API, Meta) :
+    //   "mock" -> journalise seulement (développement).
+    //   "meta" -> envoi réel via l'API Cloud de Meta (production).
+    WHATSAPP_PROVIDER: z.enum(["mock", "meta"]).default("mock"),
+    // Identifiant Graph API du numéro expéditeur (WhatsApp Manager > numéro).
+    WHATSAPP_PHONE_NUMBER_ID: z.string().optional(),
+    // Token permanent (Business Settings > System Users > générer un token).
+    WHATSAPP_TOKEN: z.string().optional(),
+    // App Secret (App Dashboard > Settings > Basic) : signe les webhooks.
+    WHATSAPP_APP_SECRET: z.string().optional(),
+    // Chaîne arbitraire choisie par toi, à recopier dans la config du webhook
+    // Meta (WhatsApp Manager > Configuration > Webhook > Verify token).
+    WHATSAPP_VERIFY_TOKEN: z.string().optional(),
+    // Version de l'API Graph utilisée. Meta déprécie une version tous les ~2
+    // ans : si les envois échouent un jour avec "Unsupported API version",
+    // c'est probablement ici qu'il faut regarder en premier.
+    WHATSAPP_API_VERSION: z.string().default("v21.0"),
+    // Nom du template "utility" approuvé par Meta pour les mises à jour de
+    // statut, hors fenêtre gratuite de 24h. Vide = ces envois sont ignorés
+    // (journalisés) tant qu'aucun template n'est validé.
+    WHATSAPP_TEMPLATE_STATUT: z.string().optional(),
+
     COD_PLAFOND_XAF: z.coerce.number().int().positive().default(150000),
     // Commission NILE (%) sur les ventes des vendeurs tiers (reversements).
     COMMISSION_POURCENT: z.coerce.number().min(0).max(100).default(10),
@@ -115,6 +137,21 @@ const schema = z
           path: ["BREVO_API_KEY"],
           message:
             'BREVO_API_KEY et EMAIL_EXPEDITEUR requis quand EMAIL_PROVIDER="brevo".',
+        });
+      }
+    }
+    if (val.WHATSAPP_PROVIDER === "meta") {
+      if (
+        !val.WHATSAPP_PHONE_NUMBER_ID ||
+        !val.WHATSAPP_TOKEN ||
+        !val.WHATSAPP_APP_SECRET ||
+        !val.WHATSAPP_VERIFY_TOKEN
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["WHATSAPP_PHONE_NUMBER_ID"],
+          message:
+            'WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_TOKEN, WHATSAPP_APP_SECRET et WHATSAPP_VERIFY_TOKEN requis quand WHATSAPP_PROVIDER="meta".',
         });
       }
     }

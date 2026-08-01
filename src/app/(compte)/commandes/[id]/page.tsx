@@ -12,6 +12,8 @@ import {
   BadgeStatutCommande,
   BadgeStatutPaiement,
 } from "@/components/commande/StatutBadges";
+import { IconeWhatsApp } from "@/components/layout/BulleWhatsApp";
+import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
 
@@ -98,15 +100,36 @@ export default async function DetailCommandePage({
             </span>
           </p>
         </div>
-        <Link href="/aide" className={btn("secondaire", "md")}>
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.4V14" strokeLinecap="round" />
-            <path d="M12 17.5v.01" strokeLinecap="round" />
-          </svg>
-          Besoin d'aide ?
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          {env.CONTACT_WHATSAPP && (
+            <Link
+              href={`https://wa.me/${env.CONTACT_WHATSAPP}?text=${encodeURIComponent(
+                `Bonjour NILE, je souhaite suivre ma commande ${commande.numero}.`,
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={btn("secondaire", "md")}
+            >
+              <IconeWhatsApp taille={17} />
+              Suivre sur WhatsApp
+            </Link>
+          )}
+          <Link href="/aide" className={btn("secondaire", "md")}>
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M9.5 9.5a2.5 2.5 0 1 1 3 2.4V14" strokeLinecap="round" />
+              <path d="M12 17.5v.01" strokeLinecap="round" />
+            </svg>
+            Besoin d'aide ?
+          </Link>
+        </div>
       </div>
+
+      {env.CONTACT_WHATSAPP && (
+        <p className="rounded border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-corps-sm text-emerald-800">
+          Écrivez-nous une fois sur WhatsApp et on vous préviendra gratuitement de chaque étape de cette commande, directement là-bas.
+        </p>
+      )}
 
       {alerte && (
         <p className={`rounded border px-3 py-2 text-sm ${alerte.classe}`}>
