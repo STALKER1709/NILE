@@ -137,7 +137,7 @@ export default async function FinancesVendeurPage({
         <Carte className="flex flex-col p-6">
           <p className="mb-4 text-etiquette-md text-slate-500">Détail du solde</p>
           <dl className="space-y-2.5 text-corps-sm">
-            <LigneDetail libelle="Ventes livrées et payées" valeur={solde.brut} />
+            <LigneDetail libelle="Ventes encaissées par NILE (Mobile Money)" valeur={solde.brut} />
             {/* Espace insécable : « 10 % » ne doit pas se couper en fin de ligne. */}
             <LigneDetail
               libelle={`Commission NILE (${solde.tauxPourcent} %)`}
@@ -154,6 +154,13 @@ export default async function FinancesVendeurPage({
               </dd>
             </div>
           </dl>
+          {/* Sans cette précision, un vendeur qui vend surtout en COD croirait
+              à une erreur en comparant ses ventes du mois à son solde. */}
+          <p className="mt-4 border-t border-contour-carte pt-3 text-etiquette-xs leading-relaxed text-slate-500">
+            Les ventes payées à la livraison n&apos;apparaissent pas ici : vous
+            avez encaissé ces espèces directement, elles ne transitent pas par
+            NILE.
+          </p>
         </Carte>
       </div>
 

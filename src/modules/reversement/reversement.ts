@@ -6,9 +6,21 @@ import {
   type CalculSolde,
 } from "@/modules/reversement/reversement-core";
 
-/** Lignes de commande éligibles : commande LIVRÉE et PAYÉE. */
+/**
+ * Lignes de commande donnant lieu à un versement DE NILE VERS LE VENDEUR :
+ * commande livrée, payée, et réglée par Mobile Money.
+ *
+ * Le paiement à la livraison est volontairement exclu : l'argent y est remis
+ * en espèces au livreur de la boutique, il n'a jamais transité par NILE. Le
+ * vendeur détient déjà ces recettes — lui reverser quoi que ce soit
+ * reviendrait à le payer deux fois.
+ */
 const WHERE_ELIGIBLE = {
-  commande: { statutCommande: "LIVREE", statutPaiement: "PAYE" },
+  commande: {
+    statutCommande: "LIVREE",
+    statutPaiement: "PAYE",
+    modePaiement: "MONETBIL",
+  },
 } as const;
 
 export interface SoldeVendeur extends CalculSolde {

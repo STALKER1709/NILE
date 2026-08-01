@@ -83,6 +83,9 @@ export default async function DetailCommandePage({
     commande.statutCommande === "EN_ATTENTE";
   const termine = commande.statutCommande === "ANNULEE" || commande.statutCommande === "REFUSEE";
   const etapeCourante = ETAPES.indexOf(commande.statutCommande as (typeof ETAPES)[number]);
+  // LIVREE est un état terminal : dès que le code a été scanné ou saisi, la
+  // dernière étape est FAITE, pas « en cours ». Le parcours s'arrête là.
+  const parcoursAcheve = commande.statutCommande === "LIVREE";
   const alerte = ok ? ALERTES[ok] : undefined;
   // Étape effectivement atteinte (repli sur la première si statut hors frise).
   const etapeAffichee = ETAPES[Math.max(etapeCourante, 0)] ?? ETAPES[0];
@@ -181,7 +184,9 @@ export default async function DetailCommandePage({
           <ol className="flex items-start">
             {ETAPES.map((etape, i) => {
               const atteinte = i <= etapeCourante;
-              const courante = i === etapeCourante;
+              // Une fois la commande livrée, plus rien n'est « en cours » :
+              // la dernière étape est franchie, pas en attente.
+              const courante = i === etapeCourante && !parcoursAcheve;
               return (
                 <li key={etape} className="flex flex-1 items-start last:flex-none">
                   <div className="flex w-full min-w-0 flex-col items-center">
