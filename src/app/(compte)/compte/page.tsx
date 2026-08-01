@@ -205,7 +205,11 @@ export default async function ComptePage({
               <p className="mb-3 mt-1 text-sm text-slate-500">
                 Soyez prévenu de l'avancement de vos commandes.
               </p>
-              <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
+              <ActiverNotifications
+                clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+                libelle="Activer les notifications"
+                promesse="de l'avancement de vos commandes"
+              />
             </Carte>
           )}
 

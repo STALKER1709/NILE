@@ -2,6 +2,8 @@ import { describe, it, expect } from "vitest";
 import {
   chargeNouvelleCommandeVendeur,
   chargeNouvelleCommandeAdmin,
+  chargeStatutAcheteur,
+  chargeRappelConfirmation,
   vendeursAvecTotaux,
 } from "@/modules/push/push-core";
 
@@ -54,5 +56,59 @@ describe("chargeNouvelleCommandeAdmin", () => {
     expect(c.titre).toContain("NILE-2026-BBBB2222");
     expect(c.corps).toContain("15 000");
     expect(c.url).toBe("/admin/commandes");
+  });
+});
+
+describe("chargeStatutAcheteur", () => {
+  const base = {
+    numero: "NILE-2026-CCCC3333",
+    commandeId: "cmd-1",
+    total: 15000,
+  } as const;
+
+  it("ouvre toujours la commande concernée", () => {
+    for (const statut of ["CONFIRMEE", "EXPEDIEE", "LIVREE"] as const) {
+      const c = chargeStatutAcheteur({ ...base, statut, modePaiement: "COD" });
+      expect(c.url).toBe("/commandes/cmd-1");
+      expect(c.titre).toContain("NILE-2026-CCCC3333");
+    }
+  });
+
+  it("COD confirmée : annonce le montant à régler à la livraison", () => {
+    const c = chargeStatutAcheteur({ ...base, statut: "CONFIRMEE", modePaiement: "COD" });
+    expect(c.corps).toContain("15 000");
+    expect(c.corps).toContain("livraison");
+  });
+
+  it("Mobile Money confirmée : indique que c'est déjà payé", () => {
+    const c = chargeStatutAcheteur({ ...base, statut: "CONFIRMEE", modePaiement: "MONETBIL" });
+    expect(c.corps).toContain("payés");
+    expect(c.corps).not.toContain("à régler");
+  });
+
+  it("COD expédiée : rappelle de préparer l'argent avant de payer", () => {
+    const c = chargeStatutAcheteur({ ...base, statut: "EXPEDIEE", modePaiement: "COD" });
+    expect(c.corps).toContain("15 000");
+    expect(c.corps).toContain("espèces");
+    expect(c.corps).toContain("avant de payer");
+  });
+
+  it("Mobile Money expédiée : ne réclame aucun paiement", () => {
+    const c = chargeStatutAcheteur({ ...base, statut: "EXPEDIEE", modePaiement: "MONETBIL" });
+    expect(c.corps).not.toContain("espèces");
+    expect(c.corps).not.toContain("Préparez");
+  });
+
+  it("livrée : invite à confirmer la réception", () => {
+    const c = chargeStatutAcheteur({ ...base, statut: "LIVREE", modePaiement: "COD" });
+    expect(c.corps).toContain("Confirmez");
+  });
+});
+
+describe("chargeRappelConfirmation", () => {
+  it("ouvre la commande à confirmer", () => {
+    const c = chargeRappelConfirmation({ numero: "NILE-2026-DDDD4444", commandeId: "cmd-9" });
+    expect(c.corps).toContain("NILE-2026-DDDD4444");
+    expect(c.url).toBe("/commandes/cmd-9");
   });
 });

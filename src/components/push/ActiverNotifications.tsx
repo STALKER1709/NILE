@@ -25,10 +25,23 @@ function cleEnUint8Array(base64: string): Uint8Array {
 }
 
 /**
- * Bouton d'activation des notifications push « nouvelle commande »
- * (espace vendeur et back-office). Nécessite la clé publique VAPID.
+ * Bouton d'activation des notifications push. Nécessite la clé publique VAPID.
+ *
+ * Sert aux deux publics : vendeurs/admins (nouvelles commandes à préparer) et
+ * acheteurs (avancement de leur commande) — d'où les libellés paramétrables,
+ * la promesse n'étant pas la même de chaque côté.
  */
-export function ActiverNotifications({ clePublique }: { clePublique: string }) {
+export function ActiverNotifications({
+  clePublique,
+  libelle = "Être prévenu des nouvelles commandes",
+  promesse = "des nouvelles commandes",
+}: {
+  clePublique: string;
+  /** Texte du bouton d'activation. */
+  libelle?: string;
+  /** Complément décrivant ce dont on prévient, si l'autorisation est bloquée. */
+  promesse?: string;
+}) {
   const [etat, setEtat] = useState<Etat>("chargement");
   const [enCours, setEnCours] = useState(false);
 
@@ -106,7 +119,7 @@ export function ActiverNotifications({ clePublique }: { clePublique: string }) {
     return (
       <p className="text-xs text-slate-500">
         Notifications bloquées par le navigateur · autorise-les dans les
-        réglages du site pour être prévenu des nouvelles commandes.
+        réglages du site pour être prévenu {promesse}.
       </p>
     );
   }
@@ -135,7 +148,7 @@ export function ActiverNotifications({ clePublique }: { clePublique: string }) {
           className="inline-flex items-center gap-2 rounded bg-nile px-3 py-2 text-sm font-medium text-white hover:bg-nile-dark disabled:opacity-60"
         >
           <IconeCloche />
-          {enCours ? "Activation…" : "Être prévenu des nouvelles commandes"}
+          {enCours ? "Activation…" : libelle}
         </button>
       )}
       {etat === "erreur" && (

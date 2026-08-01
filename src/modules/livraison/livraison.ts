@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { notifierStatutCommande } from "@/modules/email/notifications";
 import { notifierCommandeWhatsApp } from "@/modules/whatsapp/notifications";
+import { notifierPushStatutAcheteur } from "@/modules/push/push";
 import { getStorageProvider } from "@/modules/stockage";
 import {
   TYPES_IMAGE_ACCEPTES,
@@ -80,6 +81,7 @@ export async function marquerExpediee(
   // Prévient l'acheteur (essentiel en COD : préparer le paiement au livreur).
   await notifierStatutCommande(commandeId, "EXPEDIEE");
   await notifierCommandeWhatsApp(commandeId, "EXPEDIEE");
+  await notifierPushStatutAcheteur(commandeId, "EXPEDIEE");
   return { ok: true };
 }
 
@@ -104,6 +106,7 @@ export async function marquerLivree(
   ]);
   await notifierStatutCommande(commandeId, "LIVREE");
   await notifierCommandeWhatsApp(commandeId, "LIVREE");
+  await notifierPushStatutAcheteur(commandeId, "LIVREE");
   return { ok: true };
 }
 

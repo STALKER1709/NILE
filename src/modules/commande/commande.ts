@@ -9,7 +9,10 @@ import {
 import { getPaymentProvider } from "@/modules/paiement";
 import { notifierCommandeConfirmee } from "@/modules/email/notifications";
 import { notifierCommandeWhatsApp } from "@/modules/whatsapp/notifications";
-import { notifierPushNouvelleCommande } from "@/modules/push/push";
+import {
+  notifierPushNouvelleCommande,
+  notifierPushStatutAcheteur,
+} from "@/modules/push/push";
 import { resoudrePrixEffectifTx } from "@/modules/promotion/promotion";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
@@ -138,10 +141,11 @@ export async function passerCommande(
 
   // Paiement à la livraison : rien à initier, la commande est confirmée.
   if (options.mode === "COD") {
-    // Email acheteur + vendeurs, WhatsApp acheteur, et push vendeurs/admin
-    // (n'échouent jamais la commande).
+    // Email acheteur + vendeurs, WhatsApp et push acheteur, push
+    // vendeurs/admin (n'échouent jamais la commande).
     await notifierCommandeConfirmee(cree.commandeId);
     await notifierCommandeWhatsApp(cree.commandeId, "CONFIRMEE");
+    await notifierPushStatutAcheteur(cree.commandeId, "CONFIRMEE");
     await notifierPushNouvelleCommande(cree.commandeId);
     return {
       ok: true,

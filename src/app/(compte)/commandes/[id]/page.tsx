@@ -16,6 +16,7 @@ import {
   BadgeStatutPaiement,
 } from "@/components/commande/StatutBadges";
 import { IconeWhatsApp } from "@/components/layout/BulleWhatsApp";
+import { ActiverNotifications } from "@/components/push/ActiverNotifications";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -129,10 +130,26 @@ export default async function DetailCommandePage({
         </div>
       </div>
 
-      {env.CONTACT_WHATSAPP && (
-        <p className="rounded border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-corps-sm text-emerald-800">
-          Écrivez-nous une fois sur WhatsApp et on vous préviendra gratuitement de chaque étape de cette commande, directement là-bas.
-        </p>
+      {/* Activation du push proposée ICI plutôt que reléguée à la page compte :
+          c'est en suivant sa commande que l'acheteur a une raison d'accepter
+          les notifications. Masquée une fois la commande terminée. */}
+      {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && !termine && (
+        <Carte className="flex flex-wrap items-center justify-between gap-3 border-nile-700/20 bg-nile-50 p-4">
+          <div className="min-w-0">
+            <p className="text-etiquette-md text-nile-800">
+              Soyez prévenu à chaque étape
+            </p>
+            <p className="mt-0.5 text-corps-sm text-slate-600">
+              Recevez une notification sur ce téléphone quand votre colis part
+              et quand il arrive. Gratuit, sans SMS.
+            </p>
+          </div>
+          <ActiverNotifications
+            clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY}
+            libelle="Suivre cette commande"
+            promesse="de l'avancement de vos commandes"
+          />
+        </Carte>
       )}
 
       {alerte && (

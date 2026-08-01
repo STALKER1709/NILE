@@ -40,6 +40,56 @@ export function vendeursAvecTotaux(
   return map;
 }
 
+export type StatutNotifiableAcheteur = "CONFIRMEE" | "EXPEDIEE" | "LIVREE";
+
+/**
+ * Avancement de commande notifié à l'ACHETEUR.
+ *
+ * Mêmes étapes que les emails, mais le push arrive sur l'écran de veille :
+ * c'est le canal qui a le plus de chances d'être vu, et il ne coûte rien
+ * (VAPID, aucun tiers facturé).
+ *
+ * En COD, le message d'expédition rappelle de préparer l'argent : c'est
+ * l'information la plus utile du parcours pour un acheteur camerounais.
+ */
+export function chargeStatutAcheteur(params: {
+  numero: string;
+  commandeId: string;
+  statut: StatutNotifiableAcheteur;
+  modePaiement: "COD" | "MONETBIL";
+  total: number;
+}): ChargePush {
+  const { numero, commandeId, statut, modePaiement, total } = params;
+  const url = `/commandes/${commandeId}`;
+
+  switch (statut) {
+    case "CONFIRMEE":
+      return {
+        titre: `✅ Commande ${numero} confirmée`,
+        corps:
+          modePaiement === "COD"
+            ? `${formaterXAF(total)} à régler à la livraison. La boutique prépare votre colis.`
+            : `${formaterXAF(total)} payés. La boutique prépare votre colis.`,
+        url,
+      };
+    case "EXPEDIEE":
+      return {
+        titre: `📦 Commande ${numero} en route`,
+        corps:
+          modePaiement === "COD"
+            ? `Préparez ${formaterXAF(total)} en espèces. Vérifiez le colis avant de payer.`
+            : "Votre colis est en route. Vérifiez-le à la réception.",
+        url,
+      };
+    case "LIVREE":
+      return {
+        titre: `Commande ${numero} livrée`,
+        corps: "Confirmez la réception en un clic, et notez vos articles.",
+        url,
+      };
+  }
+}
+
 /**
  * Rappel à l'ACHETEUR : le livreur a déclaré la commande livrée, mais
  * l'acheteur n'a pas encore attesté l'avoir reçue.

@@ -4,8 +4,10 @@ import { env } from "@/lib/env";
 import {
   chargeNouvelleCommandeVendeur,
   chargeNouvelleCommandeAdmin,
+  chargeStatutAcheteur,
   vendeursAvecTotaux,
   type ChargePush,
+  type StatutNotifiableAcheteur,
 } from "@/modules/push/push-core";
 
 /**
@@ -64,6 +66,46 @@ export async function envoyerPushAUtilisateurs(
       }
     }),
   );
+}
+
+/**
+ * Avancement de commande notifié à l'ACHETEUR (confirmée, expédiée, livrée).
+ *
+ * Canal gratuit et le plus visible dont dispose NILE : il arrive sur l'écran
+ * du téléphone sans consommer de data significative. Un échec d'envoi est
+ * journalisé et ne fait JAMAIS échouer la transition de commande.
+ */
+export async function notifierPushStatutAcheteur(
+  commandeId: string,
+  statut: StatutNotifiableAcheteur,
+): Promise<void> {
+  try {
+    if (!pushActif()) return;
+    const commande = await prisma.commande.findUnique({
+      where: { id: commandeId },
+      select: {
+        id: true,
+        numero: true,
+        total: true,
+        modePaiement: true,
+        acheteurId: true,
+      },
+    });
+    if (!commande) return;
+
+    await envoyerPushAUtilisateurs(
+      [commande.acheteurId],
+      chargeStatutAcheteur({
+        numero: commande.numero,
+        commandeId: commande.id,
+        statut,
+        modePaiement: commande.modePaiement,
+        total: commande.total,
+      }),
+    );
+  } catch (erreur) {
+    console.error("[push] notification de statut à l'acheteur échouée:", erreur);
+  }
 }
 
 /**
