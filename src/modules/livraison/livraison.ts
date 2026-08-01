@@ -8,6 +8,7 @@ import {
   TAILLE_IMAGE_MAX_OCTETS,
   type FichierAEnregistrer,
 } from "@/modules/stockage/StorageProvider";
+import type { ModeConfirmationLivraison } from "@prisma/client";
 import {
   peutAffecterTransporteur,
   peutExpedier,
@@ -15,6 +16,7 @@ import {
   peutRefuser,
   peutConfirmerReception,
 } from "@/modules/livraison/livraison-core";
+import { verifierCodeReception } from "@/modules/livraison/reception-core";
 
 export type ResultatLivraison =
   | { ok: true }
@@ -85,29 +87,121 @@ export async function marquerExpediee(
   return { ok: true };
 }
 
-/** Marque la commande livrée. */
-export async function marquerLivree(
+/**
+ * Marque la commande livrée, en consignant COMMENT la réception a été
+ * attestée. Il n'existe plus de passage à LIVREE sans preuve : soit le code
+ * de l'acheteur a été fourni (SCAN/MANUEL), soit un administrateur a forcé
+ * la remise en motivant (ADMIN).
+ *
+ * Ce point est devenu financièrement sensible : le calcul des reversements
+ * ne compte que les commandes LIVREE et PAYEE, donc franchir cette étape,
+ * c'est rendre le vendeur payable.
+ *
+ * N'est pas exportée : on y entre par `remettreParCode` ou par
+ * `forcerLivraison`, jamais directement.
+ */
+async function appliquerLivraison(
   commandeId: string,
-): Promise<ResultatLivraison> {
+  confirmation: { mode: ModeConfirmationLivraison; motif?: string },
+): Promise<{ ok: true } | { ok: false; code: "INTROUVABLE" | "ETAT_INVALIDE" }> {
   const commande = await chargerCommande(commandeId);
   if (!commande || !commande.livraison) return { ok: false, code: "INTROUVABLE" };
   if (!peutLivrer(commande.statutCommande)) {
     return { ok: false, code: "ETAT_INVALIDE" };
   }
-  await prisma.$transaction([
-    prisma.commande.update({
-      where: { id: commandeId },
+
+  const maintenant = new Date();
+  // Filtré sur EXPEDIEE : deux scans concurrents ne peuvent pas appliquer la
+  // livraison deux fois, ni déclencher deux fois les notifications.
+  const applique = await prisma.$transaction(async (tx) => {
+    const maj = await tx.commande.updateMany({
+      where: { id: commandeId, statutCommande: "EXPEDIEE" },
       data: { statutCommande: "LIVREE" },
-    }),
-    prisma.livraison.update({
+    });
+    if (maj.count === 0) return false;
+    await tx.livraison.update({
       where: { commandeId },
-      data: { statut: "LIVREE", dateLivraison: new Date() },
-    }),
-  ]);
+      data: {
+        statut: "LIVREE",
+        dateLivraison: maintenant,
+        // L'attestation n'est portée que par une preuve VENANT de l'acheteur
+        // (son code, scanné ou dicté). Un forçage administrateur fait avancer
+        // la commande sans que l'acheteur ait rien attesté : le champ reste
+        // vide, sinon la trace mentirait — et c'est précisément sur ces
+        // commandes que le rappel de confirmation garde un sens.
+        confirmationAcheteur: confirmation.mode === "ADMIN" ? null : maintenant,
+        modeConfirmation: confirmation.mode,
+        forcageMotif: confirmation.motif ?? null,
+      },
+    });
+    return true;
+  });
+  if (!applique) return { ok: false, code: "ETAT_INVALIDE" };
+
   await notifierStatutCommande(commandeId, "LIVREE");
   await notifierCommandeWhatsApp(commandeId, "LIVREE");
   await notifierPushStatutAcheteur(commandeId, "LIVREE");
   return { ok: true };
+}
+
+export type ResultatRemise =
+  | { ok: true }
+  | {
+      ok: false;
+      code: "INTROUVABLE" | "ETAT_INVALIDE" | "CODE_INVALIDE" | "MAUVAISE_COMMANDE";
+    };
+
+/**
+ * Remise chez le client : le livreur fournit le code affiché sur le téléphone
+ * de l'acheteur, scanné (SCAN) ou dicté puis saisi (MANUEL).
+ *
+ * `numeroAttendu` provient du QR : s'il ne correspond pas à la commande
+ * ouverte, on refuse plutôt que de valider la mauvaise livraison — un livreur
+ * qui porte plusieurs colis scannerait sinon le mauvais client sans le voir.
+ */
+export async function remettreParCode(
+  commandeId: string,
+  code: string,
+  mode: "SCAN" | "MANUEL",
+  numeroAttendu?: string,
+): Promise<ResultatRemise> {
+  const commande = await prisma.commande.findUnique({
+    where: { id: commandeId },
+    select: {
+      numero: true,
+      statutCommande: true,
+      livraison: { select: { secretReception: true } },
+    },
+  });
+  if (!commande || !commande.livraison) return { ok: false, code: "INTROUVABLE" };
+  if (numeroAttendu && numeroAttendu !== commande.numero) {
+    return { ok: false, code: "MAUVAISE_COMMANDE" };
+  }
+  if (!peutLivrer(commande.statutCommande)) return { ok: false, code: "ETAT_INVALIDE" };
+
+  // Pas de secret => l'acheteur n'a jamais affiché son code : rien à valider.
+  const secret = commande.livraison.secretReception;
+  if (!secret || !verifierCodeReception(secret, code, new Date())) {
+    return { ok: false, code: "CODE_INVALIDE" };
+  }
+
+  const res = await appliquerLivraison(commandeId, { mode });
+  return res.ok ? { ok: true } : { ok: false, code: res.code };
+}
+
+/**
+ * Filet de sécurité : un administrateur constate la livraison sans code
+ * (acheteur sans smartphone, téléphone déchargé, aucun réseau sur place).
+ * Le motif est obligatoire et conservé — ces remises n'ont pas la valeur
+ * probante d'un code, elles doivent rester identifiables.
+ */
+export async function forcerLivraison(
+  commandeId: string,
+  motif: string,
+): Promise<ResultatLivraison> {
+  const propre = motif.trim();
+  if (propre.length < 5) return { ok: false, code: "ETAT_INVALIDE" };
+  return appliquerLivraison(commandeId, { mode: "ADMIN", motif: propre });
 }
 
 export type ResultatConfirmation =

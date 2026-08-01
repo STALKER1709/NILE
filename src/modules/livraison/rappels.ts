@@ -22,6 +22,9 @@ export async function envoyerRappelsConfirmation(
   const candidates = await prisma.livraison.findMany({
     where: {
       statut: "LIVREE",
+      // Depuis la remise par code, une livraison normale porte déjà
+      // l'attestation de l'acheteur : il ne reste à relancer que les
+      // livraisons forcées par un administrateur, sans preuve de sa part.
       confirmationAcheteur: null,
       rappelConfirmationEnvoye: false,
       dateLivraison: { lte: seuil },

@@ -7,8 +7,8 @@ import {
 import {
   affecterTransporteurVendeurAction,
   expedierVendeurAction,
-  livrerVendeurAction,
 } from "@/app/(vendeur)/vendeur/commandes/actions";
+import { RemiseParCode } from "@/components/livraison/RemiseParCode";
 import {
   BadgeStatutCommande,
   BadgeStatutPaiement,
@@ -159,17 +159,14 @@ export default async function CommandesVendeurPage({
                     </form>
                   )}
                   {c.statutCommande === "EXPEDIEE" && (
-                    <form action={livrerVendeurAction}>
-                      <input type="hidden" name="commandeId" value={c.id} />
-                      <BoutonSoumettre enCours="Un instant…" className={btn("accent", "md")}>
-                        Marquer livrée
-                      </BoutonSoumettre>
+                    <div>
                       {c.modePaiement === "COD" && (
-                        <span className="ml-2 text-xs text-slate-500">
+                        <p className="mb-2 text-xs text-slate-500">
                           Encaisse <Prix montant={c.total} /> à la remise du colis.
-                        </span>
+                        </p>
                       )}
-                    </form>
+                      <RemiseParCode commandeId={c.id} numeroCommande={c.numero} />
+                    </div>
                   )}
                 </div>
               ) : (

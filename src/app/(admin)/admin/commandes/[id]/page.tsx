@@ -11,7 +11,7 @@ import {
 import {
   affecterTransporteurAction,
   marquerExpedieeAction,
-  marquerLivreeAction,
+  forcerLivraisonAction,
   refuserLivraisonAction,
   ajouterPreuveAction,
 } from "@/app/(admin)/admin/commandes/actions";
@@ -94,9 +94,52 @@ export default async function AdminDetailCommandePage({
 
         <div className="flex flex-wrap gap-2">
           {peutExpedier(st) && <Action action={marquerExpedieeAction} id={commande.id} libelle="Marquer expédiée" />}
-          {peutLivrer(st) && <Action action={marquerLivreeAction} id={commande.id} libelle="Marquer livrée" />}
           {peutRefuser(st) && <Action action={refuserLivraisonAction} id={commande.id} libelle="Refus à la livraison" danger />}
         </div>
+
+        {/* Forçage : la livraison se valide normalement avec le code affiché
+            chez l'acheteur. Ce recours existe pour les cas où c'est
+            impossible, et le motif reste attaché à la commande. */}
+        {peutLivrer(st) && (
+          <form action={forcerLivraisonAction} className="rounded border border-amber-200 bg-accent-fixe p-3">
+            <input type="hidden" name="commandeId" value={commande.id} />
+            <p className="text-xs font-semibold text-amber-900">
+              Valider la livraison sans le code de l&apos;acheteur
+            </p>
+            <p className="mt-0.5 text-xs text-amber-800">
+              À n&apos;utiliser que si le code est inaccessible (téléphone
+              déchargé, pas de réseau, acheteur sans smartphone). Le vendeur
+              devient payable : le motif est conservé.
+            </p>
+            <div className="mt-2 flex flex-wrap items-end gap-2">
+              <input
+                name="motif"
+                required
+                minLength={5}
+                maxLength={300}
+                placeholder="Motif (obligatoire)"
+                className={`${champClass} flex-1`}
+              />
+              <button type="submit" className={btn("danger", "md")}>
+                Forcer la livraison
+              </button>
+            </div>
+          </form>
+        )}
+
+        {commande.livraison?.modeConfirmation && (
+          <p className="text-xs text-slate-500">
+            Réception attestée :{" "}
+            <strong className="text-slate-700">
+              {commande.livraison.modeConfirmation === "SCAN"
+                ? "QR scanné chez le client"
+                : commande.livraison.modeConfirmation === "MANUEL"
+                  ? "code dicté par le client"
+                  : "forcée par un administrateur"}
+            </strong>
+            {commande.livraison.forcageMotif && ` · ${commande.livraison.forcageMotif}`}
+          </p>
+        )}
 
         <div className="border-t border-slate-100 pt-3">
           <p className="text-xs font-medium text-slate-500">Preuve de livraison</p>

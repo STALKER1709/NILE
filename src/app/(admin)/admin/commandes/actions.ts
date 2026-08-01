@@ -2,11 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { exigerRole } from "@/modules/auth/access";
-import { affectationSchema } from "@/validators/livraison";
+import { affectationSchema, forcageLivraisonSchema } from "@/validators/livraison";
 import {
   affecterTransporteur,
   marquerExpediee,
-  marquerLivree,
+  forcerLivraison,
   refuserLivraison,
   ajouterPreuve,
   type ResultatLivraison,
@@ -59,10 +59,28 @@ export async function marquerExpedieeAction(formData: FormData): Promise<void> {
   retour(id, await marquerExpediee(id), "expediee");
 }
 
-export async function marquerLivreeAction(formData: FormData): Promise<void> {
+/**
+ * Filet de sécurité : valider une livraison SANS le code de l'acheteur
+ * (téléphone déchargé, pas de réseau sur place, acheteur sans smartphone).
+ * Le motif est obligatoire et conservé : ces remises n'ont pas la valeur
+ * probante d'un code et doivent rester distinguables à l'audit.
+ */
+export async function forcerLivraisonAction(formData: FormData): Promise<void> {
   await exigerRole("ADMIN");
-  const id = String(formData.get("commandeId") ?? "");
-  retour(id, await marquerLivree(id), "livree");
+  const parsed = forcageLivraisonSchema.safeParse({
+    commandeId: formData.get("commandeId"),
+    motif: formData.get("motif"),
+  });
+  if (!parsed.success) {
+    const id = String(formData.get("commandeId") ?? "");
+    const msg = parsed.error.issues[0]?.message ?? "Motif requis.";
+    redirect(`/admin/commandes/${id}?erreur=${encodeURIComponent(msg)}`);
+  }
+  retour(
+    parsed.data.commandeId,
+    await forcerLivraison(parsed.data.commandeId, parsed.data.motif),
+    "livree_forcee",
+  );
 }
 
 export async function refuserLivraisonAction(formData: FormData): Promise<void> {

@@ -17,6 +17,7 @@ import {
 } from "@/components/commande/StatutBadges";
 import { IconeWhatsApp } from "@/components/layout/BulleWhatsApp";
 import { ActiverNotifications } from "@/components/push/ActiverNotifications";
+import { CodeReception } from "@/components/livraison/CodeReception";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -230,9 +231,29 @@ export default async function DetailCommandePage({
         )}
       </Carte>
 
-      {/* Attestation de réception par l'acheteur. Distincte du « Livrée »
-          déclaré par le vendeur/livreur : elle ne conditionne ni le règlement
-          du vendeur, ni le droit de noter — c'est une trace de confiance. */}
+      {/* Code de réception : c'est LUI qui fait passer la commande à livrée.
+          Le livreur le scanne (ou l'acheteur le lui dicte) sur le pas de la
+          porte. Il change toutes les 30 s, pour qu'une capture d'écran
+          transmise à distance ne serve à rien. */}
+      {commande.statutCommande === "EXPEDIEE" && (
+        <Carte className="p-5 sm:p-6">
+          <h2 className="text-titre-sm text-nile-800">Votre code de réception</h2>
+          <p className="mt-1.5 text-corps-sm text-slate-600">
+            À la remise du colis, montrez ce QR au livreur — ou dictez-lui les
+            6 chiffres. C&apos;est ce geste qui confirme la livraison.
+            {commande.modePaiement === "COD" && (
+              <> Vérifiez le colis <strong>avant</strong> de payer et de donner le code.</>
+            )}
+          </p>
+          <div className="mt-4">
+            <CodeReception commandeId={commande.id} />
+          </div>
+        </Carte>
+      )}
+
+      {/* Après la remise : ce qui a été attesté, et comment. Une livraison
+          forcée par un administrateur n'a pas d'attestation acheteur — le
+          bouton de confirmation garde donc son utilité pour ces cas-là. */}
       {commande.statutCommande === "LIVREE" && (
         <Carte className="p-5 sm:p-6">
           {commande.livraison?.confirmationAcheteur ? (
@@ -258,9 +279,9 @@ export default async function DetailCommandePage({
             <>
               <h2 className="text-titre-sm text-nile-800">Avez-vous bien reçu votre colis ?</h2>
               <p className="mt-1.5 text-corps-sm text-slate-600">
-                Le livreur a marqué cette commande comme livrée. Confirmez-le de
-                votre côté : c&apos;est ce qui permet à NILE de repérer les
-                livraisons qui se passent mal.
+                Cette livraison a été validée par NILE sans votre code.
+                Confirmez-le de votre côté : c&apos;est ce qui nous permet de
+                repérer les livraisons qui se passent mal.
               </p>
               <form action={confirmerReceptionAction} className="mt-4">
                 <input type="hidden" name="commandeId" value={commande.id} />

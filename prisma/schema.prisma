@@ -94,6 +94,14 @@ enum StatutLivraison {
   RETOURNEE
 }
 
+// Comment la réception a été attestée. Distingue une preuve obtenue chez le
+// client d'un déblocage administratif, qui n'a pas la même valeur.
+enum ModeConfirmationLivraison {
+  SCAN // QR de l'acheteur scanné par le livreur, chez le client
+  MANUEL // code dicté par l'acheteur, saisi par le livreur (sans caméra)
+  ADMIN // forcé par un administrateur, motif obligatoire
+}
+
 // Réconciliation du cash encaissé par le transporteur (paiement à la livraison).
 enum StatutCashCOD {
   NON_APPLICABLE
@@ -314,10 +322,20 @@ model Livraison {
   dateAffectation    DateTime?
   dateLivraison      DateTime?
   note               String?
-  // Attestation de réception par l'ACHETEUR lui-même, distincte de
-  // `dateLivraison` (déclarée par le vendeur/livreur). Purement déclarative :
-  // elle ne conditionne ni le paiement du vendeur, ni le droit de noter.
+  // Attestation de réception par l'ACHETEUR. Depuis la remise par scan, c'est
+  // ELLE qui fait passer la commande à LIVREE — et donc qui rend le vendeur
+  // payable, puisque le calcul des reversements ne compte que les commandes
+  // LIVREE et PAYEE.
   confirmationAcheteur     DateTime?
+  // Comment l'attestation a été obtenue. Trace indispensable : un forçage
+  // administrateur n'a pas la même valeur probante qu'un code scanné.
+  modeConfirmation         ModeConfirmationLivraison?
+  // Motif obligatoire quand un administrateur force la livraison sans code
+  // (acheteur injoignable, téléphone déchargé, aucun réseau sur place…).
+  forcageMotif             String?
+  // Secret propre à cette livraison, d'où découle le code tournant affiché à
+  // l'acheteur. Tiré au sort à la première demande, jamais exposé au client.
+  secretReception          String?
   // Rappel push « avez-vous bien reçu ? » envoyé 30 min après la livraison
   // déclarée. Un seul rappel par commande, jamais de relance en boucle.
   rappelConfirmationEnvoye Boolean   @default(false)

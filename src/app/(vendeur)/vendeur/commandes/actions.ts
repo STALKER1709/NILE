@@ -7,9 +7,10 @@ import { affectationSchema } from "@/validators/livraison";
 import {
   affecterTransporteur,
   marquerExpediee,
-  marquerLivree,
+  remettreParCode,
   type ResultatLivraison,
 } from "@/modules/livraison/livraison";
+import { codeRemiseSchema } from "@/validators/livraison";
 
 /**
  * Suivi de livraison PILOTÉ PAR LA BOUTIQUE (l'admin supervise).
@@ -74,8 +75,41 @@ export async function expedierVendeurAction(formData: FormData): Promise<void> {
   retour(await marquerExpediee(commandeId), "expediee");
 }
 
-export async function livrerVendeurAction(formData: FormData): Promise<void> {
-  const commandeId = String(formData.get("commandeId") ?? "");
-  await exigerProprietaireCommande(commandeId);
-  retour(await marquerLivree(commandeId), "livree");
+/**
+ * Remise chez le client : remplace l'ancien bouton « marquer livrée ».
+ * Le vendeur ne peut plus déclarer une livraison de son propre chef — il lui
+ * faut le code affiché sur le téléphone de l'acheteur, scanné ou dicté.
+ */
+export async function remettreVendeurAction(formData: FormData): Promise<void> {
+  const parsed = codeRemiseSchema.safeParse({
+    commandeId: formData.get("commandeId"),
+    code: formData.get("code"),
+    mode: formData.get("mode"),
+    numeroAttendu: formData.get("numeroAttendu") || undefined,
+  });
+  if (!parsed.success) {
+    redirect(
+      `/vendeur/commandes?erreur=${encodeURIComponent("Code de réception invalide (6 chiffres).")}`,
+    );
+  }
+  await exigerProprietaireCommande(parsed.data.commandeId);
+
+  const res = await remettreParCode(
+    parsed.data.commandeId,
+    parsed.data.code,
+    parsed.data.mode,
+    parsed.data.numeroAttendu,
+  );
+  if (!res.ok) {
+    const msg =
+      res.code === "CODE_INVALIDE"
+        ? "Code incorrect ou expiré. Demandez le code affiché à l'écran du client."
+        : res.code === "MAUVAISE_COMMANDE"
+          ? "Ce code appartient à une autre commande."
+          : res.code === "ETAT_INVALIDE"
+            ? "Cette commande n'est pas en cours de livraison."
+            : "Commande introuvable.";
+    redirect(`/vendeur/commandes?erreur=${encodeURIComponent(msg)}`);
+  }
+  redirect("/vendeur/commandes?ok=livree");
 }
