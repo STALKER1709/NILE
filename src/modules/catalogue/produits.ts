@@ -28,9 +28,10 @@ export function estProprietaire(
 
 // --------------------------------- VENDEUR -----------------------------------
 
+/** Catalogue "vivant" d'un vendeur, hors corbeille (SUPPRIME). */
 export async function listerProduitsVendeur(vendeurId: string) {
   return prisma.produit.findMany({
-    where: { vendeurId },
+    where: { vendeurId, statut: { not: "SUPPRIME" } },
     orderBy: { dateMaj: "desc" },
     include: { images: { orderBy: { ordre: "asc" }, take: 1 }, categorie: true },
   });
@@ -40,12 +41,18 @@ export async function listerProduitsVendeur(vendeurId: string) {
  * Page de l'inventaire d'un vendeur, avec recherche par titre.
  * La recherche est insensible à la casse ; le filtre reste borné au vendeur
  * passé en argument, jamais à un identifiant venant du client.
+ *
+ * `corbeille: true` bascule sur les produits supprimés (soft delete) au lieu
+ * du catalogue actif — même pagination/recherche, vue différente.
  */
 export async function rechercherProduitsVendeur(
   vendeurId: string,
-  options: { q?: string; page: number; parPage: number },
+  options: { q?: string; page: number; parPage: number; corbeille?: boolean },
 ) {
-  const where: Prisma.ProduitWhereInput = { vendeurId };
+  const where: Prisma.ProduitWhereInput = {
+    vendeurId,
+    statut: options.corbeille ? "SUPPRIME" : { not: "SUPPRIME" },
+  };
   if (options.q) {
     where.titre = { contains: options.q, mode: "insensitive" };
   }
@@ -73,20 +80,26 @@ export async function rechercherProduitsVendeur(
 /**
  * Indicateurs d'inventaire d'un vendeur, calculés par agrégation sur TOUT le
  * catalogue de la boutique — ils ne doivent pas dépendre de la page affichée.
+ * Les produits supprimés (corbeille) ne comptent pas dans l'inventaire.
  */
 export async function statsInventaireVendeur(vendeurId: string): Promise<{
   total: number;
   enLigne: number;
   stockFaible: number;
   valeurStock: number;
+  supprimes: number;
 }> {
-  const [total, enLigne, stockFaible, produits] = await Promise.all([
-    prisma.produit.count({ where: { vendeurId } }),
+  const [total, enLigne, stockFaible, produits, supprimes] = await Promise.all([
+    prisma.produit.count({ where: { vendeurId, statut: { not: "SUPPRIME" } } }),
     prisma.produit.count({ where: { vendeurId, statut: "ACTIF" } }),
     prisma.produit.count({ where: { vendeurId, statut: "ACTIF", stock: { lte: 2 } } }),
     // prix * stock n'est pas exprimable en agrégat SQL via Prisma : on ne
     // récupère que les deux colonnes nécessaires au calcul.
-    prisma.produit.findMany({ where: { vendeurId }, select: { prix: true, stock: true } }),
+    prisma.produit.findMany({
+      where: { vendeurId, statut: { not: "SUPPRIME" } },
+      select: { prix: true, stock: true },
+    }),
+    prisma.produit.count({ where: { vendeurId, statut: "SUPPRIME" } }),
   ]);
 
   return {
@@ -94,6 +107,7 @@ export async function statsInventaireVendeur(vendeurId: string): Promise<{
     enLigne,
     stockFaible,
     valeurStock: produits.reduce((s, p) => s + p.prix * p.stock, 0),
+    supprimes,
   };
 }
 
@@ -134,7 +148,12 @@ export async function creerProduit(
 
 export type ResultatMaj =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "LIE_COMMANDES" };
+  | { ok: false; code: "INTROUVABLE" | "SUPPRIME" };
+
+/** Un produit dans la corbeille doit être restauré avant d'être modifié. */
+function estModifiable(produit: { statut: StatutProduit }): boolean {
+  return produit.statut !== "SUPPRIME";
+}
 
 export async function mettreAJourProduit(
   vendeurId: string,
@@ -144,6 +163,9 @@ export async function mettreAJourProduit(
   const produit = await prisma.produit.findUnique({ where: { id: produitId } });
   if (!produit || !estProprietaire(vendeurId, produit.vendeurId)) {
     return { ok: false, code: "INTROUVABLE" };
+  }
+  if (!estModifiable(produit)) {
+    return { ok: false, code: "SUPPRIME" };
   }
   await prisma.produit.update({
     where: { id: produitId },
@@ -160,11 +182,12 @@ export async function mettreAJourProduit(
 
 export type ResultatStatut =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "BOUTIQUE_NON_VALIDEE" };
+  | { ok: false; code: "INTROUVABLE" | "BOUTIQUE_NON_VALIDEE" | "SUPPRIME" };
 
 /**
  * Change le statut d'un produit. Garde-fou : publier (ACTIF) exige une boutique
- * VALIDÉE.
+ * VALIDÉE. Un produit dans la corbeille (SUPPRIME) doit être restauré avant
+ * de pouvoir changer de statut.
  */
 export async function changerStatutProduit(
   vendeurId: string,
@@ -177,6 +200,9 @@ export async function changerStatutProduit(
   });
   if (!produit || !estProprietaire(vendeurId, produit.vendeurId)) {
     return { ok: false, code: "INTROUVABLE" };
+  }
+  if (!estModifiable(produit)) {
+    return { ok: false, code: "SUPPRIME" };
   }
   if (
     nouveauStatut === "ACTIF" &&
@@ -191,40 +217,40 @@ export async function changerStatutProduit(
   return { ok: true };
 }
 
+/**
+ * "Supprime" un produit : soft delete (statut SUPPRIME), jamais de
+ * suppression réelle. Les images et l'historique de commandes restent
+ * intacts — le vendeur peut restaurer le produit depuis sa corbeille.
+ */
 export async function supprimerProduit(
   vendeurId: string,
   produitId: string,
 ): Promise<ResultatMaj> {
-  const produit = await prisma.produit.findUnique({
-    where: { id: produitId },
-    include: { images: true },
-  });
+  const produit = await prisma.produit.findUnique({ where: { id: produitId } });
   if (!produit || !estProprietaire(vendeurId, produit.vendeurId)) {
     return { ok: false, code: "INTROUVABLE" };
   }
-  // Supprime d'abord les fichiers image (best-effort), puis la ligne (cascade DB).
-  const storage = getStorageProvider();
-  try {
-    await prisma.produit.delete({ where: { id: produitId } });
-  } catch (erreur) {
-    // Contrainte de clé étrangère : le produit figure dans des commandes.
-    if (
-      erreur instanceof Prisma.PrismaClientKnownRequestError &&
-      erreur.code === "P2003"
-    ) {
-      return { ok: false, code: "LIE_COMMANDES" };
-    }
-    throw erreur;
-  }
-  // Produit supprimé : on nettoie les fichiers image (best-effort).
-  for (const image of produit.images) {
-    if (image.chemin) {
-      await storage.supprimer(image.chemin).catch((e) => {
-        console.error("Suppression fichier image échouée:", e);
-      });
-    }
-  }
+  await prisma.produit.update({
+    where: { id: produitId },
+    data: { statut: "SUPPRIME" },
+  });
   return { ok: true };
+}
+
+/**
+ * Restaure un produit depuis la corbeille. Retour systématique en BROUILLON,
+ * jamais directement ACTIF : le vendeur doit revérifier prix/stock avant de
+ * republier, pas de republication silencieuse d'un produit resté en sommeil.
+ */
+export async function restaurerProduit(
+  vendeurId: string,
+  produitId: string,
+): Promise<ResultatMaj> {
+  const { count } = await prisma.produit.updateMany({
+    where: { id: produitId, vendeurId, statut: "SUPPRIME" },
+    data: { statut: "BROUILLON" },
+  });
+  return count > 0 ? { ok: true } : { ok: false, code: "INTROUVABLE" };
 }
 
 // --------------------------------- IMAGES ------------------------------------

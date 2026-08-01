@@ -1,0 +1,11 @@
+-- Ajout du statut SUPPRIME (corbeille vendeur) à l'énumération StatutProduit.
+--
+-- "Supprimer" un produit devient un soft delete : la ligne reste (les
+-- commandes passées qui la référencent restent intactes), mais le produit
+-- disparaît de la liste principale du vendeur et du catalogue public, et
+-- peut être restauré depuis une vue "Produits supprimés".
+--
+-- ALTER TYPE ... ADD VALUE IF NOT EXISTS est supporté nativement depuis
+-- PostgreSQL 12 (ce dépôt tourne sur PG 16) : idempotent par construction,
+-- pas besoin de garde manuelle comme pour les migrations précédentes.
+ALTER TYPE "StatutProduit" ADD VALUE IF NOT EXISTS 'SUPPRIME';

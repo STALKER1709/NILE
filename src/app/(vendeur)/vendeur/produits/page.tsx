@@ -4,7 +4,10 @@ import {
   rechercherProduitsVendeur,
   statsInventaireVendeur,
 } from "@/modules/catalogue/produits";
-import { supprimerProduitAction } from "@/app/(vendeur)/vendeur/produits/actions";
+import {
+  supprimerProduitAction,
+  restaurerProduitAction,
+} from "@/app/(vendeur)/vendeur/produits/actions";
 import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
 import { Vignette } from "@/components/ui/Vignette";
 import { Pagination } from "@/components/ui/Pagination";
@@ -19,30 +22,44 @@ const MESSAGES_OK: Record<string, string> = {
   cree: "Produit créé.",
   maj: "Produit mis à jour.",
   statut: "Statut mis à jour.",
-  supprime: "Produit supprimé.",
+  supprime: "Produit déplacé dans la corbeille.",
+  restaure: "Produit restauré en brouillon.",
 };
 
 export default async function ListeProduitsVendeurPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ok?: string; erreur?: string; q?: string; page?: string }>;
+  searchParams: Promise<{
+    ok?: string;
+    erreur?: string;
+    q?: string;
+    page?: string;
+    corbeille?: string;
+  }>;
 }) {
   const sp = await searchParams;
   const { ok, erreur } = sp;
   const { vendeur } = await exigerVendeur();
 
+  const enCorbeille = sp.corbeille === "1";
   const q = sp.q?.trim() || undefined;
   const pageDemandee = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
 
   const [stats, { produits, total, page, pages }] = await Promise.all([
     statsInventaireVendeur(vendeur.id),
-    rechercherProduitsVendeur(vendeur.id, { q, page: pageDemandee, parPage: PAR_PAGE }),
+    rechercherProduitsVendeur(vendeur.id, {
+      q,
+      page: pageDemandee,
+      parPage: PAR_PAGE,
+      corbeille: enCorbeille,
+    }),
   ]);
 
   const partEnLigne = stats.total > 0 ? Math.round((stats.enLigne / stats.total) * 100) : 0;
   const lienPage = (p: number) => {
     const params = new URLSearchParams();
     if (q) params.set("q", q);
+    if (enCorbeille) params.set("corbeille", "1");
     params.set("page", String(p));
     return `/vendeur/produits?${params.toString()}`;
   };
@@ -91,7 +108,34 @@ export default async function ListeProduitsVendeurPage({
         </p>
       )}
 
-      {stats.total === 0 ? (
+      {/* Onglets : catalogue actif / corbeille. La corbeille n'apparaît que
+          si elle contient quelque chose, pour ne pas encombrer l'écran. */}
+      {stats.supprimes > 0 && (
+        <div className="flex gap-1.5 border-b border-contour-carte">
+          <Link
+            href="/vendeur/produits"
+            className={`border-b-2 px-3 py-2 text-corps-sm font-semibold transition-colors ${
+              !enCorbeille
+                ? "border-nile-700 text-nile-800"
+                : "border-transparent text-slate-500 hover:text-nile-700"
+            }`}
+          >
+            Mes produits
+          </Link>
+          <Link
+            href="/vendeur/produits?corbeille=1"
+            className={`border-b-2 px-3 py-2 text-corps-sm font-semibold transition-colors ${
+              enCorbeille
+                ? "border-nile-700 text-nile-800"
+                : "border-transparent text-slate-500 hover:text-nile-700"
+            }`}
+          >
+            Corbeille ({stats.supprimes})
+          </Link>
+        </div>
+      )}
+
+      {stats.total === 0 && stats.supprimes === 0 ? (
         <EtatVide titre="Aucun produit pour l'instant.">Créez votre premier produit.</EtatVide>
       ) : (
         <Carte className="overflow-hidden">
@@ -99,6 +143,7 @@ export default async function ListeProduitsVendeurPage({
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-contour-carte p-4 sm:p-5">
             <form method="get" className="flex flex-1 flex-wrap items-center gap-2">
               <label htmlFor="q" className="sr-only">Rechercher un produit</label>
+              {enCorbeille && <input type="hidden" name="corbeille" value="1" />}
               <input
                 id="q"
                 name="q"
@@ -109,7 +154,10 @@ export default async function ListeProduitsVendeurPage({
               />
               <button type="submit" className={btn("secondaire", "sm")}>Rechercher</button>
               {q && (
-                <Link href="/vendeur/produits" className="text-corps-sm text-slate-500 hover:text-nile-700 hover:underline">
+                <Link
+                  href={enCorbeille ? "/vendeur/produits?corbeille=1" : "/vendeur/produits"}
+                  className="text-corps-sm text-slate-500 hover:text-nile-700 hover:underline"
+                >
                   Réinitialiser
                 </Link>
               )}
@@ -121,7 +169,11 @@ export default async function ListeProduitsVendeurPage({
 
           {produits.length === 0 ? (
             <p className="p-8 text-center text-corps-sm text-slate-500">
-              Aucun produit ne correspond à « {q} ».
+              {q
+                ? `Aucun produit ne correspond à « ${q} ».`
+                : enCorbeille
+                  ? "Corbeille vide."
+                  : "Aucun produit."}
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -172,41 +224,67 @@ export default async function ListeProduitsVendeurPage({
                           <Prix montant={p.prix} />
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className="flex items-center gap-2 text-corps-sm">
-                            <span className={`h-2 w-2 shrink-0 rounded-full ${p.statut === "ACTIF" ? "bg-nile-700" : p.statut === "REJETE" ? "bg-promo" : "bg-slate-300"}`} />
-                            <span className={p.statut === "ACTIF" ? "text-nile-800" : "text-slate-500"}>
-                              {p.statut === "ACTIF" ? "En ligne" : p.statut === "REJETE" ? "Rejeté" : "Hors ligne"}
+                          {p.statut === "SUPPRIME" ? (
+                            <span className="flex items-center gap-2 text-corps-sm text-slate-500">
+                              <span className="h-2 w-2 shrink-0 rounded-full bg-slate-300" />
+                              Supprimé
                             </span>
-                          </span>
+                          ) : (
+                            <span className="flex items-center gap-2 text-corps-sm">
+                              <span className={`h-2 w-2 shrink-0 rounded-full ${p.statut === "ACTIF" ? "bg-nile-700" : p.statut === "REJETE" ? "bg-promo" : "bg-slate-300"}`} />
+                              <span className={p.statut === "ACTIF" ? "text-nile-800" : "text-slate-500"}>
+                                {p.statut === "ACTIF" ? "En ligne" : p.statut === "REJETE" ? "Rejeté" : "Hors ligne"}
+                              </span>
+                            </span>
+                          )}
                         </td>
                         <td className="px-5 py-3.5">
                           {/* Actions en icônes : libellé accessible caché + infobulle. */}
                           <div className="flex items-center justify-end gap-1">
-                            <Link
-                              href={`/vendeur/produits/${p.id}`}
-                              title="Modifier ce produit"
-                              className="grid h-9 w-9 place-items-center rounded text-slate-500 transition-colors hover:bg-nile-50 hover:text-nile-700"
-                            >
-                              <span className="sr-only">Modifier {p.titre}</span>
-                              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-                                <path d="M12 20h9" strokeLinecap="round" />
-                                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" strokeLinejoin="round" />
-                              </svg>
-                            </Link>
-                            <form action={supprimerProduitAction}>
-                              <input type="hidden" name="produitId" value={p.id} />
-                              <BoutonConfirme
-                                question={`Supprimer définitivement « ${p.titre} » ? Cette action est irréversible.`}
-                                enCours="…"
-                                titre="Supprimer ce produit"
-                                className="grid h-9 w-9 place-items-center rounded text-slate-500 transition-colors hover:bg-promo-conteneur hover:text-promo disabled:opacity-50"
-                              >
-                                <span className="sr-only">Supprimer {p.titre}</span>
-                                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                                  <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                                </svg>
-                              </BoutonConfirme>
-                            </form>
+                            {enCorbeille ? (
+                              <form action={restaurerProduitAction}>
+                                <input type="hidden" name="produitId" value={p.id} />
+                                <button
+                                  type="submit"
+                                  title="Restaurer ce produit"
+                                  className="flex h-9 items-center gap-1.5 rounded px-3 text-corps-sm font-semibold text-nile-700 transition-colors hover:bg-nile-50"
+                                >
+                                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                    <path d="M3 12a9 9 0 1 0 3-6.7" />
+                                    <path d="M3 4v5h5" />
+                                  </svg>
+                                  Restaurer
+                                </button>
+                              </form>
+                            ) : (
+                              <>
+                                <Link
+                                  href={`/vendeur/produits/${p.id}`}
+                                  title="Modifier ce produit"
+                                  className="grid h-9 w-9 place-items-center rounded text-slate-500 transition-colors hover:bg-nile-50 hover:text-nile-700"
+                                >
+                                  <span className="sr-only">Modifier {p.titre}</span>
+                                  <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
+                                    <path d="M12 20h9" strokeLinecap="round" />
+                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" strokeLinejoin="round" />
+                                  </svg>
+                                </Link>
+                                <form action={supprimerProduitAction}>
+                                  <input type="hidden" name="produitId" value={p.id} />
+                                  <BoutonConfirme
+                                    question={`Déplacer « ${p.titre} » dans la corbeille ? Vous pourrez le restaurer plus tard.`}
+                                    enCours="…"
+                                    titre="Supprimer ce produit"
+                                    className="grid h-9 w-9 place-items-center rounded text-slate-500 transition-colors hover:bg-promo-conteneur hover:text-promo disabled:opacity-50"
+                                  >
+                                    <span className="sr-only">Supprimer {p.titre}</span>
+                                    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                      <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                    </svg>
+                                  </BoutonConfirme>
+                                </form>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>

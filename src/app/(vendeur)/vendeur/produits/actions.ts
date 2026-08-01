@@ -8,6 +8,7 @@ import {
   mettreAJourProduit,
   changerStatutProduit,
   supprimerProduit,
+  restaurerProduit,
   ajouterImageProduit,
   supprimerImageProduit,
 } from "@/modules/catalogue/produits";
@@ -91,7 +92,11 @@ export async function mettreAJourProduitAction(
 
   const res = await mettreAJourProduit(vendeur.id, produitId, parsed.data);
   if (!res.ok) {
-    redirect("/vendeur/produits?erreur=Produit%20introuvable.");
+    const msg =
+      res.code === "SUPPRIME"
+        ? "Ce produit est dans la corbeille : restaurez-le avant de le modifier."
+        : "Produit introuvable.";
+    redirect(`/vendeur/produits?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/vendeur/produits/${produitId}?ok=maj`);
 }
@@ -112,7 +117,9 @@ export async function changerStatutProduitAction(
     const msg =
       res.code === "BOUTIQUE_NON_VALIDEE"
         ? "Votre boutique doit être validée par un administrateur avant de publier."
-        : "Produit introuvable.";
+        : res.code === "SUPPRIME"
+          ? "Ce produit est dans la corbeille : restaurez-le avant de changer son statut."
+          : "Produit introuvable.";
     redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/vendeur/produits/${produitId}?ok=statut`);
@@ -125,13 +132,22 @@ export async function supprimerProduitAction(
   const produitId = String(formData.get("produitId") ?? "");
   const res = await supprimerProduit(vendeur.id, produitId);
   if (!res.ok) {
-    const msg =
-      res.code === "LIE_COMMANDES"
-        ? "Ce produit figure dans des commandes : dépubliez-le au lieu de le supprimer."
-        : "Produit introuvable.";
-    redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
+    redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent("Produit introuvable.")}`);
   }
   redirect("/vendeur/produits?ok=supprime");
+}
+
+/** Restaure un produit depuis la corbeille (retour en brouillon). */
+export async function restaurerProduitAction(
+  formData: FormData,
+): Promise<void> {
+  const { vendeur } = await exigerVendeur();
+  const produitId = String(formData.get("produitId") ?? "");
+  const res = await restaurerProduit(vendeur.id, produitId);
+  if (!res.ok) {
+    redirect(`/vendeur/produits?corbeille=1&erreur=${encodeURIComponent("Produit introuvable.")}`);
+  }
+  redirect(`/vendeur/produits/${produitId}?ok=restaure`);
 }
 
 export async function ajouterImageAction(formData: FormData): Promise<void> {

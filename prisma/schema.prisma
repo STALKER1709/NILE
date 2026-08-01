@@ -42,6 +42,10 @@ enum StatutProduit {
   INACTIF
   EN_MODERATION
   REJETE
+  // Suppression vendeur : soft delete. Disparaît de la liste principale et
+  // du catalogue public, mais la ligne reste (intégrité des commandes
+  // passées) et le vendeur peut le restaurer depuis sa corbeille.
+  SUPPRIME
 }
 
 // Statut du cycle de vie logistique de la commande (indépendant du paiement).

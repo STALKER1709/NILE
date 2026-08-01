@@ -7,11 +7,12 @@ import {
   mettreAJourProduitAction,
   changerStatutProduitAction,
   supprimerProduitAction,
+  restaurerProduitAction,
   ajouterImageAction,
   supprimerImageAction,
 } from "@/app/(vendeur)/vendeur/produits/actions";
 import { Vignette } from "@/components/ui/Vignette";
-import { Carte, Badge, champClass, labelClass, btn } from "@/components/ui/kit";
+import { Carte, Badge, Prix, champClass, labelClass, btn } from "@/components/ui/kit";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,49 @@ export default async function GestionProduitPage({
   const { vendeur } = await exigerVendeur();
   const produit = await getProduitDuVendeur(vendeur.id, id);
   if (!produit) redirect("/vendeur/produits?erreur=Produit%20introuvable.");
+
+  // Produit dans la corbeille : vue restreinte, restauration d'abord —
+  // pas de formulaire d'édition sur quelque chose qui n'existe plus pour
+  // l'acheteur ni pour le catalogue vendeur actif.
+  if (produit.statut === "SUPPRIME") {
+    return (
+      <div className="mx-auto max-w-lg space-y-5">
+        <div className="flex items-center justify-between">
+          <h1 className="truncate text-titre-sm text-nile-800 sm:text-titre-md">{produit.titre}</h1>
+          <Link href="/vendeur/produits" className="shrink-0 text-sm text-slate-500 hover:underline">← Mes produits</Link>
+        </div>
+
+        {ok && MESSAGES_OK[ok] && (
+          <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">{MESSAGES_OK[ok]}</p>
+        )}
+        {erreur && (
+          <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
+        )}
+
+        <Carte className="p-4">
+          <div className="flex items-center gap-3">
+            <Vignette url={produit.images[0]?.url} alt="" sizes="64px" className="h-16 w-16 shrink-0 rounded border border-contour-carte" />
+            <div className="min-w-0">
+              <p className="truncate font-semibold text-slate-900">{produit.titre}</p>
+              <Prix montant={produit.prix} className="text-sm text-slate-500" />
+            </div>
+          </div>
+          <p className="mt-4 rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
+            Ce produit est dans la corbeille : invisible du catalogue et de
+            votre inventaire actif. Restaurez-le pour le modifier ou le
+            republier.
+          </p>
+          <form action={restaurerProduitAction} className="mt-4">
+            <input type="hidden" name="produitId" value={produit.id} />
+            <button type="submit" className={btn("primaire", "md", "w-full")}>
+              Restaurer ce produit
+            </button>
+          </form>
+        </Carte>
+      </div>
+    );
+  }
+
   const categories = aplatirPourSelect(await listerCategories());
 
   return (
@@ -130,6 +174,10 @@ export default async function GestionProduitPage({
       {/* Suppression */}
       <Carte className="border-red-100 bg-red-50/50 p-4">
         <h2 className="text-sm font-semibold text-red-800">Zone dangereuse</h2>
+        <p className="mt-1 text-xs text-red-700">
+          Déplace le produit dans la corbeille : il disparaît de votre
+          catalogue, mais reste restaurable.
+        </p>
         <form action={supprimerProduitAction} className="mt-2">
           <input type="hidden" name="produitId" value={produit.id} />
           <button type="submit" className={btn("danger", "md")}>Supprimer ce produit</button>

@@ -1,9 +1,10 @@
 import type { StatutProduit } from "@prisma/client";
 import { prisma } from "@/lib/db";
 
-/** Tous les produits (tous statuts) pour la modération. */
+/** Tous les produits (tous statuts, hors corbeille vendeur) pour la modération. */
 export async function listerProduitsModeration() {
   return prisma.produit.findMany({
+    where: { statut: { not: "SUPPRIME" } },
     orderBy: { dateMaj: "desc" },
     take: 200,
     include: {
