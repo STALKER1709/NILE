@@ -55,6 +55,11 @@ export interface OptionsPaiement {
   emailAcheteur: string;
   telephoneAcheteur: string;
   nomAcheteur: string;
+  /**
+   * Opérateur Mobile Money choisi au moment de commander. Requis par les
+   * fournisseurs qui débitent directement le portefeuille du client.
+   */
+  operateur?: string;
 }
 
 function genererNumero(): string {
@@ -155,7 +160,9 @@ export async function passerCommande(
     };
   }
 
-  // Monetbil : initier le paiement et renvoyer l'URL du widget.
+  // Mobile Money : initier le paiement. Selon le fournisseur, on obtient une
+  // page de paiement (widget) ou rien du tout — le client valide alors
+  // directement sur son téléphone (prompt USSD/push).
   try {
     const demarrage = await getPaymentProvider().initier({
       reference: cree.paiementId, // = payment_ref renvoyé dans le callback
@@ -166,7 +173,9 @@ export async function passerCommande(
       numeroCommande: cree.numero,
       urlRetour: options.urlRetour,
       urlNotification: options.urlNotification,
+      operateur: options.operateur,
     });
+    await memoriserReferenceFournisseur(cree.paiementId, demarrage.referenceFournisseur);
     return {
       ok: true,
       commandeId: cree.commandeId,
@@ -368,10 +377,13 @@ export interface OptionsReprise {
   email: string;
   telephone: string;
   nom: string;
+  /** Opérateur Mobile Money, pour les fournisseurs qui débitent directement. */
+  operateur?: string;
 }
 
 export type ResultatReprise =
-  | { ok: true; urlPaiement: string }
+  /** `urlPaiement` à null : le client valide sur son téléphone, sans quitter NILE. */
+  | { ok: true; urlPaiement: string | null }
   | { ok: false; code: "INTROUVABLE" | "NON_APPLICABLE" | "ERREUR" };
 
 /** Relance le paiement Monetbil d'une commande encore en attente de paiement. */
@@ -409,11 +421,38 @@ export async function reprendrePaiement(
       numeroCommande: commande.numero,
       urlRetour: options.urlRetour,
       urlNotification: options.urlNotification,
+      operateur: options.operateur,
     });
+    await memoriserReferenceFournisseur(paiement.id, demarrage.referenceFournisseur);
     return { ok: true, urlPaiement: demarrage.urlPaiement };
   } catch (erreur) {
     console.error("reprendrePaiement:", erreur);
     return { ok: false, code: "ERREUR" };
+  }
+}
+
+/**
+ * Conserve la référence attribuée par le fournisseur de paiement.
+ *
+ * C'est elle qui permet de retrouver NOTRE paiement quand un webhook arrive
+ * sans nous renvoyer notre propre identifiant. Sans ce lien, une notification
+ * authentique resterait inexploitable.
+ */
+async function memoriserReferenceFournisseur(
+  paiementId: string,
+  reference: string | undefined,
+): Promise<void> {
+  if (!reference) return;
+  try {
+    await prisma.paiement.update({
+      where: { id: paiementId },
+      data: { reference },
+    });
+  } catch (erreur) {
+    // Ne doit jamais faire échouer un paiement déjà initié chez le
+    // fournisseur : le webhook pourra encore retomber sur nos pieds via la
+    // métadonnée `reference_interne`.
+    console.error("[paiement] référence fournisseur non enregistrée:", erreur);
   }
 }
 

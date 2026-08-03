@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getPaymentProvider } from "@/modules/paiement";
+import type { ContexteNotification } from "@/modules/paiement/PaymentProvider";
 import { notifierCommandeConfirmee } from "@/modules/email/notifications";
 import { notifierCommandeWhatsApp } from "@/modules/whatsapp/notifications";
 import {
@@ -21,17 +22,30 @@ export type ResultatTraitement =
  */
 export async function traiterNotificationPaiement(
   corps: Record<string, string>,
+  contexte?: ContexteNotification,
 ): Promise<ResultatTraitement> {
-  const verif = await getPaymentProvider().verifierNotification(corps);
+  const verif = await getPaymentProvider().verifierNotification(corps, contexte);
   if (!verif.ok) return { ok: false, raison: verif.raison };
 
   const { reference, statut } = verif.data;
 
-  const paiement = await prisma.paiement.findUnique({
-    where: { id: reference },
-    include: { commande: { include: { lignes: true } } },
-  });
+  // La référence est soit notre identifiant de paiement, soit celle attribuée
+  // par le fournisseur (conservée dans `Paiement.reference` à l'initiation).
+  // On tente les deux : selon le fournisseur, le webhook ne renvoie pas
+  // forcément notre propre identifiant.
+  const paiement =
+    (await prisma.paiement.findUnique({
+      where: { id: reference },
+      include: { commande: { include: { lignes: true } } },
+    })) ??
+    (await prisma.paiement.findUnique({
+      where: { reference },
+      include: { commande: { include: { lignes: true } } },
+    }));
   if (!paiement) return { ok: false, raison: "PAIEMENT_INTROUVABLE" };
+  // Les écritures suivantes ciblent notre identifiant, jamais celui du
+  // fournisseur : `reference` peut être l'un ou l'autre.
+  const paiementId = paiement.id;
 
   // Idempotence : un paiement déjà finalisé n'est pas retraité.
   if (paiement.statut === "PAYE") return { ok: true, statut: "DEJA_TRAITE" };
@@ -44,7 +58,7 @@ export async function traiterNotificationPaiement(
     // (guard idempotent) : on n'envoie les emails qu'une seule fois.
     const confirmee = await prisma.$transaction(async (tx) => {
       await tx.paiement.updateMany({
-        where: { id: reference, statut: { not: "PAYE" } },
+        where: { id: paiementId, statut: { not: "PAYE" } },
         data: { statut: "PAYE", payload: corps },
       });
       // Ne confirme la commande que si elle attendait encore le paiement.
@@ -68,7 +82,7 @@ export async function traiterNotificationPaiement(
   // Échec : libère la commande (si encore en attente) et restitue le stock.
   await prisma.$transaction(async (tx) => {
     await tx.paiement.updateMany({
-      where: { id: reference, statut: { not: "PAYE" } },
+      where: { id: paiementId, statut: { not: "PAYE" } },
       data: { statut: "ECHOUE", payload: corps },
     });
     const maj = await tx.commande.updateMany({

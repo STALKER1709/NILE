@@ -42,9 +42,21 @@ const schema = z
     // Yaoundé, 2 à 5 jours ailleurs"). Vide = non affiché.
     DELAI_LIVRAISON_TEXTE: z.string().optional(),
 
-    PAYMENT_PROVIDER: z.enum(["mock", "monetbil"]).default("mock"),
+    PAYMENT_PROVIDER: z.enum(["mock", "monetbil", "hrskills"]).default("mock"),
     MONETBIL_SERVICE_KEY: z.string().optional(),
     MONETBIL_SERVICE_SECRET: z.string().optional(),
+
+    // HR-Skills Pay (MTN MoMo + Orange Money, 16 pays africains).
+    // Clé A (publique, en-tête Authorization) et Clé B (secrète, échangée
+    // une seule fois contre un token de transaction). Dashboard >
+    // Développeurs. Requises quand PAYMENT_PROVIDER="hrskills".
+    HRSKILLS_CLE_A: z.string().optional(),
+    HRSKILLS_CLE_B: z.string().optional(),
+    // Secret de signature des webhooks (Dashboard > Paramètres > Webhooks).
+    HRSKILLS_WEBHOOK_SECRET: z.string().optional(),
+    // URL de base de l'API. Sandbox et production partagent la même URL :
+    // c'est le préfixe des clés (test/live) qui détermine l'environnement.
+    HRSKILLS_BASE_URL: z.string().url().default("https://api.hrskills-pay.com"),
     // Secret utilisé par le fournisseur de paiement "mock" pour signer les
     // notifications simulées (dev/tests uniquement).
     MOCK_PAYMENT_SECRET: z.string().default("dev-payment-secret"),
@@ -132,6 +144,24 @@ const schema = z
           path: ["MONETBIL_SERVICE_KEY"],
           message:
             'MONETBIL_SERVICE_KEY et MONETBIL_SERVICE_SECRET requis quand PAYMENT_PROVIDER="monetbil".',
+        });
+      }
+    }
+    if (val.PAYMENT_PROVIDER === "hrskills") {
+      if (!val.HRSKILLS_CLE_A || !val.HRSKILLS_CLE_B) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["HRSKILLS_CLE_A"],
+          message:
+            'HRSKILLS_CLE_A et HRSKILLS_CLE_B requis quand PAYMENT_PROVIDER="hrskills".',
+        });
+      }
+      if (!val.HRSKILLS_WEBHOOK_SECRET) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["HRSKILLS_WEBHOOK_SECRET"],
+          message:
+            "HRSKILLS_WEBHOOK_SECRET requis : sans lui, la signature des webhooks ne peut pas être vérifiée et n'importe qui pourrait déclarer une commande payée.",
         });
       }
     }

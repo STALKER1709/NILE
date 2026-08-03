@@ -7,6 +7,7 @@ import { chargerAffichagePrixPourProduits } from "@/modules/promotion/promotion"
 import { env } from "@/lib/env";
 import { getPlafondCOD } from "@/modules/commande/config";
 import { getDerniereAdresse } from "@/modules/commande/commande";
+import { paiementSansRedirection } from "@/modules/paiement";
 import { passerCommandeAction } from "@/app/(compte)/commander/actions";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 import { Vignette } from "@/components/ui/Vignette";
@@ -40,6 +41,9 @@ export default async function CommanderPage({
     getDerniereAdresse(utilisateur.id),
   ]);
   const depassePlafond = total > plafond;
+  // Le fournisseur actif débite-t-il le téléphone du client sans page de
+  // paiement ? Si oui, il faut lui demander son opérateur ici même.
+  const sansRedirection = paiementSansRedirection();
   // Unités commandées, pas lignes : 2 exemplaires comptent pour 2 articles.
   const nbArticles = panier.lignes.reduce((s, l) => s + l.quantite, 0);
 
@@ -130,11 +134,49 @@ export default async function CommanderPage({
               <span className="min-w-0">
                 <span className="block text-etiquette-md text-slate-900">Mobile Money</span>
                 <span className="block text-corps-sm text-slate-500">
-                  MTN MoMo ou Orange Money. Vous choisirez l&apos;opérateur et
-                  saisirez votre numéro sur la page de paiement sécurisée.
+                  {sansRedirection
+                    ? "MTN MoMo ou Orange Money. Vous recevrez une demande de confirmation directement sur votre téléphone."
+                    : "MTN MoMo ou Orange Money. Vous choisirez l'opérateur et saisirez votre numéro sur la page de paiement sécurisée."}
                 </span>
               </span>
             </label>
+
+            {/* Le fournisseur sollicite directement le portefeuille du client :
+                il faut donc savoir QUEL opérateur interroger. Affiché en
+                permanence plutôt qu'au clic — sans JavaScript, un champ
+                conditionnel ne s'afficherait jamais. */}
+            {sansRedirection && (
+              <fieldset className="rounded border border-contour-carte p-4">
+                <legend className="px-1 text-etiquette-md text-slate-900">
+                  Votre opérateur Mobile Money
+                </legend>
+                <p className="mb-3 text-corps-sm text-slate-500">
+                  La demande de paiement arrivera sur le{" "}
+                  <strong>{derniere?.destTelephone ?? utilisateur.telephone}</strong> —
+                  modifiable dans le téléphone de contact ci-dessus.
+                </p>
+                <div className="grid grid-cols-2 gap-2">
+                  <label className="flex cursor-pointer items-center gap-2 rounded border border-contour-carte px-3 py-2.5 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
+                    <input type="radio" name="operateur" value="mtn" required className="accent-nile-700" />
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded bg-[#ffcb05] text-[10px] font-bold text-black">
+                      MTN
+                    </span>
+                    <span className="text-corps-sm font-semibold text-slate-900">MoMo</span>
+                  </label>
+                  <label className="flex cursor-pointer items-center gap-2 rounded border border-contour-carte px-3 py-2.5 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
+                    <input type="radio" name="operateur" value="orange" className="accent-nile-700" />
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded bg-[#ff7900] text-[10px] font-bold text-white">
+                      OM
+                    </span>
+                    <span className="text-corps-sm font-semibold text-slate-900">Orange Money</span>
+                  </label>
+                </div>
+                <p className="mt-3 text-etiquette-xs text-slate-500">
+                  Gardez votre téléphone à portée : la demande expire au bout de
+                  10 minutes sans confirmation.
+                </p>
+              </fieldset>
+            )}
             {depassePlafond && (
               <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-xs text-amber-800">
                 Le total dépasse le plafond du paiement à la livraison (<Prix montant={plafond} />).

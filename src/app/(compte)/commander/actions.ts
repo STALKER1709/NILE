@@ -6,6 +6,8 @@ import { z } from "zod";
 import { exigerConnexion } from "@/modules/auth/access";
 import { adresseLivraisonSchema } from "@/validators/commande";
 import { passerCommande, type ResultatCommande } from "@/modules/commande/commande";
+import { paiementSansRedirection } from "@/modules/paiement";
+import { estOperateurValide } from "@/modules/paiement/hrskills/hrskills-core";
 import { resoudreVille } from "@/modules/commande/villes";
 
 const modeSchema = z.enum(["COD", "MONETBIL"]);
@@ -57,6 +59,21 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
     redirect(`/commander?erreur=${encodeURIComponent(msg)}`);
   }
 
+  // Opérateur : réclamé seulement par les fournisseurs qui débitent
+  // directement le portefeuille du client (pas de page de paiement).
+  let operateur: string | undefined;
+  if (mode === "MONETBIL" && paiementSansRedirection()) {
+    const choix = String(formData.get("operateur") ?? "");
+    if (!estOperateurValide(choix)) {
+      redirect(
+        `/commander?erreur=${encodeURIComponent(
+          "Choisissez votre opérateur Mobile Money (MTN ou Orange).",
+        )}`,
+      );
+    }
+    operateur = choix;
+  }
+
   const base = await urlDeBase();
   const res = await passerCommande(utilisateur.id, parsed.data, {
     mode,
@@ -65,15 +82,19 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
     emailAcheteur: utilisateur.email,
     telephoneAcheteur: parsed.data.destTelephone,
     nomAcheteur: parsed.data.destNom,
+    operateur,
   });
 
   if (!res.ok) {
     redirect(`/commander?erreur=${encodeURIComponent(messageCommande(res))}`);
   }
 
-  // Monetbil : rediriger vers le widget de paiement. COD : vers la commande.
+  // Widget de paiement quand le fournisseur en propose un. Sinon le client
+  // valide sur son téléphone : on l'amène au suivi, qui s'actualise seul.
   if (res.urlPaiement) {
     redirect(res.urlPaiement);
   }
-  redirect(`/commandes/${res.commandeId}?ok=creee`);
+  redirect(
+    `/commandes/${res.commandeId}?ok=${mode === "COD" ? "creee" : "paiement_en_cours"}`,
+  );
 }

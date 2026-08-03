@@ -18,11 +18,24 @@ export interface ContexteInitiation {
   numeroCommande: string; // item_ref lisible
   urlRetour: string; // return_url : où renvoyer le navigateur (NON fiable)
   urlNotification: string; // notify_url : callback serveur (la vérité)
+  /**
+   * Opérateur Mobile Money choisi par l'acheteur (« mtn », « orange »).
+   * Requis par les fournisseurs qui débitent directement le portefeuille du
+   * client ; ignoré par ceux dont le widget pose la question eux-mêmes.
+   */
+  operateur?: string;
 }
 
 export interface DemarragePaiement {
   reference: string;
-  urlPaiement: string; // URL vers laquelle rediriger l'acheteur
+  /**
+   * URL vers laquelle rediriger l'acheteur, ou `null` quand le fournisseur
+   * sollicite directement le téléphone du client (prompt USSD ou push). Dans
+   * ce cas l'acheteur reste sur NILE et suit l'avancement sur place.
+   */
+  urlPaiement: string | null;
+  /** Référence chez le fournisseur, à conserver pour le suivi et les webhooks. */
+  referenceFournisseur?: string;
 }
 
 export interface ResultatVerification {
@@ -32,7 +45,22 @@ export interface ResultatVerification {
 
 export type VerificationNotification =
   | { ok: true; data: ResultatVerification }
-  | { ok: false; raison: "SIGNATURE_INVALIDE" | "DONNEES_MANQUANTES" | "ERREUR" };
+  | {
+      ok: false;
+      raison:
+        | "SIGNATURE_INVALIDE"
+        | "DONNEES_MANQUANTES"
+        | "ERREUR"
+        /** Notification reçue et authentique, mais statut non définitif. */
+        | "NON_DEFINITIF";
+    };
+
+/** Ce qui accompagne une notification, au-delà du corps décodé. */
+export interface ContexteNotification {
+  /** Corps exact reçu, avant tout décodage : base des signatures HMAC. */
+  brut: string;
+  entetes: Headers;
+}
 
 export interface PaymentProvider {
   /** Démarre un paiement et renvoie l'URL vers laquelle rediriger l'acheteur. */
@@ -41,8 +69,13 @@ export interface PaymentProvider {
   /**
    * Vérifie une notification serveur entrante (callback) et renvoie le statut
    * FIABLE. C'est la seule source de vérité pour marquer une commande payée.
+   *
+   * `contexte` porte ce qui ne survit pas au décodage du corps : le corps
+   * BRUT (indispensable aux signatures HMAC, qui portent sur les octets reçus
+   * et non sur l'objet reconstruit) et les en-têtes de la requête.
    */
   verifierNotification(
     corps: Record<string, string>,
+    contexte?: ContexteNotification,
   ): Promise<VerificationNotification>;
 }

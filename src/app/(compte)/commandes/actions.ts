@@ -34,7 +34,9 @@ export async function reprendrePaiementAction(
   if (!res.ok) {
     redirect(`/commandes/${commandeId}?erreur=Paiement%20indisponible.`);
   }
-  redirect(res.urlPaiement);
+  // Sans page de paiement, le client valide sur son téléphone : on le laisse
+  // sur le suivi de commande, où l'avancement se met à jour tout seul.
+  redirect(res.urlPaiement ?? `/commandes/${commandeId}?ok=paiement_en_cours`);
 }
 
 export async function annulerCommandeAction(formData: FormData): Promise<void> {
