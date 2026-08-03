@@ -52,6 +52,11 @@ export async function affecterTransporteur(
       data: { transporteur, statut: "AFFECTEE", dateAffectation: new Date() },
     }),
   ]);
+  // Cette étape ne prévenait personne : l'acheteur voyait « Préparation »
+  // dans sa frise sans jamais recevoir le moindre message.
+  await notifierStatutCommande(commandeId, "EN_PREPARATION");
+  await notifierCommandeWhatsApp(commandeId, "EN_PREPARATION");
+  await notifierPushStatutAcheteur(commandeId, "EN_PREPARATION");
   return { ok: true };
 }
 
@@ -111,12 +116,23 @@ async function appliquerLivraison(
   }
 
   const maintenant = new Date();
+  // En paiement à la livraison, la remise du colis EST le paiement : le
+  // client règle en espèces au livreur, en main propre. Marquer la commande
+  // payée dans le même geste évite qu'elle reste indéfiniment « en attente de
+  // paiement » aux yeux de l'acheteur, et que le chiffre d'affaires ignore
+  // ces ventes. Le cash est consigné comme collecté PAR LA BOUTIQUE : il ne
+  // remonte pas à NILE, il n'y a donc rien à réconcilier ensuite.
+  const estCOD = commande.modePaiement === "COD";
+
   // Filtré sur EXPEDIEE : deux scans concurrents ne peuvent pas appliquer la
   // livraison deux fois, ni déclencher deux fois les notifications.
   const applique = await prisma.$transaction(async (tx) => {
     const maj = await tx.commande.updateMany({
       where: { id: commandeId, statutCommande: "EXPEDIEE" },
-      data: { statutCommande: "LIVREE" },
+      data: {
+        statutCommande: "LIVREE",
+        ...(estCOD ? { statutPaiement: "PAYE" as const } : {}),
+      },
     });
     if (maj.count === 0) return false;
     await tx.livraison.update({
@@ -132,6 +148,9 @@ async function appliquerLivraison(
         confirmationAcheteur: confirmation.mode === "ADMIN" ? null : maintenant,
         modeConfirmation: confirmation.mode,
         forcageMotif: confirmation.motif ?? null,
+        ...(estCOD
+          ? { statutCash: "COLLECTE" as const, montantCashCollecte: commande.total }
+          : {}),
       },
     });
     return true;

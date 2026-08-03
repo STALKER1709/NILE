@@ -40,7 +40,11 @@ export function vendeursAvecTotaux(
   return map;
 }
 
-export type StatutNotifiableAcheteur = "CONFIRMEE" | "EXPEDIEE" | "LIVREE";
+export type StatutNotifiableAcheteur =
+  | "CONFIRMEE"
+  | "EN_PREPARATION"
+  | "EXPEDIEE"
+  | "LIVREE";
 
 /**
  * Avancement de commande notifié à l'ACHETEUR.
@@ -70,6 +74,12 @@ export function chargeStatutAcheteur(params: {
           modePaiement === "COD"
             ? `${formaterXAF(total)} à régler à la livraison. La boutique prépare votre colis.`
             : `${formaterXAF(total)} payés. La boutique prépare votre colis.`,
+        url,
+      };
+    case "EN_PREPARATION":
+      return {
+        titre: `Commande ${numero} en préparation`,
+        corps: "La boutique rassemble vos articles. Départ imminent.",
         url,
       };
     case "EXPEDIEE":

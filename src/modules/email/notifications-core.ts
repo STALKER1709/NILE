@@ -109,7 +109,7 @@ export function vendeursDeLaCommande(lignes: LigneEmail[]): string[] {
   return [...new Set(lignes.map((l) => l.vendeurId))];
 }
 
-export type StatutNotifiable = "EXPEDIEE" | "LIVREE";
+export type StatutNotifiable = "EN_PREPARATION" | "EXPEDIEE" | "LIVREE";
 
 /**
  * Email envoyé à l'ACHETEUR quand sa commande change d'étape.
@@ -122,6 +122,20 @@ export function construireEmailStatut(
   nomAcheteur: string,
   transporteur?: string | null,
 ): { sujet: string; texte: string; html: string } {
+  if (statut === "EN_PREPARATION") {
+    const sujet = `Commande ${commande.numero} en préparation`;
+    const texte = `Bonjour ${nomAcheteur},
+
+Ta commande ${commande.numero} est en cours de préparation par la boutique.${
+      transporteur ? `\nElle sera confiée à : ${transporteur}.` : ""
+    }
+
+Tu recevras un nouveau message dès qu'elle partira en livraison.
+
+- NILE Marketplace`;
+    return { sujet, texte, html: enHtml(texte) };
+  }
+
   if (statut === "EXPEDIEE") {
     const sujet = `Commande ${commande.numero} expédiée · elle arrive !`;
     const texte = `Bonjour ${nomAcheteur},

@@ -113,4 +113,26 @@ describe("construireEmailStatut", () => {
     expect(email.sujet).toContain("livrée");
     expect(email.texte).toContain("avis");
   });
+
+  it("EN_PREPARATION : annonce la préparation et le transporteur", () => {
+    const email = construireEmailStatut(base, "EN_PREPARATION", "Jean", "Express Douala");
+    expect(email.sujet).toContain("préparation");
+    expect(email.texte).toContain("Express Douala");
+    // À ce stade rien n'est encore parti : ne pas réclamer d'argent.
+    expect(email.texte).not.toContain("espèces");
+  });
+
+  it("EN_PREPARATION sans transporteur : reste cohérent", () => {
+    const email = construireEmailStatut(base, "EN_PREPARATION", "Jean");
+    expect(email.sujet).toContain("préparation");
+    expect(email.texte).not.toContain("undefined");
+    expect(email.texte).not.toContain("null");
+  });
+
+  it("les trois statuts produisent des sujets distincts", () => {
+    const sujets = (["EN_PREPARATION", "EXPEDIEE", "LIVREE"] as const).map(
+      (s) => construireEmailStatut(base, s, "Jean").sujet,
+    );
+    expect(new Set(sujets).size).toBe(3);
+  });
 });

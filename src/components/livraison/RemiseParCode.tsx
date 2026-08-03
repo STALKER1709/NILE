@@ -154,6 +154,20 @@ export function RemiseParCode({
         à 6 chiffres y apparaissent. Le code change toutes les 30 secondes.
       </p>
 
+      {/* Le scan vaut désormais quittance en COD : le dire noir sur blanc,
+          avant le geste, pas dans un guide que personne ne lira. */}
+      <p className="mt-3 flex gap-2 rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-corps-sm text-amber-900">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" className="mt-0.5 shrink-0" aria-hidden="true">
+          <path d="M12 9v4M12 17v.01" strokeLinecap="round" />
+          <path d="M10.3 3.8 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0z" strokeLinejoin="round" />
+        </svg>
+        <span>
+          <strong>Ne validez qu&apos;une fois l&apos;argent en main.</strong> En
+          paiement à la livraison, cette validation marque la commande comme
+          payée : elle ne pourra plus être réclamée au client.
+        </span>
+      </p>
+
       {scanActif ? (
         <div className="mt-3">
           {/* eslint-disable-next-line jsx-a11y/media-has-caption */}

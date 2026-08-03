@@ -53,10 +53,15 @@ export function fenetreServiceOuverte(
   return finFenetre !== null && finFenetre > maintenant;
 }
 
-export type StatutNotifiableWhatsApp = "CONFIRMEE" | "EXPEDIEE" | "LIVREE";
+export type StatutNotifiableWhatsApp =
+  | "CONFIRMEE"
+  | "EN_PREPARATION"
+  | "EXPEDIEE"
+  | "LIVREE";
 
 const LIBELLES_STATUT: Record<StatutNotifiableWhatsApp, string> = {
   CONFIRMEE: "confirmée",
+  EN_PREPARATION: "en préparation",
   EXPEDIEE: "expédiée",
   LIVREE: "livrée",
 };

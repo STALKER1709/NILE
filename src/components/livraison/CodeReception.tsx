@@ -100,7 +100,23 @@ export function CodeReception({ commandeId }: { commandeId: string }) {
       </div>
 
       <p className="text-etiquette-xs text-slate-500">
-        Nouveau code dans {restant} s · ne le communiquez qu&apos;au livreur, en main propre
+        Nouveau code dans {restant} s
+      </p>
+
+      {/* Donner le code n'est pas un geste anodin : il clôt la commande et,
+          en COD, vaut reconnaissance de paiement. L'acheteur doit le savoir
+          AVANT, pas en découvrant le statut ensuite. */}
+      <p className="flex gap-2 rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-left text-corps-sm text-amber-900">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" className="mt-0.5 shrink-0" aria-hidden="true">
+          <path d="M12 9v4M12 17v.01" strokeLinecap="round" />
+          <path d="M10.3 3.8 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0z" strokeLinejoin="round" />
+        </svg>
+        <span>
+          <strong>Vérifiez le colis avant de donner ce code.</strong> Une fois
+          communiqué, la commande est close et considérée comme reçue — et
+          payée si vous réglez à la livraison. Ne le donnez qu&apos;au livreur,
+          en main propre.
+        </span>
       </p>
     </div>
   );

@@ -103,6 +103,19 @@ describe("chargeStatutAcheteur", () => {
     const c = chargeStatutAcheteur({ ...base, statut: "LIVREE", modePaiement: "COD" });
     expect(c.corps).toContain("Confirmez");
   });
+
+  it("en préparation : annonce la préparation sans réclamer d'argent", () => {
+    const c = chargeStatutAcheteur({ ...base, statut: "EN_PREPARATION", modePaiement: "COD" });
+    expect(c.titre).toContain("préparation");
+    expect(c.corps).not.toContain("espèces");
+  });
+
+  it("les quatre étapes produisent des titres distincts", () => {
+    const titres = (["CONFIRMEE", "EN_PREPARATION", "EXPEDIEE", "LIVREE"] as const).map(
+      (statut) => chargeStatutAcheteur({ ...base, statut, modePaiement: "COD" }).titre,
+    );
+    expect(new Set(titres).size).toBe(4);
+  });
 });
 
 describe("chargeRappelConfirmation", () => {
