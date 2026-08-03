@@ -110,7 +110,7 @@ export async function statsVendeur(vendeurId: string): Promise<{
 // ---------------------------------- ADMIN ------------------------------------
 
 export async function statsAdmin() {
-  const [caRealise, caMois, cashACollecter, commandesActives, recentes, dernieres] =
+  const [caRealise, caMois, cashCOD, commandesActives, recentes, dernieres] =
     await Promise.all([
       prisma.commande.aggregate({
         where: { statutCommande: "LIVREE", statutPaiement: "PAYE" },
@@ -124,6 +124,9 @@ export async function statsAdmin() {
         },
         _sum: { total: true },
       }),
+      // Espèces encaissées par les boutiques à la remise du colis. Chiffre
+      // d'INFORMATION : cet argent ne revient pas à NILE, il n'y a donc rien
+      // à réconcilier — le montant ne fait que croître avec les livraisons.
       prisma.livraison.aggregate({
         where: { statutCash: "COLLECTE" },
         _sum: { montantCashCollecte: true },
@@ -149,8 +152,8 @@ export async function statsAdmin() {
   return {
     caRealise: caRealise._sum.total ?? 0,
     caMois: caMois._sum.total ?? 0,
-    cashACollecter: cashACollecter._sum.montantCashCollecte ?? 0,
-    nbCashACollecter: cashACollecter._count,
+    cashEncaisseBoutiques: cashCOD._sum.montantCashCollecte ?? 0,
+    nbLivraisonsCOD: cashCOD._count,
     commandesActives,
     activite7Jours: serieParJour(
       recentes.map((c) => ({ date: c.dateCreation, valeur: c.total })),

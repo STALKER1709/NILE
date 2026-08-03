@@ -18,6 +18,8 @@ import {
 import { IconeWhatsApp } from "@/components/layout/BulleWhatsApp";
 import { ActiverNotifications } from "@/components/push/ActiverNotifications";
 import { CodeReception } from "@/components/livraison/CodeReception";
+import { ChoixOperateur } from "@/components/paiement/ChoixOperateur";
+import { paiementSansRedirection } from "@/modules/paiement";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -86,6 +88,7 @@ export default async function DetailCommandePage({
     commande.modePaiement === "MONETBIL" &&
     commande.statutPaiement === "EN_ATTENTE" &&
     commande.statutCommande === "EN_ATTENTE";
+  const sansRedirection = paiementSansRedirection();
   const termine = commande.statutCommande === "ANNULEE" || commande.statutCommande === "REFUSEE";
   const etapeCourante = ETAPES.indexOf(commande.statutCommande as (typeof ETAPES)[number]);
   // LIVREE est un état terminal : dès que le code a été scanné ou saisi, la
@@ -171,8 +174,17 @@ export default async function DetailCommandePage({
       )}
 
       {paiementARelancer && (
-        <form action={reprendrePaiementAction}>
+        <form action={reprendrePaiementAction} className="space-y-3">
           <input type="hidden" name="commandeId" value={commande.id} />
+          {/* Sans ce choix, le fournisseur qui débite directement le
+              portefeuille ne sait pas quel opérateur solliciter et refuse la
+              demande : le bouton échouerait systématiquement. */}
+          {sansRedirection && (
+            <ChoixOperateur
+              telephone={commande.destTelephone}
+              note="La demande expire au bout de 10 minutes sans confirmation."
+            />
+          )}
           <button type="submit" className={btn("accent", "lg", "w-full")}>Payer maintenant (Mobile Money)</button>
         </form>
       )}

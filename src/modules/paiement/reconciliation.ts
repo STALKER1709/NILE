@@ -1,6 +1,19 @@
 import { prisma } from "@/lib/db";
 
-/** Commandes payées à la livraison, pour le suivi/réconciliation du cash. */
+/**
+ * Suivi des commandes payées à la livraison.
+ *
+ * LECTURE SEULE. Le cash COD ne transite plus par NILE : il est remis en
+ * main propre au livreur de la boutique, et `appliquerLivraison` le consigne
+ * comme collecté au moment même où le code de réception de l'acheteur est
+ * validé. Il n'y a donc plus rien à « réconcilier » — ni cash à encaisser
+ * côté plateforme, ni reversement à opérer dans l'autre sens.
+ *
+ * Les actions manuelles d'autrefois (marquer le cash collecté, puis reversé)
+ * ont été retirées : la première marquait une commande « payée » AVANT toute
+ * livraison, ce qui contournait la preuve de remise ; la seconde décrivait un
+ * flux d'argent qui n'existe plus.
+ */
 export async function listerCommandesCOD() {
   return prisma.commande.findMany({
     where: { modePaiement: "COD" },
@@ -8,54 +21,4 @@ export async function listerCommandesCOD() {
     include: { livraison: true },
     take: 100,
   });
-}
-
-export type ResultatReconciliation =
-  | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "ETAT_INVALIDE" };
-
-/**
- * Le transporteur a remis le cash : on l'enregistre et la commande devient
- * « payée ». (statutCash NON_COLLECTE -> COLLECTE)
- */
-export async function marquerCashCollecte(
-  commandeId: string,
-): Promise<ResultatReconciliation> {
-  const commande = await prisma.commande.findUnique({
-    where: { id: commandeId },
-    include: { livraison: true },
-  });
-  if (!commande || !commande.livraison || commande.modePaiement !== "COD") {
-    return { ok: false, code: "INTROUVABLE" };
-  }
-  if (commande.livraison.statutCash !== "NON_COLLECTE") {
-    return { ok: false, code: "ETAT_INVALIDE" };
-  }
-  await prisma.$transaction([
-    prisma.livraison.update({
-      where: { commandeId },
-      data: { statutCash: "COLLECTE", montantCashCollecte: commande.total },
-    }),
-    prisma.commande.update({
-      where: { id: commandeId },
-      data: { statutPaiement: "PAYE" },
-    }),
-  ]);
-  return { ok: true };
-}
-
-/** Le cash collecté a été reversé à la plateforme. (COLLECTE -> REVERSE) */
-export async function marquerCashReverse(
-  commandeId: string,
-): Promise<ResultatReconciliation> {
-  const livraison = await prisma.livraison.findUnique({ where: { commandeId } });
-  if (!livraison) return { ok: false, code: "INTROUVABLE" };
-  if (livraison.statutCash !== "COLLECTE") {
-    return { ok: false, code: "ETAT_INVALIDE" };
-  }
-  await prisma.livraison.update({
-    where: { commandeId },
-    data: { statutCash: "REVERSE" },
-  });
-  return { ok: true };
 }

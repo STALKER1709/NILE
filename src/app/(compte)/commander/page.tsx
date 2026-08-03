@@ -12,6 +12,7 @@ import { passerCommandeAction } from "@/app/(compte)/commander/actions";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 import { Vignette } from "@/components/ui/Vignette";
 import { ChampVille } from "@/components/commande/ChampVille";
+import { ChoixOperateur } from "@/components/paiement/ChoixOperateur";
 import { Carte, Prix, btn, champClass, labelClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -144,38 +145,13 @@ export default async function CommanderPage({
             {/* Le fournisseur sollicite directement le portefeuille du client :
                 il faut donc savoir QUEL opérateur interroger. Affiché en
                 permanence plutôt qu'au clic — sans JavaScript, un champ
-                conditionnel ne s'afficherait jamais. */}
+                conditionnel ne s'afficherait jamais. À n'utiliser QUE si le
+                mode Mobile Money est retenu : le serveur s'en assure. */}
             {sansRedirection && (
-              <fieldset className="rounded border border-contour-carte p-4">
-                <legend className="px-1 text-etiquette-md text-slate-900">
-                  Votre opérateur Mobile Money
-                </legend>
-                <p className="mb-3 text-corps-sm text-slate-500">
-                  La demande de paiement arrivera sur le{" "}
-                  <strong>{derniere?.destTelephone ?? utilisateur.telephone}</strong> —
-                  modifiable dans le téléphone de contact ci-dessus.
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <label className="flex cursor-pointer items-center gap-2 rounded border border-contour-carte px-3 py-2.5 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-                    <input type="radio" name="operateur" value="mtn" required className="accent-nile-700" />
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded bg-[#ffcb05] text-[10px] font-bold text-black">
-                      MTN
-                    </span>
-                    <span className="text-corps-sm font-semibold text-slate-900">MoMo</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2 rounded border border-contour-carte px-3 py-2.5 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-                    <input type="radio" name="operateur" value="orange" className="accent-nile-700" />
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded bg-[#ff7900] text-[10px] font-bold text-white">
-                      OM
-                    </span>
-                    <span className="text-corps-sm font-semibold text-slate-900">Orange Money</span>
-                  </label>
-                </div>
-                <p className="mt-3 text-etiquette-xs text-slate-500">
-                  Gardez votre téléphone à portée : la demande expire au bout de
-                  10 minutes sans confirmation.
-                </p>
-              </fieldset>
+              <ChoixOperateur
+                telephone={derniere?.destTelephone ?? utilisateur.telephone}
+                note="À renseigner seulement si vous payez par Mobile Money. Gardez votre téléphone à portée : la demande expire au bout de 10 minutes sans confirmation."
+              />
             )}
             {depassePlafond && (
               <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-xs text-amber-800">

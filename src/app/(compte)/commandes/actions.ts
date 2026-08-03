@@ -9,6 +9,8 @@ import {
 } from "@/modules/commande/commande";
 import { racheterCommande } from "@/modules/commande/rachat";
 import { confirmerReceptionAcheteur } from "@/modules/livraison/livraison";
+import { paiementSansRedirection } from "@/modules/paiement";
+import { estOperateurValide } from "@/modules/paiement/hrskills/hrskills-core";
 
 async function urlDeBase(): Promise<string> {
   const h = await headers();
@@ -24,12 +26,29 @@ export async function reprendrePaiementAction(
   const commandeId = String(formData.get("commandeId") ?? "");
   const base = await urlDeBase();
 
+  // Même exigence qu'à la commande : les fournisseurs qui débitent directement
+  // le portefeuille refusent une demande sans opérateur. Sans cette reprise du
+  // choix, la relance échouait à tous les coups.
+  let operateur: string | undefined;
+  if (paiementSansRedirection()) {
+    const choix = String(formData.get("operateur") ?? "");
+    if (!estOperateurValide(choix)) {
+      redirect(
+        `/commandes/${commandeId}?erreur=${encodeURIComponent(
+          "Choisissez votre opérateur Mobile Money (MTN ou Orange).",
+        )}`,
+      );
+    }
+    operateur = choix;
+  }
+
   const res = await reprendrePaiement(utilisateur.id, commandeId, {
     urlRetour: `${base}/commandes`,
     urlNotification: `${base}/api/paiement/callback`,
     email: utilisateur.email,
     telephone: utilisateur.telephone,
     nom: utilisateur.nom,
+    operateur,
   });
   if (!res.ok) {
     redirect(`/commandes/${commandeId}?erreur=Paiement%20indisponible.`);

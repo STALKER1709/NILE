@@ -59,12 +59,14 @@ export default async function AdminPage() {
             accent={duVendeurs > 0}
           />
         </Lien>
+        {/* Indicateur d'information, jamais une alerte : ces espèces sont
+            encaissées par les boutiques et ne reviennent pas à NILE. Rien à
+            traiter, donc pas d'accent. */}
         <Lien href="/admin/reconciliation">
           <Kpi
-            label="Cash COD à réconcilier"
-            valeur={<Prix montant={stats.cashACollecter} />}
-            sousTitre={`${stats.nbCashACollecter} livraison${stats.nbCashACollecter > 1 ? "s" : ""}`}
-            accent={stats.cashACollecter > 0}
+            label="COD encaissé par les boutiques"
+            valeur={<Prix montant={stats.cashEncaisseBoutiques} />}
+            sousTitre={`${stats.nbLivraisonsCOD} livraison${stats.nbLivraisonsCOD > 1 ? "s" : ""}`}
           />
         </Lien>
       </div>

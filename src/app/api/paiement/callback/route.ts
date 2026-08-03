@@ -39,6 +39,14 @@ export async function POST(req: Request): Promise<Response> {
     entetes: req.headers,
   });
   if (!res.ok) {
+    // « Pas encore définitif » (paiement en cours, ou bloqué en revue
+    // manuelle) n'est PAS une erreur : la notification a été reçue et
+    // comprise, il n'y a simplement rien à écrire. Répondre 400 ferait
+    // rejouer indéfiniment le webhook par le fournisseur. On accuse
+    // réception ; le statut final arrivera dans une notification suivante.
+    if (res.raison === "NON_DEFINITIF") {
+      return NextResponse.json({ ok: true, statut: "EN_ATTENTE" });
+    }
     console.error("[callback] notification rejetée:", res.raison);
     return NextResponse.json({ ok: false, raison: res.raison }, { status: 400 });
   }

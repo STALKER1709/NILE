@@ -37,8 +37,13 @@ export interface FinancesVendeur {
 /**
  * Toutes les données de l'écran Finances d'un vendeur.
  *
- * Les « ventes du mois » suivent la même règle que le solde (commande LIVREE
- * et PAYE) pour que les deux chiffres restent cohérents entre eux.
+ * Les « ventes du mois » comptent TOUTE vente aboutie (commande LIVREE et
+ * PAYE), espèces comprises : c'est l'activité réelle de la boutique.
+ *
+ * Le solde, lui, ne retient que les ventes réglées en Mobile Money — seules
+ * celles-là ont transité par NILE et restent donc à reverser. Les deux
+ * chiffres divergent volontairement chez un vendeur qui vend en COD ; l'écran
+ * Finances l'explique sous le détail du solde.
  */
 export async function getFinancesVendeur(
   vendeurId: string,
