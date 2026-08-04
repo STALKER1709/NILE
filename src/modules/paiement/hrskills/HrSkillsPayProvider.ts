@@ -13,6 +13,8 @@ import {
   mapperStatutHrSkills,
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
+  racineHrSkills,
+  estCleDeTest,
 } from "@/modules/paiement/hrskills/hrskills-core";
 
 /**
@@ -59,8 +61,14 @@ export class HrSkillsPayProvider implements PaymentProvider {
     if (!env.HRSKILLS_CLE_B) throw new Error("HRSKILLS_CLE_B manquant.");
     return env.HRSKILLS_CLE_B;
   }
+  /** Racine des appels d'authentification (jamais préfixée, voir core). */
   private base(): string {
     return env.HRSKILLS_BASE_URL.replace(/\/+$/, "");
+  }
+
+  /** Racine des appels qui consomment le token : `/sandbox` en test. */
+  private racine(): string {
+    return racineHrSkills(env.HRSKILLS_BASE_URL, this.cleA());
   }
 
   /** Token de transaction, renouvelé seulement quand il approche de sa fin. */
@@ -121,6 +129,43 @@ export class HrSkillsPayProvider implements PaymentProvider {
     return entetes;
   }
 
+  /**
+   * Poste la demande d'encaissement.
+   *
+   * En PRODUCTION : un seul chemin, celui de la documentation. Rien n'est
+   * exploré à l'aveugle sur de l'argent réel.
+   *
+   * En SANDBOX : la documentation publie le Cash-In sous `/api/v1/payin/…`,
+   * mais le refus renvoyé par l'API parle d'un espace `/sandbox/v1/…`. Les
+   * deux formes sont donc essayées, et UNIQUEMENT sur un 404 — c'est-à-dire
+   * quand la route n'existe pas et qu'aucune transaction n'a pu être créée.
+   * Le chemin retenu est journalisé : dès qu'il est confirmé, cette liste
+   * doit être réduite à la seule bonne valeur.
+   */
+  private async appelerPayin(
+    entetes: HeadersInit,
+    corps: string,
+  ): Promise<{ reponse: Response; texte: string; chemin: string }> {
+    const racine = this.racine();
+    const chemins = estCleDeTest(this.cleA())
+      ? [`${racine}/api/v1/payin/mobile-money`, `${racine}/v1/payin/mobile-money`]
+      : [`${racine}/api/v1/payin/mobile-money`];
+
+    let dernier: { reponse: Response; texte: string; chemin: string } | null = null;
+    for (const chemin of chemins) {
+      const reponse = await fetch(chemin, { method: "POST", headers: entetes, body: corps });
+      const texte = await reponse.text();
+      dernier = { reponse, texte, chemin };
+      if (reponse.status !== 404) {
+        if (chemins.length > 1) console.info("[hrskills] chemin payin retenu:", chemin);
+        return dernier;
+      }
+      console.warn("[hrskills] chemin payin absent (404):", chemin);
+    }
+    // `dernier` est forcément renseigné : la liste n'est jamais vide.
+    return dernier as { reponse: Response; texte: string; chemin: string };
+  }
+
   async initier(ctx: ContexteInitiation): Promise<DemarragePaiement> {
     const operateur = normaliserOperateur(ctx.operateur ?? "");
     if (!operateur) {
@@ -131,26 +176,26 @@ export class HrSkillsPayProvider implements PaymentProvider {
       throw new Error(`Numéro de téléphone inexploitable : ${ctx.telephone}`);
     }
 
-    const reponse = await fetch(`${this.base()}/api/v1/payin/mobile-money`, {
-      method: "POST",
-      headers: await this.enTetes(true),
-      body: JSON.stringify({
-        operator: operateur,
-        country: "CM",
-        phone_number: numero,
-        amount: ctx.montant,
-        currency: "XAF",
-        description: `Commande ${ctx.numeroCommande} · NILE`,
-        // Renvoyé tel quel dans le webhook : permet de retrouver NOTRE
-        // paiement même si la correspondance par référence échouait.
-        metadata: { reference_interne: ctx.reference, commande: ctx.numeroCommande },
-      }),
+    const corps = JSON.stringify({
+      operator: operateur,
+      country: "CM",
+      phone_number: numero,
+      amount: ctx.montant,
+      currency: "XAF",
+      description: `Commande ${ctx.numeroCommande} · NILE`,
+      // Renvoyé tel quel dans le webhook : permet de retrouver NOTRE
+      // paiement même si la correspondance par référence échouait.
+      metadata: { reference_interne: ctx.reference, commande: ctx.numeroCommande },
     });
+    // Une seule clé d'idempotence pour toutes les tentatives ci-dessous : si
+    // l'une d'elles aboutissait malgré une réponse perdue, la suivante serait
+    // reconnue comme un rejeu et non comme un second débit.
+    const entetes = await this.enTetes(true);
 
-    const texte = await reponse.text();
+    const { reponse, texte, chemin } = await this.appelerPayin(entetes, corps);
     if (!reponse.ok) {
       throw new Error(
-        `HR-Skills payin: HTTP ${reponse.status} · ${texte.slice(0, 300)}`,
+        `HR-Skills payin: HTTP ${reponse.status} · ${chemin} · ${texte.slice(0, 300)}`,
       );
     }
     let data: { data?: { reference?: string; status?: string } };
@@ -178,7 +223,7 @@ export class HrSkillsPayProvider implements PaymentProvider {
   ): Promise<{ ok: true; statut: string } | { ok: false }> {
     try {
       const reponse = await fetch(
-        `${this.base()}/v1/payments/${encodeURIComponent(referenceFournisseur)}`,
+        `${this.racine()}/v1/payments/${encodeURIComponent(referenceFournisseur)}`,
         { method: "GET", headers: await this.enTetes(false), cache: "no-store" },
       );
       const texte = await reponse.text();

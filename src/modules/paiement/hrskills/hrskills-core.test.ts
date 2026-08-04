@@ -7,7 +7,49 @@ import {
   mapperStatutHrSkills,
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
+  estCleDeTest,
+  racineHrSkills,
 } from "@/modules/paiement/hrskills/hrskills-core";
+
+describe("environnement sandbox / live", () => {
+  const test = "hrsk_a_test_abc123";
+  const live = "hrsk_a_live_abc123";
+
+  it("distingue les clés de test des clés de production", () => {
+    expect(estCleDeTest(test)).toBe(true);
+    expect(estCleDeTest(live)).toBe(false);
+  });
+
+  it("préfixe /sandbox avec une clé de test", () => {
+    expect(racineHrSkills("https://api.hrskills-pay.com", test)).toBe(
+      "https://api.hrskills-pay.com/sandbox",
+    );
+  });
+
+  it("ne préfixe rien en production", () => {
+    expect(racineHrSkills("https://api.hrskills-pay.com", live)).toBe(
+      "https://api.hrskills-pay.com",
+    );
+  });
+
+  it("ne double jamais le préfixe déjà présent dans la base", () => {
+    expect(racineHrSkills("https://api.hrskills-pay.com/sandbox", test)).toBe(
+      "https://api.hrskills-pay.com/sandbox",
+    );
+    expect(racineHrSkills("https://api.hrskills-pay.com/sandbox/", test)).toBe(
+      "https://api.hrskills-pay.com/sandbox",
+    );
+  });
+
+  it("tolère une barre oblique finale", () => {
+    expect(racineHrSkills("https://api.hrskills-pay.com/", test)).toBe(
+      "https://api.hrskills-pay.com/sandbox",
+    );
+    expect(racineHrSkills("https://api.hrskills-pay.com/", live)).toBe(
+      "https://api.hrskills-pay.com",
+    );
+  });
+});
 
 describe("opérateurs", () => {
   it("accepte les opérateurs camerounais, quelle que soit la casse", () => {

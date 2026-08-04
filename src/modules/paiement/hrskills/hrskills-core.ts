@@ -14,6 +14,37 @@ import type { StatutPaiementNotifie } from "@/modules/paiement/notification-core
  *   3. le nom exact de l'en-tête de signature (« X-Hub-Signature » au §12).
  */
 
+/* ------------------------------ Environnements ------------------------------- */
+
+/**
+ * Clé de test (« sandbox ») ou clé de production (« live ») ?
+ *
+ * Le préfixe des clés est la seule chose qui distingue les deux
+ * environnements — l'hôte de l'API est le même : `hrsk_*_test_*` d'un côté,
+ * `hrsk_*_live_*` de l'autre.
+ */
+export function estCleDeTest(cle: string): boolean {
+  return cle.includes("_test_");
+}
+
+/**
+ * Racine des appels qui consomment le token de transaction.
+ *
+ * Les jetons de test ne sont servis que sous `/sandbox` ; les appeler
+ * ailleurs renvoie un 403 `sandbox_path_required`. En production, aucun
+ * préfixe. La fonction est idempotente : une base déjà terminée par
+ * `/sandbox` n'est pas préfixée deux fois.
+ *
+ * L'échange des clés contre un token (`/v1/auth/transaction-token`) n'est PAS
+ * concerné : il fonctionne avec des clés de test sur le chemin normal — c'est
+ * vérifié, cet appel aboutit là où le paiement était refusé.
+ */
+export function racineHrSkills(baseUrl: string, cle: string): string {
+  const base = baseUrl.replace(/\/+$/, "");
+  if (!estCleDeTest(cle)) return base;
+  return base.endsWith("/sandbox") ? base : `${base}/sandbox`;
+}
+
 /* --------------------------------- Opérateurs -------------------------------- */
 
 /** Opérateurs Mobile Money disponibles au Cameroun (§13 de la doc). */
