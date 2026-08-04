@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { Prisma, type ModePaiement } from "@prisma/client";
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 import { calculerTotal, evaluerCommandeCOD } from "@/modules/commande/commande-core";
 import {
   getPlafondCOD,
@@ -183,8 +184,14 @@ export async function passerCommande(
       urlPaiement: demarrage.urlPaiement,
     };
   } catch (erreur) {
-    console.error("Initiation paiement échouée:", erreur);
-    // Libère la commande (remise en stock) : le paiement n'a pas pu démarrer.
+    // Journalisé avec le fournisseur et le numéro de commande : c'est la
+    // seule trace exploitable quand un acheteur signale « le paiement ne se
+    // lance pas », le message qui lui est montré restant volontairement vague.
+    console.error(
+      `[paiement] initiation échouée · fournisseur=${env.PAYMENT_PROVIDER} · commande=${cree.numero} ·`,
+      erreur instanceof Error ? erreur.message : erreur,
+    );
+    // Libère la commande : remise en stock ET articles rendus au panier.
     await libererCommande(cree.commandeId);
     return { ok: false, code: "PAIEMENT_INDISPONIBLE" };
   }
@@ -278,7 +285,17 @@ async function creerCommandeTransaction(
   });
 }
 
-/** Libère une commande non payée : remise en stock atomique (si applicable). */
+/**
+ * Libère une commande dont le paiement n'a jamais pu démarrer : remise en
+ * stock ET remise au panier, atomiques.
+ *
+ * Le panier est vidé pendant la création de la commande. Si l'initiation du
+ * paiement échoue ensuite, l'acheteur se retrouverait sans commande ET sans
+ * panier : de son point de vue, tout aurait disparu sans explication — il ne
+ * verrait même pas le message d'erreur, l'écran de commande renvoyant vers le
+ * panier quand celui-ci est vide. On lui rend donc ses articles, pour qu'il
+ * puisse simplement réessayer.
+ */
 async function libererCommande(commandeId: string): Promise<void> {
   await prisma.$transaction(async (tx) => {
     const commande = await tx.commande.findUnique({
@@ -293,14 +310,34 @@ async function libererCommande(commandeId: string): Promise<void> {
       },
       data: { statutCommande: "ANNULEE", statutPaiement: "ECHOUE" },
     });
-    if (maj.count === 1) {
-      for (const ligne of commande.lignes) {
-        await tx.produit.update({
-          where: { id: ligne.produitId },
-          data: { stock: { increment: ligne.quantite } },
-        });
-      }
+    // Filtré sur les statuts « encore libérables » : un second appel ne
+    // recrédite ni le stock ni le panier.
+    if (maj.count !== 1) return;
+
+    for (const ligne of commande.lignes) {
+      await tx.produit.update({
+        where: { id: ligne.produitId },
+        data: { stock: { increment: ligne.quantite } },
+      });
     }
+
+    const panier = await tx.panier.upsert({
+      where: { utilisateurId: commande.acheteurId },
+      create: { utilisateurId: commande.acheteurId },
+      update: {},
+      select: { id: true },
+    });
+    // `skipDuplicates` : si l'acheteur a déjà remis un de ces articles au
+    // panier entre-temps, son panier actuel prime — on ne double pas la
+    // quantité dans son dos.
+    await tx.lignePanier.createMany({
+      data: commande.lignes.map((l) => ({
+        panierId: panier.id,
+        produitId: l.produitId,
+        quantite: l.quantite,
+      })),
+      skipDuplicates: true,
+    });
   });
 }
 
