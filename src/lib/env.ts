@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { clesCoherentes } from "@/modules/paiement/hrskills/hrskills-core";
 
 /**
  * Validation centralisée des variables d'environnement (côté serveur).
@@ -47,9 +48,10 @@ const schema = z
     MONETBIL_SERVICE_SECRET: z.string().optional(),
 
     // HR-Skills Pay (MTN MoMo + Orange Money, 16 pays africains).
-    // Clé A (publique, en-tête Authorization) et Clé B (secrète, échangée
-    // une seule fois contre un token de transaction). Dashboard >
-    // Développeurs. Requises quand PAYMENT_PROVIDER="hrskills".
+    // Clé A (en-tête Authorization: Bearer) et Clé B (échangée contre un token
+    // de transaction, et renvoyée dans X-API-Secret). Aucune des deux ne doit
+    // atteindre le navigateur. Dashboard > Développeurs. Requises quand
+    // PAYMENT_PROVIDER="hrskills", et toutes deux du même environnement.
     HRSKILLS_CLE_A: z.string().optional(),
     HRSKILLS_CLE_B: z.string().optional(),
     // Secret de signature des webhooks (Dashboard > Paramètres > Webhooks).
@@ -154,6 +156,17 @@ const schema = z
           path: ["HRSKILLS_CLE_A"],
           message:
             'HRSKILLS_CLE_A et HRSKILLS_CLE_B requis quand PAYMENT_PROVIDER="hrskills".',
+        });
+      } else if (!clesCoherentes(val.HRSKILLS_CLE_A, val.HRSKILLS_CLE_B)) {
+        // Les deux clés sont copiées séparément depuis le tableau de bord.
+        // Mélanger un environnement avec l'autre — ou poser une clé sans
+        // marqueur lisible — enverrait des appels de production authentifiés
+        // par un secret de test, ou l'inverse. On refuse de démarrer.
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["HRSKILLS_CLE_A"],
+          message:
+            "HRSKILLS_CLE_A et HRSKILLS_CLE_B doivent porter le même environnement : soit les deux en _test_, soit les deux en _live_ (ex. hrsk_pk_live_… avec hrsk_sk_live_…).",
         });
       }
       if (!val.HRSKILLS_WEBHOOK_SECRET) {

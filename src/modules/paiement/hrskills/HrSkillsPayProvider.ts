@@ -1,4 +1,3 @@
-import { randomUUID } from "node:crypto";
 import { env } from "@/lib/env";
 import type {
   PaymentProvider,
@@ -15,6 +14,7 @@ import {
   lireWebhookHrSkills,
   racineHrSkills,
   estCleDeTest,
+  cleIdempotence,
 } from "@/modules/paiement/hrskills/hrskills-core";
 
 /**
@@ -22,8 +22,13 @@ import {
  *
  * Implémenté d'après la documentation « HR-Skills Pay API v1 » fournie :
  *   - Authentification à double clé : la Clé A voyage dans `Authorization:
- *     Bearer`, la Clé B est échangée une fois contre un token de transaction
- *     (JWT, TTL 2700 s) réclamé par l'en-tête `X-Transaction-Token`.
+ *     Bearer`, la Clé B est échangée contre un token de transaction (valide
+ *     45 min) réclamé par l'en-tête `X-Transaction-Token`. La Clé B accompagne
+ *     AUSSI chaque appel dans `X-API-Secret` : la doc décrit l'échange de token
+ *     dans ses exemples complets, mais publie par ailleurs un
+ *     `401 missing_api_secret` — « X-API-Secret absent, envoyer la Clé B dans
+ *     ce header ». Les deux en-têtes sont donc envoyés, faute de pouvoir
+ *     trancher sans essai réel ; aucun des deux n'est de trop.
  *   - Encaissement : POST /api/v1/payin/mobile-money -> 202 PENDING + une
  *     référence « ref_… ». Le client valide ensuite sur son téléphone.
  *   - Statut : GET /v1/payments/:reference (SUCCESS · FAILED · PENDING ·
@@ -117,15 +122,24 @@ export class HrSkillsPayProvider implements PaymentProvider {
     }
   }
 
-  private async enTetes(avecIdempotence: boolean): Promise<HeadersInit> {
+  /**
+   * En-têtes communs à tous les appels.
+   *
+   * `cleIdem` n'est renseignée que sur les POST, où la doc rend
+   * `Idempotency-Key` obligatoire. Elle doit être la MÊME à chaque tentative
+   * portant sur un même paiement : c'est ce qui empêche l'API de créer un
+   * second encaissement quand une réponse s'est perdue en route (la doc le
+   * confirme sur le 502 `provider_request_failed` : « retry safe avec
+   * Idempotency-Key »).
+   */
+  private async enTetes(cleIdem: string | null): Promise<HeadersInit> {
     const entetes: Record<string, string> = {
       Authorization: `Bearer ${this.cleA()}`,
       "X-Transaction-Token": await this.transactionToken(),
+      "X-API-Secret": this.cleB(),
       "Content-Type": "application/json",
     };
-    // Obligatoire sur les POST d'après la doc : protège d'un double débit si
-    // la requête est rejouée (timeout réseau, nouvelle tentative).
-    if (avecIdempotence) entetes["Idempotency-Key"] = randomUUID();
+    if (cleIdem) entetes["Idempotency-Key"] = cleIdem;
     return entetes;
   }
 
@@ -135,29 +149,26 @@ export class HrSkillsPayProvider implements PaymentProvider {
    * En PRODUCTION : un seul chemin, celui de la documentation. Rien n'est
    * exploré à l'aveugle sur de l'argent réel.
    *
-   * En SANDBOX : la documentation publie le Cash-In sous `/api/v1/payin/…`,
-   * mais le refus renvoyé par l'API parle d'un espace `/sandbox/v1/…`. Les
-   * deux formes sont donc essayées, et UNIQUEMENT sur un 404 — c'est-à-dire
-   * quand la route n'existe pas et qu'aucune transaction n'a pu être créée.
-   * Le chemin retenu est journalisé : dès qu'il est confirmé, cette liste
-   * doit être réduite à la seule bonne valeur.
+   * En SANDBOX : le refus observé (`403 sandbox_path_required`) impose un
+   * espace `/sandbox` dont la documentation ne parle nulle part. Si le chemin
+   * recommandé n'y existe pas, on se rabat sur `POST /v1/payments/initiate`,
+   * que la doc présente comme l'alternative au « même comportement » avec une
+   * direction explicite — ce n'est donc pas un chemin deviné. Le repli n'a
+   * lieu que sur un 404 : route absente, donc aucune transaction créée.
+   * Le chemin retenu est journalisé ; dès qu'il est confirmé, cette liste doit
+   * être réduite à la seule bonne valeur.
    */
   private async appelerPayin(
     entetes: HeadersInit,
-    corps: string,
+    candidats: { chemin: string; corps: string }[],
   ): Promise<{ reponse: Response; texte: string; chemin: string }> {
-    const racine = this.racine();
-    const chemins = estCleDeTest(this.cleA())
-      ? [`${racine}/api/v1/payin/mobile-money`, `${racine}/v1/payin/mobile-money`]
-      : [`${racine}/api/v1/payin/mobile-money`];
-
     let dernier: { reponse: Response; texte: string; chemin: string } | null = null;
-    for (const chemin of chemins) {
+    for (const { chemin, corps } of candidats) {
       const reponse = await fetch(chemin, { method: "POST", headers: entetes, body: corps });
       const texte = await reponse.text();
       dernier = { reponse, texte, chemin };
       if (reponse.status !== 404) {
-        if (chemins.length > 1) console.info("[hrskills] chemin payin retenu:", chemin);
+        if (candidats.length > 1) console.info("[hrskills] chemin payin retenu:", chemin);
         return dernier;
       }
       console.warn("[hrskills] chemin payin absent (404):", chemin);
@@ -176,7 +187,7 @@ export class HrSkillsPayProvider implements PaymentProvider {
       throw new Error(`Numéro de téléphone inexploitable : ${ctx.telephone}`);
     }
 
-    const corps = JSON.stringify({
+    const champs = {
       operator: operateur,
       country: "CM",
       phone_number: numero,
@@ -186,13 +197,24 @@ export class HrSkillsPayProvider implements PaymentProvider {
       // Renvoyé tel quel dans le webhook : permet de retrouver NOTRE
       // paiement même si la correspondance par référence échouait.
       metadata: { reference_interne: ctx.reference, commande: ctx.numeroCommande },
-    });
-    // Une seule clé d'idempotence pour toutes les tentatives ci-dessous : si
-    // l'une d'elles aboutissait malgré une réponse perdue, la suivante serait
-    // reconnue comme un rejeu et non comme un second débit.
-    const entetes = await this.enTetes(true);
+    };
+    const racine = this.racine();
+    const candidats = [
+      { chemin: `${racine}/api/v1/payin/mobile-money`, corps: JSON.stringify(champs) },
+    ];
+    if (estCleDeTest(this.cleA())) {
+      candidats.push({
+        chemin: `${racine}/v1/payments/initiate`,
+        corps: JSON.stringify({ direction: "CASHIN", ...champs }),
+      });
+    }
 
-    const { reponse, texte, chemin } = await this.appelerPayin(entetes, corps);
+    // Clé d'idempotence dérivée du paiement, donc identique d'une tentative à
+    // l'autre — aussi bien entre les deux chemins ci-dessus qu'entre deux
+    // passages successifs dans cette méthode (relance par l'acheteur).
+    const entetes = await this.enTetes(cleIdempotence(ctx.reference));
+
+    const { reponse, texte, chemin } = await this.appelerPayin(entetes, candidats);
     if (!reponse.ok) {
       throw new Error(
         `HR-Skills payin: HTTP ${reponse.status} · ${chemin} · ${texte.slice(0, 300)}`,
@@ -224,7 +246,7 @@ export class HrSkillsPayProvider implements PaymentProvider {
     try {
       const reponse = await fetch(
         `${this.racine()}/v1/payments/${encodeURIComponent(referenceFournisseur)}`,
-        { method: "GET", headers: await this.enTetes(false), cache: "no-store" },
+        { method: "GET", headers: await this.enTetes(null), cache: "no-store" },
       );
       const texte = await reponse.text();
       if (!reponse.ok) {

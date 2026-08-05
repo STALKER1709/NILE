@@ -1,4 +1,4 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import type { StatutPaiementNotifie } from "@/modules/paiement/notification-core";
 
 /**
@@ -16,24 +16,53 @@ import type { StatutPaiementNotifie } from "@/modules/paiement/notification-core
 
 /* ------------------------------ Environnements ------------------------------- */
 
+export type EnvironnementHrSkills = "test" | "live";
+
 /**
- * Clé de test (« sandbox ») ou clé de production (« live ») ?
+ * Environnement porté par une clé, lu sur son préfixe (`hrsk_pk_live_…`,
+ * `hrsk_sk_test_…`). C'est la SEULE chose qui distingue sandbox de production :
+ * l'hôte de l'API est le même des deux côtés.
  *
- * Le préfixe des clés est la seule chose qui distingue les deux
- * environnements — l'hôte de l'API est le même : `hrsk_*_test_*` d'un côté,
- * `hrsk_*_live_*` de l'autre.
+ * Renvoie `null` si la clé ne porte aucun des deux marqueurs — cas traité comme
+ * une erreur de configuration par l'appelant, jamais comme « production » par
+ * défaut : partir en live sur une clé illisible est le pire des deux échecs.
  */
+export function environnementCle(cle: string): EnvironnementHrSkills | null {
+  if (cle.includes("_test_")) return "test";
+  if (cle.includes("_live_")) return "live";
+  return null;
+}
+
 export function estCleDeTest(cle: string): boolean {
-  return cle.includes("_test_");
+  return environnementCle(cle) === "test";
+}
+
+/**
+ * Les deux clés désignent-elles bien le même environnement ?
+ *
+ * La Clé A et la Clé B sont copiées séparément depuis le tableau de bord :
+ * rien n'empêche matériellement d'associer une Clé A live à une Clé B de test.
+ * L'application choisissant son chemin d'après la Clé A, un tel mélange
+ * enverrait des appels de production authentifiés par un secret de test — ou
+ * l'inverse. On refuse de démarrer plutôt que de le découvrir en paiement.
+ */
+export function clesCoherentes(cleA: string, cleB: string): boolean {
+  const a = environnementCle(cleA);
+  return a !== null && a === environnementCle(cleB);
 }
 
 /**
  * Racine des appels qui consomment le token de transaction.
  *
- * Les jetons de test ne sont servis que sous `/sandbox` ; les appeler
- * ailleurs renvoie un 403 `sandbox_path_required`. En production, aucun
- * préfixe. La fonction est idempotente : une base déjà terminée par
- * `/sandbox` n'est pas préfixée deux fois.
+ * En test, ces appels ne sont servis que sous `/sandbox` ; ailleurs l'API
+ * renvoie un 403 `sandbox_path_required`. En production, aucun préfixe. La
+ * fonction est idempotente : une base déjà terminée par `/sandbox` n'est pas
+ * préfixée deux fois.
+ *
+ * ⚠️ Ce préfixe ne vient PAS de la documentation, qui n'en parle nulle part :
+ * il vient du refus effectivement renvoyé par l'API avec des clés de test. À
+ * reconfirmer en sandbox — si l'espace `/sandbox` n'existe plus, tout ceci
+ * disparaît et `racineHrSkills` se réduit à la base.
  *
  * L'échange des clés contre un token (`/v1/auth/transaction-token`) n'est PAS
  * concerné : il fonctionne avec des clés de test sur le chemin normal — c'est
@@ -43,6 +72,45 @@ export function racineHrSkills(baseUrl: string, cle: string): string {
   const base = baseUrl.replace(/\/+$/, "");
   if (!estCleDeTest(cle)) return base;
   return base.endsWith("/sandbox") ? base : `${base}/sandbox`;
+}
+
+/* ------------------------------- Idempotence --------------------------------- */
+
+const RE_UUID_V4 =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export function estUuidV4(valeur: string): boolean {
+  return RE_UUID_V4.test(valeur);
+}
+
+/**
+ * Clé d'idempotence d'un encaissement, DÉTERMINISTE : deux tentatives portant
+ * sur le même paiement produisent la même clé.
+ *
+ * C'est tout l'intérêt de l'en-tête. Une clé tirée au hasard à chaque appel
+ * n'empêche rien : elle protège seulement des rejeux à l'intérieur d'un même
+ * appel, alors que le vrai risque de double débit est ailleurs — l'acheteur
+ * relance un paiement resté en attente (`reprendrePaiement`) après une réponse
+ * perdue, et sans clé stable l'API y voit un second encaissement.
+ *
+ * La référence passée est l'id du `Paiement`, déjà un UUID v4 : on l'utilise
+ * tel quel. Si elle ne l'était pas (changement de format d'id), on en dérive
+ * une empreinte SHA-256 mise à la forme d'un UUID v4 — la doc annonce ce
+ * format, on le respecte sans supposer que l'API accepte autre chose. La
+ * dérivation reste déterministe, c'est la seule propriété qui compte ici.
+ */
+export function cleIdempotence(reference: string): string {
+  if (estUuidV4(reference)) return reference.toLowerCase();
+
+  const empreinte = createHash("sha256")
+    .update(`nile:hrskills:${reference}`)
+    .digest("hex");
+  const chiffres = empreinte.slice(0, 32).split("");
+  // Version 4 et variante RFC 4122, pour que la chaîne soit un UUID v4 valide.
+  chiffres[12] = "4";
+  chiffres[16] = "89ab".charAt(parseInt(empreinte.charAt(16), 16) % 4);
+  const s = chiffres.join("");
+  return `${s.slice(0, 8)}-${s.slice(8, 12)}-${s.slice(12, 16)}-${s.slice(16, 20)}-${s.slice(20, 32)}`;
 }
 
 /* --------------------------------- Opérateurs -------------------------------- */

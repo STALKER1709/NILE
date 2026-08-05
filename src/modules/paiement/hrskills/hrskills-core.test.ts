@@ -8,16 +8,32 @@ import {
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
   estCleDeTest,
+  environnementCle,
+  clesCoherentes,
+  estUuidV4,
+  cleIdempotence,
   racineHrSkills,
 } from "@/modules/paiement/hrskills/hrskills-core";
 
 describe("environnement sandbox / live", () => {
-  const test = "hrsk_a_test_abc123";
-  const live = "hrsk_a_live_abc123";
+  const test = "hrsk_pk_test_abc123";
+  const live = "hrsk_pk_live_abc123";
 
   it("distingue les clés de test des clés de production", () => {
     expect(estCleDeTest(test)).toBe(true);
     expect(estCleDeTest(live)).toBe(false);
+  });
+
+  it("lit l'environnement porté par la clé", () => {
+    expect(environnementCle(test)).toBe("test");
+    expect(environnementCle(live)).toBe("live");
+  });
+
+  it("ne devine pas l'environnement d'une clé sans marqueur", () => {
+    // Surtout pas « live » par défaut : une clé illisible doit bloquer le
+    // démarrage, pas partir en production.
+    expect(environnementCle("hrsk_pk_abc123")).toBeNull();
+    expect(estCleDeTest("hrsk_pk_abc123")).toBe(false);
   });
 
   it("préfixe /sandbox avec une clé de test", () => {
@@ -48,6 +64,56 @@ describe("environnement sandbox / live", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com/", live)).toBe(
       "https://api.hrskills-pay.com",
     );
+  });
+});
+
+describe("cohérence des deux clés", () => {
+  it("accepte deux clés du même environnement", () => {
+    expect(clesCoherentes("hrsk_pk_live_a", "hrsk_sk_live_b")).toBe(true);
+    expect(clesCoherentes("hrsk_pk_test_a", "hrsk_sk_test_b")).toBe(true);
+  });
+
+  it("refuse un mélange test / live dans les deux sens", () => {
+    expect(clesCoherentes("hrsk_pk_live_a", "hrsk_sk_test_b")).toBe(false);
+    expect(clesCoherentes("hrsk_pk_test_a", "hrsk_sk_live_b")).toBe(false);
+  });
+
+  it("refuse une clé sans marqueur d'environnement", () => {
+    expect(clesCoherentes("hrsk_pk_a", "hrsk_sk_live_b")).toBe(false);
+    expect(clesCoherentes("", "")).toBe(false);
+  });
+});
+
+describe("clé d'idempotence", () => {
+  const paiementId = "3f2a1c4e-9b7d-4e21-a8f6-0c5d2e7b1a93"; // id Paiement (uuid v4)
+
+  it("est stable : deux tentatives sur le même paiement donnent la même clé", () => {
+    // C'est LA propriété qui protège du double débit quand l'acheteur relance
+    // un paiement resté en attente.
+    expect(cleIdempotence(paiementId)).toBe(cleIdempotence(paiementId));
+    expect(cleIdempotence("ref-non-uuid")).toBe(cleIdempotence("ref-non-uuid"));
+  });
+
+  it("reprend telle quelle une référence déjà au format uuid v4", () => {
+    expect(cleIdempotence(paiementId)).toBe(paiementId);
+  });
+
+  it("distingue deux paiements différents", () => {
+    expect(cleIdempotence("paiement-a")).not.toBe(cleIdempotence("paiement-b"));
+  });
+
+  it("produit toujours un uuid v4 valide, même à partir d'une référence qui ne l'est pas", () => {
+    // La doc impose ce format sur l'en-tête Idempotency-Key.
+    expect(estUuidV4(cleIdempotence("paiement-42"))).toBe(true);
+    expect(estUuidV4(cleIdempotence(""))).toBe(true);
+    expect(estUuidV4(cleIdempotence("ID_AVEC_MAJUSCULES_ET_-_TIRETS"))).toBe(true);
+  });
+
+  it("reconnaît le format uuid v4 et rejette ce qui n'en est pas", () => {
+    expect(estUuidV4(paiementId)).toBe(true);
+    // Version 1, pas 4.
+    expect(estUuidV4("3f2a1c4e-9b7d-1e21-a8f6-0c5d2e7b1a93")).toBe(false);
+    expect(estUuidV4("pas-un-uuid")).toBe(false);
   });
 });
 
