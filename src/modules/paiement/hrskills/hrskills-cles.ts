@@ -55,9 +55,11 @@ export function clesCoherentes(cleA: string, cleB: string): boolean {
  * préfixée deux fois.
  *
  * ⚠️ Ce préfixe ne vient PAS de la documentation, qui n'en parle nulle part :
- * il vient du refus effectivement renvoyé par l'API avec des clés de test. À
- * reconfirmer en sandbox — si l'espace `/sandbox` n'existe pas, tout ceci
- * disparaît et `racineHrSkills` se réduit à la base.
+ * il vient du refus renvoyé par l'API avec des clés de test, et il est depuis
+ * CONFIRMÉ en sandbox — `/sandbox/api/v1/payin/mobile-money` répond. Comme
+ * rien ne le documente, il reste susceptible de disparaître sans préavis : si
+ * les encaissements de test se mettaient un jour à répondre 404, c'est ici
+ * qu'il faut regarder en premier.
  *
  * L'échange des clés contre un token (`/v1/auth/transaction-token`) n'est PAS
  * concerné : il fonctionne avec des clés de test sur le chemin normal — c'est

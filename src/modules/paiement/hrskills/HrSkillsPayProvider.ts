@@ -13,7 +13,6 @@ import {
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
   racineHrSkills,
-  estCleDeTest,
   cleIdempotence,
 } from "@/modules/paiement/hrskills/hrskills-core";
 
@@ -143,40 +142,6 @@ export class HrSkillsPayProvider implements PaymentProvider {
     return entetes;
   }
 
-  /**
-   * Poste la demande d'encaissement.
-   *
-   * En PRODUCTION : un seul chemin, celui de la documentation. Rien n'est
-   * exploré à l'aveugle sur de l'argent réel.
-   *
-   * En SANDBOX : le refus observé (`403 sandbox_path_required`) impose un
-   * espace `/sandbox` dont la documentation ne parle nulle part. Si le chemin
-   * recommandé n'y existe pas, on se rabat sur `POST /v1/payments/initiate`,
-   * que la doc présente comme l'alternative au « même comportement » avec une
-   * direction explicite — ce n'est donc pas un chemin deviné. Le repli n'a
-   * lieu que sur un 404 : route absente, donc aucune transaction créée.
-   * Le chemin retenu est journalisé ; dès qu'il est confirmé, cette liste doit
-   * être réduite à la seule bonne valeur.
-   */
-  private async appelerPayin(
-    entetes: HeadersInit,
-    candidats: { chemin: string; corps: string }[],
-  ): Promise<{ reponse: Response; texte: string; chemin: string }> {
-    let dernier: { reponse: Response; texte: string; chemin: string } | null = null;
-    for (const { chemin, corps } of candidats) {
-      const reponse = await fetch(chemin, { method: "POST", headers: entetes, body: corps });
-      const texte = await reponse.text();
-      dernier = { reponse, texte, chemin };
-      if (reponse.status !== 404) {
-        if (candidats.length > 1) console.info("[hrskills] chemin payin retenu:", chemin);
-        return dernier;
-      }
-      console.warn("[hrskills] chemin payin absent (404):", chemin);
-    }
-    // `dernier` est forcément renseigné : la liste n'est jamais vide.
-    return dernier as { reponse: Response; texte: string; chemin: string };
-  }
-
   async initier(ctx: ContexteInitiation): Promise<DemarragePaiement> {
     const operateur = normaliserOperateur(ctx.operateur ?? "");
     if (!operateur) {
@@ -198,23 +163,22 @@ export class HrSkillsPayProvider implements PaymentProvider {
       // paiement même si la correspondance par référence échouait.
       metadata: { reference_interne: ctx.reference, commande: ctx.numeroCommande },
     };
-    const racine = this.racine();
-    const candidats = [
-      { chemin: `${racine}/api/v1/payin/mobile-money`, corps: JSON.stringify(champs) },
-    ];
-    if (estCleDeTest(this.cleA())) {
-      candidats.push({
-        chemin: `${racine}/v1/payments/initiate`,
-        corps: JSON.stringify({ direction: "CASHIN", ...champs }),
-      });
-    }
+    // Chemin unique, confirmé en sandbox (log « chemin payin retenu » du
+    // 2026-08-05) : `/sandbox/api/v1/payin/mobile-money`. La liste de
+    // candidats qui existait ici n'a plus lieu d'être — on n'explore pas des
+    // routes au hasard sur un encaissement.
+    const chemin = `${this.racine()}/api/v1/payin/mobile-money`;
 
-    // Clé d'idempotence dérivée du paiement, donc identique d'une tentative à
-    // l'autre — aussi bien entre les deux chemins ci-dessus qu'entre deux
-    // passages successifs dans cette méthode (relance par l'acheteur).
+    // Clé d'idempotence dérivée du paiement, donc identique d'un passage à
+    // l'autre dans cette méthode (relance du paiement par l'acheteur).
     const entetes = await this.enTetes(cleIdempotence(ctx.reference));
 
-    const { reponse, texte, chemin } = await this.appelerPayin(entetes, candidats);
+    const reponse = await fetch(chemin, {
+      method: "POST",
+      headers: entetes,
+      body: JSON.stringify(champs),
+    });
+    const texte = await reponse.text();
     if (!reponse.ok) {
       throw new Error(
         `HR-Skills payin: HTTP ${reponse.status} · ${chemin} · ${texte.slice(0, 300)}`,
