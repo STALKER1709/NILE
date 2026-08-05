@@ -1,5 +1,7 @@
 import { z } from "zod";
-import { clesCoherentes } from "@/modules/paiement/hrskills/hrskills-core";
+// Depuis `hrskills-cles` et non `hrskills-core` : ce fichier est chargé par le
+// middleware (runtime Edge), où une dépendance à `node:crypto` casse le build.
+import { clesCoherentes } from "@/modules/paiement/hrskills/hrskills-cles";
 
 /**
  * Validation centralisée des variables d'environnement (côté serveur).

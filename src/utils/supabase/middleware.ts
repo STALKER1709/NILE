@@ -9,6 +9,12 @@ import { env } from "@/lib/env";
  * déconnecté malgré un refresh token valide.
  *
  * Règle critique : ne RIEN exécuter entre createServerClient et getUser().
+ *
+ * ⚠️ Ce middleware RAFRAÎCHIT, il n'AUTORISE pas. Le `getUser()` ci-dessous
+ * voit son résultat ignoré : une requête munie d'un cookie invalide passe et
+ * sera refusée plus loin, par `exigerRole()`. Ne jamais déduire d'ici qu'une
+ * identité est prouvée — la vérification appartient au contrôle d'accès, qui
+ * appelle `getUser()` pour son propre compte.
  */
 export async function updateSession(
   request: NextRequest,

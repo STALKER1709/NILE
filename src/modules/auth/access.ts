@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import type { Role, Utilisateur, Vendeur } from "@prisma/client";
 import { prisma } from "@/lib/db";
@@ -7,12 +8,22 @@ import { evaluerAcces } from "@/modules/auth/access-core";
 export { evaluerAcces, TOUS_LES_ROLES } from "@/modules/auth/access-core";
 export type { DecisionAcces } from "@/modules/auth/access-core";
 
-/** Charge le profil de l'utilisateur connecté (ou null). */
-export async function getUtilisateurCourant(): Promise<Utilisateur | null> {
-  const authId = await getAuthProvider().getCurrentAuthId();
-  if (!authId) return null;
-  return prisma.utilisateur.findUnique({ where: { id: authId } });
-}
+/**
+ * Charge le profil de l'utilisateur connecté (ou null).
+ *
+ * Mémoïsé par le `cache()` de React, dont la portée est UNE requête : une page
+ * qui appelle `exigerRole()` puis relit l'utilisateur ne paie qu'un seul
+ * aller-retour vers Supabase et une seule lecture en base. Rien ne fuit d'une
+ * requête à l'autre — c'est ce qui rend la vérification d'identité
+ * authentifiée (`getUser()`) abordable à chaque garde.
+ */
+export const getUtilisateurCourant = cache(
+  async (): Promise<Utilisateur | null> => {
+    const authId = await getAuthProvider().getCurrentAuthId();
+    if (!authId) return null;
+    return prisma.utilisateur.findUnique({ where: { id: authId } });
+  },
+);
 
 /**
  * Garde serveur : exige un rôle parmi `rolesAutorises`. Redirige sinon.

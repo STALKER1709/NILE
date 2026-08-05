@@ -59,13 +59,29 @@ export class SupabaseAuthProvider implements AuthProvider {
     await supabase.auth.signOut();
   }
 
+  /**
+   * Identité de l'appelant, AUTHENTIFIÉE auprès du serveur Supabase.
+   *
+   * `getUser()` et non `getSession()` : ce dernier se contente de décoder le
+   * cookie sans en vérifier la signature. N'importe qui peut forger un cookie
+   * portant l'`id` d'un autre compte — un administrateur, par exemple — et
+   * `getSession()` le renverrait tel quel. Tout le contrôle d'accès repose sur
+   * cette valeur (`exigerRole`, `exigerVendeur`) : elle doit être prouvée, pas
+   * lue.
+   *
+   * Le middleware appelle bien `getUser()` à chaque requête, mais il en jette
+   * le résultat — il rafraîchit le jeton, il n'autorise rien. Et un contrôle
+   * qui ne vit que dans le middleware n'est pas une frontière de sécurité : la
+   * vérification doit se faire ici, au plus près de la donnée.
+   *
+   * Coût : un aller-retour réseau. Il est mutualisé par requête via le
+   * `cache()` de React posé sur `getUtilisateurCourant()`.
+   */
   async getCurrentAuthId(): Promise<string | null> {
     const supabase = await creerClientServeur();
-    // Lecture LOCALE du cookie (pas d'appel réseau) : le middleware a déjà
-    // validé/rafraîchi la session via getUser() à chaque requête. On évite
-    // ainsi un second aller-retour vers Supabase à chaque page (perf).
-    const { data } = await supabase.auth.getSession();
-    return data.session?.user?.id ?? null;
+    const { data, error } = await supabase.auth.getUser();
+    if (error || !data.user) return null;
+    return data.user.id;
   }
 
   async deleteIdentity(authId: string): Promise<void> {
