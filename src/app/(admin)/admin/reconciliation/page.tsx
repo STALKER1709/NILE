@@ -1,28 +1,40 @@
 import Link from "next/link";
 import { exigerRole } from "@/modules/auth/access";
-import { listerCommandesCOD } from "@/modules/paiement/reconciliation";
-import { Carte, Prix, Badge, EtatVide } from "@/components/ui/kit";
+import { listerCommandesCOD, totauxCash } from "@/modules/paiement/reconciliation";
+import { ancienneteJours, decisionRemiseCash } from "@/modules/paiement/cash-core";
+import { marquerCashRemisAction } from "@/app/(admin)/admin/reconciliation/actions";
+import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
+import { Carte, Prix, Badge, EtatVide, btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
 
-/** Ce que dit vraiment l'état du cash, une fois le COD encaissé par la boutique. */
+/** Où en est physiquement l'argent d'une commande payée à la livraison. */
 const LIB_CASH: Record<string, string> = {
   NON_APPLICABLE: "sans objet",
   NON_COLLECTE: "à encaisser à la remise",
-  COLLECTE: "encaissé par la boutique",
-  REVERSE: "reversé (historique)",
+  COLLECTE: "détenu par le livreur",
+  REVERSE: "remis à NILE",
 };
 
 const TON_CASH: Record<string, "neutre" | "ambre" | "vert" | "bleu"> = {
   NON_APPLICABLE: "neutre",
-  NON_COLLECTE: "ambre",
-  COLLECTE: "vert",
+  NON_COLLECTE: "neutre",
+  // Ambre et non vert : encaissé ne veut pas dire arrivé. Tant que le livreur
+  // détient les espèces, c'est une exposition, pas une recette acquise.
+  COLLECTE: "ambre",
   REVERSE: "vert",
 };
 
+/** Au-delà, un cash non remis n'est plus un retard mais un problème. */
+const SEUIL_ALERTE_JOURS = 3;
+
 export default async function ReconciliationPage() {
   await exigerRole("ADMIN");
-  const commandes = await listerCommandesCOD();
+  const [commandes, totaux] = await Promise.all([
+    listerCommandesCOD(),
+    totauxCash(),
+  ]);
+  const maintenant = new Date();
 
   return (
     <div className="space-y-5">
@@ -32,12 +44,36 @@ export default async function ReconciliationPage() {
       </div>
 
       <p className="rounded border border-contour-carte bg-surface-basse px-3 py-2 text-sm text-slate-600">
-        Vue de contrôle, en lecture seule. Les espèces sont remises directement
-        au livreur de la boutique : elles ne transitent pas par NILE, il n&apos;y
-        a donc rien à encaisser ni à reverser ici. Une commande passe à
-        « encaissé » au moment où le code de réception de l&apos;acheteur est
-        validé.
+        Les livreurs sont fournis par NILE : les espèces remises par
+        l&apos;acheteur remontent à la plateforme. Une commande passe à
+        « détenu par le livreur » quand le code de réception est validé, puis à
+        « remis à NILE » quand le livreur rend l&apos;argent — c&apos;est ce
+        second geste qui rend la vente payable au vendeur.
       </p>
+
+      <div className="grid grid-cols-1 gap-gouttiere sm:grid-cols-2">
+        <Carte className="p-4">
+          <p className="text-xs uppercase tracking-wide text-slate-500">
+            Détenu par les livreurs
+          </p>
+          <p className="mt-1 text-titre-sm text-amber-700">
+            <Prix montant={totaux.enMainLivreur} />
+          </p>
+          <p className="text-xs text-slate-500">
+            {totaux.nbEnAttente} commande{totaux.nbEnAttente > 1 ? "s" : ""} en
+            attente de remise
+          </p>
+        </Carte>
+        <Carte className="p-4">
+          <p className="text-xs uppercase tracking-wide text-slate-500">
+            Remis à NILE
+          </p>
+          <p className="mt-1 text-titre-sm text-emerald-700">
+            <Prix montant={totaux.remis} />
+          </p>
+          <p className="text-xs text-slate-500">cumul depuis l&apos;ouverture</p>
+        </Carte>
+      </div>
 
       {commandes.length === 0 ? (
         <EtatVide titre="Aucune commande à la livraison." />
@@ -45,6 +81,15 @@ export default async function ReconciliationPage() {
         <div className="space-y-2">
           {commandes.map((c) => {
             const etat = c.livraison?.statutCash ?? "NON_APPLICABLE";
+            const remisable =
+              decisionRemiseCash({
+                modePaiement: c.modePaiement,
+                statutCash: etat,
+              }) === "OK";
+            const jours = remisable
+              ? ancienneteJours(c.livraison?.dateLivraison, maintenant)
+              : 0;
+
             return (
               <Carte key={c.id} className="flex flex-wrap items-center gap-3 p-4">
                 <div className="min-w-0 flex-1">
@@ -57,10 +102,23 @@ export default async function ReconciliationPage() {
                   <p className="text-xs text-slate-500">
                     <Prix montant={c.total} /> · {c.statutCommande} · paiement {c.statutPaiement}
                   </p>
+                  {jours >= SEUIL_ALERTE_JOURS && (
+                    <p className="text-xs font-semibold text-red-600">
+                      Non remis depuis {jours} jours
+                    </p>
+                  )}
                 </div>
                 <Badge ton={TON_CASH[etat] ?? "neutre"}>
                   cash : {LIB_CASH[etat] ?? etat}
                 </Badge>
+                {remisable && (
+                  <form action={marquerCashRemisAction}>
+                    <input type="hidden" name="commandeId" value={c.id} />
+                    <BoutonSoumettre className={btn("secondaire", "sm")}>
+                      Cash remis
+                    </BoutonSoumettre>
+                  </form>
+                )}
               </Carte>
             );
           })}
