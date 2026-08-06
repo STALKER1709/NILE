@@ -78,4 +78,24 @@ export interface PaymentProvider {
     corps: Record<string, string>,
     contexte?: ContexteNotification,
   ): Promise<VerificationNotification>;
+
+  /**
+   * Relit le statut d'un paiement DIRECTEMENT chez le fournisseur, à notre
+   * initiative.
+   *
+   * Le webhook est la voie rapide, pas une garantie : il peut ne jamais partir
+   * (certains bacs à sable n'en émettent aucun), se perdre, ou arriver quand
+   * notre serveur est indisponible. Sans relecture, la commande correspondante
+   * reste « en attente » pour toujours — l'acheteur a payé et ne voit rien.
+   *
+   * Renvoie `null` quand le statut n'est pas définitif (en cours, en revue) ou
+   * qu'il n'a pas pu être lu : dans les deux cas il n'y a rien à écrire, et
+   * surtout rien à conclure.
+   *
+   * Optionnel : un fournisseur qui n'expose pas de lecture de statut ne
+   * l'implémente pas, et le suivi se contente alors du webhook.
+   */
+  consulterStatut?(
+    referenceFournisseur: string,
+  ): Promise<StatutPaiementNotifie | null>;
 }

@@ -27,8 +27,31 @@ export async function traiterNotificationPaiement(
   const verif = await getPaymentProvider().verifierNotification(corps, contexte);
   if (!verif.ok) return { ok: false, raison: verif.raison };
 
-  const { reference, statut } = verif.data;
+  return conclurePaiement(verif.data.reference, verif.data.statut, corps);
+}
 
+/**
+ * Applique un statut de paiement DÉJÀ ÉTABLI à la commande correspondante.
+ *
+ * Extrait de `traiterNotificationPaiement` pour être partagé avec la relecture
+ * de statut (`modules/paiement/suivi`) : que la vérité vienne d'un webhook
+ * signé ou d'une interrogation du fournisseur à notre initiative, la commande
+ * doit basculer exactement de la même façon. Deux chemins d'écriture
+ * divergents sur de l'argent, c'est deux comportements à maintenir et un jour
+ * deux vérités.
+ *
+ * L'appelant est responsable d'avoir ÉTABLI ce statut — signature vérifiée, ou
+ * lecture directe chez le fournisseur. Cette fonction ne fait confiance à
+ * personne d'autre qu'à lui.
+ *
+ * Idempotent : appelée plusieurs fois pour un même paiement, elle ne produit
+ * qu'un seul effet, et n'envoie les notifications qu'une fois.
+ */
+export async function conclurePaiement(
+  reference: string,
+  statut: "PAYE" | "ECHOUE",
+  charge: Record<string, string>,
+): Promise<ResultatTraitement> {
   // La référence est soit notre identifiant de paiement, soit celle attribuée
   // par le fournisseur (conservée dans `Paiement.reference` à l'initiation).
   // On tente les deux : selon le fournisseur, le webhook ne renvoie pas
@@ -59,7 +82,7 @@ export async function traiterNotificationPaiement(
     const confirmee = await prisma.$transaction(async (tx) => {
       await tx.paiement.updateMany({
         where: { id: paiementId, statut: { not: "PAYE" } },
-        data: { statut: "PAYE", payload: corps },
+        data: { statut: "PAYE", payload: charge },
       });
       // Ne confirme la commande que si elle attendait encore le paiement.
       const maj = await tx.commande.updateMany({
@@ -83,7 +106,7 @@ export async function traiterNotificationPaiement(
   await prisma.$transaction(async (tx) => {
     await tx.paiement.updateMany({
       where: { id: paiementId, statut: { not: "PAYE" } },
-      data: { statut: "ECHOUE", payload: corps },
+      data: { statut: "ECHOUE", payload: charge },
     });
     const maj = await tx.commande.updateMany({
       where: { id: paiement.commandeId, statutCommande: "EN_ATTENTE" },

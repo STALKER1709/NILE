@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { exigerConnexion } from "@/modules/auth/access";
 import {
@@ -10,6 +11,7 @@ import {
 import { racheterCommande } from "@/modules/commande/rachat";
 import { confirmerReceptionAcheteur } from "@/modules/livraison/livraison";
 import { paiementSansRedirection } from "@/modules/paiement";
+import { rafraichirPaiementCommande } from "@/modules/paiement/suivi";
 import { estOperateurValide } from "@/modules/paiement/hrskills/hrskills-core";
 
 async function urlDeBase(): Promise<string> {
@@ -113,4 +115,27 @@ export async function confirmerReceptionAction(formData: FormData): Promise<void
     redirect(`/commandes/${commandeId}?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/commandes/${commandeId}?ok=reception`);
+}
+
+/**
+ * Demande au fournisseur où en est le paiement d'une commande, et rafraîchit
+ * la page si le statut a basculé.
+ *
+ * Appelée en boucle par l'écran d'attente tant que le paiement Mobile Money
+ * n'est pas tranché — le webhook peut ne jamais arriver. L'identité vient de
+ * la session serveur : `commandeId` seul ne donne accès à rien.
+ */
+export async function rafraichirPaiementAction(
+  commandeId: string,
+): Promise<{ termine: boolean }> {
+  const utilisateur = await exigerConnexion();
+  const resultat = await rafraichirPaiementCommande(utilisateur.id, commandeId);
+  // Commande introuvable (ou pas la sienne) : inutile d'insister.
+  if (!resultat.ok) return { termine: true };
+
+  const termine = resultat.statutPaiement !== "EN_ATTENTE";
+  // Ne revalide que lorsqu'il y a du nouveau : recharger la page toutes les
+  // 10 s pour rien coûterait de la data mobile à l'acheteur.
+  if (termine) revalidatePath(`/commandes/${commandeId}`);
+  return { termine };
 }

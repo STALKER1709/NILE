@@ -19,6 +19,7 @@ import { IconeWhatsApp } from "@/components/layout/BulleWhatsApp";
 import { ActiverNotifications } from "@/components/push/ActiverNotifications";
 import { CodeReception } from "@/components/livraison/CodeReception";
 import { ChoixOperateur } from "@/components/paiement/ChoixOperateur";
+import { SuiviPaiement } from "@/components/paiement/SuiviPaiement";
 import { paiementSansRedirection } from "@/modules/paiement";
 import { env } from "@/lib/env";
 
@@ -169,6 +170,10 @@ export default async function DetailCommandePage({
           {alerte.texte}
         </p>
       )}
+      {/* Tient la promesse faite juste au-dessus (« cette page se met à jour
+          dès la confirmation ») : le webhook du fournisseur peut ne jamais
+          arriver, on redemande donc le statut nous-mêmes. */}
+      {paiementARelancer && <SuiviPaiement commandeId={commande.id} />}
       {erreur && (
         <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}

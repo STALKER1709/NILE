@@ -6,6 +6,7 @@ import type {
   DemarragePaiement,
   VerificationNotification,
 } from "@/modules/paiement/PaymentProvider";
+import type { StatutPaiementNotifie } from "@/modules/paiement/notification-core";
 import {
   normaliserOperateur,
   normaliserNumeroHrSkills,
@@ -203,7 +204,23 @@ export class HrSkillsPayProvider implements PaymentProvider {
     };
   }
 
-  /** Statut faisant foi, lu directement chez le fournisseur. */
+  /**
+   * Statut définitif du paiement chez le fournisseur, ou `null`.
+   *
+   * `null` couvre trois cas qu'il ne faut surtout pas distinguer côté
+   * appelant : statut illisible, `PENDING`, et `HOLD` (revue anti-blanchiment).
+   * Dans aucun des trois on ne peut conclure — libérer une commande sur un
+   * `HOLD` reviendrait à livrer un paiement qui peut encore être refusé.
+   */
+  async consulterStatut(
+    referenceFournisseur: string,
+  ): Promise<StatutPaiementNotifie | null> {
+    const lu = await this.lireStatut(referenceFournisseur);
+    if (!lu.ok) return null;
+    return mapperStatutHrSkills(lu.statut);
+  }
+
+  /** Statut brut, lu directement chez le fournisseur. */
   async lireStatut(
     referenceFournisseur: string,
   ): Promise<{ ok: true; statut: string } | { ok: false }> {
