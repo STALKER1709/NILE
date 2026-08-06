@@ -167,6 +167,9 @@ export default async function ComptePage({
                 <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" strokeLinejoin="round" />
                 <path d="M8 9a4 4 0 0 1 8 0" />
               </LigneReglage>
+              <LigneReglage href="/favoris" libelle="Mes favoris">
+                <path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 0 1 19.8 13z" strokeLinejoin="round" />
+              </LigneReglage>
               <LigneReglage href="/panier" libelle="Mon panier">
                 <circle cx="9" cy="21" r="1" />
                 <circle cx="20" cy="21" r="1" />

@@ -135,6 +135,7 @@ model Utilisateur {
   panier          Panier?
   commandes       Commande[]
   avis            Avis[]
+  favoris         Favori[]
 
   @@index([role])
 }
@@ -248,6 +249,7 @@ model Produit {
   lignesPanier   LignePanier[]
   lignesCommande LigneCommande[]
   promotions     Promotion[]
+  favoris        Favori[]
 
   @@index([categorieId])
   @@index([vendeurId])
@@ -300,6 +302,30 @@ model ImageProduit {
   alt       String?
 
   @@index([produitId])
+}
+
+// Liste de souhaits : les articles qu'un acheteur veut retrouver plus tard.
+//
+// Au niveau du PRODUIT et non de la déclinaison : on met de côté un article,
+// pas « ce t-shirt en XL bleu ». Le choix de la taille appartient au moment de
+// l'achat, où le stock est connu — l'enregistrer des semaines à l'avance
+// n'aurait aucune valeur et vieillirait mal.
+//
+// Aucune réservation de stock : mettre en favori n'engage rien, ni pour
+// l'acheteur ni pour le vendeur.
+model Favori {
+  id            String      @id @default(uuid())
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  produitId     String
+  produit       Produit     @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  dateCreation  DateTime    @default(now())
+
+  // Unicité portée par la BASE : deux clics rapides sur le cœur ne peuvent pas
+  // créer deux lignes, là où une vérification applicative laisserait passer
+  // les deux requêtes concurrentes.
+  @@unique([utilisateurId, produitId])
+  @@index([utilisateurId, dateCreation])
 }
 
 model Panier {

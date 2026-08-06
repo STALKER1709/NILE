@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BoutonFavori } from "@/components/produit/BoutonFavori";
+import { estEnFavori } from "@/modules/catalogue/favoris";
 import { notFound } from "next/navigation";
 import {
   getProduitPublicParSlug,
@@ -119,13 +121,15 @@ export default async function FicheProduitPage({
   if (!produit) notFound();
 
   const utilisateur = await getUtilisateurCourant();
-  const [avis, peutNoter, quantites, repartition, similaires, affichagePrix] = await Promise.all([
+  const [avis, peutNoter, quantites, repartition, similaires, affichagePrix, enFavori] =
+    await Promise.all([
     listerAvisProduit(produit.id),
     utilisateur ? peutLaisserAvis(utilisateur.id, produit.id) : Promise.resolve(false),
     getQuantitesAffichees(utilisateur?.id ?? null),
     getRepartitionNotes(produit.id),
     getProduitsSimilaires(produit.categorieId, produit.id, 6),
     getAffichagePrixProduit({ id: produit.id, prix: produit.prix, vendeurId: produit.vendeurId }),
+    estEnFavori(utilisateur?.id ?? null, produit.id),
   ]);
   const enRupture = produit.stock === 0;
   const quantitePanier = quantites[produit.id] ?? 0;
@@ -262,6 +266,24 @@ export default async function FicheProduitPage({
 
           {/* Achat */}
           <div id="achat-principal" className="space-y-3">
+            {/* Le cœur n'est proposé qu'aux personnes connectées : sans compte,
+                il n'y a nulle part où enregistrer la liste, et un bouton qui
+                renverrait vers la connexion au milieu du parcours d'achat
+                détournerait de l'essentiel. */}
+            {utilisateur && (
+              <div className="flex items-center gap-3 rounded border border-contour-carte px-3 py-2">
+                <BoutonFavori
+                  produitId={produit.id}
+                  enFavori={enFavori}
+                  retour={`/produit/${produit.slug}`}
+                />
+                <span className="text-corps-sm text-slate-600">
+                  {enFavori
+                    ? "Dans vos favoris"
+                    : "Mettre de côté pour plus tard"}
+                </span>
+              </div>
+            )}
             <BoutonPanier
               produitId={produit.id}
               stock={produit.stock}
