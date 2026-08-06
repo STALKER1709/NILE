@@ -60,3 +60,73 @@ export async function axesDeCategorie(
   const map = await axesParCategorie([categorieId]);
   return map.get(categorieId) ?? [];
 }
+
+/* ------------------------------ Administration ------------------------------ */
+
+export interface AxeAdmin {
+  id: string;
+  categorieId: string;
+  rang: number;
+  libelle: string;
+  valeurs: string[];
+}
+
+/** Axes DÉCLARÉS par chaque catégorie — sans héritage : c'est ce qui s'édite. */
+export async function axesDeclares(): Promise<Map<string, AxeAdmin[]>> {
+  const axes = await prisma.axeVariante.findMany({
+    orderBy: [{ categorieId: "asc" }, { rang: "asc" }],
+  });
+  const parCategorie = new Map<string, AxeAdmin[]>();
+  for (const a of axes) {
+    const liste = parCategorie.get(a.categorieId) ?? [];
+    liste.push(a);
+    parCategorie.set(a.categorieId, liste);
+  }
+  return parCategorie;
+}
+
+/**
+ * Déclare ou remplace un axe d'une catégorie.
+ *
+ * Les valeurs sont saisies séparées par des virgules, et leur ORDRE est
+ * conservé tel quel : c'est lui qui classe « S, M, L, XL » comme
+ * « 36, 38, 40 », là où ni l'alphabet ni le tri numérique ne suffisent. Les
+ * réordonner à notre initiative détruirait la seule information que
+ * l'administrateur a fournie sur ce point.
+ */
+export async function declarerAxe(params: {
+  categorieId: string;
+  rang: number;
+  libelle: string;
+  valeursBrutes: string;
+}): Promise<void> {
+  const valeurs = [
+    ...new Set(
+      params.valeursBrutes
+        .split(",")
+        .map((v) => v.trim())
+        .filter(Boolean),
+    ),
+  ];
+  const libelle = params.libelle.trim();
+  if (!libelle || valeurs.length === 0) return;
+
+  await prisma.axeVariante.upsert({
+    where: {
+      categorieId_rang: { categorieId: params.categorieId, rang: params.rang },
+    },
+    update: { libelle, valeurs },
+    create: { categorieId: params.categorieId, rang: params.rang, libelle, valeurs },
+  });
+}
+
+/**
+ * Retire un axe d'une catégorie.
+ *
+ * Les déclinaisons déjà créées ne sont PAS touchées : leurs valeurs restent en
+ * base, et les commandes passées gardent leur libellé figé. Supprimer un axe
+ * dit « on ne propose plus ce choix », pas « ces ventes n'ont jamais eu lieu ».
+ */
+export async function retirerAxe(categorieId: string, rang: number): Promise<void> {
+  await prisma.axeVariante.deleteMany({ where: { categorieId, rang } });
+}
