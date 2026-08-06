@@ -254,7 +254,17 @@ model Commande {
   statutCommande StatutCommande @default(EN_ATTENTE)
   statutPaiement StatutPaiement @default(EN_ATTENTE)
   modePaiement   ModePaiement
+  // Ce que l'acheteur paie RÉELLEMENT : somme des sous-totaux moins `remise`.
   total          Int // FCFA (XAF)
+  // Remise accordée par un code promo, en FCFA. Retranchée du total mais JAMAIS
+  // des `LigneCommande.sousTotal` : le vendeur est payé sur le prix plein, donc
+  // la remise sort entièrement de la marge de NILE. C'est le sens du choix
+  // « codes valables en Mobile Money uniquement » — NILE ne remise que l'argent
+  // qui transite par elle.
+  remise         Int            @default(0)
+  // Code saisi, figé au moment de la commande. Comme le prix unitaire : si le
+  // code est modifié ou supprimé plus tard, l'historique comptable ne bouge pas.
+  codePromo      String?
 
   // Adresse figée au moment de la commande — adressage informel camerounais.
   destNom       String
@@ -434,6 +444,60 @@ model Promotion {
   @@index([vendeurId])
   @@index([produitId])
   @@index([dateDebut, dateFin])
+}
+
+// Code promotionnel émis par NILE (jamais par un vendeur : ceux-ci disposent
+// déjà des `Promotion`, et deux systèmes de remise qui se recouvrent seraient
+// deux systèmes à maintenir).
+//
+// La remise sort de la marge de NILE, pas de celle du vendeur — d'où la
+// restriction au Mobile Money : c'est le seul mode où l'argent transite par la
+// plateforme. En paiement à la livraison, NILE n'encaisse rien et n'aurait donc
+// rien à remiser.
+model CodePromo {
+  id             String        @id @default(uuid())
+  // Normalisé en majuscules sans espaces à l'écriture comme à la lecture :
+  // l'acheteur tape « bienvenue 10 », on cherche « BIENVENUE10 ».
+  code           String        @unique
+  type           TypePromotion
+  valeur         Int // pourcentage (1-100) ou montant FCFA, selon `type`
+  // Plafond d'une remise en pourcentage, en FCFA. Sans lui, « -20 % » sur un
+  // panier de 500 000 coûterait 100 000 à la plateforme. Nul = sans plafond.
+  plafondRemise  Int?
+  // Panier minimum exigé (FCFA). 0 = aucune condition.
+  minPanier      Int           @default(0)
+  dateDebut      DateTime
+  dateFin        DateTime
+  // Nombre total d'utilisations autorisées, toutes personnes confondues :
+  // c'est ce qui borne le budget d'une campagne. Nul = illimité.
+  quotaTotal     Int?
+  // Interrupteur manuel, pour couper un code sans toucher à ses dates.
+  actif          Boolean       @default(true)
+  dateCreation   DateTime      @default(now())
+
+  utilisations UtilisationCodePromo[]
+
+  @@index([dateDebut, dateFin])
+}
+
+// Une utilisation effective d'un code, rattachée à la commande qu'elle a
+// remisée. Sert à deux choses : compter les utilisations pour le quota, et
+// empêcher un même acheteur d'utiliser deux fois le même code.
+model UtilisationCodePromo {
+  id            String      @id @default(uuid())
+  codePromoId   String
+  codePromo     CodePromo   @relation(fields: [codePromoId], references: [id], onDelete: Cascade)
+  utilisateurId String
+  // Une commande ne porte qu'un seul code.
+  commandeId    String      @unique
+  remise        Int // FCFA effectivement déduits
+  dateCreation  DateTime    @default(now())
+
+  // Un acheteur ne peut utiliser un code qu'une fois. Garanti par la BASE et
+  // non par une vérification applicative : deux commandes simultanées
+  // passeraient toutes deux un simple test de lecture.
+  @@unique([codePromoId, utilisateurId])
+  @@index([codePromoId])
 }
 
 // Actualité/brief publié par NILE à destination des vendeurs. Diffusion à
