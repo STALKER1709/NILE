@@ -58,7 +58,7 @@ export async function ajouterAuPanier(
   utilisateurId: string,
   produitId: string,
   quantite: number,
-  choix?: { taille?: string; couleur?: string },
+  choix?: { valeur1?: string; valeur2?: string },
 ): Promise<ResultatQuantitePanier> {
   const produit = await prisma.produit.findUnique({
     where: { id: produitId },

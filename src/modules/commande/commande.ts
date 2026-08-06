@@ -22,7 +22,11 @@ import {
 import { resoudrePrixEffectifTx } from "@/modules/promotion/promotion";
 import { consommerCodeTx, ErreurCodePromo } from "@/modules/promotion/code-promo";
 import { dettesVendeurs } from "@/modules/reversement/reversement";
-import { libelleVariante } from "@/modules/catalogue/variante-core";
+import {
+  libelleVariante,
+  type AxeDeclinaison,
+} from "@/modules/catalogue/variante-core";
+import { axesParCategorie } from "@/modules/catalogue/axes";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -148,6 +152,13 @@ export async function passerCommande(
     }
   }
 
+  // Résolus AVANT la transaction : ils servent à nommer les déclinaisons dans
+  // la commande, et l'arborescence des catégories n'a aucune raison d'être
+  // relue sous verrou.
+  const axesParCat = await axesParCategorie(
+    panier.lignes.map((l) => l.produit.categorieId),
+  );
+
   const statutInitial = options.mode === "COD" ? "CONFIRMEE" : "EN_ATTENTE";
 
   // Jusqu'à 3 tentatives en cas de collision (improbable) du numéro de commande.
@@ -164,6 +175,7 @@ export async function passerCommande(
         statutInitial,
         plafond,
         options.codePromo ?? null,
+        axesParCat,
       );
       break;
     } catch (erreur) {
@@ -250,11 +262,14 @@ export async function passerCommande(
  * « T-shirt (XL · Bleu) » plutôt que « T-shirt », sans quoi l'acheteur ne sait
  * pas laquelle de ses deux tailles pose problème.
  */
-function nomArticle(ligne: {
-  produit: { titre: string };
-  variante: { taille: string; couleur: string };
-}): string {
-  const declinaison = libelleVariante(ligne.variante);
+function nomArticle(
+  ligne: {
+    produit: { titre: string };
+    variante: { valeur1: string; valeur2: string };
+  },
+  axes: AxeDeclinaison[],
+): string {
+  const declinaison = libelleVariante(ligne.variante, axes);
   return declinaison ? `${ligne.produit.titre} (${declinaison})` : ligne.produit.titre;
 }
 
@@ -267,6 +282,7 @@ async function creerCommandeTransaction(
   statutInitial: "CONFIRMEE" | "EN_ATTENTE",
   plafond: number,
   codeSaisi: string | null,
+  axesParCat: Map<string, AxeDeclinaison[]>,
 ): Promise<{ commandeId: string; numero: string; paiementId: string; total: number }> {
   return prisma.$transaction(async (tx) => {
     const panier = await tx.panier.findUniqueOrThrow({
@@ -289,8 +305,9 @@ async function creerCommandeTransaction(
       }
       // Une déclinaison retirée de la vente ne part plus, même si elle est
       // encore dans un panier ouvert depuis hier.
+      const axes = axesParCat.get(p.categorieId) ?? [];
       if (!ligne.variante.actif) {
-        throw new ErreurCommande("INDISPONIBLE", nomArticle(ligne));
+        throw new ErreurCommande("INDISPONIBLE", nomArticle(ligne, axes));
       }
       // Décrément conditionnel ATOMIQUE sur la DÉCLINAISON : ne réussit que si
       // son stock suffit. Empêche la survente en cas de commandes
@@ -301,7 +318,7 @@ async function creerCommandeTransaction(
         data: { stock: { decrement: ligne.quantite } },
       });
       if (maj.count === 0) {
-        throw new ErreurCommande("STOCK_INSUFFISANT", nomArticle(ligne));
+        throw new ErreurCommande("STOCK_INSUFFISANT", nomArticle(ligne, axes));
       }
 
       // Prix effectif = prix courant, réduit d'une éventuelle promotion active
@@ -322,8 +339,7 @@ async function creerCommandeTransaction(
         // Instantanés de la déclinaison, au même titre que le titre et le prix :
         // le vendeur peut renommer « Bleu » en « Bleu ciel », la commande doit
         // continuer de dire ce qui a été acheté.
-        taille: ligne.variante.taille,
-        couleur: ligne.variante.couleur,
+        declinaison: libelleVariante(ligne.variante, axes),
         prixUnitaire, // snapshot prix (promotion éventuelle incluse)
         quantite: ligne.quantite,
         sousTotal,

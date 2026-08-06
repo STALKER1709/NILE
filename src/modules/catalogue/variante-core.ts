@@ -1,42 +1,78 @@
 /**
  * Logique PURE des déclinaisons d'un produit (testable sans base).
  *
- * Un vêtement se vend par taille et par couleur, chaque combinaison ayant son
- * propre stock. Tout ce qui décide de ce que l'acheteur peut choisir vit ici :
- * l'écran ne fait que l'afficher, et le serveur s'y réfère au moment de
- * décrémenter.
+ * Un article peut se vendre en plusieurs versions ayant chacune son stock : un
+ * t-shirt par taille et couleur, une chaussure par pointure et couleur, un
+ * téléphone par capacité. Ce module ne connaît NI les tailles, NI les
+ * pointures, NI les couleurs : les axes sont déclarés par la catégorie du
+ * produit, et lui n'en manipule que la structure.
+ *
+ * C'est ce qui rend impossible de demander une télé en taille M sans qu'aucune
+ * règle ne soit écrite en dur : la catégorie ne déclare pas cet axe.
  */
+
+/** Axe déclaré par une catégorie : son nom, et ses valeurs dans leur ordre. */
+export interface AxeDeclinaison {
+  /** 1 = premier axe (taille, pointure, capacité), 2 = second (couleur). */
+  rang: number;
+  libelle: string;
+  /** Valeurs autorisées, DANS L'ORDRE D'AFFICHAGE voulu. */
+  valeurs: string[];
+}
 
 /** Une déclinaison telle que la base la connaît. */
 export interface Variante {
   id: string;
-  taille: string;
-  couleur: string;
+  valeur1: string;
+  valeur2: string;
   stock: number;
   actif: boolean;
 }
 
 /**
- * Ordre d'affichage des tailles.
+ * Résout les axes applicables à une catégorie en REMONTANT l'arborescence.
  *
- * Sans lui, un tri alphabétique donnerait « L, M, S, XL », ce qu'aucun
- * acheteur ne lit correctement. Les tailles inconnues (chiffres, tailles
- * spécifiques d'un vendeur) sont rejetées à la fin, triées entre elles.
+ * « Vêtements > T-shirts » hérite des axes de « Vêtements » s'il n'en déclare
+ * aucun : sans cet héritage, il faudrait redéclarer les tailles sur chaque
+ * sous-catégorie, et elles finiraient par diverger.
+ *
+ * Le premier ancêtre qui déclare des axes gagne, et gagne ENTIÈREMENT : on ne
+ * fusionne pas les niveaux. Une sous-catégorie qui redéclare le fait pour
+ * remplacer, jamais pour compléter à moitié — un héritage partiel produirait
+ * des combinaisons que personne n'a voulues.
  */
-const ORDRE_TAILLES = ["XS", "S", "M", "L", "XL", "XXL", "XXXL"];
-
-export function rangTaille(taille: string): number {
-  const i = ORDRE_TAILLES.indexOf(taille.trim().toUpperCase());
-  return i === -1 ? ORDRE_TAILLES.length : i;
+export function resoudreAxes(
+  chemin: { axes: AxeDeclinaison[] }[],
+): AxeDeclinaison[] {
+  for (const categorie of chemin) {
+    if (categorie.axes.length > 0) {
+      return [...categorie.axes].sort((a, b) => a.rang - b.rang);
+    }
+  }
+  return [];
 }
 
-export function trierTailles(tailles: string[]): string[] {
-  return [...tailles].sort((a, b) => {
-    const ra = rangTaille(a);
-    const rb = rangTaille(b);
-    // À rang égal — deux tailles hors barème — on retombe sur l'ordre naturel,
-    // qui vaut mieux qu'un ordre d'insertion arbitraire.
-    return ra !== rb ? ra - rb : a.localeCompare(b, "fr");
+/**
+ * Ordonne des valeurs selon le référentiel de leur axe.
+ *
+ * L'ordre du référentiel fait foi : il classe « S, M, L, XL » comme
+ * « 36, 38, 40 », ce que ni l'alphabet ni le tri numérique ne réussissent
+ * seuls. Les valeurs absentes du référentiel — saisies avant qu'il ne change,
+ * ou propres à un vendeur — sont rejetées à la fin, triées entre elles de
+ * façon naturelle : « 8 » avant « 10 », et non l'inverse.
+ */
+export function trierSelonAxe(valeurs: string[], axe?: AxeDeclinaison): string[] {
+  const reference = axe?.valeurs ?? [];
+  const rang = (v: string) => {
+    const i = reference.indexOf(v);
+    return i === -1 ? reference.length : i;
+  };
+  return [...valeurs].sort((a, b) => {
+    const ra = rang(a);
+    const rb = rang(b);
+    if (ra !== rb) return ra - rb;
+    // `numeric` évite que « 10 » se retrouve avant « 8 ».
+    return a.localeCompare(b, "fr", { numeric: true });
   });
 }
 
@@ -46,15 +82,14 @@ export function varianteDisponible(v: Variante): boolean {
 }
 
 /**
- * Le produit a-t-il des déclinaisons à proposer, ou une seule façon d'être
- * acheté ?
+ * Le produit a-t-il quelque chose à faire choisir ?
  *
- * Tout produit possède au moins une variante ; celle des produits sans taille
- * ni couleur porte deux chaînes vides. Dans ce cas, aucun sélecteur ne doit
- * apparaître à l'écran — il n'y aurait rien à choisir.
+ * Tout produit possède au moins une variante ; celle d'un article sans
+ * déclinaison porte deux chaînes vides. Aucun sélecteur ne doit alors
+ * apparaître — il n'y aurait rien à choisir.
  */
 export function aDesDeclinaisons(variantes: Variante[]): boolean {
-  return variantes.some((v) => v.taille !== "" || v.couleur !== "");
+  return variantes.some((v) => v.valeur1 !== "" || v.valeur2 !== "");
 }
 
 /** Stock total, tous axes confondus : ce qui décide du « épuisé » global. */
@@ -64,64 +99,55 @@ export function stockTotal(variantes: Variante[]): number {
     .reduce((somme, v) => somme + Math.max(0, v.stock), 0);
 }
 
-export interface OptionsDeclinaison {
-  /** Tailles proposées, triées dans l'ordre des vêtements. */
-  tailles: string[];
-  /** Couleurs proposées, dans l'ordre alphabétique français. */
-  couleurs: string[];
+/** Valeurs proposées sur un axe, dans l'ordre de son référentiel. */
+export function valeursProposees(
+  variantes: Variante[],
+  rang: 1 | 2,
+  axe?: AxeDeclinaison,
+): string[] {
+  const actives = variantes.filter((v) => v.actif);
+  const brutes = actives
+    .map((v) => (rang === 1 ? v.valeur1 : v.valeur2))
+    .filter(Boolean);
+  // Les valeurs ÉPUISÉES sont conservées : une pointure en rupture doit rester
+  // visible et grisée, sinon l'acheteur ne comprend pas pourquoi son choix a
+  // disparu et croit à un dysfonctionnement.
+  return trierSelonAxe([...new Set(brutes)], axe);
 }
 
 /**
- * Ce que l'acheteur peut choisir.
+ * Valeurs du second axe réellement disponibles pour une valeur du premier.
  *
- * Les axes sont listés depuis les variantes ACTIVES seulement, épuisées
- * comprises : une taille en rupture doit rester visible et grisée, sinon
- * l'acheteur ne comprend pas pourquoi son choix a disparu et croit à un bug.
+ * Un vendeur ne tient pas forcément toutes les combinaisons : du noir en 40 et
+ * en 42, du blanc en 40 seulement. Sans ce filtrage, l'acheteur choisirait
+ * « 42 + blanc » et se ferait refuser au panier.
  */
-export function optionsDeclinaison(variantes: Variante[]): OptionsDeclinaison {
-  const actives = variantes.filter((v) => v.actif);
-  const tailles = [...new Set(actives.map((v) => v.taille).filter(Boolean))];
-  const couleurs = [...new Set(actives.map((v) => v.couleur).filter(Boolean))];
-  return {
-    tailles: trierTailles(tailles),
-    couleurs: couleurs.sort((a, b) => a.localeCompare(b, "fr")),
-  };
+export function valeur2Pour(
+  variantes: Variante[],
+  valeur1: string,
+  axe?: AxeDeclinaison,
+): string[] {
+  const dispo = variantes
+    .filter((v) => v.valeur1 === valeur1 && varianteDisponible(v))
+    .map((v) => v.valeur2)
+    .filter(Boolean);
+  return trierSelonAxe([...new Set(dispo)], axe);
 }
 
 /**
  * Retrouve la déclinaison correspondant à un choix.
  *
- * Les axes absents du produit sont comparés à la chaîne vide, ce qui permet de
- * traiter de la même façon un t-shirt (taille + couleur), un article décliné
- * sur un seul axe, et un produit sans déclinaison.
+ * Les axes non renseignés sont comparés à la chaîne vide, ce qui traite de la
+ * même façon un article à deux axes, à un seul, et un article sans
+ * déclinaison.
  */
 export function trouverVariante(
   variantes: Variante[],
-  choix: { taille?: string; couleur?: string },
+  choix: { valeur1?: string; valeur2?: string },
 ): Variante | null {
-  const taille = choix.taille ?? "";
-  const couleur = choix.couleur ?? "";
-  return (
-    variantes.find((v) => v.taille === taille && v.couleur === couleur) ?? null
-  );
-}
-
-/**
- * Les couleurs réellement disponibles pour une taille donnée.
- *
- * Un vendeur ne tient pas forcément toutes les combinaisons : il peut avoir du
- * bleu en M et en L, mais du rouge en M seulement. Sans ce filtrage, l'acheteur
- * choisirait « L + rouge » et se ferait refuser au panier.
- */
-export function couleursPourTaille(
-  variantes: Variante[],
-  taille: string,
-): string[] {
-  return variantes
-    .filter((v) => v.actif && v.taille === taille && varianteDisponible(v))
-    .map((v) => v.couleur)
-    .filter(Boolean)
-    .sort((a, b) => a.localeCompare(b, "fr"));
+  const v1 = choix.valeur1 ?? "";
+  const v2 = choix.valeur2 ?? "";
+  return variantes.find((v) => v.valeur1 === v1 && v.valeur2 === v2) ?? null;
 }
 
 export type DecisionAjoutPanier =
@@ -136,7 +162,7 @@ export type DecisionAjoutPanier =
  * Ce choix peut-il être mis au panier, dans cette quantité ?
  *
  * Vérifié côté serveur à chaque ajout : l'écran a pu être rendu il y a dix
- * minutes, et le dernier XL bleu être parti entre-temps.
+ * minutes, et la dernière paire en 42 être partie entre-temps.
  */
 export function evaluerAjoutPanier(params: {
   variante: Variante | null;
@@ -157,13 +183,29 @@ export function evaluerAjoutPanier(params: {
 }
 
 /**
- * Libellé lisible d'une déclinaison, pour l'affichage et les instantanés.
- * Chaîne vide quand le produit n'a pas de déclinaison — l'appelant n'affiche
- * alors rien plutôt qu'un séparateur orphelin.
+ * Libellé lisible d'une déclinaison — « Pointure 42 · Noir ».
+ *
+ * Le nom de l'axe est repris parce qu'une valeur seule ne se comprend pas :
+ * « 42 » peut être une pointure, une capacité, un tour de taille. C'est ce
+ * libellé qui est figé dans la ligne de commande, et il doit rester
+ * déchiffrable des années plus tard, même si la catégorie a changé de nom
+ * depuis.
+ *
+ * Chaîne vide quand l'article n'a pas de déclinaison : l'appelant n'affiche
+ * alors rien, plutôt qu'un séparateur orphelin.
  */
-export function libelleVariante(v: {
-  taille: string;
-  couleur: string;
-}): string {
-  return [v.taille, v.couleur].filter(Boolean).join(" · ");
+export function libelleVariante(
+  variante: { valeur1: string; valeur2: string },
+  axes: AxeDeclinaison[] = [],
+): string {
+  const nom = (rang: number) => axes.find((a) => a.rang === rang)?.libelle;
+  const morceau = (valeur: string, rang: number) => {
+    if (!valeur) return null;
+    const libelle = nom(rang);
+    // Sans axe connu, la valeur seule vaut mieux qu'un préfixe inventé.
+    return libelle ? `${libelle} ${valeur}` : valeur;
+  };
+  return [morceau(variante.valeur1, 1), morceau(variante.valeur2, 2)]
+    .filter(Boolean)
+    .join(" · ");
 }

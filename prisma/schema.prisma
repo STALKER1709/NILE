@@ -182,8 +182,40 @@ model Categorie {
   dateCreation DateTime    @default(now())
 
   produits Produit[]
+  axes     AxeVariante[]
 
   @@index([parentId])
+}
+
+// Axe de déclinaison déclaré par une CATÉGORIE : c'est lui qui décide de ce
+// qu'un vendeur peut renseigner et de ce qu'un acheteur peut choisir.
+//
+// Vêtements  -> « Taille » (XS…XXXL), « Couleur »
+// Chaussures -> « Pointure » (36…46),  « Couleur »
+// Téléphones -> « Capacité » (64 Go…), « Couleur »
+//
+// C'est ce qui empêche de demander une télé en taille M sans écrire la moindre
+// règle en dur : la catégorie ne déclare pas cet axe, donc il n'existe pas.
+//
+// Les axes se cherchent en REMONTANT l'arborescence : « Vêtements > T-shirts »
+// hérite de ceux de « Vêtements » s'il n'en déclare aucun.
+model AxeVariante {
+  id          String    @id @default(uuid())
+  categorieId String
+  categorie   Categorie @relation(fields: [categorieId], references: [id], onDelete: Cascade)
+  // 1 = premier axe (taille/pointure/capacité), 2 = second (couleur).
+  // Deux axes au maximum : au-delà, le nombre de combinaisons à saisir devient
+  // ingérable pour un vendeur, et aucun besoin réel ne l'a demandé.
+  rang        Int
+  // Nom affiché : « Taille », « Pointure », « Capacité ».
+  libelle     String
+  // Valeurs autorisées, DANS LEUR ORDRE D'AFFICHAGE. C'est l'ordre du tableau
+  // qui fait foi — il résout d'un coup « S, M, L, XL » et « 36, 38, 40 », que
+  // ni l'alphabet ni le tri numérique ne classent correctement à eux seuls.
+  valeurs     String[]
+
+  @@unique([categorieId, rang])
+  @@index([categorieId])
 }
 
 model Produit {
@@ -236,11 +268,16 @@ model VarianteProduit {
   id        String  @id @default(uuid())
   produitId String
   produit   Produit @relation(fields: [produitId], references: [id], onDelete: Cascade)
+  // Valeurs des deux axes déclarés par la catégorie du produit. Génériques à
+  // dessein : `valeur1` porte une taille pour un t-shirt, une pointure pour une
+  // chaussure, une capacité pour un téléphone. Le NOM de l'axe n'est pas
+  // dupliqué ici — il vit sur la catégorie, seul endroit où le corriger.
+  //
   // Chaîne VIDE et non `NULL` quand l'axe ne s'applique pas : Postgres traite
   // deux `NULL` comme distincts dans un index unique, ce qui laisserait créer
   // deux fois la même variante.
-  taille    String  @default("")
-  couleur   String  @default("")
+  valeur1   String  @default("")
+  valeur2   String  @default("")
   stock     Int     @default(0)
   // Retirer une déclinaison sans perdre l'historique des commandes qui la
   // référencent.
@@ -249,7 +286,7 @@ model VarianteProduit {
   lignesPanier   LignePanier[]
   lignesCommande LigneCommande[]
 
-  @@unique([produitId, taille, couleur])
+  @@unique([produitId, valeur1, valeur2])
   @@index([produitId])
 }
 
@@ -347,11 +384,11 @@ model LigneCommande {
   varianteId   String?
   variante     VarianteProduit? @relation(fields: [varianteId], references: [id])
   titreProduit String // snapshot du titre au moment de la commande
-  // Instantanés de la déclinaison, au même titre que le titre et le prix : le
-  // vendeur peut renommer « Bleu » en « Bleu ciel », la commande passée doit
-  // continuer de dire ce qui a été acheté.
-  taille       String           @default("")
-  couleur      String           @default("")
+  // Instantané LISIBLE de la déclinaison — « Pointure 42 · Couleur Noir » — au
+  // même titre que le titre et le prix. Une seule chaîne plutôt que des valeurs
+  // brutes : sans le nom de l'axe, un « 42 » isolé serait indéchiffrable des
+  // années plus tard, et ce nom peut changer côté catégorie.
+  declinaison  String           @default("")
   prixUnitaire Int // snapshot du prix (FCFA)
   quantite     Int
   sousTotal    Int // prixUnitaire * quantite
