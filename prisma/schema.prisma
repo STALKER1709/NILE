@@ -317,19 +317,8 @@ model Livraison {
   transporteur       String? // texte libre au MVP (suivi manuel)
   statut             StatutLivraison @default(EN_ATTENTE)
   preuveUrl          String? // preuve de livraison (photo/signature)
-  // Parcours du cash d'une commande payée à la livraison :
-  //   NON_COLLECTE -> COLLECTE (le livreur NILE a l'argent en main)
-  //                -> REVERSE  (il l'a remis à NILE)
-  // Tant qu'une commande est COLLECTE, l'argent est détenu par un livreur et
-  // pas encore par la plateforme. C'est cette distinction qui conditionne le
-  // reversement au vendeur : on ne promet pas un argent qu'on ne détient pas.
   statutCash         StatutCashCOD   @default(NON_APPLICABLE)
   montantCashCollecte Int?           // FCFA encaissés à la livraison (COD)
-  // Remise effective du cash par le livreur à NILE. Sa distance à
-  // `dateLivraison` mesure combien de temps un livreur a gardé l'argent :
-  // sans cette date, un cash jamais remis serait indiscernable d'un cash
-  // remis le jour même.
-  dateRemiseCash     DateTime?
   dateAffectation    DateTime?
   dateLivraison      DateTime?
   note               String?
