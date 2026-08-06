@@ -1,4 +1,4 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import {
   normaliserCode,
@@ -150,4 +150,112 @@ export class ErreurCodePromo extends Error {
     super(`Code promo refusé : ${raison}`);
     this.name = "ErreurCodePromo";
   }
+}
+
+/* ------------------------------ Administration ------------------------------ */
+
+export interface CodePromoAdmin {
+  id: string;
+  code: string;
+  type: string;
+  valeur: number;
+  plafondRemise: number | null;
+  minPanier: number;
+  dateDebut: Date;
+  dateFin: Date;
+  quotaTotal: number | null;
+  actif: boolean;
+  /** Utilisations effectives, et remise totale déjà consentie. */
+  nbUtilisations: number;
+  remiseConsentie: number;
+}
+
+/**
+ * Codes existants, avec ce qu'ils ont réellement coûté.
+ *
+ * `remiseConsentie` est le chiffre à regarder : c'est de l'argent sorti de la
+ * marge de NILE. Un code sans budget visible est un code dont personne ne sait
+ * s'il a rapporté quoi que ce soit.
+ */
+export async function listerCodesPromo(): Promise<CodePromoAdmin[]> {
+  const [codes, agregats] = await Promise.all([
+    prisma.codePromo.findMany({ orderBy: { dateCreation: "desc" }, take: 100 }),
+    prisma.utilisationCodePromo.groupBy({
+      by: ["codePromoId"],
+      _count: true,
+      _sum: { remise: true },
+    }),
+  ]);
+  const parCode = new Map(agregats.map((a) => [a.codePromoId, a]));
+
+  return codes.map((c) => {
+    const agg = parCode.get(c.id);
+    return {
+      ...c,
+      nbUtilisations: agg?._count ?? 0,
+      remiseConsentie: agg?._sum.remise ?? 0,
+    };
+  });
+}
+
+export type ResultatCreationCode =
+  | { ok: true }
+  | { ok: false; code: "DEJA_EXISTANT" | "ERREUR" };
+
+export async function creerCodePromo(params: {
+  code: string;
+  type: "POURCENTAGE" | "MONTANT";
+  valeur: number;
+  plafondRemise?: number;
+  minPanier: number;
+  dateDebut: Date;
+  dateFin: Date;
+  quotaTotal?: number;
+}): Promise<ResultatCreationCode> {
+  try {
+    await prisma.codePromo.create({
+      data: {
+        code: params.code,
+        type: params.type,
+        valeur: params.valeur,
+        // 0 saisi = pas de plafond : stocké `null` pour que l'absence de
+        // plafond ne se confonde pas avec un plafond nul, qui annulerait
+        // toute remise.
+        plafondRemise: params.plafondRemise ? params.plafondRemise : null,
+        minPanier: params.minPanier,
+        dateDebut: params.dateDebut,
+        dateFin: params.dateFin,
+        quotaTotal: params.quotaTotal ? params.quotaTotal : null,
+      },
+    });
+    return { ok: true };
+  } catch (erreur) {
+    if (
+      erreur instanceof Prisma.PrismaClientKnownRequestError &&
+      erreur.code === "P2002"
+    ) {
+      return { ok: false, code: "DEJA_EXISTANT" };
+    }
+    console.error("[code-promo] création échouée:", erreur);
+    return { ok: false, code: "ERREUR" };
+  }
+}
+
+/**
+ * Active ou désactive un code, sans toucher à ses dates.
+ *
+ * Les utilisations déjà consenties ne sont PAS remises en cause : les
+ * commandes concernées ont figé leur remise, et réécrire l'histoire d'une
+ * commande payée n'est jamais la bonne réponse à un code mal calibré.
+ */
+export async function basculerCodePromo(id: string): Promise<void> {
+  const code = await prisma.codePromo.findUnique({
+    where: { id },
+    select: { actif: true },
+  });
+  if (!code) return;
+  await prisma.codePromo.update({
+    where: { id },
+    data: { actif: !code.actif },
+  });
 }

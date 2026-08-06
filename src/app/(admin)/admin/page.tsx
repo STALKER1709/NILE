@@ -88,6 +88,12 @@ export default async function AdminPage() {
         <Kpi label="Produits actifs" valeur={String(produitsActifs)} />
       </div>
 
+      <div className="flex flex-wrap gap-3">
+        <Link href="/admin/codes-promo" className="text-corps-sm text-nile hover:underline">
+          Codes promo →
+        </Link>
+      </div>
+
       <div className="grid gap-5 lg:grid-cols-2">
         <Carte className="p-5">
           <GraphBarres points={stats.activite7Jours} titre="Commandes des 7 derniers jours" />
