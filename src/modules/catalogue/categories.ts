@@ -135,3 +135,66 @@ export async function creerCategorie(input: {
     return { ok: false, code: "ERREUR" };
   }
 }
+
+export interface EntreeNavigation {
+  id: string;
+  nom: string;
+  slug: string;
+  /** 0 = rayon, 1 = sous-catégorie dépliée sous son rayon. */
+  niveau: number;
+  actif: boolean;
+}
+
+/**
+ * Liste de navigation du catalogue : les RAYONS seulement, et sous le rayon
+ * ouvert, ses sous-catégories.
+ *
+ * Aplatir toute l'arborescence donnait une colonne interminable où rayons et
+ * sous-catégories se mélangeaient, distingués par un simple tiret. Sur un
+ * téléphone, l'acheteur faisait défiler une liste dont l'essentiel ne le
+ * concernait pas.
+ *
+ * Le dépliage est progressif et sans JavaScript : ce sont des liens, chaque
+ * choix recharge la page avec la branche ouverte. Choisir une sous-catégorie
+ * laisse son rayon déplié — sinon l'acheteur perdrait le contexte dans lequel
+ * il vient de descendre, et ne pourrait pas passer à une sœur sans remonter.
+ */
+export function navigationCategories(
+  categories: Pick<Categorie, "id" | "nom" | "slug" | "parentId" | "ordre">[],
+  slugActif?: string,
+): EntreeNavigation[] {
+  const parOrdre = <T extends { ordre: number; nom: string }>(a: T, b: T) =>
+    a.ordre !== b.ordre ? a.ordre - b.ordre : a.nom.localeCompare(b.nom, "fr");
+
+  const active = slugActif
+    ? categories.find((c) => c.slug === slugActif)
+    : undefined;
+  // La branche à déplier : le rayon lui-même, ou celui de la sous-catégorie
+  // choisie.
+  const brancheOuverte = active
+    ? (active.parentId ?? active.id)
+    : null;
+
+  const entree = (
+    c: Pick<Categorie, "id" | "nom" | "slug">,
+    niveau: number,
+  ): EntreeNavigation => ({
+    id: c.id,
+    nom: c.nom,
+    slug: c.slug,
+    niveau,
+    actif: c.slug === slugActif,
+  });
+
+  const sortie: EntreeNavigation[] = [];
+  for (const racine of categories.filter((c) => !c.parentId).sort(parOrdre)) {
+    sortie.push(entree(racine, 0));
+    if (racine.id !== brancheOuverte) continue;
+    for (const enfant of categories
+      .filter((c) => c.parentId === racine.id)
+      .sort(parOrdre)) {
+      sortie.push(entree(enfant, 1));
+    }
+  }
+  return sortie;
+}

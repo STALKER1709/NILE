@@ -103,8 +103,13 @@ export function normaliserParamsRecherche(params: {
   prixMin?: string;
   prixMax?: string;
   tri?: string;
-  /** Marques cochées, séparées par des virgules dans l'URL. */
-  marques?: string;
+  /**
+   * Marques cochées. Les cases à cocher d'un formulaire GET produisent des
+   * paramètres RÉPÉTÉS (`marques=Nike&marques=Puma`), que Next livre sous
+   * forme de tableau — mais une seule case cochée donne une chaîne. Les deux
+   * formes sont acceptées plutôt que d'imposer au gabarit de les uniformiser.
+   */
+  marques?: string | string[];
 }): {
   q?: string;
   prixMin?: number;
@@ -132,13 +137,11 @@ export function normaliserParamsRecherche(params: {
   const q = params.q?.trim() ? params.q.trim() : undefined;
   // Dédoublonnées et bornées : l'URL est publique, rien n'empêche d'y coller
   // deux cents marques pour alourdir la requête.
+  const brutes = Array.isArray(params.marques)
+    ? params.marques
+    : (params.marques ?? "").split(",");
   const marques = [
-    ...new Set(
-      (params.marques ?? "")
-        .split(",")
-        .map((m) => m.trim())
-        .filter(Boolean),
-    ),
+    ...new Set(brutes.map((m) => m.trim()).filter(Boolean)),
   ].slice(0, 20);
   return { q, prixMin, prixMax, marques, tri };
 }

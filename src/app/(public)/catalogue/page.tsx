@@ -1,8 +1,8 @@
 import Link from "next/link";
 import {
   listerCategories,
+  navigationCategories,
   collecterIdsCategorieEtDescendants,
-  aplatirPourSelect,
 } from "@/modules/catalogue/categories";
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
 import { rechercherBoutiques } from "@/modules/catalogue/boutiques";
@@ -11,6 +11,7 @@ import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { IconeCategorie } from "@/components/categorie/IconeCategorie";
+import { listerMarquesCatalogue } from "@/modules/catalogue/produits";
 import { SelectTri } from "@/components/catalogue/SelectTri";
 import { Pagination } from "@/components/ui/Pagination";
 import { bornesAffichage } from "@/modules/catalogue/pagination";
@@ -30,13 +31,16 @@ export default async function CataloguePage({
     prixMax?: string;
     tri?: string;
     page?: string;
+    marques?: string | string[];
   }>;
 }) {
   const sp = await searchParams;
-  const { q, prixMin, prixMax, tri } = normaliserParamsRecherche(sp);
+  const { q, prixMin, prixMax, tri, marques } = normaliserParamsRecherche(sp);
 
   const categories = await listerCategories();
-  const optionsCat = aplatirPourSelect(categories);
+  // Rayons seulement, et les sous-catégories du rayon ouvert : voir
+  // `navigationCategories`.
+  const navigation = navigationCategories(categories, sp.categorie);
 
   let categorieIds: string[] | undefined;
   const categorieChoisie = sp.categorie
@@ -55,10 +59,15 @@ export default async function CataloguePage({
     categorieIds,
     prixMin,
     prixMax,
+    marques,
     tri,
     page,
     parPage: PAR_PAGE,
   });
+
+  // Marques du périmètre COURANT (rayon choisi compris) : proposer une marque
+  // qui ne ramènerait aucun résultat ferait douter du catalogue.
+  const marquesDisponibles = await listerMarquesCatalogue(categorieIds);
 
   // Boutiques correspondant au terme (uniquement 1re page d'une recherche).
   const boutiques = q && page === 1 ? await rechercherBoutiques(q, 6) : [];
@@ -70,6 +79,7 @@ export default async function CataloguePage({
     if (sp.prixMin) params.set("prixMin", sp.prixMin);
     if (sp.prixMax) params.set("prixMax", sp.prixMax);
     if (sp.tri) params.set("tri", sp.tri);
+    for (const m of marques) params.append("marques", m);
     params.set("page", String(p));
     return `/catalogue?${params.toString()}`;
   };
@@ -83,11 +93,20 @@ export default async function CataloguePage({
     })) {
       if (v && k !== cle) params.set(k, v);
     }
+    // Les marques cochées survivent à un changement de rayon ou de tri : les
+    // perdre à chaque clic obligerait l'acheteur à tout recocher.
+    if (cle !== "marques") for (const m of marques) params.append("marques", m);
     if (valeur) params.set(cle, valeur);
     const qs = params.toString();
     return qs ? `/catalogue?${qs}` : "/catalogue";
   };
-  const filtreActif = !!(sp.q || sp.categorie || sp.prixMin || sp.prixMax);
+  const filtreActif = !!(
+    sp.q ||
+    sp.categorie ||
+    sp.prixMin ||
+    sp.prixMax ||
+    marques.length > 0
+  );
 
   // Colonne de filtres : catégories cliquables + fourchette de prix.
   const filtres = (
@@ -111,29 +130,28 @@ export default async function CataloguePage({
           >
             Toutes les catégories
           </Link>
-          {optionsCat.map((c) => {
-            const cat = categories.find((x) => x.id === c.id);
-            const actif = sp.categorie === cat?.slug;
-            // Les sous-catégories sont indentées par `label` (« - Téléphones ») :
-            // seules les racines portent une icône, pour garder la hiérarchie lisible.
-            const racine = !c.label.startsWith("- ");
-            return (
-              <Link
-                key={c.id}
-                href={lienFiltre("categorie", cat?.slug ?? null)}
-                className={`flex items-center gap-2.5 truncate rounded px-3 py-2 text-corps-sm transition-colors ${
-                  actif ? "bg-nile-50 font-semibold text-nile-700" : "text-slate-600 hover:bg-surface-subtile"
-                }`}
-              >
-                {racine && cat && (
-                  <span className={`shrink-0 ${actif ? "text-nile-700" : "text-slate-400"}`}>
-                    <IconeCategorie nom={cat.nom} />
-                  </span>
-                )}
-                <span className="truncate">{c.label}</span>
-              </Link>
-            );
-          })}
+          {navigation.map((c) => (
+            <Link
+              key={c.id}
+              href={lienFiltre("categorie", c.slug)}
+              className={`flex items-center gap-2.5 truncate rounded px-3 py-2 text-corps-sm transition-colors ${
+                c.niveau > 0 ? "ml-4 border-l border-contour-carte" : ""
+              } ${
+                c.actif
+                  ? "bg-nile-50 font-semibold text-nile-700"
+                  : "text-slate-600 hover:bg-surface-subtile"
+              }`}
+            >
+              {/* Icône réservée aux rayons : une sous-catégorie dépliée se
+                  distingue par son décalage, pas par un second symbole. */}
+              {c.niveau === 0 && (
+                <span className={`shrink-0 ${c.actif ? "text-nile-700" : "text-slate-400"}`}>
+                  <IconeCategorie nom={c.nom} />
+                </span>
+              )}
+              <span className="truncate">{c.nom}</span>
+            </Link>
+          ))}
         </div>
       </div>
 
@@ -142,6 +160,33 @@ export default async function CataloguePage({
         {sp.categorie && <input type="hidden" name="categorie" value={sp.categorie} />}
         {sp.q && <input type="hidden" name="q" value={sp.q} />}
         {sp.tri && <input type="hidden" name="tri" value={sp.tri} />}
+        {/* Marques dans le MÊME formulaire que le prix : un seul bouton
+            « Appliquer » pour tous les filtres, donc un seul rechargement —
+            la data mobile se paie cher ici. Sans JavaScript, la case cochée
+            n'agit qu'à la soumission. */}
+        {marquesDisponibles.length > 0 && (
+          <fieldset className="mb-4">
+            <legend className="mb-2 text-etiquette-md text-nile-800">Marque</legend>
+            <div className="max-h-44 space-y-1 overflow-y-auto pr-1">
+              {marquesDisponibles.map((m) => (
+                <label
+                  key={m}
+                  className="flex cursor-pointer items-center gap-2 rounded px-1 py-1 text-corps-sm text-slate-600 hover:bg-surface-subtile"
+                >
+                  <input
+                    type="checkbox"
+                    name="marques"
+                    value={m}
+                    defaultChecked={marques.includes(m)}
+                    className="accent-nile-700"
+                  />
+                  <span className="truncate">{m}</span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+        )}
+
         <h2 className="mb-3 text-etiquette-md text-nile-800">Plage de prix (FCFA)</h2>
         <div className="flex items-center gap-2">
           <input name="prixMin" type="number" min={0} defaultValue={sp.prixMin ?? ""} placeholder="Min" aria-label="Prix minimum" className={`${champClass} w-full`} />
