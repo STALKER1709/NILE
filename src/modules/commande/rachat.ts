@@ -32,46 +32,84 @@ export async function racheterCommande(
   const commande = await prisma.commande.findFirst({
     where: { id: commandeId, acheteurId: utilisateurId },
     select: {
-      lignes: { select: { produitId: true, titreProduit: true, quantite: true } },
+      lignes: {
+        select: {
+          produitId: true,
+          varianteId: true,
+          titreProduit: true,
+          quantite: true,
+        },
+      },
     },
   });
   if (!commande || commande.lignes.length === 0) {
     return { ok: false, code: "INTROUVABLE" };
   }
 
-  const produitIds = commande.lignes.map((l) => l.produitId);
-  const [produits, panier] = await Promise.all([
-    prisma.produit.findMany({
-      where: { id: { in: produitIds } },
+  // Le rachat raisonne par DÉCLINAISON : reprendre « le t-shirt » sans sa
+  // taille n'aurait aucun sens. Les lignes antérieures aux déclinaisons n'en
+  // désignent aucune et sont ignorées plutôt que rattachées à une variante
+  // devinée.
+  const lignes = commande.lignes.filter(
+    (l): l is typeof l & { varianteId: string } => l.varianteId !== null,
+  );
+  if (lignes.length === 0) return { ok: false, code: "RIEN_DISPONIBLE" };
+
+  const varianteIds = lignes.map((l) => l.varianteId);
+  const [variantes, panier] = await Promise.all([
+    prisma.varianteProduit.findMany({
+      where: { id: { in: varianteIds } },
       select: {
         id: true,
+        produitId: true,
         stock: true,
-        statut: true,
-        vendeur: { select: { statutValidation: true } },
+        actif: true,
+        produit: {
+          select: {
+            statut: true,
+            vendeur: { select: { statutValidation: true } },
+          },
+        },
       },
     }),
     prisma.panier.upsert({
       where: { utilisateurId },
       update: {},
       create: { utilisateurId },
-      select: { id: true, lignes: { select: { produitId: true, quantite: true } } },
+      select: { id: true, lignes: { select: { varianteId: true, quantite: true } } },
     }),
   ]);
 
-  const dejaEnPanier = new Map(panier.lignes.map((l) => [l.produitId, l.quantite]));
+  // Retrouver le produit d'une déclinaison au moment d'écrire la ligne de
+  // panier, qui porte les deux.
+  const produitParVariante = new Map(variantes.map((v) => [v.id, v.produitId]));
+
+  const dejaEnPanier = new Map(panier.lignes.map((l) => [l.varianteId, l.quantite]));
+  // La planification est purement arithmétique : sa clé lui est opaque. On lui
+  // passe donc des identifiants de DÉCLINAISON là où elle parlait de produits.
   const etats = new Map<string, EtatProduitRachat>(
-    produits.map((p) => [
-      p.id,
+    variantes.map((v) => [
+      v.id,
       {
-        produitId: p.id,
-        achetable: p.statut === "ACTIF" && p.vendeur.statutValidation === "VALIDE",
-        stock: p.stock,
-        dejaEnPanier: dejaEnPanier.get(p.id) ?? 0,
+        produitId: v.id,
+        achetable:
+          v.actif &&
+          v.produit.statut === "ACTIF" &&
+          v.produit.vendeur.statutValidation === "VALIDE",
+        stock: v.stock,
+        dejaEnPanier: dejaEnPanier.get(v.id) ?? 0,
       },
     ]),
   );
 
-  const plan = planifierRachat(commande.lignes, etats);
+  // Même substitution de clé côté lignes : la planification compare des
+  // identifiants, elle ne les interprète pas.
+  const lignesPourPlan = lignes.map((l) => ({
+    produitId: l.varianteId,
+    titreProduit: l.titreProduit,
+    quantite: l.quantite,
+  }));
+  const plan = planifierRachat(lignesPourPlan, etats);
   const avertissement = messageProblemesRachat(plan.problemes);
 
   if (plan.aAjouter.length === 0) {
@@ -87,13 +125,16 @@ export async function racheterCommande(
   await prisma.$transaction(
     plan.aAjouter.map((ligne) =>
       prisma.lignePanier.upsert({
+        // `ligne.produitId` porte ici un identifiant de DÉCLINAISON : c'est la
+        // clé passée à la planification plus haut.
         where: {
-          panierId_produitId: { panierId: panier.id, produitId: ligne.produitId },
+          panierId_varianteId: { panierId: panier.id, varianteId: ligne.produitId },
         },
         update: { quantite: { increment: ligne.quantiteAjoutee } },
         create: {
           panierId: panier.id,
-          produitId: ligne.produitId,
+          produitId: produitParVariante.get(ligne.produitId) as string,
+          varianteId: ligne.produitId,
           quantite: ligne.quantiteAjoutee,
         },
       }),

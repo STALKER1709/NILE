@@ -1,5 +1,8 @@
 import { prisma } from "@/lib/db";
-import { stockSuffisant } from "@/modules/commande/commande-core";
+import {
+  trouverVariante,
+  evaluerAjoutPanier,
+} from "@/modules/catalogue/variante-core";
 
 /** Panier de l'utilisateur, avec lignes + infos produit. Créé si absent. */
 export async function getPanierAvecLignes(utilisateurId: string) {
@@ -7,6 +10,7 @@ export async function getPanierAvecLignes(utilisateurId: string) {
     lignes: {
       orderBy: { produit: { titre: "asc" } },
       include: {
+        variante: true,
         produit: {
           include: {
             images: { orderBy: { ordre: "asc" }, take: 1 },
@@ -44,17 +48,30 @@ export type ResultatQuantitePanier =
   | { ok: true; quantite: number }
   | { ok: false; code: "INTROUVABLE" | "INDISPONIBLE" | "STOCK_INSUFFISANT" };
 
+/**
+ * Ajoute une DÉCLINAISON au panier.
+ *
+ * `choix` est facultatif : un produit sans taille ni couleur n'a qu'une
+ * variante, portant deux chaînes vides, et l'appelant n'a rien à préciser.
+ */
 export async function ajouterAuPanier(
   utilisateurId: string,
   produitId: string,
   quantite: number,
+  choix?: { taille?: string; couleur?: string },
 ): Promise<ResultatQuantitePanier> {
   const produit = await prisma.produit.findUnique({
     where: { id: produitId },
-    include: { vendeur: { select: { statutValidation: true } } },
+    include: {
+      vendeur: { select: { statutValidation: true } },
+      variantes: true,
+    },
   });
   if (!produit) return { ok: false, code: "INTROUVABLE" };
   if (!estAchetable(produit)) return { ok: false, code: "INDISPONIBLE" };
+
+  const variante = trouverVariante(produit.variantes, choix ?? {});
+  if (!variante) return { ok: false, code: "INTROUVABLE" };
 
   const panier = await prisma.panier.upsert({
     where: { utilisateurId },
@@ -63,18 +80,29 @@ export async function ajouterAuPanier(
   });
 
   const existante = await prisma.lignePanier.findUnique({
-    where: { panierId_produitId: { panierId: panier.id, produitId } },
+    where: {
+      panierId_varianteId: { panierId: panier.id, varianteId: variante.id },
+    },
   });
+
+  // Le stock se vérifie sur la DÉCLINAISON, pas sur le produit : il peut
+  // rester dix M et plus un seul XL.
+  const decision = evaluerAjoutPanier({
+    variante,
+    quantiteDemandee: quantite,
+    quantiteDejaAuPanier: existante?.quantite ?? 0,
+  });
+  if (decision === "INTROUVABLE") return { ok: false, code: "INTROUVABLE" };
+  if (decision === "INDISPONIBLE") return { ok: false, code: "INDISPONIBLE" };
+  if (decision !== "OK") return { ok: false, code: "STOCK_INSUFFISANT" };
+
   const quantiteVoulue = (existante?.quantite ?? 0) + quantite;
-
-  if (!stockSuffisant(produit.stock, quantiteVoulue)) {
-    return { ok: false, code: "STOCK_INSUFFISANT" };
-  }
-
   await prisma.lignePanier.upsert({
-    where: { panierId_produitId: { panierId: panier.id, produitId } },
+    where: {
+      panierId_varianteId: { panierId: panier.id, varianteId: variante.id },
+    },
     update: { quantite: quantiteVoulue },
-    create: { panierId: panier.id, produitId, quantite },
+    create: { panierId: panier.id, produitId, varianteId: variante.id, quantite },
   });
   return { ok: true, quantite: quantiteVoulue };
 }
@@ -116,8 +144,10 @@ export async function getQuantitesPanier(
     where: { panier: { utilisateurId } },
     select: { produitId: true, quantite: true },
   });
+  // Somme par PRODUIT : un même article peut être au panier en plusieurs
+  // déclinaisons, et le compteur affiché sur sa carte doit les additionner.
   const map: Record<string, number> = {};
-  for (const l of lignes) map[l.produitId] = l.quantite;
+  for (const l of lignes) map[l.produitId] = (map[l.produitId] ?? 0) + l.quantite;
   return map;
 }
 
@@ -128,7 +158,7 @@ export async function modifierQuantite(
 ): Promise<ResultatPanier> {
   const ligne = await prisma.lignePanier.findUnique({
     where: { id: ligneId },
-    include: { panier: true, produit: true },
+    include: { panier: true, variante: true },
   });
   if (!ligne || ligne.panier.utilisateurId !== utilisateurId) {
     return { ok: false, code: "INTROUVABLE" };
@@ -137,9 +167,15 @@ export async function modifierQuantite(
     await prisma.lignePanier.delete({ where: { id: ligneId } });
     return { ok: true };
   }
-  if (!stockSuffisant(ligne.produit.stock, quantite)) {
-    return { ok: false, code: "STOCK_INSUFFISANT" };
-  }
+  // Sur la DÉCLINAISON : c'est elle qui porte le stock. `quantiteDejaAuPanier`
+  // est omis, la quantité reçue REMPLACE celle du panier au lieu de s'y
+  // ajouter.
+  const decision = evaluerAjoutPanier({
+    variante: ligne.variante,
+    quantiteDemandee: quantite,
+  });
+  if (decision === "INDISPONIBLE") return { ok: false, code: "INDISPONIBLE" };
+  if (decision !== "OK") return { ok: false, code: "STOCK_INSUFFISANT" };
   await prisma.lignePanier.update({
     where: { id: ligneId },
     data: { quantite },

@@ -22,6 +22,7 @@ import {
 import { resoudrePrixEffectifTx } from "@/modules/promotion/promotion";
 import { consommerCodeTx, ErreurCodePromo } from "@/modules/promotion/code-promo";
 import { dettesVendeurs } from "@/modules/reversement/reversement";
+import { libelleVariante } from "@/modules/catalogue/variante-core";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -244,6 +245,19 @@ export async function passerCommande(
   }
 }
 
+/**
+ * Nom d'un article tel qu'il doit apparaître dans un message d'erreur :
+ * « T-shirt (XL · Bleu) » plutôt que « T-shirt », sans quoi l'acheteur ne sait
+ * pas laquelle de ses deux tailles pose problème.
+ */
+function nomArticle(ligne: {
+  produit: { titre: string };
+  variante: { taille: string; couleur: string };
+}): string {
+  const declinaison = libelleVariante(ligne.variante);
+  return declinaison ? `${ligne.produit.titre} (${declinaison})` : ligne.produit.titre;
+}
+
 async function creerCommandeTransaction(
   numero: string,
   utilisateurId: string,
@@ -258,7 +272,9 @@ async function creerCommandeTransaction(
     const panier = await tx.panier.findUniqueOrThrow({
       where: { id: panierId },
       include: {
-        lignes: { include: { produit: { include: { vendeur: true } } } },
+        lignes: {
+          include: { variante: true, produit: { include: { vendeur: true } } },
+        },
       },
     });
     if (panier.lignes.length === 0) throw new ErreurCommande("PANIER_VIDE");
@@ -271,13 +287,22 @@ async function creerCommandeTransaction(
       if (p.statut !== "ACTIF" || p.vendeur.statutValidation !== "VALIDE") {
         throw new ErreurCommande("INDISPONIBLE", p.titre);
       }
-      // Décrément conditionnel ATOMIQUE : ne réussit que si le stock suffit.
-      // Empêche la survente en cas de commandes concurrentes.
-      const maj = await tx.produit.updateMany({
-        where: { id: p.id, stock: { gte: ligne.quantite } },
+      // Une déclinaison retirée de la vente ne part plus, même si elle est
+      // encore dans un panier ouvert depuis hier.
+      if (!ligne.variante.actif) {
+        throw new ErreurCommande("INDISPONIBLE", nomArticle(ligne));
+      }
+      // Décrément conditionnel ATOMIQUE sur la DÉCLINAISON : ne réussit que si
+      // son stock suffit. Empêche la survente en cas de commandes
+      // concurrentes — deux acheteuses ne peuvent pas emporter le même dernier
+      // XL bleu, même si le M reste abondant.
+      const maj = await tx.varianteProduit.updateMany({
+        where: { id: ligne.varianteId, stock: { gte: ligne.quantite } },
         data: { stock: { decrement: ligne.quantite } },
       });
-      if (maj.count === 0) throw new ErreurCommande("STOCK_INSUFFISANT", p.titre);
+      if (maj.count === 0) {
+        throw new ErreurCommande("STOCK_INSUFFISANT", nomArticle(ligne));
+      }
 
       // Prix effectif = prix courant, réduit d'une éventuelle promotion active
       // AU MOMENT DU PAIEMENT (relu sous la même transaction, pas depuis le
@@ -291,8 +316,14 @@ async function creerCommandeTransaction(
       total += sousTotal;
       lignesData.push({
         produitId: p.id,
+        varianteId: ligne.varianteId,
         vendeurId: p.vendeurId, // snapshot vendeur (commande multi-vendeurs)
         titreProduit: p.titre, // snapshot titre
+        // Instantanés de la déclinaison, au même titre que le titre et le prix :
+        // le vendeur peut renommer « Bleu » en « Bleu ciel », la commande doit
+        // continuer de dire ce qui a été acheté.
+        taille: ligne.variante.taille,
+        couleur: ligne.variante.couleur,
         prixUnitaire, // snapshot prix (promotion éventuelle incluse)
         quantite: ligne.quantite,
         sousTotal,
@@ -399,8 +430,9 @@ async function libererCommande(commandeId: string): Promise<void> {
     if (maj.count !== 1) return;
 
     for (const ligne of commande.lignes) {
-      await tx.produit.update({
-        where: { id: ligne.produitId },
+      if (!ligne.varianteId) continue; // commande antérieure aux déclinaisons
+      await tx.varianteProduit.update({
+        where: { id: ligne.varianteId },
         data: { stock: { increment: ligne.quantite } },
       });
     }
@@ -414,10 +446,15 @@ async function libererCommande(commandeId: string): Promise<void> {
     // `skipDuplicates` : si l'acheteur a déjà remis un de ces articles au
     // panier entre-temps, son panier actuel prime — on ne double pas la
     // quantité dans son dos.
+    // Les lignes antérieures aux déclinaisons n'en désignent aucune : elles
+    // sont écartées de la remise au panier plutôt que rattachées à une
+    // variante devinée.
+    const aRemettre = commande.lignes.filter((l) => l.varianteId !== null);
     await tx.lignePanier.createMany({
-      data: commande.lignes.map((l) => ({
+      data: aRemettre.map((l) => ({
         panierId: panier.id,
         produitId: l.produitId,
+        varianteId: l.varianteId as string,
         quantite: l.quantite,
       })),
       skipDuplicates: true,
