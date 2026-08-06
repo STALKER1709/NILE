@@ -109,7 +109,18 @@ const schema = z
 
     COD_PLAFOND_XAF: z.coerce.number().int().positive().default(150000),
     // Commission NILE (%) sur les ventes des vendeurs tiers (reversements).
-    COMMISSION_POURCENT: z.coerce.number().min(0).max(100).default(10),
+    //
+    // Ce taux n'est PAS la marge : il doit d'abord couvrir les 2 % prélevés par
+    // l'agrégateur Mobile Money, que NILE supporte seule puisque le vendeur est
+    // payé sur le montant affiché à l'acheteur et non sur le montant reçu. Sur
+    // 10 000 FCFA, NILE encaisse 9 800, doit 8 800 au vendeur, et garde 1 000 —
+    // soit 10 % nets pour 12 % affichés. Le ramener à 10 % ferait retomber la
+    // marge réelle à 8 %.
+    //
+    // Surchargeable en base (clé `commission_pourcent` de la table
+    // Configuration), qui l'emporte alors sur cette variable — voir
+    // `modules/commande/config.ts`.
+    COMMISSION_POURCENT: z.coerce.number().min(0).max(100).default(12),
     COD_MAX_COMMANDES_NON_ABOUTIES: z.coerce
       .number()
       .int()
