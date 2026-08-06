@@ -164,24 +164,55 @@ deux filets le complètent, et doivent être conservés :
 - `/api/cron/paiements-en-attente` balaie **toutes les 5 minutes** (workflow
   GitHub Actions) les paiements restés en attente, y compris navigateur fermé.
 
-Pour passer en live :
-1. **KYC approuvé** dans le tableau de bord HR-Skills, sinon l'API répond
-   `403 kyc_required`.
-2. Poser `PAYMENT_PROVIDER="hrskills"`, `HRSKILLS_CLE_A`, `HRSKILLS_CLE_B` et
-   `HRSKILLS_WEBHOOK_SECRET`. Sandbox et production partagent le même hôte :
-   **c'est le préfixe des clés qui détermine l'environnement**
-   (`hrsk_*_test_*` / `hrsk_*_live_*`). L'application refuse de démarrer si les
-   deux clés ne portent pas le même environnement.
-3. Déclarer l'URL du webhook — `https://TON-DOMAINE/api/paiement/callback` —
-   **pour l'environnement Live**, qui est une configuration distincte du
-   Sandbox.
-4. Poser `CRON_SECRET` sur l'hébergeur **et** dans les secrets du dépôt GitHub :
-   sans les deux, le balayage des paiements ne tourne pas, silencieusement.
-5. Faire un premier paiement réel de petit montant sur son propre numéro.
+### Séquence de bascule
 
-Deux points constatés en sandbox et non documentés par le fournisseur : les
-encaissements de test ne sont servis que sous `/sandbox`, et les frais réels
-sont de **2 %** (leur documentation annonce 1 %).
+Aucune étape n'est facultative : la 4 sans la 5 donne une application qui
+encaisse et n'apprend jamais qu'elle a encaissé.
+
+1. **Faire approuver le KYC** dans le tableau de bord HR-Skills. Sans lui, tout
+   encaissement répond `403 kyc_required` — rien dans le code ne le contourne.
+2. **Générer les clés Live** (Clé A et Clé B) et le **secret de webhook de
+   l'environnement Live**, qui est une configuration distincte du Sandbox.
+3. **Poser les variables sur l'hébergeur** : `PAYMENT_PROVIDER="hrskills"`,
+   `HRSKILLS_CLE_A`, `HRSKILLS_CLE_B`, `HRSKILLS_WEBHOOK_SECRET`.
+   Sandbox et production partagent le même hôte : **c'est le préfixe des clés
+   qui détermine l'environnement** (`hrsk_*_test_*` / `hrsk_*_live_*`).
+   L'application refuse de démarrer si les deux clés ne portent pas le même.
+   ⚠️ Ne pas recopier les guillemets depuis un `.env` : l'interface de Vercel
+   enregistre la valeur littéralement.
+4. **Déclarer l'URL du webhook** — `https://TON-DOMAINE/api/paiement/callback` —
+   **côté Live**.
+5. **Poser `CRON_SECRET`** sur l'hébergeur **et** dans les secrets du dépôt
+   GitHub, à l'identique. Sans les deux, le balayage des paiements ne tourne
+   pas, et il ne le signale pas.
+6. **Lancer le contrôle avant vol** (voir ci-dessous) avec les variables de
+   production.
+7. **Faire un premier paiement réel de petit montant** sur son propre numéro,
+   puis vérifier dans l'admin que la commande est passée payée.
+
+### Contrôle avant vol
+
+```bash
+pnpm verif:paiement
+```
+
+Provoque dans un terminal les erreurs qu'on découvrirait sinon au moment où un
+client paie : clés mélangeant les environnements, guillemets recopiés, secret de
+webhook oublié, `CRON_SECRET` absent. Il **ne déplace aucun argent** — son seul
+appel réseau est l'échange des clés contre un jeton de transaction, celui-là
+même que l'application fait avant chaque encaissement. S'il aboutit, les clés
+sont bonnes **et** le KYC est passé.
+
+Il dit aussi explicitement ce qu'il ne peut pas vérifier : que l'URL du webhook
+est bien déclarée côté Live, que le secret posé vient de ce même environnement,
+et qu'un vrai encaissement aboutit.
+
+### Deux points constatés en sandbox, non documentés par le fournisseur
+
+- les encaissements de test ne sont servis que sous `/sandbox` (le préfixe
+  disparaît automatiquement avec des clés `live`) ;
+- les frais réels sont de **2 %**, là où leur documentation annonce 1 % — c'est
+  ce que `COMMISSION_POURCENT` doit couvrir.
 
 ## Vérifier la Phase 4 (confiance + livraison + admin)
 
@@ -267,6 +298,7 @@ pnpm typecheck    # vérification TypeScript (tsc --noEmit)
 pnpm test         # tests (Vitest)
 pnpm db:migrate   # créer/appliquer une migration
 pnpm db:seed      # (re)charger les données de démo
+pnpm verif:paiement  # contrôle de la config de paiement (aucun encaissement)
 pnpm db:reset     # réinitialiser la base (⚠ efface les données)
 ```
 

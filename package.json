@@ -15,7 +15,8 @@
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:reset": "prisma migrate reset --force",
-    "db:seed": "tsx prisma/seed.ts"
+    "db:seed": "tsx prisma/seed.ts",
+    "verif:paiement": "tsx --env-file-if-exists=.env scripts/verifier-paiement.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
