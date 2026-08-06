@@ -209,3 +209,45 @@ export function libelleVariante(
     .filter(Boolean)
     .join(" · ");
 }
+
+export type DecisionCombinaison =
+  | "OK"
+  /** Une valeur ne figure pas dans le référentiel de son axe. */
+  | "VALEUR_INCONNUE"
+  /** Un axe déclaré par la catégorie n'a pas été renseigné. */
+  | "AXE_MANQUANT"
+  /** Une valeur a été fournie sur un axe que la catégorie ne déclare pas. */
+  | "AXE_INEXISTANT";
+
+/**
+ * La combinaison proposée est-elle conforme aux axes de la catégorie ?
+ *
+ * Vérifiée CÔTÉ SERVEUR à chaque enregistrement : les listes déroulantes du
+ * formulaire ne protègent de rien, un formulaire forgé pourrait créer une
+ * chaussure « taille XXL » ou un téléviseur « pointure 42 ».
+ *
+ * Tous les axes déclarés doivent être renseignés : une déclinaison à moitié
+ * remplie créerait une combinaison qui n'existe pas en rayon, et qui entrerait
+ * en collision avec la déclinaison par défaut.
+ */
+export function verifierCombinaison(
+  axes: AxeDeclinaison[],
+  valeur1: string,
+  valeur2: string,
+): DecisionCombinaison {
+  const axe1 = axes.find((a) => a.rang === 1);
+  const axe2 = axes.find((a) => a.rang === 2);
+
+  for (const [valeur, axe] of [
+    [valeur1, axe1],
+    [valeur2, axe2],
+  ] as const) {
+    if (!axe) {
+      if (valeur) return "AXE_INEXISTANT";
+      continue;
+    }
+    if (!valeur) return "AXE_MANQUANT";
+    if (!axe.valeurs.includes(valeur)) return "VALEUR_INCONNUE";
+  }
+  return "OK";
+}

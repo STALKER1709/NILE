@@ -10,6 +10,7 @@ import {
   trouverVariante,
   evaluerAjoutPanier,
   libelleVariante,
+  verifierCombinaison,
   type Variante,
   type AxeDeclinaison,
 } from "@/modules/catalogue/variante-core";
@@ -236,5 +237,36 @@ describe("libelleVariante", () => {
 
   it("ne laisse pas de séparateur orphelin sans déclinaison", () => {
     expect(libelleVariante({ valeur1: "", valeur2: "" }, [TAILLES, COULEURS])).toBe("");
+  });
+});
+
+describe("verifierCombinaison", () => {
+  const axes = [POINTURES, COULEURS];
+
+  it("accepte une combinaison conforme", () => {
+    expect(verifierCombinaison(axes, "42", "Noir")).toBe("OK");
+  });
+
+  it("refuse une valeur absente du référentiel", () => {
+    // Une liste déroulante ne protège de rien : un formulaire forgé pourrait
+    // créer une chaussure « taille XXL ».
+    expect(verifierCombinaison(axes, "XXL", "Noir")).toBe("VALEUR_INCONNUE");
+    expect(verifierCombinaison(axes, "42", "Turquoise")).toBe("VALEUR_INCONNUE");
+  });
+
+  it("exige que tous les axes déclarés soient renseignés", () => {
+    // Une déclinaison à moitié remplie entrerait en collision avec la
+    // déclinaison par défaut.
+    expect(verifierCombinaison(axes, "42", "")).toBe("AXE_MANQUANT");
+    expect(verifierCombinaison(axes, "", "Noir")).toBe("AXE_MANQUANT");
+  });
+
+  it("refuse une valeur sur un axe que la catégorie ne déclare pas", () => {
+    expect(verifierCombinaison([POINTURES], "42", "Noir")).toBe("AXE_INEXISTANT");
+  });
+
+  it("accepte le vide quand la catégorie ne déclare aucun axe", () => {
+    // C'est la déclinaison par défaut d'un article non décliné.
+    expect(verifierCombinaison([], "", "")).toBe("OK");
   });
 });

@@ -1,4 +1,13 @@
 import Link from "next/link";
+import { listerVariantesVendeur } from "@/modules/catalogue/variantes";
+import { axesDeCategorie } from "@/modules/catalogue/axes";
+import { libelleVariante, trierSelonAxe } from "@/modules/catalogue/variante-core";
+import {
+  ajouterVarianteAction,
+  majStockVarianteAction,
+  basculerVarianteAction,
+  supprimerVarianteAction,
+} from "@/app/(vendeur)/vendeur/produits/variantes-actions";
 import { listerMarquesVendeur } from "@/modules/catalogue/produits";
 import { redirect } from "next/navigation";
 import { exigerVendeur } from "@/modules/auth/access";
@@ -38,7 +47,11 @@ export default async function GestionProduitPage({
   const { vendeur } = await exigerVendeur();
   const produit = await getProduitDuVendeur(vendeur.id, id);
   if (!produit) redirect("/vendeur/produits?erreur=Produit%20introuvable.");
-  const marques = await listerMarquesVendeur(vendeur.id);
+  const [marques, variantes, axes] = await Promise.all([
+    listerMarquesVendeur(vendeur.id),
+    listerVariantesVendeur(vendeur.id, id),
+    axesDeCategorie(produit.categorieId),
+  ]);
 
   // Produit dans la corbeille : vue restreinte, restauration d'abord —
   // pas de formulaire d'édition sur quelque chose qui n'existe plus pour
@@ -193,6 +206,127 @@ export default async function GestionProduitPage({
           </div>
           <BoutonSoumettre enCours="Enregistrement…" className={btn("primaire", "md", "w-full")}>Enregistrer</BoutonSoumettre>
         </form>
+      </Carte>
+
+      {/* Déclinaisons */}
+      <Carte className="p-4">
+        <h2 className="text-sm font-bold text-slate-900">Déclinaisons</h2>
+        {axes.length === 0 ? (
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            La catégorie de ce produit ne déclare aucun axe : il se vend en une
+            seule version, et le champ « Stock » ci-dessus suffit. Pour le
+            décliner par taille ou par couleur, un administrateur doit
+            d&apos;abord déclarer ces axes sur la catégorie.
+          </p>
+        ) : (
+          <>
+            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+              Chaque combinaison a son propre stock. Dès la première
+              déclinaison ajoutée, le champ « Stock » ci-dessus cesse de
+              s&apos;appliquer : c&apos;est ici que tout se gère.
+            </p>
+
+            <div className="mt-3 space-y-2">
+              {(variantes ?? []).map((v) => {
+                const estDefaut = !v.valeur1 && !v.valeur2;
+                return (
+                  <div
+                    key={v.id}
+                    className={`flex flex-wrap items-center gap-2 rounded border p-2 ${
+                      v.actif ? "border-contour-carte" : "border-slate-200 bg-slate-50 opacity-70"
+                    }`}
+                  >
+                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-900">
+                      {estDefaut ? "Version unique (sans déclinaison)" : libelleVariante(v, axes)}
+                    </span>
+
+                    <form action={majStockVarianteAction} className="flex items-center gap-1">
+                      <input type="hidden" name="produitId" value={produit.id} />
+                      <input type="hidden" name="varianteId" value={v.id} />
+                      <label htmlFor={`stock-${v.id}`} className="text-xs text-slate-500">
+                        Stock
+                      </label>
+                      <input
+                        id={`stock-${v.id}`}
+                        name="stock"
+                        type="number"
+                        min={0}
+                        defaultValue={v.stock}
+                        className={`${champClass} w-20`}
+                      />
+                      <BoutonSoumettre className={btn("secondaire", "sm")}>OK</BoutonSoumettre>
+                    </form>
+
+                    {/* Désactiver plutôt que supprimer : les commandes passées
+                        y font référence, et une déclinaison se réactive au
+                        réassort. */}
+                    <form action={basculerVarianteAction}>
+                      <input type="hidden" name="produitId" value={produit.id} />
+                      <input type="hidden" name="varianteId" value={v.id} />
+                      <BoutonSoumettre className={btn("secondaire", "sm")}>
+                        {v.actif ? "Retirer de la vente" : "Remettre en vente"}
+                      </BoutonSoumettre>
+                    </form>
+
+                    {!estDefaut && (
+                      <form action={supprimerVarianteAction}>
+                        <input type="hidden" name="produitId" value={produit.id} />
+                        <input type="hidden" name="varianteId" value={v.id} />
+                        <BoutonSoumettre className="text-xs text-red-600 hover:underline">
+                          Supprimer
+                        </BoutonSoumettre>
+                      </form>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <form
+              action={ajouterVarianteAction}
+              className="mt-4 flex flex-wrap items-end gap-2 border-t border-contour-carte pt-3"
+            >
+              <input type="hidden" name="produitId" value={produit.id} />
+              {axes.map((axe) => (
+                <div key={axe.rang}>
+                  <label htmlFor={`valeur${axe.rang}`} className={labelClass}>
+                    {axe.libelle}
+                  </label>
+                  <select
+                    id={`valeur${axe.rang}`}
+                    name={`valeur${axe.rang}`}
+                    required
+                    defaultValue=""
+                    className={`${champClass} mt-1`}
+                  >
+                    <option value="" disabled>
+                      Choisir…
+                    </option>
+                    {/* Ordonnées par le référentiel : c'est lui qui classe
+                        « S, M, L, XL » comme « 36, 38, 40 ». */}
+                    {trierSelonAxe(axe.valeurs, axe).map((val) => (
+                      <option key={val} value={val}>
+                        {val}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              ))}
+              <div>
+                <label htmlFor="stock-nouveau" className={labelClass}>Stock</label>
+                <input
+                  id="stock-nouveau"
+                  name="stock"
+                  type="number"
+                  min={0}
+                  defaultValue={0}
+                  className={`${champClass} mt-1 w-24`}
+                />
+              </div>
+              <BoutonSoumettre className={btn("primaire", "md")}>Ajouter</BoutonSoumettre>
+            </form>
+          </>
+        )}
       </Carte>
 
       {/* Suppression */}
