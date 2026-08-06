@@ -11,17 +11,19 @@
 ## Règles d'architecture non négociables
 1. **TypeScript strict partout.** Pas de `any` implicite. Le typage est notre premier filet anti-bug.
 2. **Services managés > code maison.** Authentification, stockage de fichiers, envoi SMS/email : on délègue. On ne code JAMAIS l'authentification à la main.
-3. **Secrets en variables d'environnement uniquement.** Aucune clé, aucun mot de passe, aucun identifiant Monetbil dans le code ou le dépôt. Un fichier `.env.example` documente les variables sans les valeurs.
+3. **Secrets en variables d'environnement uniquement.** Aucune clé, aucun mot de passe, aucun identifiant d'agrégateur de paiement dans le code ou le dépôt. Un fichier `.env.example` documente les variables sans les valeurs.
 4. **Validation de toutes les entrées** utilisateur, côté serveur, systématiquement.
 5. **Transactions de base de données** pour toute opération multi-tables (commande + stock, paiement + statut…).
 6. **Gestion d'erreurs explicite.** Jamais de `catch` vide ni d'erreur avalée silencieusement.
 7. **Protection des routes par rôle** (acheteur / vendeur / admin) vérifiée côté serveur, jamais seulement côté client.
 
 ## Règles spécifiques au paiement
-- L'agrégateur est **Monetbil** (MTN MoMo + Orange Money, Cameroun).
-- Toute l'intégration passe derrière une interface abstraite **`PaymentProvider`** ; Monetbil en est une implémentation. Un provider **mock** existe pour le développement et les tests.
-- Une commande n'est « payée » **que sur callback serveur Monetbil vérifié**, jamais sur le retour navigateur du client.
-- **Ne jamais coder l'API Monetbil de mémoire.** Se référer à la doc officielle. En cas d'incertitude sur un champ ou un flux : le signaler et demander, pas deviner.
+- L'agrégateur retenu est **HR-Skills Pay** (MTN MoMo + Orange Money, Cameroun). L'intégration **Monetbil** existe toujours dans le dépôt mais n'est plus utilisée.
+- Toute l'intégration passe derrière une interface abstraite **`PaymentProvider`** ; HR-Skills et Monetbil en sont deux implémentations. Un provider **mock** existe pour le développement et les tests.
+- Une commande n'est « payée » **que sur statut vérifié auprès du fournisseur** — notification signée, ou relecture à notre initiative. Jamais sur le retour navigateur du client.
+- Le webhook n'est pas une garantie : il peut ne jamais partir. Deux filets le complètent, et doivent le rester — la relecture pendant l'attente de l'acheteur, et le balayage périodique des paiements en attente.
+- **Ne jamais coder une API de paiement de mémoire.** Se référer à la doc officielle. En cas d'incertitude sur un champ ou un flux : le signaler et demander, pas deviner.
+- L'agrégateur prélève **2 %** sur chaque encaissement (constaté, sa documentation annonce 1 %). La commission NILE doit toujours couvrir ce prélèvement — voir `COMMISSION_POURCENT`.
 
 ## Règles sur le paiement à la livraison (COD)
 - `statut_commande` et `statut_paiement` sont **deux champs distincts**. Une commande peut avancer sans être payée.
@@ -39,7 +41,9 @@ Une tâche n'est **jamais** « terminée » tant que :
 ## Règle de discipline du périmètre (anti-dispersion)
 Avant d'ajouter une fonctionnalité, se poser : « Une transaction complète (l'acheteur trouve un produit, paie, est livré) est-elle possible sans elle ? » Si oui → c'est hors MVP, on ne la construit pas maintenant. Cette discipline prime sur l'envie d'enrichir.
 
-**Hors MVP (à ne pas construire) :** app native, messagerie interne, fidélité/coupons, recommandations, multi-devise/multi-pays, entrepôt multi-emplacements, portefeuille interne.
+**Hors MVP (à ne pas construire) :** app native, messagerie interne, programme de fidélité, parrainage, recommandations, multi-devise/multi-pays, entrepôt multi-emplacements, portefeuille interne.
+
+**Exception assumée :** les **codes promo** ont été construits sur décision explicite du propriétaire, bien qu'ils relèvent de cette catégorie. Ils sont émis par NILE seule, valables en Mobile Money uniquement, et la remise sort de la marge de la plateforme — le vendeur reste payé au prix plein. Toute extension de ce mécanisme (parrainage, fidélité) reste hors MVP.
 
 ## Règle d'honnêteté
 - Si tu n'es pas sûr d'une information (API externe, offre d'un service, tarif) : **dis-le clairement et demande**. Ne présente jamais une supposition comme un fait.

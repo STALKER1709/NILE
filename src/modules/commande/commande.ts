@@ -422,7 +422,30 @@ async function libererCommande(commandeId: string): Promise<void> {
       })),
       skipDuplicates: true,
     });
+
+    await rendreCodePromoTx(tx, commandeId);
   });
+}
+
+/**
+ * Rend son code promo à l'acheteur quand la commande n'aboutit pas.
+ *
+ * Un code à usage unique est consommé au moment où la commande est créée. Si
+ * celle-ci est ensuite libérée — paiement qui ne démarre pas, paiement échoué,
+ * annulation — l'acheteur aurait brûlé son code sur une commande qui n'a
+ * jamais existé. Le stock et le panier lui sont rendus ; le code doit l'être
+ * aussi.
+ *
+ * Supprimer la ligne d'utilisation libère du même coup une place dans le quota
+ * de la campagne, ce qui est le comportement voulu : rien n'a été vendu.
+ */
+async function rendreCodePromoTx(
+  tx: Prisma.TransactionClient,
+  commandeId: string,
+): Promise<void> {
+  // `deleteMany` et non `delete` : la plupart des commandes n'ont aucun code,
+  // et l'absence de ligne ne doit pas lever d'erreur.
+  await tx.utilisationCodePromo.deleteMany({ where: { commandeId } });
 }
 
 /**
@@ -612,6 +635,9 @@ export async function annulerCommandeAcheteur(
           data: { stock: { increment: ligne.quantite } },
         });
       }
+
+      // Le stock lui est rendu : son code promo aussi.
+      await rendreCodePromoTx(tx, commandeId);
     });
     return { ok: true };
   } catch (erreur) {

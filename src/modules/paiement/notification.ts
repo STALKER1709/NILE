@@ -119,6 +119,13 @@ export async function conclurePaiement(
           data: { stock: { increment: ligne.quantite } },
         });
       }
+      // Le code promo est rendu avec le stock : l'acheteur ne doit pas l'avoir
+      // brûlé sur une commande dont le paiement a échoué. Supprimer la ligne
+      // libère aussi une place dans le quota de la campagne — rien n'a été
+      // vendu.
+      await tx.utilisationCodePromo.deleteMany({
+        where: { commandeId: paiement.commandeId },
+      });
     }
   });
   return { ok: true, statut: "ECHOUE" };

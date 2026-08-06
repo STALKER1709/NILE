@@ -494,20 +494,29 @@ export default async function DetailCommandePage({
         </ul>
 
         <div className="mt-5 space-y-2 border-t border-contour-carte pt-4 text-corps-sm">
-          <div className="flex justify-between">
-            <span className="text-slate-600">Sous-total</span>
-            <Prix montant={commande.total} className="text-slate-900" />
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-600">Livraison</span>
-            <span className="font-semibold text-accent-deep">GRATUITE</span>
-          </div>
-          <div className="flex items-baseline justify-between border-t border-contour-carte pt-3 text-corps-lg font-bold">
+          {commande.remise > 0 && (
+            <>
+              <div className="flex justify-between">
+                <span className="text-slate-600">Sous-total</span>
+                <Prix montant={commande.total + commande.remise} className="text-slate-900" />
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-600">
+                  Remise{commande.codePromo ? ` · ${commande.codePromo}` : ""}
+                </span>
+                <span className="font-semibold text-accent-deep">
+                  −<Prix montant={commande.remise} />
+                </span>
+              </div>
+            </>
+          )}
+          <div className="flex items-baseline justify-between text-corps-lg font-bold">
             <span className="text-slate-900">Total</span>
             <Prix montant={commande.total} className="whitespace-nowrap text-nile-800" />
           </div>
           <p className="pt-1 text-etiquette-xs text-slate-500">
-            Paiement : {commande.modePaiement === "COD" ? "en espèces à la livraison" : "Mobile Money"}
+            Livraison gratuite · paiement{" "}
+            {commande.modePaiement === "COD" ? "en espèces à la livraison" : "Mobile Money"}
           </p>
         </div>
       </Carte>

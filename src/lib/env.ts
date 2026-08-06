@@ -103,7 +103,10 @@ const schema = z
     WHATSAPP_TEMPLATE_STATUT: z.string().optional(),
 
     // Secret partagé protégeant les routes déclenchées par un planificateur
-    // externe (GitHub Actions) : rappels de confirmation de réception.
+    // externe (GitHub Actions) : rappels de confirmation de réception, et
+    // balayage des paiements restés en attente — ce dernier étant le filet qui
+    // rattrape une commande payée dont la notification ne nous est pas
+    // parvenue. Doit être identique ici et dans les secrets du dépôt GitHub.
     // Vide = ces routes répondent 503 (fonction inactive), jamais ouvertes.
     CRON_SECRET: z.string().min(16).optional(),
 

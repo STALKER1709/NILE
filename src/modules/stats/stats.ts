@@ -149,6 +149,11 @@ export async function statsAdmin() {
       }),
     ]);
 
+  // Chiffre d'affaires NET : `Commande.total` est déjà déduit de la remise
+  // d'un éventuel code promo. Les reversements aux vendeurs et la commission,
+  // eux, se calculent sur les `LigneCommande.sousTotal`, qui restent au prix
+  // plein — la remise étant supportée par NILE. Les deux chiffres divergent
+  // donc dès le premier code utilisé, et c'est voulu.
   return {
     caRealise: caRealise._sum.total ?? 0,
     caMois: caMois._sum.total ?? 0,

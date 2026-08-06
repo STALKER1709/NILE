@@ -95,36 +95,49 @@ Garde-fous : impossible de commander plus que le stock, ni au-dessus du plafond
 COD (`COD_PLAFOND_XAF`). Le décrément de stock est atomique : deux acheteurs ne
 peuvent pas acheter le même dernier article (pas de survente).
 
-## Vérifier le paiement (Phase 3)
+## Vérifier le paiement
 
 En mode `PAYMENT_PROVIDER="mock"` (par défaut), aucune transaction réelle :
 1. Ajoute un produit au panier, va sur **Passer la commande**, choisis
-   **Mobile Money (Monetbil)** → tu es redirigé vers une **page de simulation**.
+   **Mobile Money** → tu es redirigé vers une **page de simulation**.
 2. « Simuler un paiement réussi » → la commande passe **CONFIRMEE / payée**.
    « Simuler un échec » → la commande est **annulée** et le stock restitué.
-3. La commande n'est marquée payée **que** par la notification serveur vérifiée
-   (`POST /api/paiement/callback`), jamais par le retour navigateur.
-4. En **admin** → **Réconciliation cash (COD)** : marque le cash « collecté »
-   (la commande devient payée) puis « reversé ».
+3. La commande n'est marquée payée **que** sur un statut vérifié auprès du
+   fournisseur, jamais sur le retour navigateur.
+4. En **admin** → **Suivi du cash (COD)** : vue de contrôle en lecture seule.
+   Les espèces sont remises au livreur de la boutique et ne transitent pas par
+   NILE ; il n'y a donc rien à encaisser ni à reverser ici.
 
-## Passer à Monetbil réel (à vérifier avant toute transaction)
+## Passer en production (HR-Skills Pay)
 
-L'intégration `MonetbilProvider` suit le code source officiel `Monetbil/monetbil-php` :
-- démarrage : `POST https://www.monetbil.com/widget/v2.1/{SERVICE_KEY}` → `{ payment_url }` ;
-- vérification serveur : `POST https://api.monetbil.com/payment/v1/checkPayment` avec `paymentId` → `transaction.status` (1=succès, 0=échec, -1=annulé) ;
-- signature du callback : `md5(SERVICE_SECRET + concat(valeurs des paramètres triées par clé))`.
+L'agrégateur retenu est **HR-Skills Pay**. L'intégration `MonetbilProvider`
+reste dans le dépôt mais n'est plus utilisée.
 
-**Elle n'a pas pu être exécutée contre le vrai service ici.** Avant de l'activer :
-1. Crée un service sur https://www.monetbil.com/services et récupère
-   `MONETBIL_SERVICE_KEY` / `MONETBIL_SERVICE_SECRET`, puis mets
-   `PAYMENT_PROVIDER="monetbil"`.
-2. Configure l'URL de notification (`notify_url`) — le code l'envoie
-   automatiquement (`/api/paiement/callback`), mais **confirme dans ton tableau
-   de bord Monetbil que les notifications serveur sont activées**.
-3. **Confirme les noms exacts des champs du callback** avec une vraie
-   notification de test (surtout `paymentId` et `payment_ref`) : ce sont les
-   deux champs dont dépend la confirmation. Ajuste si besoin dans
-   `src/modules/paiement/monetbil/MonetbilProvider.ts`.
+L'intégration a été **éprouvée en sandbox** : encaissement accepté, commande
+confirmée, wallet crédité. Le **webhook n'a jamais été reçu** — c'est pourquoi
+deux filets le complètent, et doivent être conservés :
+- l'écran d'attente relit le statut chez le fournisseur toutes les 10 s ;
+- `/api/cron/paiements-en-attente` balaie périodiquement les paiements restés
+  en attente, y compris navigateur fermé.
+
+Pour passer en live :
+1. **KYC approuvé** dans le tableau de bord HR-Skills, sinon l'API répond
+   `403 kyc_required`.
+2. Poser `PAYMENT_PROVIDER="hrskills"`, `HRSKILLS_CLE_A`, `HRSKILLS_CLE_B` et
+   `HRSKILLS_WEBHOOK_SECRET`. Sandbox et production partagent le même hôte :
+   **c'est le préfixe des clés qui détermine l'environnement**
+   (`hrsk_*_test_*` / `hrsk_*_live_*`). L'application refuse de démarrer si les
+   deux clés ne portent pas le même environnement.
+3. Déclarer l'URL du webhook — `https://TON-DOMAINE/api/paiement/callback` —
+   **pour l'environnement Live**, qui est une configuration distincte du
+   Sandbox.
+4. Poser `CRON_SECRET` sur l'hébergeur **et** dans les secrets du dépôt GitHub :
+   sans les deux, le balayage des paiements ne tourne pas, silencieusement.
+5. Faire un premier paiement réel de petit montant sur son propre numéro.
+
+Deux points constatés en sandbox et non documentés par le fournisseur : les
+encaissements de test ne sont servis que sous `/sandbox`, et les frais réels
+sont de **2 %** (leur documentation annonce 1 %).
 
 ## Vérifier la Phase 4 (confiance + livraison + admin)
 
