@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { listerMarquesVendeur } from "@/modules/catalogue/produits";
 import { redirect } from "next/navigation";
 import { exigerVendeur } from "@/modules/auth/access";
 import { getProduitDuVendeur } from "@/modules/catalogue/produits";
@@ -37,6 +38,7 @@ export default async function GestionProduitPage({
   const { vendeur } = await exigerVendeur();
   const produit = await getProduitDuVendeur(vendeur.id, id);
   if (!produit) redirect("/vendeur/produits?erreur=Produit%20introuvable.");
+  const marques = await listerMarquesVendeur(vendeur.id);
 
   // Produit dans la corbeille : vue restreinte, restauration d'abord —
   // pas de formulaire d'édition sur quelque chose qui n'existe plus pour
@@ -160,6 +162,28 @@ export default async function GestionProduitPage({
               <label htmlFor="stock" className={labelClass}>Stock</label>
               <input id="stock" name="stock" type="number" min={0} step={1} required defaultValue={produit.stock} className={`${champClass} mt-1`} />
             </div>
+          </div>
+          <div>
+            <label htmlFor="marque" className={labelClass}>
+              Marque <span className="font-normal text-slate-500">(facultatif)</span>
+            </label>
+            {/* Saisie libre, mais les marques déjà utilisées sont proposées :
+                sans cela « Nike », « NIKE » et « nike » se multiplieraient et
+                le filtre du catalogue deviendrait inutilisable. */}
+            <input
+              id="marque"
+              name="marque"
+              list="marques-connues"
+              maxLength={60}
+              placeholder="Ex. Nike"
+              defaultValue={produit.marque ?? ""}
+              className={`${champClass} mt-1`}
+            />
+            <datalist id="marques-connues">
+              {marques.map((m) => (
+                <option key={m} value={m} />
+              ))}
+            </datalist>
           </div>
           <div>
             <label htmlFor="categorieId" className={labelClass}>Catégorie</label>

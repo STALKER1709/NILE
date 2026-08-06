@@ -12,6 +12,8 @@ export interface FiltresRecherche {
   categorieIds?: string[];
   prixMin?: number;
   prixMax?: number;
+  /** Marques retenues. Comparaison insensible à la casse. */
+  marques?: string[];
 }
 
 /**
@@ -31,6 +33,9 @@ export function construireWhereProduits(
     where.OR = [
       { titre: { contains: terme, mode: "insensitive" } },
       { description: { contains: terme, mode: "insensitive" } },
+      // Chercher « nike » doit ramener les articles de cette marque même si
+      // elle n'apparaît ni dans le titre ni dans la description.
+      { marque: { contains: terme, mode: "insensitive" } },
     ];
   }
 
@@ -47,6 +52,17 @@ export function construireWhereProduits(
   }
   if (prix.gte !== undefined || prix.lte !== undefined) {
     where.prix = prix;
+  }
+
+  const marques = (f.marques ?? []).map((m) => m.trim()).filter(Boolean);
+  if (marques.length > 0) {
+    // Une liste de `equals` insensibles à la casse plutôt qu'un `in` : ce
+    // dernier est sensible à la casse en Postgres, et laisserait de côté les
+    // articles saisis « NIKE » quand le filtre dit « Nike ».
+    where.AND = [
+      ...(Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : []),
+      { OR: marques.map((m) => ({ marque: { equals: m, mode: "insensitive" as const } })) },
+    ];
   }
 
   return where;
@@ -87,10 +103,13 @@ export function normaliserParamsRecherche(params: {
   prixMin?: string;
   prixMax?: string;
   tri?: string;
+  /** Marques cochées, séparées par des virgules dans l'URL. */
+  marques?: string;
 }): {
   q?: string;
   prixMin?: number;
   prixMax?: number;
+  marques: string[];
   tri: TriProduits;
 } {
   let prixMin = parseEntierPositif(params.prixMin);
@@ -111,5 +130,15 @@ export function normaliserParamsRecherche(params: {
       : "recent";
 
   const q = params.q?.trim() ? params.q.trim() : undefined;
-  return { q, prixMin, prixMax, tri };
+  // Dédoublonnées et bornées : l'URL est publique, rien n'empêche d'y coller
+  // deux cents marques pour alourdir la requête.
+  const marques = [
+    ...new Set(
+      (params.marques ?? "")
+        .split(",")
+        .map((m) => m.trim())
+        .filter(Boolean),
+    ),
+  ].slice(0, 20);
+  return { q, prixMin, prixMax, marques, tri };
 }

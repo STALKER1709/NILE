@@ -45,6 +45,7 @@ export async function creerProduitAction(formData: FormData): Promise<void> {
     prix: formData.get("prix"),
     stock: formData.get("stock"),
     categorieId: formData.get("categorieId"),
+    marque: formData.get("marque") ?? undefined,
   });
   if (!parsed.success) {
     const msg = parsed.error.issues[0]?.message ?? "Données invalides.";
@@ -82,6 +83,7 @@ export async function mettreAJourProduitAction(
     prix: formData.get("prix"),
     stock: formData.get("stock"),
     categorieId: formData.get("categorieId"),
+    marque: formData.get("marque") ?? undefined,
   });
   if (!parsed.success) {
     const msg = parsed.error.issues[0]?.message ?? "Données invalides.";

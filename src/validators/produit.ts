@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normaliserMarque } from "@/modules/catalogue/marque-core";
 
 /**
  * Validation des entrées produit. Le prix est un ENTIER FCFA (jamais de décimale).
@@ -19,6 +20,19 @@ export const produitSchema = z.object({
     .int("Le stock doit être un entier.")
     .min(0, "Le stock ne peut pas être négatif."),
   categorieId: z.string().min(1, "Choisis une catégorie."),
+  // Facultative : tous les articles n'ont pas de marque (artisanat, produits
+  // frais). Normalisée à l'écriture pour que « gucci » et « Gucci » ne fassent
+  // pas deux entrées distinctes dans le filtre du catalogue.
+  marque: z
+    .string()
+    .max(60, "Le nom de marque est trop long.")
+    .optional()
+    .transform((v) => {
+      const m = normaliserMarque(v ?? "");
+      // Chaîne vide ramenée à `null` : « pas de marque » ne doit pas se
+      // confondre avec une marque nommée par du vide.
+      return m.length > 0 ? m : null;
+    }),
 });
 
 export const statutPubliableSchema = z.enum([

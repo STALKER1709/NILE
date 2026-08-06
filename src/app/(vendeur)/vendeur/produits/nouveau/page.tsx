@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { exigerVendeur } from "@/modules/auth/access";
 import { listerCategories, aplatirPourSelect } from "@/modules/catalogue/categories";
+import { listerMarquesVendeur } from "@/modules/catalogue/produits";
 import { creerProduitAction } from "@/app/(vendeur)/vendeur/produits/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
@@ -13,8 +14,11 @@ export default async function NouveauProduitPage({
   searchParams: Promise<{ erreur?: string }>;
 }) {
   const { erreur } = await searchParams;
-  await exigerVendeur();
-  const categories = aplatirPourSelect(await listerCategories());
+  const { vendeur } = await exigerVendeur();
+  const [categories, marques] = await Promise.all([
+    listerCategories().then(aplatirPourSelect),
+    listerMarquesVendeur(vendeur.id),
+  ]);
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
@@ -46,6 +50,29 @@ export default async function NouveauProduitPage({
               <label htmlFor="stock" className={labelClass}>Stock</label>
               <input id="stock" name="stock" type="number" min={0} step={1} required defaultValue={0} className={`${champClass} mt-1`} />
             </div>
+          </div>
+          <div>
+            <label htmlFor="marque" className={labelClass}>
+              Marque <span className="font-normal text-slate-500">(facultatif)</span>
+            </label>
+            {/* Saisie libre, mais les marques déjà utilisées sont proposées :
+                sans cela « Nike », « NIKE » et « nike » se multiplieraient et
+                le filtre du catalogue deviendrait inutilisable. La
+                normalisation à l'écriture les fait converger de toute façon. */}
+            <input
+              id="marque"
+              name="marque"
+              list="marques-connues"
+              maxLength={60}
+              placeholder="Ex. Nike"
+              className={`${champClass} mt-1`}
+             
+            />
+            <datalist id="marques-connues">
+              {marques.map((m) => (
+                <option key={m} value={m} />
+              ))}
+            </datalist>
           </div>
           <div>
             <label htmlFor="categorieId" className={labelClass}>Catégorie</label>

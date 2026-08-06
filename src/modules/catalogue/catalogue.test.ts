@@ -21,12 +21,33 @@ describe("construireWhereProduits (règle de visibilité)", () => {
     expect(where.vendeur).toEqual({ is: { statutValidation: "VALIDE" } });
   });
 
-  it("ajoute la recherche texte sur titre et description", () => {
+  it("cherche dans le titre, la description ET la marque", () => {
+    // La marque compte : chercher « nike » doit ramener ses articles même
+    // quand elle n'apparaît ni dans le titre ni dans la description.
     const where = construireWhereProduits({ q: "samsung" });
     expect(where.OR).toEqual([
       { titre: { contains: "samsung", mode: "insensitive" } },
       { description: { contains: "samsung", mode: "insensitive" } },
+      { marque: { contains: "samsung", mode: "insensitive" } },
     ]);
+  });
+
+  it("filtre par marques, sans se laisser piéger par la casse", () => {
+    // Un `in` serait sensible à la casse en Postgres et laisserait de côté
+    // les articles saisis « NIKE » quand le filtre dit « Nike ».
+    const where = construireWhereProduits({ marques: ["Nike", "Puma"] });
+    expect(where.AND).toEqual([
+      {
+        OR: [
+          { marque: { equals: "Nike", mode: "insensitive" } },
+          { marque: { equals: "Puma", mode: "insensitive" } },
+        ],
+      },
+    ]);
+  });
+
+  it("ignore un filtre de marques vide", () => {
+    expect(construireWhereProduits({ marques: ["", "  "] }).AND).toBeUndefined();
   });
 
   it("filtre par catégories et par fourchette de prix", () => {

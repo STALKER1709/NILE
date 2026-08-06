@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { regrouperMarques } from "@/modules/catalogue/marque-core";
 import { Prisma } from "@prisma/client";
 import type { Produit, StatutProduit } from "@prisma/client";
 import { prisma } from "@/lib/db";
@@ -141,6 +142,7 @@ export async function creerProduit(
       description: input.description,
       prix: input.prix,
       stock: input.stock,
+      marque: input.marque,
       statut: "BROUILLON",
     },
   });
@@ -174,6 +176,7 @@ export async function mettreAJourProduit(
       description: input.description,
       prix: input.prix,
       stock: input.stock,
+      marque: input.marque,
       categorieId: input.categorieId,
     },
   });
@@ -428,4 +431,41 @@ export async function suggererProduits(terme: string, limite = 6) {
       images: { orderBy: { ordre: "asc" }, take: 1, select: { url: true } },
     },
   });
+}
+
+/**
+ * Marques présentes dans le catalogue visible, prêtes à être proposées en
+ * filtre.
+ *
+ * Restreint aux produits ACTIFS de boutiques VALIDÉES : proposer une marque
+ * qui ne ramène aucun résultat est le meilleur moyen de faire douter du
+ * catalogue.
+ *
+ * Les variantes d'écriture — « Nike », « NIKE », « nike » — sont regroupées
+ * en une seule entrée, la plus fréquente l'emportant.
+ */
+export async function listerMarquesCatalogue(
+  categorieIds?: string[],
+): Promise<string[]> {
+  const lignes = await prisma.produit.findMany({
+    where: {
+      statut: "ACTIF",
+      vendeur: { is: { statutValidation: "VALIDE" } },
+      marque: { not: null },
+      ...(categorieIds && categorieIds.length > 0
+        ? { categorieId: { in: categorieIds } }
+        : {}),
+    },
+    select: { marque: true },
+  });
+  return regrouperMarques(lignes.map((l) => l.marque ?? ""));
+}
+
+/** Marques déjà saisies par un vendeur, pour lui suggérer ses propres graphies. */
+export async function listerMarquesVendeur(vendeurId: string): Promise<string[]> {
+  const lignes = await prisma.produit.findMany({
+    where: { vendeurId, statut: { not: "SUPPRIME" }, marque: { not: null } },
+    select: { marque: true },
+  });
+  return regrouperMarques(lignes.map((l) => l.marque ?? ""));
 }

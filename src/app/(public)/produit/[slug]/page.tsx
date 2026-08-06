@@ -240,9 +240,19 @@ export default async function FicheProduitPage({
 
           {/* Repères produit */}
           <div className="grid grid-cols-2 gap-3">
-            <FicheInfo libelle="Catégorie" valeur={produit.categorie.nom}>
-              <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
-            </FicheInfo>
+            {/* La marque prend la place de la catégorie quand elle existe :
+                c'est le repère qu'un acheteur cherche en premier sur un
+                vêtement, et la catégorie reste lisible dans le fil d'Ariane
+                juste au-dessus. */}
+            {produit.marque ? (
+              <FicheInfo libelle="Marque" valeur={produit.marque}>
+                <path d="m12 3 2.5 5.5 6 .8-4.4 4.2 1.1 6-5.2-2.9L6.8 19.5l1.1-6L3.5 9.3l6-.8z" strokeLinejoin="round" />
+              </FicheInfo>
+            ) : (
+              <FicheInfo libelle="Catégorie" valeur={produit.categorie.nom}>
+                <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
+              </FicheInfo>
+            )}
             <FicheInfo libelle="Livraison" valeur="Gratuite, partout">
               <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" strokeLinejoin="round" />
               <circle cx="7" cy="17" r="1.5" />
