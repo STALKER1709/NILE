@@ -1,0 +1,45 @@
+name: Balayage des paiements en attente
+
+# Dernier filet du parcours de paiement : rattrape les commandes dont le
+# paiement a abouti chez le fournisseur sans que nous l'apprenions (webhook
+# jamais émis ou perdu, acheteur ayant fermé son navigateur). Cadence de 5 min
+# car il y a de l'argent encaissé en jeu — Vercel Hobby ne permet qu'une
+# exécution planifiée par jour, d'où le déclenchement depuis ici.
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  # Permet de déclencher manuellement depuis l'onglet Actions (test).
+  workflow_dispatch:
+
+# Deux passages ne doivent pas se chevaucher : ils interrogeraient les mêmes
+# paiements en double chez le fournisseur.
+concurrency:
+  group: paiements-en-attente
+  cancel-in-progress: false
+
+jobs:
+  balayage:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Déclencher le balayage
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          URL_SITE: ${{ vars.URL_SITE || 'https://nile-beige.vercel.app' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "CRON_SECRET absent des secrets du dépôt : rien à faire."
+            exit 0
+          fi
+          code=$(curl -sS -o /tmp/reponse.json -w "%{http_code}" \
+            -X POST "$URL_SITE/api/cron/paiements-en-attente" \
+            -H "Authorization: Bearer $CRON_SECRET")
+          echo "HTTP $code"
+          cat /tmp/reponse.json
+          echo
+          # 503 = fonction non configurée côté app : on ne fait pas échouer le
+          # workflow pour autant (rien de cassé, la variable n'est pas posée).
+          if [ "$code" = "503" ]; then
+            echo "Route inactive (CRON_SECRET non configuré sur Vercel)."
+            exit 0
+          fi
+          [ "$code" = "200" ]
