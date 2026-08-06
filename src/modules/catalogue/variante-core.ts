@@ -135,6 +135,26 @@ export function valeur2Pour(
 }
 
 /**
+ * Second axe à conserver quand l'acheteur change le premier.
+ *
+ * Il a choisi « 40 · Blanc », puis passe au 42, que le vendeur ne tient qu'en
+ * noir : garder « Blanc » afficherait une combinaison inexistante, et l'ajout
+ * au panier serait refusé sans que rien ne l'ait laissé prévoir. Le choix est
+ * alors effacé, pour être refait.
+ *
+ * Il est en revanche CONSERVÉ quand il reste disponible : reperdre sa couleur
+ * à chaque essai de taille rendrait le sélecteur épuisant.
+ */
+export function conserverValeur2(
+  variantes: Variante[],
+  valeur1: string,
+  valeur2: string,
+): string {
+  if (!valeur2) return "";
+  return valeur2Pour(variantes, valeur1).includes(valeur2) ? valeur2 : "";
+}
+
+/**
  * Retrouve la déclinaison correspondant à un choix.
  *
  * Les axes non renseignés sont comparés à la chaîne vide, ce qui traite de la

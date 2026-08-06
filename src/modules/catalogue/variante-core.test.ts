@@ -7,6 +7,7 @@ import {
   stockTotal,
   valeursProposees,
   valeur2Pour,
+  conserverValeur2,
   trouverVariante,
   evaluerAjoutPanier,
   libelleVariante,
@@ -164,6 +165,34 @@ describe("valeur2Pour", () => {
     // refus au panier après coup.
     expect(valeur2Pour(chaussures, "42", COULEURS)).toEqual(["Noir"]);
     expect(valeur2Pour(chaussures, "40", COULEURS)).toEqual(["Noir", "Blanc"]);
+  });
+});
+
+describe("conserverValeur2", () => {
+  const chaussures = [
+    v("1", "40", "Noir", 3),
+    v("2", "40", "Blanc", 2),
+    v("3", "42", "Noir", 1),
+  ];
+
+  it("garde la couleur quand elle existe dans la nouvelle taille", () => {
+    // La reperdre à chaque essai de taille rendrait le sélecteur épuisant.
+    expect(conserverValeur2(chaussures, "42", "Noir")).toBe("Noir");
+  });
+
+  it("efface la couleur que la nouvelle taille ne propose pas", () => {
+    // Garder « Blanc » en 42 afficherait une combinaison inexistante, et
+    // l'ajout au panier serait refusé sans que rien ne l'ait laissé prévoir.
+    expect(conserverValeur2(chaussures, "42", "Blanc")).toBe("");
+  });
+
+  it("efface aussi une couleur devenue épuisée", () => {
+    const epuise = [v("1", "42", "Noir", 0), v("2", "40", "Noir", 5)];
+    expect(conserverValeur2(epuise, "42", "Noir")).toBe("");
+  });
+
+  it("ne renvoie rien quand rien n'était choisi", () => {
+    expect(conserverValeur2(chaussures, "40", "")).toBe("");
   });
 });
 

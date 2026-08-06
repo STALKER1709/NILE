@@ -105,20 +105,31 @@ export function CarteProduitVitrine({
           </p>
         )}
 
+        {/* Article décliné (`varianteId` absent) : la grille ne peut pas
+            choisir la taille à la place de l'acheteur, elle renvoie à la
+            fiche produit plutôt que de proposer un ajout voué au refus. */}
         {actions === "simple" ? (
-          <BoutonPanier
-            produitId={produit.id}
-            stock={produit.stock}
-            quantiteInitiale={quantitePanier}
-            libelle="Ajouter au panier"
-          />
-        ) : (
-          <div className="grid grid-cols-2 items-start gap-2">
+          produit.varianteId ? (
             <BoutonPanier
-              produitId={produit.id}
+              varianteId={produit.varianteId}
               stock={produit.stock}
               quantiteInitiale={quantitePanier}
+              libelle="Ajouter au panier"
             />
+          ) : (
+            <BoutonChoisir lien={lien} epuise={produit.stock === 0} />
+          )
+        ) : (
+          <div className="grid grid-cols-2 items-start gap-2">
+            {produit.varianteId ? (
+              <BoutonPanier
+                varianteId={produit.varianteId}
+                stock={produit.stock}
+                quantiteInitiale={quantitePanier}
+              />
+            ) : (
+              <BoutonChoisir lien={lien} epuise={produit.stock === 0} />
+            )}
             <Link
               href={lien}
               className="inline-flex h-9 w-full items-center justify-center rounded border border-contour text-etiquette-md font-bold text-nile-800 transition-colors hover:bg-surface-moyenne"
@@ -129,5 +140,17 @@ export function CarteProduitVitrine({
         )}
       </div>
     </article>
+  );
+}
+
+/** Renvoi vers la fiche produit, pour un article dont la taille reste à choisir. */
+function BoutonChoisir({ lien, epuise }: { lien: string; epuise: boolean }) {
+  return (
+    <Link
+      href={lien}
+      className="inline-flex h-9 w-full items-center justify-center rounded bg-accent text-etiquette-md font-bold text-nile-950 transition-colors hover:bg-accent-dark"
+    >
+      {epuise ? "Voir l'article" : "Choisir les options"}
+    </Link>
   );
 }

@@ -4,9 +4,9 @@ import { redirect } from "next/navigation";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { ajoutPanierSchema } from "@/validators/commande";
 import {
-  ajouterAuPanier,
+  ajouterVarianteAuPanier,
   retirerUneUnite,
-  retirerProduit,
+  retirerVariante,
   viderPanier,
   compterArticlesPanier,
 } from "@/modules/commande/panier";
@@ -36,23 +36,28 @@ export type EtatBoutonPanier =
 
 /**
  * Ajoute 1 unité au panier SANS quitter la page (compteur sur la carte).
+ *
+ * L'argument est une DÉCLINAISON : le panier n'en connaît pas d'autre unité.
+ * Pour un article non décliné, c'est celle par défaut ; pour un article
+ * décliné, celle que l'acheteur a choisie sur la fiche produit.
+ *
  * Fonctionne aussi pour un VISITEUR non connecté (panier invité en cookie) :
  * l'inscription n'est exigée qu'au moment de passer la commande.
  */
 export async function incrementerPanierAction(
-  produitId: string,
+  varianteId: string,
 ): Promise<EtatBoutonPanier> {
-  const parsed = ajoutPanierSchema.safeParse({ produitId, quantite: 1 });
-  if (!parsed.success) return { ok: false, message: "Produit invalide." };
+  const parsed = ajoutPanierSchema.safeParse({ varianteId, quantite: 1 });
+  if (!parsed.success) return { ok: false, message: "Article invalide." };
 
   const utilisateur = await getUtilisateurCourant();
   if (!utilisateur) {
-    const res = await ajouterInvite(parsed.data.produitId);
+    const res = await ajouterInvite(parsed.data.varianteId);
     if (!res.ok) return { ok: false, message: messagePanier(res.code) };
     return { ok: true, quantite: res.quantite, totalArticles: await compterArticlesInvite() };
   }
 
-  const res = await ajouterAuPanier(utilisateur.id, parsed.data.produitId, 1);
+  const res = await ajouterVarianteAuPanier(utilisateur.id, parsed.data.varianteId, 1);
   if (!res.ok) return { ok: false, message: messagePanier(res.code) };
   const totalArticles = await compterArticlesPanier(utilisateur.id);
   return { ok: true, quantite: res.quantite, totalArticles };
@@ -60,18 +65,18 @@ export async function incrementerPanierAction(
 
 /** Retire 1 unité du panier SANS quitter la page (invités inclus). */
 export async function decrementerPanierAction(
-  produitId: string,
+  varianteId: string,
 ): Promise<EtatBoutonPanier> {
-  if (!produitId) return { ok: false, message: "Produit invalide." };
+  if (!varianteId) return { ok: false, message: "Article invalide." };
 
   const utilisateur = await getUtilisateurCourant();
   if (!utilisateur) {
-    const res = await retirerInvite(produitId);
+    const res = await retirerInvite(varianteId);
     if (!res.ok) return { ok: false, message: messagePanier(res.code) };
     return { ok: true, quantite: res.quantite, totalArticles: await compterArticlesInvite() };
   }
 
-  const res = await retirerUneUnite(utilisateur.id, produitId);
+  const res = await retirerUneUnite(utilisateur.id, varianteId);
   if (!res.ok) return { ok: false, message: messagePanier(res.code) };
   const totalArticles = await compterArticlesPanier(utilisateur.id);
   return { ok: true, quantite: res.quantite, totalArticles };
@@ -96,16 +101,19 @@ export async function viderPanierAction(): Promise<void> {
  * Retire complètement un article du panier (bouton « Retirer »), pour un
  * visiteur comme pour un utilisateur connecté. Aucune connexion n'est
  * exigée, sinon un visiteur ne pourrait pas retirer un article du sien.
+ *
+ * Le retrait vise la DÉCLINAISON de la ligne : retirer « le t-shirt » ferait
+ * disparaître d'un coup le M et le XL, alors que l'acheteur n'en visait qu'un.
  */
 export async function retirerArticleAction(formData: FormData): Promise<void> {
-  const produitId = String(formData.get("produitId") ?? "");
-  if (!produitId) redirect("/panier?erreur=Article%20introuvable.");
+  const varianteId = String(formData.get("varianteId") ?? "");
+  if (!varianteId) redirect("/panier?erreur=Article%20introuvable.");
 
   const utilisateur = await getUtilisateurCourant();
   if (utilisateur) {
-    await retirerProduit(utilisateur.id, produitId);
+    await retirerVariante(utilisateur.id, varianteId);
   } else {
-    await retirerToutInvite(produitId);
+    await retirerToutInvite(varianteId);
   }
   redirect("/panier?ok=retire");
 }

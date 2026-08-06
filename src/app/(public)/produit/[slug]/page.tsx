@@ -14,7 +14,17 @@ import {
   peutLaisserAvis,
   getRepartitionNotes,
 } from "@/modules/avis/avis";
-import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
+import {
+  getQuantitesAffichees,
+  getQuantitesVarianteAffichees,
+} from "@/modules/commande/panier-invite";
+import { axesDeCategorie } from "@/modules/catalogue/axes";
+import {
+  aDesDeclinaisons,
+  stockTotal,
+  trouverVariante,
+} from "@/modules/catalogue/variante-core";
+import { SelecteurDeclinaison } from "@/components/produit/SelecteurDeclinaison";
 import { getAffichagePrixProduit } from "@/modules/promotion/promotion";
 import { creerAvisAction } from "@/app/(public)/produit/[slug]/actions";
 import { GaleriePhotos } from "@/components/produit/GaleriePhotos";
@@ -121,18 +131,42 @@ export default async function FicheProduitPage({
   if (!produit) notFound();
 
   const utilisateur = await getUtilisateurCourant();
-  const [avis, peutNoter, quantites, repartition, similaires, affichagePrix, enFavori] =
-    await Promise.all([
+  const [
+    avis,
+    peutNoter,
+    quantites,
+    quantitesVariantes,
+    repartition,
+    similaires,
+    affichagePrix,
+    enFavori,
+    axes,
+  ] = await Promise.all([
     listerAvisProduit(produit.id),
     utilisateur ? peutLaisserAvis(utilisateur.id, produit.id) : Promise.resolve(false),
     getQuantitesAffichees(utilisateur?.id ?? null),
+    getQuantitesVarianteAffichees(utilisateur?.id ?? null, produit.id),
     getRepartitionNotes(produit.id),
     getProduitsSimilaires(produit.categorieId, produit.id, 6),
     getAffichagePrixProduit({ id: produit.id, prix: produit.prix, vendeurId: produit.vendeurId }),
     estEnFavori(utilisateur?.id ?? null, produit.id),
+    // Les axes de la catégorie nomment et ordonnent les choix : ni les
+    // tailles ni les pointures ne sont écrites en dur nulle part.
+    axesDeCategorie(produit.categorieId),
   ]);
-  const enRupture = produit.stock === 0;
-  const quantitePanier = quantites[produit.id] ?? 0;
+
+  // Le stock vient des DÉCLINAISONS : `Produit.stock` n'est plus tenu à jour
+  // depuis qu'elles existent, l'afficher annoncerait du stock sur un article
+  // épuisé.
+  const decline = aDesDeclinaisons(produit.variantes);
+  const stock = stockTotal(produit.variantes);
+  // Article non décliné : sa déclinaison par défaut (deux axes vides) est la
+  // seule, et l'ajout au panier se fait sans rien demander à l'acheteur.
+  const varianteParDefaut = decline ? null : trouverVariante(produit.variantes, {});
+  const enRupture = stock === 0;
+  const quantitePanier = varianteParDefaut
+    ? (quantitesVariantes[varianteParDefaut.id] ?? 0)
+    : (quantites[produit.id] ?? 0);
   const enPromo = affichagePrix.prixPromo != null;
   const prixEffectif = affichagePrix.prixPromo ?? produit.prix;
 
@@ -194,7 +228,7 @@ export default async function FicheProduitPage({
               className={`mt-2.5 flex items-center gap-2 text-sm font-bold ${
                 enRupture
                   ? "text-promo"
-                  : produit.stock <= 5
+                  : stock <= 5
                     ? "text-accent-dark"
                     : "text-emerald-600"
               }`}
@@ -203,16 +237,21 @@ export default async function FicheProduitPage({
                 className={`h-2 w-2 shrink-0 rounded-full ${
                   enRupture
                     ? "bg-promo"
-                    : produit.stock <= 5
+                    : stock <= 5
                       ? "animate-pulse bg-accent"
                       : "bg-emerald-500"
                 }`}
               />
+              {/* Sur un article décliné, le total ne dit pas grand-chose : le
+                  détail par taille s'affiche sous le sélecteur, une fois le
+                  choix fait. */}
               {enRupture
                 ? "Indisponible (rupture de stock)"
-                : produit.stock <= 5
-                  ? `Plus que ${produit.stock} en stock, commandez vite !`
-                  : `En stock (${produit.stock} disponibles)`}
+                : decline
+                  ? "En stock — voir les options ci-dessous"
+                  : stock <= 5
+                    ? `Plus que ${stock} en stock, commandez vite !`
+                    : `En stock (${stock} disponibles)`}
             </p>
 
             <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
@@ -284,12 +323,31 @@ export default async function FicheProduitPage({
                 </span>
               </div>
             )}
-            <BoutonPanier
-              produitId={produit.id}
-              stock={produit.stock}
-              quantiteInitiale={quantitePanier}
-              taille="lg"
-            />
+            {enRupture ? (
+              <span className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded bg-slate-100 text-base font-medium text-slate-400">
+                Rupture de stock
+              </span>
+            ) : decline ? (
+              <SelecteurDeclinaison
+                variantes={produit.variantes}
+                axes={axes}
+                quantitesParVariante={quantitesVariantes}
+              />
+            ) : varianteParDefaut ? (
+              <BoutonPanier
+                varianteId={varianteParDefaut.id}
+                stock={varianteParDefaut.stock}
+                quantiteInitiale={quantitePanier}
+                taille="lg"
+              />
+            ) : (
+              /* Ni déclinaison réelle ni déclinaison par défaut : l'article
+                 n'est rattaché à rien d'achetable. Le signaler vaut mieux
+                 qu'un bouton qui échouerait sans explication. */
+              <span className="inline-flex h-12 w-full cursor-not-allowed items-center justify-center rounded bg-slate-100 text-base font-medium text-slate-400">
+                Article indisponible
+              </span>
+            )}
             <Link href="/panier" className={btn("secondaire", "lg", "w-full")}>
               Voir mon panier
             </Link>
@@ -406,8 +464,8 @@ export default async function FicheProduitPage({
       />
       {!enRupture && (
         <BarreAchatMobile
-          produitId={produit.id}
-          stock={produit.stock}
+          varianteId={varianteParDefaut?.id ?? null}
+          stock={stock}
           quantiteInitiale={quantitePanier}
           prix={prixEffectif}
         />

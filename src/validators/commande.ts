@@ -18,7 +18,8 @@ export const adresseLivraisonSchema = z.object({
 });
 
 export const ajoutPanierSchema = z.object({
-  produitId: z.string().min(1),
+  /** Déclinaison visée : c'est elle, et non le produit, qui entre au panier. */
+  varianteId: z.string().min(1),
   quantite: z.coerce
     .number({ invalid_type_error: "Quantité invalide." })
     .int("Quantité invalide.")

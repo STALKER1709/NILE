@@ -10,12 +10,17 @@ import { BoutonPanier } from "@/components/panier/BoutonPanier";
  * vue, pour que prix + ajout restent toujours à portée de pouce.
  */
 export function BarreAchatMobile({
-  produitId,
+  varianteId,
   stock,
   quantiteInitiale,
   prix,
 }: {
-  produitId: string;
+  /**
+   * Déclinaison ajoutable directement, ou `null` si l'article est décliné :
+   * la barre renvoie alors vers le sélecteur. Y dupliquer le choix de taille
+   * ferait vivre deux sélections concurrentes sur le même écran.
+   */
+  varianteId: string | null;
   stock: number;
   quantiteInitiale: number;
   prix: number;
@@ -46,11 +51,20 @@ export function BarreAchatMobile({
           <p className="text-lg font-bold text-promo">{formaterXAF(prix)}</p>
         </div>
         <div className="flex-1">
-          <BoutonPanier
-            produitId={produitId}
-            stock={stock}
-            quantiteInitiale={quantiteInitiale}
-          />
+          {varianteId ? (
+            <BoutonPanier
+              varianteId={varianteId}
+              stock={stock}
+              quantiteInitiale={quantiteInitiale}
+            />
+          ) : (
+            <a
+              href="#achat-principal"
+              className="inline-flex h-9 w-full items-center justify-center rounded bg-accent text-sm font-semibold text-nile-950 transition-colors hover:bg-accent-dark"
+            >
+              Choisir les options
+            </a>
+          )}
         </div>
       </div>
     </div>

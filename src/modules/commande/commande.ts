@@ -27,6 +27,7 @@ import {
   type AxeDeclinaison,
 } from "@/modules/catalogue/variante-core";
 import { axesParCategorie } from "@/modules/catalogue/axes";
+import { restituerStockTx } from "@/modules/commande/stock";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -445,13 +446,7 @@ async function libererCommande(commandeId: string): Promise<void> {
     // recrédite ni le stock ni le panier.
     if (maj.count !== 1) return;
 
-    for (const ligne of commande.lignes) {
-      if (!ligne.varianteId) continue; // commande antérieure aux déclinaisons
-      await tx.varianteProduit.update({
-        where: { id: ligne.varianteId },
-        data: { stock: { increment: ligne.quantite } },
-      });
-    }
+    await restituerStockTx(tx, commande.lignes);
 
     const panier = await tx.panier.upsert({
       where: { utilisateurId: commande.acheteurId },
@@ -682,12 +677,7 @@ export async function annulerCommandeAcheteur(
       });
       if (maj.count === 0) throw new Error("NON_ANNULABLE");
 
-      for (const ligne of commande.lignes) {
-        await tx.produit.update({
-          where: { id: ligne.produitId },
-          data: { stock: { increment: ligne.quantite } },
-        });
-      }
+      await restituerStockTx(tx, commande.lignes);
 
       // Le stock lui est rendu : son code promo aussi.
       await rendreCodePromoTx(tx, commandeId);

@@ -12,6 +12,10 @@ import { retirerArticleAction } from "@/app/(compte)/panier/actions";
 
 export interface ArticlePanier {
   produitId: string;
+  /** Déclinaison achetée : c'est elle l'unité du panier, pas le produit. */
+  varianteId: string;
+  /** Libellé lisible de la déclinaison (« Taille XL · Couleur Bleu »), ou "". */
+  declinaison: string;
   slug: string;
   titre: string;
   prix: number;
@@ -53,6 +57,13 @@ export function CarteArticlePanier({ article }: { article: ArticlePanier }) {
             >
               {article.titre}
             </Link>
+            {/* Sans ce rappel, deux lignes du même t-shirt seraient
+                indiscernables l'une de l'autre. */}
+            {article.declinaison && (
+              <span className="mt-0.5 block text-etiquette-xs font-semibold text-slate-600">
+                {article.declinaison}
+              </span>
+            )}
             {enPromo ? (
               <span className="mt-1 flex items-center gap-2">
                 <Prix montant={article.prixEffectif} className="text-corps-sm font-bold text-promo" />
@@ -94,14 +105,14 @@ export function CarteArticlePanier({ article }: { article: ArticlePanier }) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="w-36">
             <BoutonPanier
-              produitId={article.produitId}
+              varianteId={article.varianteId}
               stock={article.stock}
               quantiteInitiale={article.quantite}
               rafraichirApres
             />
           </div>
           <form action={retirerArticleAction}>
-            <input type="hidden" name="produitId" value={article.produitId} />
+            <input type="hidden" name="varianteId" value={article.varianteId} />
             <button
               type="submit"
               className="flex items-center gap-1 rounded px-2 py-2 text-etiquette-md text-promo transition-colors hover:bg-promo-conteneur"

@@ -11,7 +11,13 @@ export interface ProduitCarte {
   /** Prix réduit si une promotion est active, sinon absent/null. */
   prixPromo?: number | null;
   pourcentageReduction?: number | null;
+  /** Stock toutes déclinaisons confondues. */
   stock: number;
+  /**
+   * Déclinaison ajoutable en un clic, ou `null` si l'article est décliné : la
+   * grille renvoie alors vers la fiche produit, seul endroit où choisir.
+   */
+  varianteId?: string | null;
   noteMoyenne: number;
   nbAvis: number;
   images: { url: string }[];
@@ -126,11 +132,23 @@ export function CarteProduit({
 
         {/* Actions : ajout supermarché + détail */}
         <div className="mt-2 flex flex-col gap-1.5">
-          <BoutonPanier
-            produitId={produit.id}
-            stock={produit.stock}
-            quantiteInitiale={quantitePanier}
-          />
+          {produit.varianteId ? (
+            <BoutonPanier
+              varianteId={produit.varianteId}
+              stock={produit.stock}
+              quantiteInitiale={quantitePanier}
+            />
+          ) : (
+            /* Article décliné : personne ne peut choisir la taille à la place
+               de l'acheteur. Le renvoyer vers la fiche vaut mieux qu'un bouton
+               « Ajouter » qui se solderait par un refus. */
+            <Link
+              href={lien}
+              className="inline-flex h-9 w-full items-center justify-center rounded bg-accent text-sm font-semibold text-nile-950 transition-colors hover:bg-accent-dark"
+            >
+              {enRupture ? "Voir l'article" : "Choisir les options"}
+            </Link>
+          )}
           <Link
             href={lien}
             className="inline-flex h-8 w-full items-center justify-center rounded border border-contour-carte bg-slate-50 text-xs font-semibold text-slate-700 transition-all hover:border-nile-500 hover:bg-nile-50 hover:text-nile-700"

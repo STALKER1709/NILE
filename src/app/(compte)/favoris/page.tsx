@@ -104,14 +104,24 @@ export default async function FavorisPage() {
                     retour="/favoris"
                     taille="sm"
                   />
-                  {!indisponible && (
-                    <BoutonPanier
-                      produitId={f.produit.id}
-                      stock={f.stock}
-                      quantiteInitiale={quantites[f.produit.id] ?? 0}
-                      taille="sm"
-                    />
-                  )}
+                  {!indisponible &&
+                    (f.varianteId ? (
+                      <BoutonPanier
+                        varianteId={f.varianteId}
+                        stock={f.stock}
+                        quantiteInitiale={quantites[f.produit.id] ?? 0}
+                        taille="sm"
+                      />
+                    ) : (
+                      /* Article décliné : la taille se choisit sur la fiche,
+                         pas depuis la liste de souhaits. */
+                      <Link
+                        href={`/produit/${f.produit.slug}`}
+                        className={btn("primaire", "sm")}
+                      >
+                        Choisir
+                      </Link>
+                    ))}
                 </div>
               </Carte>
             );

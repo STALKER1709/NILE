@@ -4,6 +4,8 @@ import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { getLignesInvite } from "@/modules/commande/panier-invite";
 import { calculerTotal } from "@/modules/commande/commande-core";
 import { chargerAffichagePrixPourProduits } from "@/modules/promotion/promotion";
+import { axesParCategorie } from "@/modules/catalogue/axes";
+import { libelleVariante } from "@/modules/catalogue/variante-core";
 import { viderPanierAction } from "@/app/(compte)/panier/actions";
 import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
 import {
@@ -34,7 +36,21 @@ export default async function PanierPage({
 
   // Les deux parcours produisent la même liste d'articles : la mise en page
   // qui suit est donc unique.
-  type LigneBrute = { produit: { id: string; slug: string; titre: string; prix: number; stock: number; statut: string; vendeurId: string; vendeur: { statutValidation: string }; images: { url: string }[] }; quantite: number };
+  type LigneBrute = {
+    produit: {
+      id: string;
+      slug: string;
+      titre: string;
+      prix: number;
+      statut: string;
+      categorieId: string;
+      vendeurId: string;
+      vendeur: { statutValidation: string };
+      images: { url: string }[];
+    };
+    variante: { id: string; valeur1: string; valeur2: string; stock: number; actif: boolean };
+    quantite: number;
+  };
   let lignesBrutes: LigneBrute[];
   if (utilisateur) {
     const panier = await getPanierAvecLignes(utilisateur.id);
@@ -43,24 +59,36 @@ export default async function PanierPage({
     lignesBrutes = await getLignesInvite();
   }
 
-  const affichages = await chargerAffichagePrixPourProduits(
-    lignesBrutes.map((l) => ({ id: l.produit.id, prix: l.produit.prix, vendeurId: l.produit.vendeurId })),
-  );
+  const [affichages, axesParCat] = await Promise.all([
+    chargerAffichagePrixPourProduits(
+      lignesBrutes.map((l) => ({ id: l.produit.id, prix: l.produit.prix, vendeurId: l.produit.vendeurId })),
+    ),
+    // Les axes nomment la déclinaison de chaque ligne : « 42 » seul ne se
+    // comprend pas, « Pointure 42 » oui.
+    axesParCategorie(lignesBrutes.map((l) => l.produit.categorieId)),
+  ]);
   const articles: ArticlePanier[] = lignesBrutes.map((l) => {
     const affichage = affichages.get(l.produit.id);
     return {
       produitId: l.produit.id,
+      varianteId: l.variante.id,
+      declinaison: libelleVariante(l.variante, axesParCat.get(l.produit.categorieId) ?? []),
       slug: l.produit.slug,
       titre: l.produit.titre,
       prix: l.produit.prix,
       prixEffectif: affichage?.prixPromo ?? l.produit.prix,
       pourcentageReduction: affichage?.pourcentageReduction ?? null,
-      stock: l.produit.stock,
+      // Le stock est celui de la DÉCLINAISON : il peut rester dix M et plus un
+      // seul XL, et c'est le XL qui est dans ce panier.
+      stock: l.variante.stock,
       quantite: l.quantite,
       imageUrl: l.produit.images[0]?.url,
       indisponible:
         l.produit.statut !== "ACTIF" ||
-        l.produit.vendeur.statutValidation !== "VALIDE",
+        l.produit.vendeur.statutValidation !== "VALIDE" ||
+        // Déclinaison retirée de la vente : la commande la refuserait, autant
+        // le dire ici plutôt qu'à la validation.
+        !l.variante.actif,
     };
   });
 
@@ -116,8 +144,10 @@ export default async function PanierPage({
       ) : (
         <div className="grid grid-cols-1 items-start gap-gouttiere lg:grid-cols-12">
           <div className="space-y-gouttiere lg:col-span-8">
+            {/* Clé sur la DÉCLINAISON : un même article peut occuper deux
+                lignes du panier, en M et en XL. */}
             {articles.map((a) => (
-              <CarteArticlePanier key={a.produitId} article={a} />
+              <CarteArticlePanier key={a.varianteId} article={a} />
             ))}
             <BlocLivraison />
           </div>

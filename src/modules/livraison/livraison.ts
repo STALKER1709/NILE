@@ -17,6 +17,7 @@ import {
   peutConfirmerReception,
 } from "@/modules/livraison/livraison-core";
 import { verifierCodeReception } from "@/modules/livraison/reception-core";
+import { restituerStockTx } from "@/modules/commande/stock";
 
 export type ResultatLivraison =
   | { ok: true }
@@ -315,12 +316,7 @@ export async function refuserLivraison(
     });
     if (maj.count === 0) return; // déjà traité
 
-    for (const ligne of commande.lignes) {
-      await tx.produit.update({
-        where: { id: ligne.produitId },
-        data: { stock: { increment: ligne.quantite } },
-      });
-    }
+    await restituerStockTx(tx, commande.lignes);
     await tx.livraison.update({
       where: { commandeId },
       data: { statut: "RETOURNEE" },

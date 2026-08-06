@@ -1,8 +1,5 @@
 import { prisma } from "@/lib/db";
-import {
-  trouverVariante,
-  evaluerAjoutPanier,
-} from "@/modules/catalogue/variante-core";
+import { evaluerAjoutPanier } from "@/modules/catalogue/variante-core";
 
 /** Panier de l'utilisateur, avec lignes + infos produit. Créé si absent. */
 export async function getPanierAvecLignes(utilisateurId: string) {
@@ -51,27 +48,30 @@ export type ResultatQuantitePanier =
 /**
  * Ajoute une DÉCLINAISON au panier.
  *
- * `choix` est facultatif : un produit sans taille ni couleur n'a qu'une
- * variante, portant deux chaînes vides, et l'appelant n'a rien à préciser.
+ * C'est la déclinaison — et non le produit — qui est l'unité du panier : un
+ * même t-shirt peut y figurer deux fois, en M et en XL, avec des stocks
+ * distincts. L'appelant désigne donc toujours une déclinaison, y compris pour
+ * un article qui n'en propose qu'une seule (celle par défaut, à axes vides).
  */
-export async function ajouterAuPanier(
+export async function ajouterVarianteAuPanier(
   utilisateurId: string,
-  produitId: string,
+  varianteId: string,
   quantite: number,
-  choix?: { valeur1?: string; valeur2?: string },
 ): Promise<ResultatQuantitePanier> {
-  const produit = await prisma.produit.findUnique({
-    where: { id: produitId },
+  const variante = await prisma.varianteProduit.findUnique({
+    where: { id: varianteId },
     include: {
-      vendeur: { select: { statutValidation: true } },
-      variantes: true,
+      produit: {
+        select: {
+          id: true,
+          statut: true,
+          vendeur: { select: { statutValidation: true } },
+        },
+      },
     },
   });
-  if (!produit) return { ok: false, code: "INTROUVABLE" };
-  if (!estAchetable(produit)) return { ok: false, code: "INDISPONIBLE" };
-
-  const variante = trouverVariante(produit.variantes, choix ?? {});
   if (!variante) return { ok: false, code: "INTROUVABLE" };
+  if (!estAchetable(variante.produit)) return { ok: false, code: "INDISPONIBLE" };
 
   const panier = await prisma.panier.upsert({
     where: { utilisateurId },
@@ -80,9 +80,7 @@ export async function ajouterAuPanier(
   });
 
   const existante = await prisma.lignePanier.findUnique({
-    where: {
-      panierId_varianteId: { panierId: panier.id, varianteId: variante.id },
-    },
+    where: { panierId_varianteId: { panierId: panier.id, varianteId } },
   });
 
   // Le stock se vérifie sur la DÉCLINAISON, pas sur le produit : il peut
@@ -98,25 +96,28 @@ export async function ajouterAuPanier(
 
   const quantiteVoulue = (existante?.quantite ?? 0) + quantite;
   await prisma.lignePanier.upsert({
-    where: {
-      panierId_varianteId: { panierId: panier.id, varianteId: variante.id },
-    },
+    where: { panierId_varianteId: { panierId: panier.id, varianteId } },
     update: { quantite: quantiteVoulue },
-    create: { panierId: panier.id, produitId, varianteId: variante.id, quantite },
+    create: {
+      panierId: panier.id,
+      produitId: variante.produit.id,
+      varianteId,
+      quantite,
+    },
   });
   return { ok: true, quantite: quantiteVoulue };
 }
 
 /**
- * Retire une unité d'un produit du panier (comportement « supermarché »).
- * À 0, la ligne est supprimée. Retirer un produit absent n'est pas une erreur.
+ * Retire une unité d'une déclinaison du panier (comportement « supermarché »).
+ * À 0, la ligne est supprimée. Retirer ce qui n'y est pas n'est pas une erreur.
  */
 export async function retirerUneUnite(
   utilisateurId: string,
-  produitId: string,
+  varianteId: string,
 ): Promise<ResultatQuantitePanier> {
   const ligne = await prisma.lignePanier.findFirst({
-    where: { produitId, panier: { utilisateurId } },
+    where: { varianteId, panier: { utilisateurId } },
   });
   if (!ligne) return { ok: true, quantite: 0 };
 
@@ -148,6 +149,25 @@ export async function getQuantitesPanier(
   // déclinaisons, et le compteur affiché sur sa carte doit les additionner.
   const map: Record<string, number> = {};
   for (const l of lignes) map[l.produitId] = (map[l.produitId] ?? 0) + l.quantite;
+  return map;
+}
+
+/**
+ * Quantités du panier par DÉCLINAISON, pour la fiche produit : le compteur
+ * doit y suivre la taille sélectionnée, et repartir de zéro quand l'acheteur
+ * en choisit une autre qu'il n'a pas encore prise.
+ */
+export async function getQuantitesParVariante(
+  utilisateurId: string | null,
+  produitId: string,
+): Promise<Record<string, number>> {
+  if (!utilisateurId) return {};
+  const lignes = await prisma.lignePanier.findMany({
+    where: { produitId, panier: { utilisateurId } },
+    select: { varianteId: true, quantite: true },
+  });
+  const map: Record<string, number> = {};
+  for (const l of lignes) map[l.varianteId] = l.quantite;
   return map;
 }
 
@@ -199,14 +219,18 @@ export async function retirerLigne(
 }
 
 /**
- * Retire complètement un produit du panier d'un utilisateur, quelle que soit
- * sa quantité. La suppression est bornée au panier de l'utilisateur passé en
- * argument : un identifiant de produit fourni par le client ne peut donc pas
- * toucher le panier d'un tiers.
+ * Retire complètement une déclinaison du panier, quelle que soit sa quantité.
+ *
+ * Sur la déclinaison et non sur le produit : retirer « le t-shirt » ferait
+ * disparaître d'un coup le M et le XL, alors que l'acheteur n'en visait qu'un.
+ *
+ * La suppression est bornée au panier de l'utilisateur passé en argument : un
+ * identifiant fourni par le client ne peut donc pas toucher le panier d'un
+ * tiers.
  */
-export async function retirerProduit(
+export async function retirerVariante(
   utilisateurId: string,
-  produitId: string,
+  varianteId: string,
 ): Promise<ResultatPanier> {
   const panier = await prisma.panier.findUnique({
     where: { utilisateurId },
@@ -214,7 +238,7 @@ export async function retirerProduit(
   });
   if (!panier) return { ok: false, code: "INTROUVABLE" };
   const { count } = await prisma.lignePanier.deleteMany({
-    where: { panierId: panier.id, produitId },
+    where: { panierId: panier.id, varianteId },
   });
   return count > 0 ? { ok: true } : { ok: false, code: "INTROUVABLE" };
 }

@@ -7,6 +7,7 @@ import {
   notifierPushNouvelleCommande,
   notifierPushStatutAcheteur,
 } from "@/modules/push/push";
+import { restituerStockTx } from "@/modules/commande/stock";
 
 export type ResultatTraitement =
   | { ok: true; statut: "PAYE" | "ECHOUE" | "DEJA_TRAITE" }
@@ -113,12 +114,7 @@ export async function conclurePaiement(
       data: { statutCommande: "ANNULEE", statutPaiement: "ECHOUE" },
     });
     if (maj.count === 1) {
-      for (const ligne of paiement.commande.lignes) {
-        await tx.produit.update({
-          where: { id: ligne.produitId },
-          data: { stock: { increment: ligne.quantite } },
-        });
-      }
+      await restituerStockTx(tx, paiement.commande.lignes);
       // Le code promo est rendu avec le stock : l'acheteur ne doit pas l'avoir
       // brûlé sur une commande dont le paiement a échoué. Supprimer la ligne
       // libère aussi une place dans le quota de la campagne — rien n'a été

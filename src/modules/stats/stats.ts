@@ -71,11 +71,16 @@ export async function statsVendeur(vendeurId: string): Promise<{
         _sum: { sousTotal: true },
       }),
       prisma.produit.count({ where: { vendeurId, statut: "ACTIF" } }),
+      // Le seuil ne peut plus être posé en SQL sur `Produit.stock` : ce champ
+      // n'est plus décrémenté à la vente, l'alerte ne se déclencherait jamais.
+      // Le stock réel étant réparti sur les déclinaisons, il se totalise ici.
       prisma.produit.findMany({
-        where: { vendeurId, statut: "ACTIF", stock: { lte: 2 } },
-        orderBy: { stock: "asc" },
-        take: 5,
-        select: { id: true, titre: true, stock: true },
+        where: { vendeurId, statut: "ACTIF" },
+        select: {
+          id: true,
+          titre: true,
+          variantes: { where: { actif: true }, select: { stock: true } },
+        },
       }),
       prisma.avis.aggregate({
         where: { produit: { vendeurId } },
@@ -97,7 +102,15 @@ export async function statsVendeur(vendeurId: string): Promise<{
   return {
     ventesMois: ventesMois._sum.sousTotal ?? 0,
     produitsActifs,
-    produitsEnAlerte: alerte,
+    produitsEnAlerte: alerte
+      .map((p) => ({
+        id: p.id,
+        titre: p.titre,
+        stock: p.variantes.reduce((s, v) => s + Math.max(0, v.stock), 0),
+      }))
+      .filter((p) => p.stock <= 2)
+      .sort((a, b) => a.stock - b.stock)
+      .slice(0, 5),
     noteMoyenne: avis._avg.note,
     nbAvis: avis._count,
     activite7Jours: serieParJour(

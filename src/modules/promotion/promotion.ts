@@ -166,18 +166,76 @@ export async function chargerAffichagePrixPourProduits(
   return resultat;
 }
 
+/** Ce qu'une carte de grille doit savoir des déclinaisons d'un article. */
+export interface InfosCarteVariante {
+  /**
+   * Stock réellement disponible, toutes déclinaisons actives confondues.
+   * `Produit.stock` n'est plus tenu à jour : le lire afficherait « en stock »
+   * sur un article épuisé.
+   */
+  stock: number;
+  /**
+   * Déclinaison à mettre au panier en un clic, ou `null` quand l'article est
+   * décliné — il faut alors passer par la fiche produit pour choisir sa
+   * taille. Une grille ne peut pas faire ce choix à la place de l'acheteur.
+   */
+  varianteId: string | null;
+}
+
 /**
  * Enrichit une liste de produits (déjà chargée pour l'affichage en cartes)
- * avec le prix promotionnel éventuel. Ne modifie pas `prix` : ajoute
- * `prixPromo`/`pourcentageReduction`, `null` si aucune promotion active.
+ * avec le prix promotionnel éventuel et l'état de leurs déclinaisons.
+ *
+ * Ne modifie pas `prix` : ajoute `prixPromo`/`pourcentageReduction`, `null` si
+ * aucune promotion active. En revanche `stock` est REMPLACÉ par le stock des
+ * déclinaisons, seul à jour.
  */
 export async function enrichirProduitsPourCartes<
   T extends { id: string; prix: number; vendeurId: string },
->(produits: T[]): Promise<(T & { prixPromo: number | null; pourcentageReduction: number | null })[]> {
-  const affichages = await chargerAffichagePrixPourProduits(produits);
+>(
+  produits: T[],
+): Promise<
+  (T & { prixPromo: number | null; pourcentageReduction: number | null } & InfosCarteVariante)[]
+> {
+  const [affichages, variantes] = await Promise.all([
+    chargerAffichagePrixPourProduits(produits),
+    produits.length === 0
+      ? Promise.resolve([])
+      : prisma.varianteProduit.findMany({
+          where: { produitId: { in: produits.map((p) => p.id) } },
+          select: {
+            id: true,
+            produitId: true,
+            valeur1: true,
+            valeur2: true,
+            stock: true,
+            actif: true,
+          },
+        }),
+  ]);
+
+  const parProduit = new Map<string, typeof variantes>();
+  for (const v of variantes) {
+    const liste = parProduit.get(v.produitId) ?? [];
+    liste.push(v);
+    parProduit.set(v.produitId, liste);
+  }
+
   return produits.map((p) => {
     const a = affichages.get(p.id);
-    return { ...p, prixPromo: a?.prixPromo ?? null, pourcentageReduction: a?.pourcentageReduction ?? null };
+    const liste = parProduit.get(p.id) ?? [];
+    const actives = liste.filter((v) => v.actif);
+    const parDefaut = actives.find((v) => v.valeur1 === "" && v.valeur2 === "");
+    return {
+      ...p,
+      prixPromo: a?.prixPromo ?? null,
+      pourcentageReduction: a?.pourcentageReduction ?? null,
+      stock: actives.reduce((somme, v) => somme + Math.max(0, v.stock), 0),
+      // Un article décliné n'a PAS de déclinaison par défaut (le vendeur la
+      // perd dès sa première taille) : `parDefaut` est alors absent, et la
+      // carte proposera « Choisir » au lieu d'« Ajouter ».
+      varianteId: parDefaut?.id ?? null,
+    };
   });
 }
 

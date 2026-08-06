@@ -13,16 +13,22 @@ import type { EtatBoutonPanier } from "@/app/(compte)/panier/actions";
  * Bouton d'ajout au panier « supermarché » : « Ajouter » au premier clic, puis
  * compteur [− qté +] sans quitter la page. La quantité affichée est toujours
  * celle confirmée par le serveur (pas d'optimisme aveugle sur le stock).
+ *
+ * Ce qui entre au panier est une DÉCLINAISON, jamais un produit : pour un
+ * article non décliné c'est celle par défaut, pour un article décliné celle
+ * que l'acheteur a choisie. Sans déclinaison désignée (`varianteId` nul), il
+ * n'y a rien à ajouter — l'appelant doit alors renvoyer vers la fiche produit
+ * plutôt qu'afficher ce bouton.
  */
 export function BoutonPanier({
-  produitId,
+  varianteId,
   stock,
   quantiteInitiale,
   taille = "sm",
   rafraichirApres = false,
   libelle = "Ajouter",
 }: {
-  produitId: string;
+  varianteId: string;
   stock: number;
   quantiteInitiale: number;
   taille?: "sm" | "lg";
@@ -36,6 +42,16 @@ export function BoutonPanier({
   const [message, setMessage] = useState<string | null>(null);
   const [enCours, setEnCours] = useState(false);
 
+  // La déclinaison sélectionnée change sur la fiche produit sans que le
+  // composant soit démonté : le compteur doit suivre, sinon il annoncerait
+  // « 2 au panier » pour une taille que l'acheteur vient tout juste de choisir.
+  const [derniereVariante, setDerniereVariante] = useState(varianteId);
+  if (derniereVariante !== varianteId) {
+    setDerniereVariante(varianteId);
+    setQuantite(quantiteInitiale);
+    setMessage(null);
+  }
+
   const enRupture = stock === 0;
   const grand = taille === "lg";
 
@@ -46,7 +62,7 @@ export function BoutonPanier({
     setMessage(null);
     setEnCours(true);
     try {
-      const res = await action(produitId);
+      const res = await action(varianteId);
       if (res.ok) {
         setQuantite(res.quantite);
         // Met à jour les badges panier (en-tête + nav mobile) sans round-trip.

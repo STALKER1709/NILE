@@ -53,6 +53,14 @@ export default async function GestionProduitPage({
     axesDeCategorie(produit.categorieId),
   ]);
 
+  // Un article est décliné dès qu'il porte autre chose que la déclinaison par
+  // défaut (deux axes vides). Le champ « Stock » du formulaire ne s'applique
+  // qu'à celle-ci : sur un article décliné, il ne pilote plus rien.
+  const estDecline = (variantes ?? []).some((v) => v.valeur1 !== "" || v.valeur2 !== "");
+  const stockDeclinaisons = (variantes ?? [])
+    .filter((v) => v.actif)
+    .reduce((somme, v) => somme + Math.max(0, v.stock), 0);
+
   // Produit dans la corbeille : vue restreinte, restauration d'abord —
   // pas de formulaire d'édition sur quelque chose qui n'existe plus pour
   // l'acheteur ni pour le catalogue vendeur actif.
@@ -173,7 +181,27 @@ export default async function GestionProduitPage({
             </div>
             <div>
               <label htmlFor="stock" className={labelClass}>Stock</label>
-              <input id="stock" name="stock" type="number" min={0} step={1} required defaultValue={produit.stock} className={`${champClass} mt-1`} />
+              {/* Article décliné : le stock se tient déclinaison par
+                  déclinaison, plus bas. Ce champ n'alimente plus rien —
+                  laisser un chiffre modifiable ferait croire au vendeur qu'il
+                  vient de réapprovisionner. */}
+              <input
+                id="stock"
+                name="stock"
+                type="number"
+                min={0}
+                step={1}
+                required
+                readOnly={estDecline}
+                aria-describedby={estDecline ? "stock-decline" : undefined}
+                defaultValue={estDecline ? stockDeclinaisons : produit.stock}
+                className={`${champClass} mt-1 ${estDecline ? "bg-slate-100 text-slate-500" : ""}`}
+              />
+              {estDecline && (
+                <p id="stock-decline" className="mt-1 text-xs text-slate-500">
+                  Total des déclinaisons — modifiable plus bas.
+                </p>
+              )}
             </div>
           </div>
           <div>

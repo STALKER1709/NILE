@@ -111,7 +111,9 @@ export async function listerFavoris(utilisateurId: string) {
         include: {
           images: { orderBy: { ordre: "asc" }, take: 1 },
           categorie: { select: { nom: true } },
-          variantes: { select: { stock: true, actif: true } },
+          variantes: {
+            select: { id: true, valeur1: true, valeur2: true, stock: true, actif: true },
+          },
           vendeur: { select: { id: true, nomBoutique: true, statutValidation: true } },
         },
       },
@@ -119,14 +121,18 @@ export async function listerFavoris(utilisateurId: string) {
   });
 
   return favoris.map((f) => {
-    const stock = f.produit.variantes
-      .filter((v) => v.actif)
-      .reduce((somme, v) => somme + Math.max(0, v.stock), 0);
+    const actives = f.produit.variantes.filter((v) => v.actif);
+    const stock = actives.reduce((somme, v) => somme + Math.max(0, v.stock), 0);
+    // Un article décliné n'a pas de déclinaison par défaut : depuis la liste
+    // de souhaits, l'ajout direct n'a alors pas de sens — la taille se choisit
+    // sur la fiche produit.
+    const parDefaut = actives.find((v) => v.valeur1 === "" && v.valeur2 === "");
     return {
       id: f.id,
       dateCreation: f.dateCreation,
       produit: f.produit,
       stock,
+      varianteId: parDefaut?.id ?? null,
       // « Achetable » reprend exactement la règle du catalogue : produit ACTIF
       // ET boutique VALIDÉE. La dupliquer ici serait la laisser diverger.
       achetable:

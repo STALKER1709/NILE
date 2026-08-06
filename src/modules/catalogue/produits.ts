@@ -11,6 +11,7 @@ import {
   type TriProduits,
 } from "@/modules/catalogue/recherche";
 import { getStorageProvider } from "@/modules/stockage";
+import { stocksParProduit } from "@/modules/catalogue/stocks";
 import { enrichirProduitsPourCartes } from "@/modules/promotion/promotion";
 import {
   TYPES_IMAGE_ACCEPTES,
@@ -29,13 +30,27 @@ export function estProprietaire(
 
 // --------------------------------- VENDEUR -----------------------------------
 
+/**
+ * Remplace `Produit.stock` par le stock réel des déclinaisons.
+ *
+ * Le champ de la table produit n'est plus décrémenté à la vente : le laisser
+ * s'afficher ferait croire au vendeur qu'il lui reste de quoi vendre.
+ */
+async function avecStockReel<T extends { id: string; stock: number }>(
+  produits: T[],
+): Promise<T[]> {
+  const stocks = await stocksParProduit(produits.map((p) => p.id));
+  return produits.map((p) => ({ ...p, stock: stocks.get(p.id) ?? 0 }));
+}
+
 /** Catalogue "vivant" d'un vendeur, hors corbeille (SUPPRIME). */
 export async function listerProduitsVendeur(vendeurId: string) {
-  return prisma.produit.findMany({
+  const produits = await prisma.produit.findMany({
     where: { vendeurId, statut: { not: "SUPPRIME" } },
     orderBy: { dateMaj: "desc" },
     include: { images: { orderBy: { ordre: "asc" }, take: 1 }, categorie: true },
   });
+  return avecStockReel(produits);
 }
 
 /**
@@ -71,7 +86,7 @@ export async function rechercherProduitsVendeur(
   ]);
 
   return {
-    produits,
+    produits: await avecStockReel(produits),
     total,
     page,
     pages: Math.max(1, Math.ceil(total / options.parPage)),
@@ -90,24 +105,32 @@ export async function statsInventaireVendeur(vendeurId: string): Promise<{
   valeurStock: number;
   supprimes: number;
 }> {
-  const [total, enLigne, stockFaible, produits, supprimes] = await Promise.all([
+  const [total, enLigne, produits, actifs, supprimes] = await Promise.all([
     prisma.produit.count({ where: { vendeurId, statut: { not: "SUPPRIME" } } }),
     prisma.produit.count({ where: { vendeurId, statut: "ACTIF" } }),
-    prisma.produit.count({ where: { vendeurId, statut: "ACTIF", stock: { lte: 2 } } }),
     // prix * stock n'est pas exprimable en agrégat SQL via Prisma : on ne
-    // récupère que les deux colonnes nécessaires au calcul.
+    // récupère que les colonnes nécessaires au calcul.
     prisma.produit.findMany({
       where: { vendeurId, statut: { not: "SUPPRIME" } },
-      select: { prix: true, stock: true },
+      select: { id: true, prix: true },
+    }),
+    prisma.produit.findMany({
+      where: { vendeurId, statut: "ACTIF" },
+      select: { id: true },
     }),
     prisma.produit.count({ where: { vendeurId, statut: "SUPPRIME" } }),
   ]);
 
+  // Le stock vient des DÉCLINAISONS : compter sur `Produit.stock` annoncerait
+  // au vendeur une valeur d'inventaire figée au jour de la création de ses
+  // articles, et ne signalerait jamais une rupture réelle.
+  const stocks = await stocksParProduit(produits.map((p) => p.id));
+
   return {
     total,
     enLigne,
-    stockFaible,
-    valeurStock: produits.reduce((s, p) => s + p.prix * p.stock, 0),
+    stockFaible: actifs.filter((p) => (stocks.get(p.id) ?? 0) <= 2).length,
+    valeurStock: produits.reduce((s, p) => s + p.prix * (stocks.get(p.id) ?? 0), 0),
     supprimes,
   };
 }
@@ -395,6 +418,9 @@ export const getProduitPublicParSlug = cache(async (slug: string) => {
       images: { orderBy: { ordre: "asc" } },
       vendeur: { select: { id: true, nomBoutique: true } },
       categorie: true,
+      // Les déclinaisons portent le stock et le choix de l'acheteur :
+      // `Produit.stock` n'est plus tenu à jour et ne doit plus être affiché.
+      variantes: { orderBy: [{ valeur1: "asc" }, { valeur2: "asc" }] },
     },
   });
 });

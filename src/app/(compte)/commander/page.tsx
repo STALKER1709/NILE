@@ -9,6 +9,8 @@ import { getPlafondCOD, getPlafondDetteCOD } from "@/modules/commande/config";
 import { codBloqueParDette } from "@/modules/commande/commande-core";
 import { dettesVendeurs } from "@/modules/reversement/reversement";
 import { getDerniereAdresse } from "@/modules/commande/commande";
+import { axesParCategorie } from "@/modules/catalogue/axes";
+import { libelleVariante } from "@/modules/catalogue/variante-core";
 import { paiementSansRedirection } from "@/modules/paiement";
 import { passerCommandeAction } from "@/app/(compte)/commander/actions";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
@@ -39,11 +41,14 @@ export default async function CommanderPage({
   const total = calculerTotal(
     panier.lignes.map((l) => ({ prix: prixEffectif(l.produit.id, l.produit.prix), quantite: l.quantite })),
   );
-  const [plafond, derniere, seuilDette, dettes] = await Promise.all([
+  const [plafond, derniere, seuilDette, dettes, axesParCat] = await Promise.all([
     getPlafondCOD(),
     getDerniereAdresse(utilisateur.id),
     getPlafondDetteCOD(),
     dettesVendeurs([...new Set(panier.lignes.map((l) => l.produit.vendeurId))]),
+    // Sans le nom de la déclinaison, deux lignes du même t-shirt — un M et un
+    // XL — seraient indiscernables sur l'écran où l'acheteur valide.
+    axesParCategorie(panier.lignes.map((l) => l.produit.categorieId)),
   ]);
   const depassePlafond = total > plafond;
   // Articles dont le vendeur doit trop de commission pour continuer à vendre
@@ -238,6 +243,10 @@ export default async function CommanderPage({
               {panier.lignes.map((l) => {
                 const prixLigne = prixEffectif(l.produit.id, l.produit.prix);
                 const enPromo = prixLigne < l.produit.prix;
+                const declinaison = libelleVariante(
+                  l.variante,
+                  axesParCat.get(l.produit.categorieId) ?? [],
+                );
                 return (
                   <li key={l.id} className="flex items-center gap-3 px-5 py-3">
                     <Vignette
@@ -251,7 +260,7 @@ export default async function CommanderPage({
                         {l.produit.titre}
                       </span>
                       <span className="block text-etiquette-xs text-slate-500">
-                        Quantité : {l.quantite}
+                        {declinaison ? `${declinaison} · ` : ""}Quantité : {l.quantite}
                       </span>
                       <span className="flex items-center gap-2">
                         <Prix
