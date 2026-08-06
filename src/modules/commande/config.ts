@@ -23,6 +23,14 @@ export function getMaxCommandesNonAbouties(): Promise<number> {
 }
 
 /**
+ * Dette de commission (FCFA) au-delà de laquelle le paiement à la livraison
+ * est coupé pour un vendeur. 0 désactive le garde-fou.
+ */
+export function getPlafondDetteCOD(): Promise<number> {
+  return lireConfigNombre("cod_dette_plafond_xaf", env.COD_DETTE_PLAFOND_XAF);
+}
+
+/**
  * Commission NILE (en %) prélevée sur les ventes des vendeurs tiers, déduite
  * de leur reversement. La boutique maison n'est pas concernée.
  */

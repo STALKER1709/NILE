@@ -5,7 +5,9 @@ import { getPanierAvecLignes } from "@/modules/commande/panier";
 import { calculerTotal } from "@/modules/commande/commande-core";
 import { chargerAffichagePrixPourProduits } from "@/modules/promotion/promotion";
 import { env } from "@/lib/env";
-import { getPlafondCOD } from "@/modules/commande/config";
+import { getPlafondCOD, getPlafondDetteCOD } from "@/modules/commande/config";
+import { codBloqueParDette } from "@/modules/commande/commande-core";
+import { dettesVendeurs } from "@/modules/reversement/reversement";
 import { getDerniereAdresse } from "@/modules/commande/commande";
 import { paiementSansRedirection } from "@/modules/paiement";
 import { passerCommandeAction } from "@/app/(compte)/commander/actions";
@@ -37,11 +39,21 @@ export default async function CommanderPage({
   const total = calculerTotal(
     panier.lignes.map((l) => ({ prix: prixEffectif(l.produit.id, l.produit.prix), quantite: l.quantite })),
   );
-  const [plafond, derniere] = await Promise.all([
+  const [plafond, derniere, seuilDette, dettes] = await Promise.all([
     getPlafondCOD(),
     getDerniereAdresse(utilisateur.id),
+    getPlafondDetteCOD(),
+    dettesVendeurs([...new Set(panier.lignes.map((l) => l.produit.vendeurId))]),
   ]);
   const depassePlafond = total > plafond;
+  // Articles dont le vendeur doit trop de commission pour continuer à vendre
+  // en espèces. Affiché ici pour que l'acheteur puisse arbitrer avant de
+  // valider ; le refus reste prononcé côté serveur, cet écran ne fait
+  // qu'éviter un aller-retour inutile.
+  const articlesBloquesCOD = panier.lignes
+    .filter((l) => codBloqueParDette(dettes.get(l.produit.vendeurId) ?? 0, seuilDette))
+    .map((l) => l.produit.titre);
+  const codIndisponible = articlesBloquesCOD.length > 0;
   // Le fournisseur actif débite-t-il le téléphone du client sans page de
   // paiement ? Si oui, il faut lui demander son opérateur ici même.
   const sansRedirection = paiementSansRedirection();
@@ -110,24 +122,38 @@ export default async function CommanderPage({
               </svg>
               Mode de paiement
             </h2>
-            <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-              <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond} className="mt-1 accent-nile-700" />
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded bg-surface-haute">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-nile-800" aria-hidden="true">
-                  <rect x="2" y="6" width="20" height="12" rx="2" />
-                  <circle cx="12" cy="12" r="2.5" />
-                </svg>
-              </span>
-              <span className="min-w-0">
-                <span className="block text-etiquette-md text-slate-900">Paiement à la livraison</span>
-                <span className="block text-corps-sm text-slate-500">
-                  Vous payez en espèces à la réception, après vérification du colis.
+            {/* Le message n'apparaît que si l'acheteur choisit réellement le
+                paiement à la livraison : en CSS seul, sans JavaScript, pour
+                qu'il fonctionne aussi sur les navigateurs où les scripts
+                n'ont pas chargé. */}
+            <div className="group space-y-3">
+              <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
+                <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond && !codIndisponible} className="mt-1 accent-nile-700" />
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded bg-surface-haute">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-nile-800" aria-hidden="true">
+                    <rect x="2" y="6" width="20" height="12" rx="2" />
+                    <circle cx="12" cy="12" r="2.5" />
+                  </svg>
                 </span>
-              </span>
-            </label>
+                <span className="min-w-0">
+                  <span className="block text-etiquette-md text-slate-900">Paiement à la livraison</span>
+                  <span className="block text-corps-sm text-slate-500">
+                    Vous payez en espèces à la réception, après vérification du colis.
+                  </span>
+                </span>
+              </label>
+              {codIndisponible && (
+                <p className="hidden rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-xs text-amber-800 group-has-[input[value=COD]:checked]:block">
+                  Le paiement à la livraison n&apos;est pas disponible pour{" "}
+                  <span className="font-semibold">{articlesBloquesCOD.join(", ")}</span>.
+                  Retirez ces articles de votre panier pour payer à la
+                  livraison, ou réglez toute la commande par Mobile Money.
+                </p>
+              )}
+            </div>
 
             <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-              <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond} className="mt-1 accent-nile-700" />
+              <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond || codIndisponible} className="mt-1 accent-nile-700" />
               <span className="flex shrink-0 gap-1.5">
                 <span className="grid h-8 w-8 place-items-center rounded bg-[#ffcb05] text-[10px] font-bold text-black">MTN</span>
                 <span className="grid h-8 w-8 place-items-center rounded bg-[#ff7900] text-[10px] font-bold text-white">OM</span>

@@ -121,6 +121,12 @@ const schema = z
     // Configuration), qui l'emporte alors sur cette variable — voir
     // `modules/commande/config.ts`.
     COMMISSION_POURCENT: z.coerce.number().min(0).max(100).default(12),
+    // Dette de commission (FCFA) au-delà de laquelle un vendeur ne peut plus
+    // vendre en paiement à la livraison — ses produits restent en vente, mais
+    // en Mobile Money seulement. Auto-correcteur : ses ventes suivantes
+    // transitent par NILE, la commission se prélève d'elle-même et la dette
+    // s'éteint. 0 désactive le garde-fou.
+    COD_DETTE_PLAFOND_XAF: z.coerce.number().int().min(0).default(25000),
     COD_MAX_COMMANDES_NON_ABOUTIES: z.coerce
       .number()
       .int()

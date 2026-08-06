@@ -346,3 +346,67 @@ export async function traiterDemandeReversement(
   });
   return { ok: false, code: existe ? "DEJA_TRAITE" : "INTROUVABLE" };
 }
+
+/**
+ * Dette de commission de vendeurs donnés, en FCFA.
+ *
+ * Ciblée sur une liste plutôt que sur tous les vendeurs : c'est appelé au
+ * moment de commander, à chaque passage en caisse. Les vendeurs sans dette
+ * n'apparaissent pas dans le résultat.
+ *
+ * La boutique maison est exemptée de commission, donc jamais endettée : elle
+ * est écartée d'emblée pour ne pas se retrouver bloquée par son propre
+ * garde-fou.
+ */
+export async function dettesVendeurs(
+  vendeurIds: string[],
+): Promise<Map<string, number>> {
+  const dettes = new Map<string, number>();
+  if (vendeurIds.length === 0) return dettes;
+
+  const [taux, vendeurs, ventes, ventesCOD, reversements] = await Promise.all([
+    getTauxCommissionPourcent(),
+    prisma.vendeur.findMany({
+      where: { id: { in: vendeurIds }, estBoutiqueMaison: false },
+      select: { id: true },
+    }),
+    prisma.ligneCommande.groupBy({
+      by: ["vendeurId"],
+      where: { vendeurId: { in: vendeurIds }, ...WHERE_ELIGIBLE },
+      _sum: { sousTotal: true },
+    }),
+    prisma.ligneCommande.groupBy({
+      by: ["vendeurId"],
+      where: { vendeurId: { in: vendeurIds }, ...WHERE_COMMISSIONNABLE_COD },
+      _sum: { sousTotal: true },
+    }),
+    prisma.reversement.groupBy({
+      by: ["vendeurId"],
+      where: { vendeurId: { in: vendeurIds }, statut: "PAYE" },
+      _sum: { montant: true },
+    }),
+  ]);
+
+  const brutPar = new Map(ventes.map((v) => [v.vendeurId, v._sum.sousTotal ?? 0]));
+  const brutCODPar = new Map(
+    ventesCOD.map((v) => [v.vendeurId, v._sum.sousTotal ?? 0]),
+  );
+  const versePar = new Map(
+    reversements.map((r) => [r.vendeurId, r._sum.montant ?? 0]),
+  );
+
+  for (const { id } of vendeurs) {
+    const { dette } = calculerSolde({
+      brut: brutPar.get(id) ?? 0,
+      brutCOD: brutCODPar.get(id) ?? 0,
+      tauxPourcent: taux,
+      dejaReverse: versePar.get(id) ?? 0,
+      // Les demandes en attente ne sont pas déduites ici : elles réduisent le
+      // disponible, pas le dû. Les compter gonflerait artificiellement la
+      // dette et couperait le COD à un vendeur qui ne doit rien.
+      exempteCommission: false,
+    });
+    if (dette > 0) dettes.set(id, dette);
+  }
+  return dettes;
+}

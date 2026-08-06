@@ -3,6 +3,7 @@ import {
   calculerTotal,
   stockSuffisant,
   evaluerCommandeCOD,
+  codBloqueParDette,
 } from "@/modules/commande/commande-core";
 
 describe("calculerTotal", () => {
@@ -50,5 +51,25 @@ describe("evaluerCommandeCOD (garde-fous)", () => {
     expect(
       evaluerCommandeCOD({ ...base, total: 999999, compteurNonAbouti: 5 }),
     ).toBe("TROP_COMMANDES_NON_ABOUTIES");
+  });
+});
+
+describe("codBloqueParDette", () => {
+  it("coupe le COD une fois le seuil atteint", () => {
+    expect(codBloqueParDette(25000, 25000)).toBe(true);
+    expect(codBloqueParDette(30000, 25000)).toBe(true);
+  });
+
+  it("laisse passer en dessous du seuil", () => {
+    expect(codBloqueParDette(24999, 25000)).toBe(false);
+    expect(codBloqueParDette(0, 25000)).toBe(false);
+  });
+
+  it("est désactivé par un seuil nul ou négatif", () => {
+    // Sans cette échappatoire, une configuration à zéro couperait le COD à
+    // tout le monde, y compris aux vendeurs sans la moindre dette.
+    expect(codBloqueParDette(50000, 0)).toBe(false);
+    expect(codBloqueParDette(0, 0)).toBe(false);
+    expect(codBloqueParDette(50000, -1)).toBe(false);
   });
 });

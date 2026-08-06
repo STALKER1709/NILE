@@ -18,6 +18,8 @@ function messageCommande(res: Extract<ResultatCommande, { ok: false }>): string 
       return "Votre panier est vide.";
     case "PLAFOND_DEPASSE":
       return "Le montant dépasse le plafond autorisé pour le paiement à la livraison.";
+    case "COD_INDISPONIBLE_VENDEUR":
+      return `Le paiement à la livraison n'est pas disponible pour « ${res.detail ?? "certains articles"} ». Retirez-les de votre panier, ou réglez la commande par Mobile Money.`;
     case "TROP_COMMANDES_NON_ABOUTIES":
       return "Trop de commandes non abouties sur votre compte. Contactez le support.";
     case "STOCK_INSUFFISANT":

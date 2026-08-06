@@ -2,9 +2,14 @@ import { randomBytes } from "node:crypto";
 import { Prisma, type ModePaiement } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
-import { calculerTotal, evaluerCommandeCOD } from "@/modules/commande/commande-core";
+import {
+  calculerTotal,
+  evaluerCommandeCOD,
+  codBloqueParDette,
+} from "@/modules/commande/commande-core";
 import {
   getPlafondCOD,
+  getPlafondDetteCOD,
   getMaxCommandesNonAbouties,
 } from "@/modules/commande/config";
 import { getPaymentProvider } from "@/modules/paiement";
@@ -15,6 +20,7 @@ import {
   notifierPushStatutAcheteur,
 } from "@/modules/push/push";
 import { resoudrePrixEffectifTx } from "@/modules/promotion/promotion";
+import { dettesVendeurs } from "@/modules/reversement/reversement";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
 type CodeErreurCommande =
@@ -40,6 +46,7 @@ export type ResultatCommande =
       code:
         | "PANIER_VIDE"
         | "PLAFOND_DEPASSE"
+        | "COD_INDISPONIBLE_VENDEUR"
         | "TROP_COMMANDES_NON_ABOUTIES"
         | "STOCK_INSUFFISANT"
         | "INDISPONIBLE"
@@ -110,6 +117,29 @@ export async function passerCommande(
     if (decision === "PLAFOND_DEPASSE") return { ok: false, code: "PLAFOND_DEPASSE" };
     if (decision === "TROP_COMMANDES_NON_ABOUTIES") {
       return { ok: false, code: "TROP_COMMANDES_NON_ABOUTIES" };
+    }
+
+    // Vendeurs dont la dette de commission dépasse le seuil : leurs articles
+    // ne peuvent plus partir en paiement à la livraison. Vérifié ICI, côté
+    // serveur : l'écran de commande masque déjà l'option, mais un formulaire
+    // forgé la repasserait sans cela.
+    const [seuilDette, dettes] = await Promise.all([
+      getPlafondDetteCOD(),
+      dettesVendeurs([
+        ...new Set(panier.lignes.map((l) => l.produit.vendeurId)),
+      ]),
+    ]);
+    const bloquants = panier.lignes.filter((l) =>
+      codBloqueParDette(dettes.get(l.produit.vendeurId) ?? 0, seuilDette),
+    );
+    if (bloquants.length > 0) {
+      return {
+        ok: false,
+        code: "COD_INDISPONIBLE_VENDEUR",
+        // Les titres servent à nommer les articles à retirer : sans eux,
+        // l'acheteur ne saurait pas lesquels posent problème.
+        detail: bloquants.map((l) => l.produit.titre).join(", "),
+      };
     }
   }
 
