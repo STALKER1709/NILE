@@ -4,6 +4,7 @@ import "./globals.css";
 import { env } from "@/lib/env";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { compterArticlesAffiches } from "@/modules/commande/panier-invite";
+import { compterFavoris } from "@/modules/catalogue/favoris";
 import { listerCategories } from "@/modules/catalogue/categories";
 import { Entete } from "@/components/layout/Entete";
 import { PiedDePage } from "@/components/layout/PiedDePage";
@@ -62,7 +63,11 @@ export default async function RootLayout({
     getUtilisateurCourant(),
     listerCategories(),
   ]);
-  const nbArticles = await compterArticlesAffiches(utilisateur?.id ?? null);
+  const [nbArticles, nbFavoris] = await Promise.all([
+    compterArticlesAffiches(utilisateur?.id ?? null),
+    // Zéro pour un visiteur : sans compte, il n'y a pas de liste de souhaits.
+    compterFavoris(utilisateur?.id ?? null),
+  ]);
   const rayons = categories
     .filter((c) => !c.parentId)
     .slice(0, 10)
@@ -78,6 +83,7 @@ export default async function RootLayout({
             utilisateur ? { nom: utilisateur.nom, role: utilisateur.role } : null
           }
           nbArticles={nbArticles}
+          nbFavoris={nbFavoris}
           categories={rayons}
         />
         {/* pb-24 : laisse la place à la barre de navigation mobile fixe */}
@@ -85,7 +91,11 @@ export default async function RootLayout({
           {children}
         </main>
         <PiedDePage />
-        <NavMobile connecte={!!utilisateur} nbArticles={nbArticles} />
+        <NavMobile
+          connecte={!!utilisateur}
+          nbArticles={nbArticles}
+          nbFavoris={nbFavoris}
+        />
         {env.CONTACT_WHATSAPP && <BulleWhatsApp numero={env.CONTACT_WHATSAPP} />}
         <RetourHaut />
       </body>

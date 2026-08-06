@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Role } from "@prisma/client";
 import { deconnexionAction } from "@/app/(auth)/actions";
 import { BadgePanier } from "@/components/panier/BadgePanier";
+import { BadgeFavoris } from "@/components/produit/BadgeFavoris";
 import { BarreRecherche } from "@/components/layout/BarreRecherche";
 import { NavPrincipale } from "@/components/layout/NavPrincipale";
 
@@ -11,10 +12,14 @@ import type { LienCategorie } from "@/components/layout/NavPrincipale";
 export function Entete({
   utilisateur,
   nbArticles,
+  nbFavoris,
   categories,
 }: {
   utilisateur: { nom: string; role: Role } | null;
   nbArticles: number;
+  /** Articles mis de côté. Non affiché aux visiteurs : sans compte, il n'y a
+      pas de liste de souhaits. */
+  nbFavoris: number;
   categories: LienCategorie[];
 }) {
   return (
@@ -38,6 +43,7 @@ export function Entete({
                   <span className="block text-[10px] text-white/60">Bonjour, {utilisateur.nom.split(" ")[0]}</span>
                   <span className="block font-semibold">Compte &amp; commandes</span>
                 </Link>
+                <LienFavoris nb={nbFavoris} />
                 <LienPanier nb={nbArticles} />
                 <form action={deconnexionAction} className="hidden sm:block">
                   <button type="submit" className="rounded px-2.5 py-2 text-xs font-medium text-white/70 transition-colors hover:bg-white/10 hover:text-white">
@@ -72,6 +78,29 @@ export function Entete({
       {/* Barre de navigation principale (rayons + destinations clés) */}
       <NavPrincipale categories={categories} />
     </header>
+  );
+}
+
+/**
+ * Accès à la liste de souhaits, réservé aux personnes connectées : sans
+ * compte, il n'y a nulle part où l'enregistrer.
+ */
+function LienFavoris({ nb }: { nb: number }) {
+  return (
+    <Link
+      href="/favoris"
+      aria-label="Mes favoris"
+      className="relative flex items-center gap-1.5 rounded px-2 py-2 hover:bg-white/10"
+    >
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round">
+        <path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 0 1 19.8 13z" />
+      </svg>
+      <span className="hidden text-sm font-semibold lg:inline">Favoris</span>
+      <BadgeFavoris
+        initial={nb}
+        className="absolute left-4 top-0.5 grid h-5 min-w-[1.25rem] place-items-center rounded-full bg-accent px-1 text-[11px] font-bold text-nile-950"
+      />
+    </Link>
   );
 }
 

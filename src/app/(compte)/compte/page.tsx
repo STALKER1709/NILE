@@ -3,6 +3,7 @@ import { exigerConnexion } from "@/modules/auth/access";
 import { prisma } from "@/lib/db";
 import { deconnexionAction } from "@/app/(auth)/actions";
 import { statsAcheteur } from "@/modules/stats/stats";
+import { compterFavoris } from "@/modules/catalogue/favoris";
 import { listerCommandesAcheteur } from "@/modules/commande/commande";
 import { env } from "@/lib/env";
 import { ActiverNotifications } from "@/components/push/ActiverNotifications";
@@ -23,12 +24,13 @@ export default async function ComptePage({
 }) {
   const { ok } = await searchParams;
   const utilisateur = await exigerConnexion();
-  const [vendeur, stats, toutesCommandes] = await Promise.all([
+  const [vendeur, stats, toutesCommandes, nbFavoris] = await Promise.all([
     utilisateur.role === "VENDEUR"
       ? prisma.vendeur.findUnique({ where: { utilisateurId: utilisateur.id } })
       : Promise.resolve(null),
     statsAcheteur(utilisateur.id),
     listerCommandesAcheteur(utilisateur.id),
+    compterFavoris(utilisateur.id),
   ]);
   const recentes = toutesCommandes.slice(0, 4);
 
@@ -167,7 +169,7 @@ export default async function ComptePage({
                 <path d="M3 9h18l-1.5 10.5A2 2 0 0 1 17.5 21h-11a2 2 0 0 1-2-1.5L3 9z" strokeLinejoin="round" />
                 <path d="M8 9a4 4 0 0 1 8 0" />
               </LigneReglage>
-              <LigneReglage href="/favoris" libelle="Mes favoris">
+              <LigneReglage href="/favoris" libelle="Mes favoris" valeur={nbFavoris > 0 ? String(nbFavoris) : undefined}>
                 <path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 0 1 19.8 13z" strokeLinejoin="round" />
               </LigneReglage>
               <LigneReglage href="/panier" libelle="Mon panier">
@@ -259,10 +261,13 @@ function LigneReglage({
   href,
   libelle,
   children,
+  valeur,
 }: {
   href: string;
   libelle: string;
   children: React.ReactNode;
+  /** Compteur affiché avant le chevron (nombre de favoris, par exemple). */
+  valeur?: string;
 }) {
   return (
     <Link
@@ -275,9 +280,16 @@ function LigneReglage({
         </svg>
         <span className="text-sm font-semibold text-slate-800">{libelle}</span>
       </span>
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-slate-300" aria-hidden="true">
-        <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
+      <span className="flex shrink-0 items-center gap-2">
+        {valeur && (
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold text-slate-600">
+            {valeur}
+          </span>
+        )}
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0 text-slate-300" aria-hidden="true">
+          <path d="m9 18 6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </span>
     </Link>
   );
 }

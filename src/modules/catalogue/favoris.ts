@@ -12,6 +12,16 @@ import { prisma } from "@/lib/db";
  * Un favori ne réserve aucun stock et n'engage personne.
  */
 
+/**
+ * Nombre d'articles affichés dans la liste de souhaits.
+ *
+ * Borné : la page charge pour chaque favori son produit, ses images, ses
+ * déclinaisons et sa boutique, et une liste sans limite finirait par mettre
+ * une minute à s'afficher sur une connexion mobile. Au-delà, la page le dit
+ * plutôt que de tronquer en silence.
+ */
+export const LIMITE_FAVORIS = 100;
+
 export type ResultatFavori =
   | { ok: true; enFavori: boolean }
   | { ok: false; code: "INTROUVABLE" };
@@ -105,7 +115,7 @@ export async function listerFavoris(utilisateurId: string) {
   const favoris = await prisma.favori.findMany({
     where: { utilisateurId },
     orderBy: { dateCreation: "desc" },
-    take: 100,
+    take: LIMITE_FAVORIS,
     include: {
       produit: {
         include: {
