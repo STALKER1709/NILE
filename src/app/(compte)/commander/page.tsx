@@ -179,6 +179,31 @@ export default async function CommanderPage({
                 note="À renseigner seulement si vous payez par Mobile Money. Gardez votre téléphone à portée : la demande expire au bout de 10 minutes sans confirmation."
               />
             )}
+            {/* Code promo. Le montant de la remise n'est PAS calculé ici :
+                il est établi au moment d'enregistrer la commande, sur le total
+                recalculé côté serveur. Afficher un montant ici obligerait à le
+                recalculer deux fois, et à répondre du désaccord entre les deux.
+                Les codes ne valent qu'en Mobile Money — NILE ne remise que
+                l'argent qui transite par elle. */}
+            <div className="border-t border-contour-carte pt-3">
+              <label htmlFor="codePromo" className="block text-etiquette-md text-slate-900">
+                Code promo <span className="font-normal text-slate-500">(facultatif)</span>
+              </label>
+              <input
+                id="codePromo"
+                name="codePromo"
+                type="text"
+                autoCapitalize="characters"
+                autoComplete="off"
+                placeholder="Ex. BIENVENUE10"
+                className="mt-1.5 w-full rounded border border-contour-carte px-3 py-2.5 text-corps-sm uppercase placeholder:normal-case placeholder:text-slate-400 focus:border-nile-700 focus:outline-none"
+              />
+              <p className="mt-1 text-etiquette-xs text-slate-500">
+                Valable uniquement avec un paiement Mobile Money. La remise
+                s&apos;applique au moment de la validation.
+              </p>
+            </div>
+
             {depassePlafond && (
               <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-xs text-amber-800">
                 Le total dépasse le plafond du paiement à la livraison (<Prix montant={plafond} />).

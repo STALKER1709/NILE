@@ -12,12 +12,40 @@ import { resoudreVille } from "@/modules/commande/villes";
 
 const modeSchema = z.enum(["COD", "MONETBIL"]);
 
+/**
+ * Motif de refus d'un code promo, en clair.
+ *
+ * Un code inconnu et un code désactivé donnent le même message : les
+ * distinguer permettrait de découvrir quels codes existent en les essayant au
+ * hasard. Les autres motifs sont explicites — l'acheteur doit pouvoir corriger.
+ */
+function messageCodePromo(raison?: string): string {
+  switch (raison) {
+    case "EXPIRE":
+      return "Ce code promo a expiré.";
+    case "PAS_ENCORE_ACTIF":
+      return "Ce code promo n'est pas encore actif.";
+    case "QUOTA_ATTEINT":
+      return "Ce code promo a atteint son nombre maximum d'utilisations.";
+    case "DEJA_UTILISE":
+      return "Vous avez déjà utilisé ce code promo.";
+    case "PANIER_INSUFFISANT":
+      return "Votre panier n'atteint pas le minimum exigé par ce code promo.";
+    case "MODE_PAIEMENT":
+      return "Ce code promo n'est valable qu'avec un paiement Mobile Money.";
+    default:
+      return "Ce code promo est invalide.";
+  }
+}
+
 function messageCommande(res: Extract<ResultatCommande, { ok: false }>): string {
   switch (res.code) {
     case "PANIER_VIDE":
       return "Votre panier est vide.";
     case "PLAFOND_DEPASSE":
       return "Le montant dépasse le plafond autorisé pour le paiement à la livraison.";
+    case "CODE_PROMO_REFUSE":
+      return messageCodePromo(res.detail);
     case "COD_INDISPONIBLE_VENDEUR":
       return `Le paiement à la livraison n'est pas disponible pour « ${res.detail ?? "certains articles"} ». Retirez-les de votre panier, ou réglez la commande par Mobile Money.`;
     case "TROP_COMMANDES_NON_ABOUTIES":
@@ -79,6 +107,7 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
   const base = await urlDeBase();
   const res = await passerCommande(utilisateur.id, parsed.data, {
     mode,
+    codePromo: formData.get("codePromo")?.toString() ?? null,
     urlRetour: `${base}/commandes`,
     urlNotification: `${base}/api/paiement/callback`,
     emailAcheteur: utilisateur.email,

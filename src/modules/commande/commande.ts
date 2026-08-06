@@ -20,6 +20,7 @@ import {
   notifierPushStatutAcheteur,
 } from "@/modules/push/push";
 import { resoudrePrixEffectifTx } from "@/modules/promotion/promotion";
+import { consommerCodeTx, ErreurCodePromo } from "@/modules/promotion/code-promo";
 import { dettesVendeurs } from "@/modules/reversement/reversement";
 import type { AdresseLivraisonInput } from "@/validators/commande";
 
@@ -47,6 +48,7 @@ export type ResultatCommande =
         | "PANIER_VIDE"
         | "PLAFOND_DEPASSE"
         | "COD_INDISPONIBLE_VENDEUR"
+        | "CODE_PROMO_REFUSE"
         | "TROP_COMMANDES_NON_ABOUTIES"
         | "STOCK_INSUFFISANT"
         | "INDISPONIBLE"
@@ -57,6 +59,8 @@ export type ResultatCommande =
 
 export interface OptionsPaiement {
   mode: ModePaiement;
+  /** Code promo saisi par l'acheteur, tel quel. Normalisé plus bas. */
+  codePromo?: string | null;
   // URLs absolues construites par la couche action (à partir des en-têtes).
   urlRetour: string;
   urlNotification: string;
@@ -158,17 +162,30 @@ export async function passerCommande(
         options.mode,
         statutInitial,
         plafond,
+        options.codePromo ?? null,
       );
       break;
     } catch (erreur) {
       if (erreur instanceof ErreurCommande) {
         return { ok: false, code: erreur.code, detail: erreur.detail };
       }
-      const collisionNumero =
+      if (erreur instanceof ErreurCodePromo) {
+        return { ok: false, code: "CODE_PROMO_REFUSE", detail: erreur.raison };
+      }
+      // Collision sur le NUMÉRO de commande uniquement. La cible est vérifiée :
+      // depuis les codes promo, une autre contrainte d'unicité peut échouer
+      // dans cette transaction (un acheteur qui rejoue le même code), et la
+      // rejouer à l'identique échouerait autant de fois.
+      const cible = 
         erreur instanceof Prisma.PrismaClientKnownRequestError &&
-        erreur.code === "P2002" &&
-        tentative < 2;
-      if (collisionNumero) continue;
+        erreur.code === "P2002"
+          ? JSON.stringify(erreur.meta?.target ?? "")
+          : "";
+      if (cible.includes("numero") && tentative < 2) continue;
+      // Même code déjà consommé par cet acheteur : la base a tranché.
+      if (cible.includes("codePromoId") || cible.includes("commandeId")) {
+        return { ok: false, code: "CODE_PROMO_REFUSE", detail: "DEJA_UTILISE" };
+      }
       console.error("Erreur passerCommande:", erreur);
       return { ok: false, code: "ERREUR" };
     }
@@ -235,6 +252,7 @@ async function creerCommandeTransaction(
   mode: ModePaiement,
   statutInitial: "CONFIRMEE" | "EN_ATTENTE",
   plafond: number,
+  codeSaisi: string | null,
 ): Promise<{ commandeId: string; numero: string; paiementId: string; total: number }> {
   return prisma.$transaction(async (tx) => {
     const panier = await tx.panier.findUniqueOrThrow({
@@ -283,6 +301,21 @@ async function creerCommandeTransaction(
 
     if (total > plafond) throw new ErreurCommande("PLAFOND_DEPASSE");
 
+    // Code promo évalué et consommé SOUS LA MÊME TRANSACTION, sur le total
+    // recalculé ici — jamais sur celui affiché au panier, qui a pu changer
+    // depuis (promotion vendeur expirée, prix modifié).
+    const promo = await consommerCodeTx(tx, {
+      saisie: codeSaisi,
+      utilisateurId,
+      totalPanier: total,
+      modePaiement: mode,
+    });
+    const remise = promo?.remise ?? 0;
+    // Le total payé est net de remise ; les `sousTotal` des lignes restent au
+    // prix plein. C'est ce qui fait porter la remise à NILE et non au vendeur :
+    // reversement et commission se calculent sur les lignes.
+    const totalPaye = total - remise;
+
     const statutCash = mode === "COD" ? "NON_COLLECTE" : "NON_APPLICABLE";
     const commande = await tx.commande.create({
       data: {
@@ -291,7 +324,9 @@ async function creerCommandeTransaction(
         statutCommande: statutInitial,
         statutPaiement: "EN_ATTENTE",
         modePaiement: mode,
-        total,
+        total: totalPaye,
+        remise,
+        codePromo: promo?.code ?? null,
         destNom: adresse.destNom,
         destTelephone: adresse.destTelephone,
         ville: adresse.ville,
@@ -301,8 +336,27 @@ async function creerCommandeTransaction(
         livraison: { create: { statut: "EN_ATTENTE", statutCash } },
       },
     });
+    if (promo) {
+      // Consigne l'utilisation DANS la même transaction. L'unicité
+      // (code, acheteur) est portée par la base : si l'acheteur a déjà
+      // consommé ce code, l'insertion échoue et toute la commande est annulée
+      // — c'est la garantie qui tient même quand deux commandes partent
+      // simultanément.
+      await tx.utilisationCodePromo.create({
+        data: {
+          codePromoId: promo.codePromoId,
+          utilisateurId,
+          commandeId: commande.id,
+          remise,
+        },
+      });
+    }
+
     const paiement = await tx.paiement.create({
-      data: { commandeId: commande.id, mode, montant: total, statut: "EN_ATTENTE" },
+      // Le montant du paiement est ce que l'acheteur règle RÉELLEMENT : c'est
+      // lui qui part chez l'agrégateur. Y laisser le total brut ferait payer
+      // la remise à l'acheteur.
+      data: { commandeId: commande.id, mode, montant: totalPaye, statut: "EN_ATTENTE" },
     });
 
     await tx.lignePanier.deleteMany({ where: { panierId: panier.id } });
@@ -310,7 +364,7 @@ async function creerCommandeTransaction(
       commandeId: commande.id,
       numero: commande.numero,
       paiementId: paiement.id,
-      total,
+      total: totalPaye,
     };
   });
 }
