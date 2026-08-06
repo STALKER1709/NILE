@@ -144,6 +144,11 @@ export async function creerProduit(
       stock: input.stock,
       marque: input.marque,
       statut: "BROUILLON",
+      // Déclinaison par défaut, SANS laquelle le produit serait invendable :
+      // le panier et la commande ne connaissent plus que les déclinaisons, et
+      // un produit qui n'en a aucune ne peut pas être ajouté. Ses deux axes
+      // sont vides tant que le vendeur n'a pas décliné son article.
+      variantes: { create: { valeur1: "", valeur2: "", stock: input.stock } },
     },
   });
 }
@@ -179,6 +184,18 @@ export async function mettreAJourProduit(
       marque: input.marque,
       categorieId: input.categorieId,
     },
+  });
+
+  // Le champ « stock » du formulaire alimente la déclinaison PAR DÉFAUT, seule
+  // lue à la vente. Sans cette écriture, le vendeur modifierait un chiffre que
+  // plus personne ne consulte.
+  //
+  // `updateMany` filtré sur les deux axes vides : un produit réellement décliné
+  // n'a pas de déclinaison par défaut, aucune ligne n'est donc touchée — ses
+  // stocks se gèrent déclinaison par déclinaison, pas par un champ unique.
+  await prisma.varianteProduit.updateMany({
+    where: { produitId, valeur1: "", valeur2: "" },
+    data: { stock: input.stock },
   });
   return { ok: true };
 }
