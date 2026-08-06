@@ -9,6 +9,10 @@ import {
   reprendrePaiement,
 } from "@/modules/commande/commande";
 import { racheterCommande } from "@/modules/commande/rachat";
+import {
+  signatureCommandesAcheteur,
+  signatureCommandeAcheteur,
+} from "@/modules/commande/signature";
 import { confirmerReceptionAcheteur } from "@/modules/livraison/livraison";
 import { paiementSansRedirection } from "@/modules/paiement";
 import { rafraichirPaiementCommande } from "@/modules/paiement/suivi";
@@ -138,4 +142,22 @@ export async function rafraichirPaiementAction(
   // 10 s pour rien coûterait de la data mobile à l'acheteur.
   if (termine) revalidatePath(`/commandes/${commandeId}`);
   return { termine };
+}
+
+/**
+ * Signature des commandes de l'acheteur connecté.
+ *
+ * Interrogée périodiquement par l'écran de suivi, elle ne renvoie que quelques
+ * octets : la page n'est rechargée que lorsqu'un statut a réellement bougé.
+ * L'identité vient de la session, jamais du navigateur.
+ */
+export async function signatureCommandesAction(): Promise<string> {
+  const utilisateur = await exigerConnexion();
+  return signatureCommandesAcheteur(utilisateur.id);
+}
+
+/** Signature d'UNE commande de l'acheteur connecté. */
+export async function signatureCommandeAction(commandeId: string): Promise<string> {
+  const utilisateur = await exigerConnexion();
+  return signatureCommandeAcheteur(utilisateur.id, commandeId);
 }

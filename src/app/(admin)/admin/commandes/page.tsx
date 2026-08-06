@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { RafraichirSiChange } from "@/components/ui/RafraichirSiChange";
+import { signatureCommandesAdmin } from "@/modules/commande/signature";
+import { signatureCommandesAdminAction } from "@/app/(admin)/admin/commandes/actions";
 import { exigerRole } from "@/modules/auth/access";
 import { listerToutesCommandes } from "@/modules/admin/commandes";
 import { Carte, Prix, EtatVide } from "@/components/ui/kit";
@@ -11,10 +14,14 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminCommandesPage() {
   await exigerRole("ADMIN");
-  const commandes = await listerToutesCommandes();
+  const [commandes, signature] = await Promise.all([
+    listerToutesCommandes(),
+    signatureCommandesAdmin(),
+  ]);
 
   return (
     <div className="space-y-5">
+      <RafraichirSiChange signature={signature} lire={signatureCommandesAdminAction} />
       <div className="flex items-center justify-between">
         <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Commandes & livraisons</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>

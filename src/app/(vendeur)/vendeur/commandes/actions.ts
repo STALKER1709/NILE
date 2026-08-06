@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { signatureCommandesVendeur } from "@/modules/commande/signature";
 import { exigerVendeur } from "@/modules/auth/access";
 import { vendeurGereCommande } from "@/modules/commande/vendeur";
 import { affectationSchema } from "@/validators/livraison";
@@ -112,4 +113,15 @@ export async function remettreVendeurAction(formData: FormData): Promise<void> {
     redirect(`/vendeur/commandes?erreur=${encodeURIComponent(msg)}`);
   }
   redirect("/vendeur/commandes?ok=livree");
+}
+
+/**
+ * Signature des commandes contenant au moins un article de ce vendeur.
+ *
+ * Quelques octets par appel : l'écran ne se recharge que lorsqu'un statut a
+ * bougé. Le vendeur est identifié par sa session.
+ */
+export async function signatureCommandesVendeurAction(): Promise<string> {
+  const { vendeur } = await exigerVendeur();
+  return signatureCommandesVendeur(vendeur.id);
 }

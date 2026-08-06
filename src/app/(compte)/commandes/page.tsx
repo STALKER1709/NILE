@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { RafraichirSiChange } from "@/components/ui/RafraichirSiChange";
+import { signatureCommandesAcheteur } from "@/modules/commande/signature";
+import { signatureCommandesAction } from "@/app/(compte)/commandes/actions";
 import { exigerConnexion } from "@/modules/auth/access";
 import { listerCommandesAcheteur } from "@/modules/commande/commande";
 import { Carte, Prix, EtatVide, btn } from "@/components/ui/kit";
@@ -15,9 +18,20 @@ export const metadata = { title: "Mes commandes" };
 export default async function MesCommandesPage() {
   const utilisateur = await exigerConnexion();
   const commandes = await listerCommandesAcheteur(utilisateur.id);
+  const signature = await signatureCommandesAcheteur(utilisateur.id);
+  // Rien ne bougera plus si toutes les commandes sont dans un état terminal :
+  // inutile d'interroger le serveur pour l'apprendre.
+  const enCours = commandes.some(
+    (c) => !["LIVREE", "ANNULEE", "REFUSEE"].includes(c.statutCommande),
+  );
 
   return (
     <div className="space-y-5">
+      <RafraichirSiChange
+        signature={signature}
+        lire={signatureCommandesAction}
+        actif={enCours}
+      />
       <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mes commandes</h1>
 
       {commandes.length === 0 ? (

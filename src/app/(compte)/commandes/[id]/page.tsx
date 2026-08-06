@@ -1,4 +1,7 @@
 import Link from "next/link";
+import { RafraichirSiChange } from "@/components/ui/RafraichirSiChange";
+import { signatureCommandeAcheteur } from "@/modules/commande/signature";
+import { signatureCommandeAction } from "@/app/(compte)/commandes/actions";
 import { notFound } from "next/navigation";
 import { exigerConnexion } from "@/modules/auth/access";
 import { getCommandeAcheteur } from "@/modules/commande/commande";
@@ -96,6 +99,11 @@ export default async function DetailCommandePage({
   // dernière étape est FAITE, pas « en cours ». Le parcours s'arrête là.
   const parcoursAcheve = commande.statutCommande === "LIVREE";
   const alerte = ok ? ALERTES[ok] : undefined;
+  const signature = await signatureCommandeAcheteur(utilisateur.id, id);
+  // Pendant l'attente d'un paiement Mobile Money, c'est `SuiviPaiement` qui
+  // interroge le fournisseur toutes les 10 s : le suivi générique ferait
+  // double emploi. Une fois la commande terminée, plus rien ne bouge.
+  const suivreStatut = !paiementARelancer && !termine && commande.statutCommande !== "LIVREE";
   // Étape effectivement atteinte (repli sur la première si statut hors frise).
   const etapeAffichee = ETAPES[Math.max(etapeCourante, 0)] ?? ETAPES[0];
   // Nombre d'unités commandées, pas de lignes : 2 exemplaires = 2 articles.
@@ -174,6 +182,14 @@ export default async function DetailCommandePage({
           dès la confirmation ») : le webhook du fournisseur peut ne jamais
           arriver, on redemande donc le statut nous-mêmes. */}
       {paiementARelancer && <SuiviPaiement commandeId={commande.id} />}
+      {suivreStatut && (
+        <RafraichirSiChange
+          signature={signature}
+          // `.bind` et non une closure : une fonction anonyme ne franchit pas
+          // la frontière serveur/client, seule une action liée le peut.
+          lire={signatureCommandeAction.bind(null, commande.id)}
+        />
+      )}
       {erreur && (
         <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}

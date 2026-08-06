@@ -1,6 +1,7 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { signatureCommandesAdmin } from "@/modules/commande/signature";
 import { exigerRole } from "@/modules/auth/access";
 import { affectationSchema, forcageLivraisonSchema } from "@/validators/livraison";
 import {
@@ -102,4 +103,10 @@ export async function ajouterPreuveAction(formData: FormData): Promise<void> {
     contenu: Buffer.from(await brut.arrayBuffer()),
   };
   retour(id, await ajouterPreuve(id, fichier), "preuve");
+}
+
+/** Signature de toutes les commandes, pour le rafraîchissement du back-office. */
+export async function signatureCommandesAdminAction(): Promise<string> {
+  await exigerRole("ADMIN");
+  return signatureCommandesAdmin();
 }
