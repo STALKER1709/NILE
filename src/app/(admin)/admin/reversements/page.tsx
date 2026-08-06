@@ -172,11 +172,23 @@ export default async function ReversementsPage({
               </div>
 
               <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
-                <Info label="Ventes livrées & payées" montant={v.brut} />
+                <Info label="Ventes Mobile Money" montant={v.brut} />
+                <Info label="Ventes à la livraison" montant={v.brutCOD} />
                 <Info label={`Commission (${v.tauxPourcent} %)`} montant={v.commission} negatif />
                 <Info label="Net vendeur" montant={v.net} />
                 <Info label="Déjà reversé" montant={v.dejaReverse} />
               </dl>
+
+              {v.dette > 0 && (
+                /* La commission de ses ventes en espèces dépasse ce que NILE
+                   détient pour lui : c'est une créance, qui s'épongera sur ses
+                   prochaines ventes Mobile Money — ou pas, s'il n'en fait plus. */
+                <p className="mt-2 rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+                  Doit à NILE : <Prix montant={v.dette} /> — commission de ventes
+                  payées à la livraison, non couverte par ses encaissements
+                  Mobile Money.
+                </p>
+              )}
 
               {v.solde > 0 && (
                 <form

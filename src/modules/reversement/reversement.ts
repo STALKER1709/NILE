@@ -23,6 +23,23 @@ const WHERE_ELIGIBLE = {
   },
 } as const;
 
+/**
+ * Lignes réglées en espèces à la livraison, abouties elles aussi.
+ *
+ * Elles n'entrent PAS dans le montant reversable — le vendeur a déjà encaissé
+ * — mais elles entrent dans l'assiette de commission : la vente a bien eu lieu
+ * sur NILE. La commission correspondante est retenue sur les reversements
+ * Mobile Money du même vendeur, faute de pouvoir la prélever sur des espèces
+ * que la plateforme ne touche jamais.
+ */
+const WHERE_COMMISSIONNABLE_COD = {
+  commande: {
+    statutCommande: "LIVREE",
+    statutPaiement: "PAYE",
+    modePaiement: "COD",
+  },
+} as const;
+
 export interface SoldeVendeur extends CalculSolde {
   vendeurId: string;
   nomBoutique: string;
@@ -36,7 +53,7 @@ export interface SoldeVendeur extends CalculSolde {
  * chiffre appartient déjà à la plateforme). Trié par solde décroissant.
  */
 export async function listerSoldesVendeurs(): Promise<SoldeVendeur[]> {
-  const [taux, vendeurs, ventes, reversements] = await Promise.all([
+  const [taux, vendeurs, ventes, ventesCOD, reversements] = await Promise.all([
     getTauxCommissionPourcent(),
     prisma.vendeur.findMany({
       where: { estBoutiqueMaison: false },
@@ -52,6 +69,11 @@ export async function listerSoldesVendeurs(): Promise<SoldeVendeur[]> {
       where: WHERE_ELIGIBLE,
       _sum: { sousTotal: true },
     }),
+    prisma.ligneCommande.groupBy({
+      by: ["vendeurId"],
+      where: WHERE_COMMISSIONNABLE_COD,
+      _sum: { sousTotal: true },
+    }),
     prisma.reversement.groupBy({
       by: ["vendeurId", "statut"],
       _sum: { montant: true },
@@ -59,6 +81,9 @@ export async function listerSoldesVendeurs(): Promise<SoldeVendeur[]> {
   ]);
 
   const brutPar = new Map(ventes.map((v) => [v.vendeurId, v._sum.sousTotal ?? 0]));
+  const brutCODPar = new Map(
+    ventesCOD.map((v) => [v.vendeurId, v._sum.sousTotal ?? 0]),
+  );
   // Payé et en attente sont comptés séparément : seul le premier est sorti
   // des caisses, le second n'est qu'une réservation.
   const versePar = new Map<string, number>();
@@ -77,6 +102,7 @@ export async function listerSoldesVendeurs(): Promise<SoldeVendeur[]> {
       tauxPourcent: taux,
       ...calculerSolde({
         brut: brutPar.get(v.id) ?? 0,
+        brutCOD: brutCODPar.get(v.id) ?? 0,
         tauxPourcent: taux,
         dejaReverse: versePar.get(v.id) ?? 0,
         enAttente: attentePar.get(v.id) ?? 0,
@@ -96,10 +122,14 @@ export async function getSoldeVendeur(
   });
   if (!vendeur) return null;
 
-  const [taux, ventes, verse, attente] = await Promise.all([
+  const [taux, ventes, ventesCOD, verse, attente] = await Promise.all([
     getTauxCommissionPourcent(),
     prisma.ligneCommande.aggregate({
       where: { vendeurId, ...WHERE_ELIGIBLE },
+      _sum: { sousTotal: true },
+    }),
+    prisma.ligneCommande.aggregate({
+      where: { vendeurId, ...WHERE_COMMISSIONNABLE_COD },
       _sum: { sousTotal: true },
     }),
     prisma.reversement.aggregate({
@@ -116,6 +146,7 @@ export async function getSoldeVendeur(
     tauxPourcent: taux,
     ...calculerSolde({
       brut: ventes._sum.sousTotal ?? 0,
+      brutCOD: ventesCOD._sum.sousTotal ?? 0,
       tauxPourcent: taux,
       dejaReverse: verse._sum.montant ?? 0,
       enAttente: attente._sum.montant ?? 0,
@@ -203,9 +234,13 @@ async function creerLigneReversement(
       // de reversement par vendeur.
       await tx.$queryRaw`SELECT id FROM "Vendeur" WHERE id = ${vendeurId} FOR UPDATE`;
 
-      const [ventes, verse, attente] = await Promise.all([
+      const [ventes, ventesCOD, verse, attente] = await Promise.all([
         tx.ligneCommande.aggregate({
           where: { vendeurId, ...WHERE_ELIGIBLE },
+          _sum: { sousTotal: true },
+        }),
+        tx.ligneCommande.aggregate({
+          where: { vendeurId, ...WHERE_COMMISSIONNABLE_COD },
           _sum: { sousTotal: true },
         }),
         tx.reversement.aggregate({
@@ -219,6 +254,7 @@ async function creerLigneReversement(
       ]);
       const { solde } = calculerSolde({
         brut: ventes._sum.sousTotal ?? 0,
+        brutCOD: ventesCOD._sum.sousTotal ?? 0,
         tauxPourcent: taux,
         dejaReverse: verse._sum.montant ?? 0,
         enAttente: attente._sum.montant ?? 0,

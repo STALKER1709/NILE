@@ -29,11 +29,13 @@ describe("calculerSolde", () => {
     });
     expect(s).toEqual({
       brut: 100000,
+      brutCOD: 0,
       commission: 10000,
       net: 90000,
       dejaReverse: 30000,
       enAttente: 0,
       restantDu: 60000,
+      dette: 0,
       solde: 60000,
     });
   });
@@ -111,5 +113,88 @@ describe("verifierReversement", () => {
   it("refuse un montant supérieur au solde", () => {
     const r = verifierReversement(6000, 5000);
     expect(r).toEqual({ ok: false, code: "SOLDE_INSUFFISANT" });
+  });
+});
+
+describe("commission des ventes à la livraison", () => {
+  it("compte le cash dans l'assiette, jamais dans le reversable", () => {
+    // 100 000 encaissés par NILE, 50 000 encaissés en espèces par le vendeur.
+    // Commission due sur les 150 000, retenue sur les seuls 100 000 détenus.
+    const s = calculerSolde({
+      brut: 100000,
+      brutCOD: 50000,
+      tauxPourcent: 12,
+      dejaReverse: 0,
+      exempteCommission: false,
+    });
+    expect(s.commission).toBe(18000);
+    expect(s.net).toBe(82000);
+    expect(s.solde).toBe(82000);
+    expect(s.dette).toBe(0);
+  });
+
+  it("laisse apparaître une créance quand le cash domine", () => {
+    // Presque tout en espèces : la commission dépasse ce que NILE détient.
+    // Le vendeur doit la différence — masquer ce cas ferait disparaître une
+    // créance de la plateforme.
+    const s = calculerSolde({
+      brut: 10000,
+      brutCOD: 200000,
+      tauxPourcent: 12,
+      dejaReverse: 0,
+      exempteCommission: false,
+    });
+    expect(s.commission).toBe(25200);
+    expect(s.net).toBe(-15200);
+    expect(s.dette).toBe(15200);
+    // Rien à demander : on ne verse pas un solde négatif.
+    expect(s.solde).toBe(0);
+    expect(s.restantDu).toBe(0);
+  });
+
+  it("n'invente aucune commission pour la boutique maison", () => {
+    const s = calculerSolde({
+      brut: 100000,
+      brutCOD: 50000,
+      tauxPourcent: 12,
+      dejaReverse: 0,
+      exempteCommission: true,
+    });
+    expect(s.commission).toBe(0);
+    expect(s.net).toBe(100000);
+    expect(s.dette).toBe(0);
+  });
+
+  it("se comporte comme avant quand il n'y a aucune vente en espèces", () => {
+    const avec = calculerSolde({
+      brut: 100000,
+      brutCOD: 0,
+      tauxPourcent: 12,
+      dejaReverse: 0,
+      exempteCommission: false,
+    });
+    const sans = calculerSolde({
+      brut: 100000,
+      tauxPourcent: 12,
+      dejaReverse: 0,
+      exempteCommission: false,
+    });
+    expect(avec).toEqual(sans);
+  });
+
+  it("compte comme dette un reversement déjà payé au-delà du net", () => {
+    // Le vendeur a été payé avant d'accumuler des ventes en espèces : ce qui
+    // a été versé en trop reste dû à NILE.
+    const s = calculerSolde({
+      brut: 100000,
+      brutCOD: 100000,
+      tauxPourcent: 12,
+      dejaReverse: 90000,
+      exempteCommission: false,
+    });
+    expect(s.commission).toBe(24000);
+    expect(s.net).toBe(76000);
+    expect(s.dette).toBe(14000);
+    expect(s.solde).toBe(0);
   });
 });
