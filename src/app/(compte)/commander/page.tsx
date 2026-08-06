@@ -176,7 +176,7 @@ export default async function CommanderPage({
             {sansRedirection && (
               <ChoixOperateur
                 telephone={derniere?.destTelephone ?? utilisateur.telephone}
-                note="À renseigner seulement si vous payez par Mobile Money. Gardez votre téléphone à portée : la demande expire au bout de 10 minutes sans confirmation."
+                note="Gardez votre téléphone à portée : la demande expire au bout de 10 minutes sans confirmation."
               />
             )}
             {/* Code promo. Le montant de la remise n'est PAS calculé ici :
@@ -271,25 +271,15 @@ export default async function CommanderPage({
               })}
             </ul>
             <div className="space-y-2 bg-surface-basse px-5 py-4">
-              <div className="flex justify-between text-corps-sm text-slate-600">
-                <span>Sous-total</span>
-                <Prix montant={total} className="font-semibold text-slate-900" />
-              </div>
-              <div className="flex justify-between text-corps-sm text-slate-600">
-                <span>Livraison</span>
-                <span className="font-bold text-nile-700">Gratuite</span>
-              </div>
-              {env.DELAI_LIVRAISON_TEXTE && (
-                <p className="text-etiquette-xs text-slate-500">
-                  Délai estimé : {env.DELAI_LIVRAISON_TEXTE}
-                </p>
-              )}
-              <div className="flex justify-between border-t border-contour-carte pt-3 text-titre-sm text-slate-900">
+              <div className="flex justify-between text-titre-sm text-slate-900">
                 <span>Total</span>
                 <Prix montant={total} className="text-nile-700" />
               </div>
-              <p className="pt-1 text-center text-etiquette-xs uppercase tracking-wider text-slate-400">
-                Prix TTC · aucun frais ajouté
+              <p className="text-etiquette-xs text-slate-500">
+                Livraison gratuite · prix TTC
+                {env.DELAI_LIVRAISON_TEXTE
+                  ? ` · délai estimé : ${env.DELAI_LIVRAISON_TEXTE}`
+                  : ""}
               </p>
             </div>
           </Carte>
