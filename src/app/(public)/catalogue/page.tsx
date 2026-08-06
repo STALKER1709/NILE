@@ -9,6 +9,7 @@ import { rechercherBoutiques } from "@/modules/catalogue/boutiques";
 import { normaliserParamsRecherche } from "@/modules/catalogue/recherche";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
+import { favorisParmi } from "@/modules/catalogue/favoris";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { IconeCategorie } from "@/components/categorie/IconeCategorie";
 import { listerMarquesCatalogue } from "@/modules/catalogue/produits";
@@ -68,6 +69,13 @@ export default async function CataloguePage({
   // Marques du périmètre COURANT (rayon choisi compris) : proposer une marque
   // qui ne ramènerait aucun résultat ferait douter du catalogue.
   const marquesDisponibles = await listerMarquesCatalogue(categorieIds);
+
+  // Restreint aux articles de la page : une grille en montre une vingtaine, un
+  // acheteur fidèle peut avoir cent favoris.
+  const favoris = await favorisParmi(
+    utilisateur?.id ?? null,
+    produits.map((p) => p.id),
+  );
 
   // Boutiques correspondant au terme (uniquement 1re page d'une recherche).
   const boutiques = q && page === 1 ? await rechercherBoutiques(q, 6) : [];
@@ -303,6 +311,11 @@ export default async function CataloguePage({
               priority={i < 4}
               index={i}
               actions="simple"
+              favori={
+                utilisateur
+                  ? { enFavori: favoris.has(p.id), retour: "/catalogue" }
+                  : undefined
+              }
               afficherCategorie
               sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 280px"
             />

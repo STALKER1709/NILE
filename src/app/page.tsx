@@ -4,6 +4,7 @@ import { listerCategories, imagesParRayon } from "@/modules/catalogue/categories
 import { rechercherProduitsCatalogue } from "@/modules/catalogue/produits";
 import { listerBoutiques } from "@/modules/catalogue/boutiques";
 import { getUtilisateurCourant } from "@/modules/auth/access";
+import { favorisParmi } from "@/modules/catalogue/favoris";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { CarteBoutique } from "@/components/boutique/CarteBoutique";
@@ -32,6 +33,12 @@ export default async function AccueilPage() {
     listerBoutiques({ tri: "populaire", limite: 8 }),
     getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
+  // Restreint aux articles affichés : deux sections de six, pas toute la
+  // liste de souhaits.
+  const favoris = await favorisParmi(
+    utilisateur?.id ?? null,
+    [...recents, ...populaires].map((p) => p.id),
+  );
   const racines = categories.filter((c) => !c.parentId).slice(0, RAYONS_EN_AVANT);
   // Illustration de chaque rayon : une vraie photo produit du catalogue.
   const visuels = await imagesParRayon(
@@ -147,7 +154,12 @@ export default async function AccueilPage() {
 
       {/* Les mieux notés */}
       {populaires.length > 0 && (
-        <SectionProduits titre="Les mieux notés" produits={populaires} quantites={quantites} />
+        <SectionProduits
+          titre="Les mieux notés"
+          produits={populaires}
+          quantites={quantites}
+          favoris={utilisateur ? favoris : null}
+        />
       )}
 
       {/* Ruban livraison */}
@@ -167,6 +179,7 @@ export default async function AccueilPage() {
         titre="Nouveautés"
         produits={recents}
         quantites={quantites}
+        favoris={utilisateur ? favoris : null}
         vide="Le catalogue se remplit bientôt."
       />
 
@@ -302,11 +315,14 @@ function SectionProduits({
   titre,
   produits,
   quantites,
+  favoris,
   vide,
 }: {
   titre: string;
   produits: React.ComponentProps<typeof CarteProduitVitrine>["produit"][];
   quantites: Record<string, number>;
+  /** Identifiants en favori, ou `null` pour un visiteur : pas de cœur. */
+  favoris: Set<string> | null;
   vide?: string;
 }) {
   return (
@@ -325,6 +341,7 @@ function SectionProduits({
               quantitePanier={quantites[p.id] ?? 0}
               priority={i < 3}
               index={i}
+              favori={favoris ? { enFavori: favoris.has(p.id), retour: "/" } : undefined}
             />
           ))}
         </div>

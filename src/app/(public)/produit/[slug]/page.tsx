@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BoutonFavori } from "@/components/produit/BoutonFavori";
-import { estEnFavori } from "@/modules/catalogue/favoris";
+import { estEnFavori, favorisParmi } from "@/modules/catalogue/favoris";
 import { notFound } from "next/navigation";
 import {
   getProduitPublicParSlug,
@@ -154,6 +154,13 @@ export default async function FicheProduitPage({
     // tailles ni les pointures ne sont écrites en dur nulle part.
     axesDeCategorie(produit.categorieId),
   ]);
+
+  // Cœurs de la grille « Vous aimerez aussi » : chargés une fois pour les six
+  // articles, plutôt qu'un appel par carte.
+  const favorisSimilaires = await favorisParmi(
+    utilisateur?.id ?? null,
+    similaires.map((p) => p.id),
+  );
 
   // Le stock vient des DÉCLINAISONS : `Produit.stock` n'est plus tenu à jour
   // depuis qu'elles existent, l'afficher annoncerait du stock sur un article
@@ -444,6 +451,14 @@ export default async function FicheProduitPage({
                 produit={p}
                 quantitePanier={quantites[p.id] ?? 0}
                 index={i}
+                favori={
+                  utilisateur
+                    ? {
+                        enFavori: favorisSimilaires.has(p.id),
+                        retour: `/produit/${produit.slug}`,
+                      }
+                    : undefined
+                }
               />
             ))}
           </div>

@@ -2,7 +2,8 @@ import Link from "next/link";
 import { Vignette } from "@/components/ui/Vignette";
 import { Etoiles, Prix } from "@/components/ui/kit";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
-import type { ProduitCarte } from "@/components/produit/CarteProduit";
+import { BoutonFavori } from "@/components/produit/BoutonFavori";
+import type { ProduitCarte, EtatFavoriCarte } from "@/components/produit/CarteProduit";
 
 /**
  * Carte produit « vitrine » : format large utilisé sur l'accueil (3 colonnes
@@ -20,10 +21,16 @@ export function CarteProduitVitrine({
   actions = "double",
   afficherCategorie = false,
   sizes = "(max-width: 640px) 92vw, (max-width: 1024px) 45vw, 400px",
+  favori,
 }: {
   produit: ProduitCarte;
   quantitePanier?: number;
   priority?: boolean;
+  /**
+   * Cœur de mise en favori. Absent pour un visiteur non connecté : il n'y a
+   * nulle part où enregistrer sa liste.
+   */
+  favori?: EtatFavoriCarte;
   /** Position dans la grille : décale l'apparition (effet en cascade). */
   index?: number;
   /**
@@ -43,22 +50,37 @@ export function CarteProduitVitrine({
       style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
       className="group flex animate-fondu-haut flex-col rounded-xl border border-contour-carte bg-white p-4 transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-carte-hover"
     >
-      <Link href={lien} className="relative mb-4 block overflow-hidden rounded">
-        <Vignette
-          url={produit.images[0]?.url}
-          alt={produit.titre}
-          priority={priority}
-          fond="bg-surface-basse"
-          className="aspect-[1.5] w-full"
-          classImage="transition-transform duration-300 group-hover:scale-105"
-          sizes={sizes}
-        />
+      {/* Le cœur est un formulaire : il ne peut pas vivre DANS le lien vers la
+          fiche produit (un bouton imbriqué dans un lien est invalide et ne
+          répondrait pas). Il en est donc le voisin, posé par-dessus. */}
+      <div className="relative mb-4 overflow-hidden rounded">
+        <Link href={lien} className="block overflow-hidden rounded">
+          <Vignette
+            url={produit.images[0]?.url}
+            alt={produit.titre}
+            priority={priority}
+            fond="bg-surface-basse"
+            className="aspect-[1.5] w-full"
+            classImage="transition-transform duration-300 group-hover:scale-105"
+            sizes={sizes}
+          />
+        </Link>
         {enPromo && (
-          <span className="absolute left-2 top-2 rounded-full bg-promo px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+          <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-promo px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
             -{produit.pourcentageReduction}%
           </span>
         )}
-      </Link>
+        {favori && (
+          <div className="absolute right-2 top-2">
+            <BoutonFavori
+              produitId={produit.id}
+              enFavori={favori.enFavori}
+              retour={favori.retour}
+              taille="sm"
+            />
+          </div>
+        )}
+      </div>
 
       {afficherCategorie && produit.categorie && (
         <p className="mb-1 truncate text-etiquette-xs uppercase tracking-wider text-slate-400">

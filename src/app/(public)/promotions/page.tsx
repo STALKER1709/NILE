@@ -1,5 +1,6 @@
 import { listerProduitsEnPromotion } from "@/modules/promotion/promotion";
 import { getUtilisateurCourant } from "@/modules/auth/access";
+import { favorisParmi } from "@/modules/catalogue/favoris";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { Pagination } from "@/components/ui/Pagination";
@@ -23,6 +24,12 @@ export default async function PromotionsPage({
     listerProduitsEnPromotion({ page, parPage: PAR_PAGE }),
     getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
+  // Restreint aux articles affichés : une page en montre une vingtaine, un
+  // acheteur fidèle peut en avoir cent en favori.
+  const favoris = await favorisParmi(
+    utilisateur?.id ?? null,
+    produits.map((p) => p.id),
+  );
 
   return (
     <div className="space-y-6">
@@ -47,6 +54,11 @@ export default async function PromotionsPage({
               priority={i < 4}
               index={i}
               actions="simple"
+              favori={
+                utilisateur
+                  ? { enFavori: favoris.has(p.id), retour: "/promotions" }
+                  : undefined
+              }
               sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 280px"
             />
           ))}

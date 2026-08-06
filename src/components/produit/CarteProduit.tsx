@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Vignette } from "@/components/ui/Vignette";
 import { Etoiles, Prix } from "@/components/ui/kit";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
+import { BoutonFavori } from "@/components/produit/BoutonFavori";
 
 export interface ProduitCarte {
   id: string;
@@ -26,11 +27,19 @@ export interface ProduitCarte {
   categorie?: { nom: string } | null;
 }
 
+/** Ce qu'une grille doit savoir pour afficher le cœur d'un article. */
+export interface EtatFavoriCarte {
+  enFavori: boolean;
+  /** Chemin à revalider après la bascule : celui d'où part le clic. */
+  retour: string;
+}
+
 export function CarteProduit({
   produit,
   quantitePanier = 0,
   priority = false,
   index = 0,
+  favori,
 }: {
   produit: ProduitCarte;
   /** Quantité déjà dans le panier de l'utilisateur (compteur supermarché). */
@@ -38,6 +47,12 @@ export function CarteProduit({
   priority?: boolean;
   /** Position dans la grille : sert à décaler l'apparition (effet en cascade). */
   index?: number;
+  /**
+   * Cœur de mise en favori. Absent pour un visiteur non connecté : il n'y a
+   * nulle part où enregistrer sa liste, et un cœur qui renverrait vers la
+   * connexion depuis une grille détournerait du parcours d'achat.
+   */
+  favori?: EtatFavoriCarte;
 }) {
   const enRupture = produit.stock === 0;
   const enPromo = produit.prixPromo != null && produit.prixPromo < produit.prix;
@@ -49,30 +64,47 @@ export function CarteProduit({
       style={{ animationDelay: delai }}
       className="group flex animate-fondu-haut flex-col overflow-hidden rounded-xl border border-contour-carte bg-white shadow-carte transition-all duration-200 hover:-translate-y-1 hover:border-nile-500/40 hover:shadow-carte-hover"
     >
-      <Link href={lien} className="relative block overflow-hidden bg-slate-50">
-        <Vignette
-          url={produit.images[0]?.url}
-          alt={produit.titre}
-          priority={priority}
-          className="aspect-square w-full"
-          classImage="transition-transform duration-300 group-hover:scale-105"
-          sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 200px"
-        />
+      {/* Le cœur est un formulaire : il ne peut pas vivre DANS le lien vers la
+          fiche produit (un bouton imbriqué dans un lien est invalide et ne
+          répondrait pas). Il en est donc le voisin, posé par-dessus. */}
+      <div className="relative overflow-hidden bg-slate-50">
+        <Link href={lien} className="block overflow-hidden">
+          <Vignette
+            url={produit.images[0]?.url}
+            alt={produit.titre}
+            priority={priority}
+            className="aspect-square w-full"
+            classImage="transition-transform duration-300 group-hover:scale-105"
+            sizes="(max-width: 640px) 45vw, (max-width: 1024px) 30vw, 200px"
+          />
+        </Link>
         {enPromo && (
-          <span className="absolute left-2 top-2 rounded-full bg-promo px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
+          <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-promo px-2 py-0.5 text-[11px] font-bold text-white shadow-sm">
             -{produit.pourcentageReduction}%
           </span>
         )}
+        {/* Descendue en bas à gauche : le haut à droite revient au cœur, qui
+            doit rester au même endroit sur toutes les cartes. */}
         {enRupture ? (
-          <span className="absolute right-2 top-2 rounded bg-rose-600/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm backdrop-blur-xs">
+          <span className="pointer-events-none absolute bottom-2 left-2 rounded bg-rose-600/90 px-2 py-0.5 text-[11px] font-semibold text-white shadow-sm backdrop-blur-xs">
             Rupture
           </span>
         ) : (
-          <span className="absolute right-2 top-2 rounded bg-nile-900/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-nile-100 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+          <span className="pointer-events-none absolute bottom-2 left-2 rounded bg-nile-900/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-nile-100 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
             En stock
           </span>
         )}
-      </Link>
+        {favori && (
+          <div className="absolute right-2 top-2">
+            <BoutonFavori
+              produitId={produit.id}
+              enFavori={favori.enFavori}
+              retour={favori.retour}
+              taille="sm"
+            />
+          </div>
+        )}
+      </div>
 
       <div className="flex flex-1 flex-col gap-1 p-3">
         {produit.categorie && (

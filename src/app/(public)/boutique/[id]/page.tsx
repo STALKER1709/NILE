@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getUtilisateurCourant } from "@/modules/auth/access";
+import { favorisParmi } from "@/modules/catalogue/favoris";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 import { Badge, EtatVide, Etoiles } from "@/components/ui/kit";
@@ -54,6 +55,12 @@ export default async function BoutiquePage({
     getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
   const produits = await enrichirProduitsPourCartes(produitsBruts);
+  // Restreint aux articles affichés : charger toute la liste de souhaits pour
+  // cocher quelques cœurs serait disproportionné.
+  const favoris = await favorisParmi(
+    utilisateur?.id ?? null,
+    produits.map((p) => p.id),
+  );
 
   // Note globale de la boutique : moyenne pondérée des avis de ses produits.
   const totalAvis = produits.reduce((s, p) => s + p.nbAvis, 0);
@@ -130,6 +137,11 @@ export default async function BoutiquePage({
               quantitePanier={quantites[p.id] ?? 0}
               priority={i < 5}
               index={i}
+              favori={
+                utilisateur
+                  ? { enFavori: favoris.has(p.id), retour: `/boutique/${boutique.id}` }
+                  : undefined
+              }
             />
           ))}
         </div>
