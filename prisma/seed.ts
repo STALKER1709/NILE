@@ -44,6 +44,14 @@ async function creerCompteMock(params: {
   });
 }
 
+/**
+ * Produit de démonstration NON décliné.
+ *
+ * Sa déclinaison par défaut — deux axes vides — est créée avec lui : le panier
+ * et la commande ne connaissent plus que les déclinaisons, et un produit qui
+ * n'en a aucune est simplement invendable. L'oublier ici donnerait un
+ * environnement de développement où plus rien ne s'achète.
+ */
 async function creerProduitDemo(params: {
   slug: string;
   vendeurId: string;
@@ -52,8 +60,9 @@ async function creerProduitDemo(params: {
   description: string;
   prix: number;
   stock: number;
+  marque?: string;
 }) {
-  return prisma.produit.upsert({
+  const produit = await prisma.produit.upsert({
     where: { slug: params.slug },
     update: {},
     create: {
@@ -64,9 +73,71 @@ async function creerProduitDemo(params: {
       description: params.description,
       prix: params.prix,
       stock: params.stock,
+      marque: params.marque,
+      statut: "ACTIF",
+      variantes: { create: { valeur1: "", valeur2: "", stock: params.stock } },
+    },
+  });
+  // Rejouable sur une base déjà semée, d'avant les déclinaisons : les produits
+  // existants n'ont pas été touchés par l'`upsert` ci-dessus et resteraient
+  // sans rien à vendre.
+  const nb = await prisma.varianteProduit.count({ where: { produitId: produit.id } });
+  if (nb === 0) {
+    await prisma.varianteProduit.create({
+      data: { produitId: produit.id, valeur1: "", valeur2: "", stock: params.stock },
+    });
+  }
+  return produit;
+}
+
+/**
+ * Produit de démonstration DÉCLINÉ (une déclinaison par combinaison).
+ *
+ * Il n'a volontairement PAS de déclinaison par défaut : un article décliné la
+ * perd dès sa première taille, sans quoi on pourrait l'acheter « sans taille »
+ * en parallèle des tailles réelles.
+ */
+async function creerProduitDeclineDemo(params: {
+  slug: string;
+  vendeurId: string;
+  categorieId: string;
+  titre: string;
+  description: string;
+  prix: number;
+  marque?: string;
+  /** [valeur du 1er axe, valeur du 2nd axe, stock] */
+  declinaisons: [string, string, number][];
+}) {
+  const produit = await prisma.produit.upsert({
+    where: { slug: params.slug },
+    update: {},
+    create: {
+      slug: params.slug,
+      vendeurId: params.vendeurId,
+      categorieId: params.categorieId,
+      titre: params.titre,
+      description: params.description,
+      prix: params.prix,
+      marque: params.marque,
+      // Champ historique, plus lu à la vente : le stock vit sur les
+      // déclinaisons. Laissé à 0 pour qu'aucun écran ne s'y fie.
+      stock: 0,
       statut: "ACTIF",
     },
   });
+  for (const [valeur1, valeur2, stock] of params.declinaisons) {
+    await prisma.varianteProduit.upsert({
+      where: {
+        produitId_valeur1_valeur2: { produitId: produit.id, valeur1, valeur2 },
+      },
+      update: {},
+      create: { produitId: produit.id, valeur1, valeur2, stock },
+    });
+  }
+  await prisma.varianteProduit.deleteMany({
+    where: { produitId: produit.id, valeur1: "", valeur2: "" },
+  });
+  return produit;
 }
 
 async function main() {
@@ -156,6 +227,32 @@ async function main() {
     update: {},
     create: { nom: "Maison & Cuisine", slug: "maison", ordre: 2 },
   });
+  const mode = await prisma.categorie.upsert({
+    where: { slug: "mode" },
+    update: {},
+    create: { nom: "Mode", slug: "mode", ordre: 3 },
+  });
+  const tshirts = await prisma.categorie.upsert({
+    where: { slug: "t-shirts" },
+    update: {},
+    create: { nom: "T-shirts", slug: "t-shirts", parentId: mode.id, ordre: 1 },
+  });
+
+  // --- Axes de déclinaison ------------------------------------------------
+  // Déclarés sur « Mode » : « Mode > T-shirts » en hérite sans les redéclarer,
+  // sinon chaque sous-catégorie porterait sa propre liste de tailles et elles
+  // finiraient par diverger. L'ORDRE des valeurs est l'ordre d'affichage :
+  // c'est lui qui classe « S, M, L, XL », ce que l'alphabet ne fait pas.
+  for (const axe of [
+    { rang: 1, libelle: "Taille", valeurs: ["XS", "S", "M", "L", "XL", "XXL"] },
+    { rang: 2, libelle: "Couleur", valeurs: ["Noir", "Blanc", "Bleu", "Rouge"] },
+  ]) {
+    await prisma.axeVariante.upsert({
+      where: { categorieId_rang: { categorieId: mode.id, rang: axe.rang } },
+      update: {},
+      create: { categorieId: mode.id, ...axe },
+    });
+  }
 
   // --- Produits de démonstration (publiés) --------------------------------
   await creerProduitDemo({
@@ -197,6 +294,27 @@ async function main() {
       "Bouilloire électrique rapide, arrêt automatique, base rotative 360°.",
     prix: 15000,
     stock: 12,
+  });
+
+  // Article décliné : toutes les combinaisons ne sont pas tenues (pas de
+  // blanc en L), et le M noir est épuisé — de quoi voir le sélecteur garder
+  // une valeur visible mais barrée plutôt que la faire disparaître.
+  await creerProduitDeclineDemo({
+    slug: "t-shirt-nile-coton",
+    vendeurId: boutiqueDemo.id,
+    categorieId: tshirts.id,
+    titre: "T-shirt NILE en coton",
+    description:
+      "T-shirt 100 % coton, coupe droite, col rond. Lavable en machine à 30°.",
+    prix: 7500,
+    marque: "NILE",
+    declinaisons: [
+      ["S", "Noir", 4],
+      ["S", "Blanc", 2],
+      ["M", "Noir", 0],
+      ["M", "Blanc", 6],
+      ["L", "Noir", 3],
+    ],
   });
 
   // --- Garde-fous COD (éditables ensuite par l'admin) ---------------------

@@ -264,7 +264,11 @@ export default async function GestionProduitPage({
                       v.actif ? "border-contour-carte" : "border-slate-200 bg-slate-50 opacity-70"
                     }`}
                   >
-                    <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-900">
+                    {/* Jamais tronqué : « Taille M · Co… » s'affiche à
+                        l'identique pour le noir et le blanc, et le vendeur ne
+                        sait plus quel stock il est en train de corriger. Le
+                        libellé prend donc sa propre ligne quand il le faut. */}
+                    <span className="w-full text-sm font-medium text-slate-900 sm:w-auto sm:min-w-[9rem] sm:flex-1">
                       {estDefaut ? "Version unique (sans déclinaison)" : libelleVariante(v, axes)}
                     </span>
 
