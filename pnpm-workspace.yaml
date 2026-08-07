@@ -1,13 +1,23 @@
 # Réglages pnpm du projet.
 #
-# À partir de pnpm 10, ces réglages ne sont PLUS lus depuis le champ `pnpm`
-# de package.json : ils vivent ici. Laissés là-bas, ils sont ignorés en
-# silence — pnpm bloque alors les scripts de build de Prisma et sort en
-# erreur, ce qui casse toute commande passant par `pnpm` (voir pnpm.io/settings).
+# Ils ne sont PLUS lus depuis le champ `pnpm` de package.json (retiré en
+# pnpm 10) : ils vivent ici. Deux clés cohabitent volontairement, car la
+# machine de développement et l'hébergeur n'ont pas forcément la même version
+# de pnpm, et une seule des deux suffit à faire échouer l'installation.
 #
 # Ces paquets ont un besoin LÉGITIME d'exécuter un script d'installation :
-# Prisma télécharge ses moteurs, esbuild et sharp installent un binaire natif.
-# Sans cette autorisation, `prisma generate` et le build échouent.
+# Prisma télécharge ses moteurs, esbuild et sharp posent un binaire natif.
+# Sans autorisation, `prisma generate` et le build échouent.
+
+# pnpm 11 : table nom -> booléen.
+allowBuilds:
+  "@prisma/client": true
+  "@prisma/engines": true
+  prisma: true
+  esbuild: true
+  sharp: true
+
+# pnpm 10 : liste d'autorisations. Ignorée par pnpm 11, qui lit `allowBuilds`.
 onlyBuiltDependencies:
   - "@prisma/client"
   - "@prisma/engines"
