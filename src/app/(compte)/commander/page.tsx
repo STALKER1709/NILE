@@ -9,6 +9,7 @@ import { getPlafondCOD, getPlafondDetteCOD } from "@/modules/commande/config";
 import { codBloqueParDette } from "@/modules/commande/commande-core";
 import { dettesVendeurs } from "@/modules/reversement/reversement";
 import { getDerniereAdresse } from "@/modules/commande/commande";
+import { lireBrouillon } from "@/modules/commande/brouillon";
 import { axesParCategorie } from "@/modules/catalogue/axes";
 import { libelleVariante } from "@/modules/catalogue/variante-core";
 import { paiementSansRedirection } from "@/modules/paiement";
@@ -41,9 +42,13 @@ export default async function CommanderPage({
   const total = calculerTotal(
     panier.lignes.map((l) => ({ prix: prixEffectif(l.produit.id, l.produit.prix), quantite: l.quantite })),
   );
-  const [plafond, derniere, seuilDette, dettes, axesParCat] = await Promise.all([
+  const [plafond, derniere, brouillon, seuilDette, dettes, axesParCat] = await Promise.all([
     getPlafondCOD(),
     getDerniereAdresse(utilisateur.id),
+    // Ce que l'acheteur avait saisi avant un refus. Prime sur l'adresse de sa
+    // dernière commande : c'est le plus récent, et c'est ce qu'il vient de
+    // taper.
+    lireBrouillon(),
     getPlafondDetteCOD(),
     dettesVendeurs([...new Set(panier.lignes.map((l) => l.produit.vendeurId))]),
     // Sans le nom de la déclinaison, deux lignes du même t-shirt — un M et un
@@ -64,6 +69,15 @@ export default async function CommanderPage({
   const sansRedirection = paiementSansRedirection();
   // Unités commandées, pas lignes : 2 exemplaires comptent pour 2 articles.
   const nbArticles = panier.lignes.reduce((s, l) => s + l.quantite, 0);
+
+  // Ordre de préséance des valeurs du formulaire : ce qui vient d'être saisi,
+  // puis la dernière adresse connue, puis le profil.
+  const val = (champ: "destNom" | "destTelephone" | "ville" | "quartier" | "reperes") =>
+    brouillon[champ] ?? derniere?.[champ] ?? "";
+  // Le mode retenu ne se rétablit que s'il reste proposable : un COD conservé
+  // alors qu'il vient d'être refusé remettrait l'acheteur dans l'impasse.
+  const codPossible = !depassePlafond && !codIndisponible;
+  const modeCOD = brouillon.mode ? brouillon.mode === "COD" && codPossible : codPossible;
 
   return (
     <div className="space-y-5">
@@ -91,7 +105,11 @@ export default async function CommanderPage({
               </svg>
               Adresse de livraison
             </h2>
-            {derniere && (
+            {/* Ne s'affiche que si les champs viennent RÉELLEMENT de la
+                dernière commande. Après un refus, ils portent ce que l'acheteur
+                vient de taper : lui dire le contraire l'inviterait à corriger
+                une adresse qui est déjà la sienne. */}
+            {derniere && !brouillon.destNom && (
               <p className="rounded bg-nile-50 px-3 py-2 text-xs text-nile-800">
                 Adresse pré-remplie depuis ta dernière commande · modifie si besoin.
               </p>
@@ -99,23 +117,23 @@ export default async function CommanderPage({
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <div>
                 <label htmlFor="destNom" className={labelClass}>Nom du destinataire</label>
-                <input id="destNom" name="destNom" required defaultValue={derniere?.destNom ?? utilisateur.nom} className={`${champClass} mt-1`} />
+                <input id="destNom" name="destNom" required defaultValue={val("destNom") || utilisateur.nom} className={`${champClass} mt-1`} />
               </div>
               <div>
                 <label htmlFor="destTelephone" className={labelClass}>Téléphone de contact</label>
-                <input id="destTelephone" name="destTelephone" required defaultValue={derniere?.destTelephone ?? utilisateur.telephone} placeholder="6XX XXX XXX" className={`${champClass} mt-1`} />
+                <input id="destTelephone" name="destTelephone" required defaultValue={val("destTelephone") || utilisateur.telephone} placeholder="6XX XXX XXX" className={`${champClass} mt-1`} />
               </div>
             </div>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <ChampVille valeurInitiale={derniere?.ville ?? ""} />
+              <ChampVille valeurInitiale={val("ville")} />
               <div>
                 <label htmlFor="quartier" className={labelClass}>Quartier</label>
-                <input id="quartier" name="quartier" required defaultValue={derniere?.quartier ?? ""} placeholder="Akwa" className={`${champClass} mt-1`} />
+                <input id="quartier" name="quartier" required defaultValue={val("quartier")} placeholder="Akwa" className={`${champClass} mt-1`} />
               </div>
             </div>
             <div>
               <label htmlFor="reperes" className={labelClass}>Points de repère (facultatif)</label>
-              <textarea id="reperes" name="reperes" rows={2} defaultValue={derniere?.reperes ?? ""} placeholder="Ex : en face de la pharmacie, immeuble bleu…" className={`${champClass} mt-1`} />
+              <textarea id="reperes" name="reperes" rows={2} defaultValue={val("reperes")} placeholder="Ex : en face de la pharmacie, immeuble bleu…" className={`${champClass} mt-1`} />
             </div>
           </Carte>
 
@@ -133,7 +151,7 @@ export default async function CommanderPage({
                 où les scripts n'ont pas chargé. */}
             <div className="group space-y-3">
               <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-                <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond && !codIndisponible} className="mt-1 accent-nile-700" />
+                <input type="radio" name="mode" value="COD" defaultChecked={modeCOD} className="mt-1 accent-nile-700" />
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded bg-surface-haute">
                   <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-nile-800" aria-hidden="true">
                     <rect x="2" y="6" width="20" height="12" rx="2" />
@@ -157,7 +175,7 @@ export default async function CommanderPage({
               )}
 
               <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-                <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond || codIndisponible} className="mt-1 accent-nile-700" />
+                <input type="radio" name="mode" value="MONETBIL" defaultChecked={!modeCOD} className="mt-1 accent-nile-700" />
                 <span className="flex shrink-0 gap-1.5">
                   <span className="grid h-8 w-8 place-items-center rounded bg-[#ffcb05] text-[10px] font-bold text-black">MTN</span>
                   <span className="grid h-8 w-8 place-items-center rounded bg-[#ff7900] text-[10px] font-bold text-white">OM</span>
@@ -181,7 +199,8 @@ export default async function CommanderPage({
               {sansRedirection && (
                 <div className="hidden group-has-[input[value=MONETBIL]:checked]:block">
                   <ChoixOperateur
-                    telephone={derniere?.destTelephone ?? utilisateur.telephone}
+                    telephone={val("destTelephone") || utilisateur.telephone}
+                    valeurInitiale={brouillon.operateur}
                     note="Gardez votre téléphone à portée : la demande expire au bout de 10 minutes sans confirmation."
                   />
                 </div>
@@ -205,6 +224,7 @@ export default async function CommanderPage({
                 autoCapitalize="characters"
                 autoComplete="off"
                 placeholder="Ex. BIENVENUE10"
+                defaultValue={brouillon.codePromo ?? ""}
                 className="mt-1.5 w-full rounded border border-contour-carte px-3 py-2.5 text-corps-sm uppercase placeholder:normal-case placeholder:text-slate-400 focus:border-nile-700 focus:outline-none"
               />
               <p className="mt-1 text-etiquette-xs text-slate-500">

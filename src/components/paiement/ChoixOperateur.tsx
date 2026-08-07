@@ -14,11 +14,14 @@
 export function ChoixOperateur({
   telephone,
   note,
+  valeurInitiale,
 }: {
   /** Numéro sur lequel la demande de paiement sera envoyée. */
   telephone: string;
   /** Précision affichée sous les boutons (contexte propre à l'écran). */
   note?: string;
+  /** Opérateur déjà retenu, à rétablir après un refus de commande. */
+  valeurInitiale?: string;
 }) {
   return (
     <fieldset className="rounded border border-contour-carte p-4">
@@ -35,6 +38,7 @@ export function ChoixOperateur({
           pastille="MTN"
           fond="bg-[#ffcb05]"
           couleurTexte="text-black"
+          choisi={valeurInitiale === "mtn"}
         />
         <Operateur
           valeur="orange"
@@ -42,6 +46,7 @@ export function ChoixOperateur({
           pastille="OM"
           fond="bg-[#ff7900]"
           couleurTexte="text-white"
+          choisi={valeurInitiale === "orange"}
         />
       </div>
       {note && <p className="mt-3 text-etiquette-xs text-slate-500">{note}</p>}
@@ -55,16 +60,18 @@ function Operateur({
   pastille,
   fond,
   couleurTexte,
+  choisi,
 }: {
   valeur: string;
   libelle: string;
   pastille: string;
   fond: string;
   couleurTexte: string;
+  choisi?: boolean;
 }) {
   return (
     <label className="flex cursor-pointer items-center gap-2 rounded border border-contour-carte px-3 py-2.5 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-      <input type="radio" name="operateur" value={valeur} className="accent-nile-700" />
+      <input type="radio" name="operateur" value={valeur} defaultChecked={choisi} className="accent-nile-700" />
       <span
         className={`grid h-7 w-7 shrink-0 place-items-center rounded ${fond} text-[10px] font-bold ${couleurTexte}`}
       >

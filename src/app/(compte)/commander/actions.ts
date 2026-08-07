@@ -9,6 +9,7 @@ import { passerCommande, type ResultatCommande } from "@/modules/commande/comman
 import { paiementSansRedirection } from "@/modules/paiement";
 import { estOperateurValide } from "@/modules/paiement/hrskills/hrskills-core";
 import { resoudreVille } from "@/modules/commande/villes";
+import { ecrireBrouillon, effacerBrouillon } from "@/modules/commande/brouillon";
 
 const modeSchema = z.enum(["COD", "MONETBIL"]);
 
@@ -72,6 +73,28 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
   const utilisateur = await exigerConnexion();
 
   const mode = modeSchema.catch("COD").parse(formData.get("mode"));
+
+  // Saisie conservée AVANT toute vérification : chacune des sorties qui
+  // suivent est une redirection, donc un formulaire reconstruit de zéro. Sans
+  // cela, l'acheteur retape son adresse entière à chaque refus.
+  const saisie = {
+    destNom: formData.get("destNom")?.toString(),
+    destTelephone: formData.get("destTelephone")?.toString(),
+    ville: resoudreVille(
+      formData.get("ville")?.toString(),
+      formData.get("villeAutre")?.toString(),
+    ),
+    quartier: formData.get("quartier")?.toString(),
+    reperes: formData.get("reperes")?.toString(),
+    mode,
+    operateur: formData.get("operateur")?.toString(),
+    codePromo: formData.get("codePromo")?.toString(),
+  };
+  // `redirect()` reste appelé SUR PLACE à chaque sortie : c'est lui qui, en
+  // renvoyant `never`, apprend à TypeScript que la suite est inatteignable.
+  // Enveloppé dans une fonction `async`, ce savoir se perd et le compilateur
+  // ne voit plus que `parsed.data` est défini plus bas.
+  const conserver = () => ecrireBrouillon(saisie);
   const parsed = adresseLivraisonSchema.safeParse({
     destNom: formData.get("destNom"),
     destTelephone: formData.get("destTelephone"),
@@ -85,6 +108,7 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
     reperes: formData.get("reperes") || undefined,
   });
   if (!parsed.success) {
+    await conserver();
     const msg = parsed.error.issues[0]?.message ?? "Adresse invalide.";
     redirect(`/commander?erreur=${encodeURIComponent(msg)}`);
   }
@@ -95,6 +119,7 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
   if (mode === "MONETBIL" && paiementSansRedirection()) {
     const choix = String(formData.get("operateur") ?? "");
     if (!estOperateurValide(choix)) {
+      await conserver();
       redirect(
         `/commander?erreur=${encodeURIComponent(
           "Choisissez votre opérateur Mobile Money (MTN ou Orange).",
@@ -117,8 +142,12 @@ export async function passerCommandeAction(formData: FormData): Promise<void> {
   });
 
   if (!res.ok) {
+    await conserver();
     redirect(`/commander?erreur=${encodeURIComponent(messageCommande(res))}`);
   }
+
+  // La commande est passée : le brouillon n'a plus lieu d'être.
+  await effacerBrouillon();
 
   // Widget de paiement quand le fournisseur en propose un. Sinon le client
   // valide sur son téléphone : on l'amène au suivi, qui s'actualise seul.
