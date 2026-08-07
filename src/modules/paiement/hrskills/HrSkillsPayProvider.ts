@@ -13,6 +13,7 @@ import {
   mapperStatutHrSkills,
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
+  structureJson,
   racineHrSkills,
   cleIdempotence,
 } from "@/modules/paiement/hrskills/hrskills-core";
@@ -278,7 +279,18 @@ export class HrSkillsPayProvider implements PaymentProvider {
       return { ok: false, raison: "DONNEES_MANQUANTES" };
     }
     const lu = lireWebhookHrSkills(charge);
-    if (!lu) return { ok: false, raison: "DONNEES_MANQUANTES" };
+    if (!lu) {
+      // Signature valide, donc notification authentique — mais illisible. La
+      // structure est journalisée (clés seules, jamais les valeurs) : c'est la
+      // seule façon d'apprendre comment le fournisseur nomme ses champs, sa
+      // documentation n'en publiant aucun exemple. Sans cette trace, on en
+      // serait réduit à deviner sur une API de paiement.
+      console.error(
+        "[hrskills] webhook authentique mais illisible · structure reçue:",
+        structureJson(charge),
+      );
+      return { ok: false, raison: "DONNEES_MANQUANTES" };
+    }
 
     // 3) Statut : jamais celui annoncé dans le webhook. On le redemande à
     // l'API, seule source de vérité — un corps signé prouve l'origine, pas

@@ -7,6 +7,7 @@ import {
   mapperStatutHrSkills,
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
+  structureJson,
   estCleDeTest,
   environnementCle,
   clesCoherentes,
@@ -230,5 +231,44 @@ describe("lireWebhookHrSkills", () => {
     expect(lireWebhookHrSkills({})).toBeNull();
     expect(lireWebhookHrSkills(null)).toBeNull();
     expect(lireWebhookHrSkills("texte")).toBeNull();
+  });
+});
+
+describe("structureJson", () => {
+  it("restitue les clés, jamais les valeurs", () => {
+    // Un corps de webhook transporte un numéro de téléphone et un montant ;
+    // un journal se relit, se copie et se colle.
+    const structure = structureJson({
+      event: "payment.succeeded",
+      data: { reference: "ref_abc123", amount: 100, phone: "+237699823686" },
+    });
+    expect(structure).toBe("{event, data: {reference, amount, phone}}");
+    expect(structure).not.toContain("699823686");
+    expect(structure).not.toContain("ref_abc123");
+  });
+
+  it("montre l'imbrication, qui est justement ce qu'on cherche", () => {
+    expect(structureJson({ data: { transaction: { id: 1 } } })).toBe(
+      "{data: {transaction: {id}}}",
+    );
+  });
+
+  it("résume un tableau par sa taille et son premier élément", () => {
+    expect(structureJson({ items: [{ id: 1 }, { id: 2 }] })).toBe(
+      "{items: [2× {id}]}",
+    );
+    expect(structureJson({ items: [] })).toBe("{items: []}");
+  });
+
+  it("borne la profondeur pour ne pas déverser une charge entière", () => {
+    expect(structureJson({ a: { b: { c: { d: { e: 1 } } } } })).toBe(
+      "{a: {b: {c: {…}}}}",
+    );
+  });
+
+  it("supporte ce qui n'est pas un objet", () => {
+    expect(structureJson(null)).toBe("null");
+    expect(structureJson("texte")).toBe("string");
+    expect(structureJson(42)).toBe("number");
   });
 });

@@ -185,6 +185,34 @@ function texte(valeur: unknown): string | null {
  * n'est jamais cru sur parole : l'appelant reconfirme systématiquement via
  * GET /v1/payments/:reference, qui fait foi.
  */
+/**
+ * Squelette d'une charge JSON : ses CLÉS, jamais ses valeurs.
+ *
+ * Le fournisseur ne publie aucun exemple de webhook. Quand la lecture échoue,
+ * c'est qu'il nomme ou imbrique ses champs autrement que prévu — et sans voir
+ * la structure reçue, on en est réduit à deviner, ce qu'on ne fait pas sur une
+ * API de paiement.
+ *
+ * Seules les clés sont restituées : un corps de webhook transporte un numéro
+ * de téléphone et un montant, et un journal se relit, se copie et se colle. La
+ * structure suffit à corriger la lecture ; les valeurs n'y ajouteraient rien.
+ */
+export function structureJson(valeur: unknown, profondeur = 3): string {
+  if (valeur === null) return "null";
+  if (Array.isArray(valeur)) {
+    if (valeur.length === 0) return "[]";
+    if (profondeur <= 0) return "[…]";
+    return `[${valeur.length}× ${structureJson(valeur[0], profondeur - 1)}]`;
+  }
+  if (typeof valeur !== "object") return typeof valeur;
+  if (profondeur <= 0) return "{…}";
+  const entrees = Object.entries(valeur as Json).map(([cle, v]) => {
+    const estComposite = v !== null && typeof v === "object";
+    return estComposite ? `${cle}: ${structureJson(v, profondeur - 1)}` : cle;
+  });
+  return `{${entrees.join(", ")}}`;
+}
+
 export function lireWebhookHrSkills(charge: unknown): WebhookHrSkills | null {
   if (typeof charge !== "object" || charge === null) return null;
   const racine = charge as Json;
