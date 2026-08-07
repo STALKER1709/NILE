@@ -20,26 +20,26 @@ import {
   clesCoherentes,
   racineHrSkills,
 } from "@/modules/paiement/hrskills/hrskills-cles";
+import { sansGuillemets } from "@/lib/env-valeurs";
+
+const BASE_PAR_DEFAUT = "https://api.hrskills-pay.com";
 
 /**
- * `@/lib/env` refuse de se charger sur une configuration invalide, et c'est
- * voulu — mais ici cette erreur EST le résultat qu'on cherche. Importé
- * dynamiquement pour la rattraper et la présenter, plutôt que de sortir sur
- * une trace de pile au moment même où l'on venait chercher un diagnostic.
+ * Lecture directe de l'environnement, SANS passer par `@/lib/env`.
+ *
+ * Ce module-là valide la configuration ENTIÈRE de l'application et refuse de
+ * se charger s'il manque quoi que ce soit — `DATABASE_URL` incluse. C'est le
+ * bon comportement pour démarrer l'application, et le mauvais ici : ce
+ * contrôle doit pouvoir tourner là où se trouvent les clés de paiement, qui
+ * n'est pas forcément une machine portant toute la configuration.
+ *
+ * La même normalisation des guillemets est appliquée — c'est précisément
+ * l'erreur qu'on vient chercher (l'interface de Vercel enregistre la valeur
+ * littéralement, guillemets compris).
  */
-async function chargerEnv() {
-  try {
-    return (await import("@/lib/env")).env;
-  } catch (erreur) {
-    console.log(
-      "\n❌ La configuration est refusée au chargement — rien ne démarrera " +
-        "avec ces variables :\n",
-    );
-    console.log(erreur instanceof Error ? erreur.message : String(erreur));
-    console.log("");
-    process.exitCode = 1;
-    return null;
-  }
+function lire(nom: string): string {
+  const valeur = process.env[nom];
+  return typeof valeur === "string" ? sansGuillemets(valeur) : "";
 }
 
 const OK = "  ✅";
@@ -67,15 +67,12 @@ function empreinte(cle: string): string {
   return `${prefixe}_…${cle.slice(-4)} (${cle.length} caractères)`;
 }
 
-async function main(): Promise<void> {
-  console.log("\n=== Contrôle de la configuration de paiement ===\n");
+async function controler(): Promise<void> {
 
-  const env = await chargerEnv();
-  if (!env) return;
+  const fournisseur = lire("PAYMENT_PROVIDER") || "mock";
+  console.log(`${INFO} PAYMENT_PROVIDER = ${fournisseur}`);
 
-  console.log(`${INFO} PAYMENT_PROVIDER = ${env.PAYMENT_PROVIDER}`);
-
-  if (env.PAYMENT_PROVIDER === "mock") {
+  if (fournisseur === "mock") {
     console.log(
       `${ATTENTION}Fournisseur simulé : aucun encaissement réel. Pose\n` +
         `     PAYMENT_PROVIDER="hrskills" pour passer en production.`,
@@ -83,20 +80,27 @@ async function main(): Promise<void> {
     return;
   }
 
-  if (env.PAYMENT_PROVIDER !== "hrskills") {
+  if (fournisseur !== "hrskills") {
     console.log(
       `${ATTENTION}Ce contrôle ne couvre que HR-Skills. Fournisseur actif : ` +
-        `${env.PAYMENT_PROVIDER}.`,
+        `${fournisseur}.`,
     );
     return;
   }
 
-  const cleA = env.HRSKILLS_CLE_A ?? "";
-  const cleB = env.HRSKILLS_CLE_B ?? "";
+  const cleA = lire("HRSKILLS_CLE_A");
+  const cleB = lire("HRSKILLS_CLE_B");
+  const secretWebhook = lire("HRSKILLS_WEBHOOK_SECRET");
+  const secretCron = lire("CRON_SECRET");
+  const baseUrl = lire("HRSKILLS_BASE_URL") || BASE_PAR_DEFAUT;
 
-  // `env` a déjà refusé de se charger si l'une manquait ou si elles mélangeaient
-  // les environnements : arriver ici signifie que ces deux points sont acquis.
-  // On les réaffiche quand même, car c'est l'information qu'on vient chercher.
+  if (!cleA || !cleB) {
+    echec(
+      "HRSKILLS_CLE_A et HRSKILLS_CLE_B sont requises. L'application refusera " +
+        "de démarrer sans elles.",
+    );
+    return;
+  }
   console.log(`${INFO} Clé A : ${empreinte(cleA)}`);
   console.log(`${INFO} Clé B : ${empreinte(cleB)}`);
 
@@ -113,7 +117,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const racine = racineHrSkills(env.HRSKILLS_BASE_URL, cleA);
+  const racine = racineHrSkills(baseUrl, cleA);
   if (environnement === "live") {
     console.log(`${OK} Environnement : LIVE — les encaissements seront RÉELS.`);
   } else {
@@ -124,11 +128,11 @@ async function main(): Promise<void> {
   }
   console.log(`${INFO} Racine des appels : ${racine}`);
 
-  if (!env.HRSKILLS_WEBHOOK_SECRET) {
+  if (!secretWebhook) {
     echec("HRSKILLS_WEBHOOK_SECRET absent : les webhooks seront tous rejetés.");
   } else {
     console.log(
-      `${OK} Secret de webhook présent (${env.HRSKILLS_WEBHOOK_SECRET.length} caractères).`,
+      `${OK} Secret de webhook présent (${secretWebhook.length} caractères).`,
     );
     console.log(
       `${ATTENTION}Vérifie qu'il vient bien de l'environnement ` +
@@ -137,7 +141,7 @@ async function main(): Promise<void> {
     );
   }
 
-  if (!env.CRON_SECRET) {
+  if (!secretCron) {
     echec(
       "CRON_SECRET absent : le balayage des paiements en attente est INACTIF. " +
         "Une commande payée dont le webhook n'arrive pas resterait figée, " +
@@ -155,7 +159,7 @@ async function main(): Promise<void> {
   // que fait l'application avant chaque encaissement. Rien n'est débité.
   console.log(`\n${INFO} Test d'authentification auprès de HR-Skills…`);
   try {
-    const reponse = await fetch(`${env.HRSKILLS_BASE_URL}/v1/auth/transaction-token`, {
+    const reponse = await fetch(`${baseUrl}/v1/auth/transaction-token`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${cleA}`,
@@ -202,6 +206,22 @@ async function main(): Promise<void> {
       `montant sur ton propre numéro le dira.`,
   );
 
+}
+
+/**
+ * Le verdict est imprimé quoi qu'il arrive, y compris quand un contrôle
+ * interrompt les suivants : une sortie qui s'arrête sans conclure laisse
+ * croire que le reste est passé.
+ */
+async function main(): Promise<void> {
+  console.log("\n=== Contrôle de la configuration de paiement ===\n");
+  try {
+    await controler();
+  } catch (erreur) {
+    echec(
+      `Contrôle interrompu : ${erreur instanceof Error ? erreur.message : String(erreur)}`,
+    );
+  }
   console.log(
     bloquant === 0
       ? "\n✅ Aucun point bloquant détecté.\n"
@@ -210,7 +230,4 @@ async function main(): Promise<void> {
   if (bloquant > 0) process.exitCode = 1;
 }
 
-main().catch((erreur) => {
-  console.error("\n❌ Contrôle interrompu :", erreur);
-  process.exitCode = 1;
-});
+void main();

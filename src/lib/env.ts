@@ -2,6 +2,7 @@ import { z } from "zod";
 // Depuis `hrskills-cles` et non `hrskills-core` : ce fichier est chargé par le
 // middleware (runtime Edge), où une dépendance à `node:crypto` casse le build.
 import { clesCoherentes } from "@/modules/paiement/hrskills/hrskills-cles";
+import { sansGuillemets } from "@/lib/env-valeurs";
 
 /**
  * Validation centralisée des variables d'environnement (côté serveur).
@@ -236,34 +237,6 @@ const schema = z
       }
     }
   });
-
-/**
- * Retire les guillemets qui entourent une valeur.
- *
- * Dans un fichier `.env`, dotenv retire lui-même les guillemets : on écrit
- * donc `PAYMENT_PROVIDER="hrskills"`. L'interface de Vercel, elle, enregistre
- * la valeur littéralement — recopier la ligne telle quelle y produit la chaîne
- * `"hrskills"`, guillemets compris.
- *
- * Sur une énumération l'erreur est bruyante, donc bénigne. Sur une clé d'API
- * elle est silencieuse et bien plus coûteuse : la clé part avec ses
- * guillemets, le fournisseur répond « clé invalide », et on cherche le
- * problème du mauvais côté. On normalise donc à l'entrée.
- *
- * Une valeur légitime commençant ET finissant par un guillemet serait altérée ;
- * le cas ne se rencontre pas parmi les variables déclarées ici (identifiants,
- * URL, énumérations, nombres).
- */
-function sansGuillemets(valeur: string): string {
-  const t = valeur.trim();
-  if (t.length >= 2) {
-    const debut = t[0];
-    if ((debut === '"' || debut === "'") && t[t.length - 1] === debut) {
-      return t.slice(1, -1);
-    }
-  }
-  return t;
-}
 
 const brut: Record<string, string> = {};
 for (const [cle, valeur] of Object.entries(process.env)) {

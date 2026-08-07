@@ -207,6 +207,25 @@ Il dit aussi explicitement ce qu'il ne peut pas vérifier : que l'URL du webhook
 est bien déclarée côté Live, que le secret posé vient de ce même environnement,
 et qu'un vrai encaissement aboutit.
 
+Il ne lit **que** les variables de paiement : pas besoin d'un `.env` complet ni
+d'une base de données pour le lancer. Pour contrôler les valeurs réellement en
+production plutôt que celles de la machine locale, récupère-les d'abord depuis
+l'hébergeur :
+
+```bash
+npx vercel env pull .env        # écrit les variables du projet Vercel
+pnpm verif:paiement
+```
+
+Ou, pour un contrôle ponctuel sans rien écrire sur le disque (PowerShell) :
+
+```powershell
+$env:PAYMENT_PROVIDER="hrskills"
+$env:HRSKILLS_CLE_A="..."; $env:HRSKILLS_CLE_B="..."
+$env:HRSKILLS_WEBHOOK_SECRET="..."; $env:CRON_SECRET="..."
+pnpm verif:paiement
+```
+
 ### Deux points constatés en sandbox, non documentés par le fournisseur
 
 - les encaissements de test ne sont servis que sous `/sandbox` (le préfixe
