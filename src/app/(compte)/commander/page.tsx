@@ -127,10 +127,10 @@ export default async function CommanderPage({
               </svg>
               Mode de paiement
             </h2>
-            {/* Le message n'apparaît que si l'acheteur choisit réellement le
-                paiement à la livraison : en CSS seul, sans JavaScript, pour
-                qu'il fonctionne aussi sur les navigateurs où les scripts
-                n'ont pas chargé. */}
+            {/* Un seul `group` pour les deux modes : ce qui ne concerne qu'un
+                mode ne s'affiche que s'il est retenu. En CSS seul, sans
+                JavaScript, pour que cela fonctionne aussi sur les navigateurs
+                où les scripts n'ont pas chargé. */}
             <div className="group space-y-3">
               <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
                 <input type="radio" name="mode" value="COD" defaultChecked={!depassePlafond && !codIndisponible} className="mt-1 accent-nile-700" />
@@ -155,35 +155,39 @@ export default async function CommanderPage({
                   livraison, ou réglez toute la commande par Mobile Money.
                 </p>
               )}
+
+              <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
+                <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond || codIndisponible} className="mt-1 accent-nile-700" />
+                <span className="flex shrink-0 gap-1.5">
+                  <span className="grid h-8 w-8 place-items-center rounded bg-[#ffcb05] text-[10px] font-bold text-black">MTN</span>
+                  <span className="grid h-8 w-8 place-items-center rounded bg-[#ff7900] text-[10px] font-bold text-white">OM</span>
+                </span>
+                <span className="min-w-0">
+                  <span className="block text-etiquette-md text-slate-900">Mobile Money</span>
+                  <span className="block text-corps-sm text-slate-500">
+                    {sansRedirection
+                      ? "MTN MoMo ou Orange Money. La demande de paiement arrive sur votre téléphone."
+                      : "MTN MoMo ou Orange Money, sur une page de paiement sécurisée."}
+                  </span>
+                </span>
+              </label>
+
+              {/* L'opérateur ne s'affiche QUE si Mobile Money est retenu : il
+                  n'a aucun sens sous un paiement en espèces, et l'afficher en
+                  permanence encombrait l'écran d'un choix hors sujet. Le
+                  fournisseur sollicite directement le portefeuille du client,
+                  il faut donc savoir lequel interroger — et le serveur le
+                  revérifie, cet affichage ne protège de rien. */}
+              {sansRedirection && (
+                <div className="hidden group-has-[input[value=MONETBIL]:checked]:block">
+                  <ChoixOperateur
+                    telephone={derniere?.destTelephone ?? utilisateur.telephone}
+                    note="Gardez votre téléphone à portée : la demande expire au bout de 10 minutes sans confirmation."
+                  />
+                </div>
+              )}
             </div>
 
-            <label className="flex cursor-pointer items-start gap-3 rounded border border-contour-carte p-4 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-              <input type="radio" name="mode" value="MONETBIL" defaultChecked={depassePlafond || codIndisponible} className="mt-1 accent-nile-700" />
-              <span className="flex shrink-0 gap-1.5">
-                <span className="grid h-8 w-8 place-items-center rounded bg-[#ffcb05] text-[10px] font-bold text-black">MTN</span>
-                <span className="grid h-8 w-8 place-items-center rounded bg-[#ff7900] text-[10px] font-bold text-white">OM</span>
-              </span>
-              <span className="min-w-0">
-                <span className="block text-etiquette-md text-slate-900">Mobile Money</span>
-                <span className="block text-corps-sm text-slate-500">
-                  {sansRedirection
-                    ? "MTN MoMo ou Orange Money. Vous recevrez une demande de confirmation directement sur votre téléphone."
-                    : "MTN MoMo ou Orange Money. Vous choisirez l'opérateur et saisirez votre numéro sur la page de paiement sécurisée."}
-                </span>
-              </span>
-            </label>
-
-            {/* Le fournisseur sollicite directement le portefeuille du client :
-                il faut donc savoir QUEL opérateur interroger. Affiché en
-                permanence plutôt qu'au clic — sans JavaScript, un champ
-                conditionnel ne s'afficherait jamais. À n'utiliser QUE si le
-                mode Mobile Money est retenu : le serveur s'en assure. */}
-            {sansRedirection && (
-              <ChoixOperateur
-                telephone={derniere?.destTelephone ?? utilisateur.telephone}
-                note="Gardez votre téléphone à portée : la demande expire au bout de 10 minutes sans confirmation."
-              />
-            )}
             {/* Code promo. Le montant de la remise n'est PAS calculé ici :
                 il est établi au moment d'enregistrer la commande, sur le total
                 recalculé côté serveur. Afficher un montant ici obligerait à le
@@ -204,8 +208,7 @@ export default async function CommanderPage({
                 className="mt-1.5 w-full rounded border border-contour-carte px-3 py-2.5 text-corps-sm uppercase placeholder:normal-case placeholder:text-slate-400 focus:border-nile-700 focus:outline-none"
               />
               <p className="mt-1 text-etiquette-xs text-slate-500">
-                Valable uniquement avec un paiement Mobile Money. La remise
-                s&apos;applique au moment de la validation.
+                Mobile Money uniquement · remise appliquée à la validation.
               </p>
             </div>
 
@@ -217,20 +220,28 @@ export default async function CommanderPage({
             )}
           </Carte>
 
+          {/* Le montant n'est PAS répété ici : il est déjà au récapitulatif,
+              juste à côté sur grand écran et juste au-dessus sur mobile. Deux
+              fois le même chiffre à deux centimètres d'écart n'informe pas,
+              il encombre — et le jour où les deux divergeraient, plus personne
+              ne saurait lequel croire. */}
           <BoutonSoumettre
             enCours="Commande en cours…"
-            className={btn("accent", "lg", "h-14 w-full flex-wrap")}
+            className={btn("accent", "lg", "h-14 w-full")}
           >
             <span>Confirmer la commande</span>
-            <Prix montant={total} className="whitespace-nowrap" />
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
               <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
           </BoutonSoumettre>
         </form>
 
-        <div className="lg:col-span-1">
-          <Carte className="sticky top-24 overflow-hidden">
+        {/* Sur mobile, le récapitulatif passe AVANT le formulaire : on ne
+            demande pas de confirmer une commande avant d'avoir montré ce
+            qu'elle contient. Sur grand écran il retrouve sa colonne de droite,
+            où il reste visible pendant la saisie. */}
+        <div className="order-first lg:order-none lg:col-span-1">
+          <Carte className="overflow-hidden lg:sticky lg:top-24">
             <h2 className="border-b border-contour-carte px-5 py-4 text-titre-sm text-slate-900">
               Votre commande{" "}
               <span className="text-corps-sm font-normal text-slate-500">

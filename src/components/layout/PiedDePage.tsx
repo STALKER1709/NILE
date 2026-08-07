@@ -12,7 +12,7 @@ export function PiedDePage() {
         Retour en haut ↑
       </Link>
 
-      <div className="mx-auto grid max-w-conteneur grid-cols-2 gap-6 px-4 py-9 text-sm sm:grid-cols-4">
+      <div className="mx-auto grid max-w-conteneur grid-cols-2 gap-6 px-4 py-9 text-sm sm:grid-cols-3">
         <div className="col-span-2 sm:col-span-1">
           <p className="flex items-center gap-1.5 text-lg font-bold">
             <span className="grid h-7 w-7 place-items-center rounded bg-accent text-nile-950">N</span>
@@ -39,15 +39,12 @@ export function PiedDePage() {
             <li><Link href="/vendeur" className="hover:text-white">Espace vendeur</Link></li>
           </ul>
         </div>
-        <div>
-          <p className="font-semibold">Paiement</p>
-          <ul className="mt-2 space-y-1.5 text-white/60">
-            <li>MTN Mobile Money</li>
-            <li>Orange Money</li>
-            <li>À la livraison (COD)</li>
-          </ul>
-        </div>
       </div>
+      {/* Les moyens de paiement ne sont plus listés qu'ICI. Une colonne
+          « Paiement » les énumérait juste au-dessus, en texte, et ces pastilles
+          les répétaient immédiatement — deux fois la même information à trois
+          centimètres d'écart. Les pastilles gagnent : on reconnaît un logo
+          MTN ou Orange d'un coup d'œil, pas une ligne de liste. */}
       <div className="border-t border-white/10 py-4">
         <div className="flex flex-wrap items-center justify-center gap-2">
           <span className="rounded bg-[#ffcb05] px-2.5 py-1 text-[11px] font-bold text-slate-900">MTN MoMo</span>
