@@ -63,7 +63,7 @@ export async function rafraichirPaiementCommande(
   }
 
   if (decision === "INTERROGER" && paiement?.reference) {
-    await interroger(paiement.reference, commande.numero);
+    await interroger(paiement.reference, commande.numero, "acheteur");
     // Relit l'état après une éventuelle bascule plutôt que de le déduire :
     // `conclurePaiement` est idempotent et peut n'avoir rien écrit.
     const apres = await prisma.commande.findUnique({
@@ -95,9 +95,23 @@ export async function rafraichirPaiementCommande(
  * principal. Un fournisseur injoignable ne doit pas casser l'affichage de la
  * commande — la prochaine tentative retombera dessus.
  */
+/**
+ * Origine de la relecture. Conservée dans `Paiement.payload` parce qu'elle
+ * répond à une question qu'on ne peut pas se poser autrement : le balayage
+ * périodique tourne-t-il vraiment ?
+ *
+ * Sans cette distinction, la relecture de l'acheteur masque une panne du
+ * balayage — tant que les acheteurs gardent leur page ouverte, tout paraît
+ * marcher, et l'on ne découvre la panne que le jour où l'un d'eux ferme son
+ * navigateur avant de payer. C'est précisément le cas que ce filet existe
+ * pour couvrir.
+ */
+export type OrigineRelecture = "acheteur" | "balayage";
+
 async function interroger(
   referenceFournisseur: string,
   numeroCommande: string,
+  origine: OrigineRelecture,
 ): Promise<boolean> {
   const fournisseur = getPaymentProvider();
   if (!fournisseur.consulterStatut) return false; // pas de lecture de statut
@@ -111,8 +125,9 @@ async function interroger(
 
     const resultat = await conclurePaiement(referenceFournisseur, statut, {
       // Trace de provenance conservée dans `Paiement.payload` : ce paiement a
-      // été conclu par relecture, pas par notification reçue.
-      source: "relecture",
+      // été conclu par relecture — et par LAQUELLE — pas par notification
+      // reçue. Un `payload` sans `source` désigne donc un webhook.
+      source: `relecture:${origine}`,
       statut,
       reference: referenceFournisseur,
       lu_le: new Date().toISOString(),
@@ -125,13 +140,13 @@ async function interroger(
       return false;
     }
     console.info(
-      `[suivi] relecture appliquée · commande=${numeroCommande} ·`,
+      `[suivi:${origine}] relecture appliquée · commande=${numeroCommande} ·`,
       resultat.statut,
     );
     return true;
   } catch (erreur) {
     console.error(
-      `[suivi] relecture échouée · commande=${numeroCommande} ·`,
+      `[suivi:${origine}] relecture échouée · commande=${numeroCommande} ·`,
       erreur instanceof Error ? erreur.message : erreur,
     );
     return false;
@@ -215,7 +230,7 @@ export async function balayerPaiementsEnAttente(): Promise<ResultatBalayage> {
     examinees += 1;
     // Séquentiel, pas en parallèle : le fournisseur limite à 100 requêtes par
     // minute, et rien ici n'est urgent.
-    if (await interroger(paiement.reference, commande.numero)) conclues += 1;
+    if (await interroger(paiement.reference, commande.numero, "balayage")) conclues += 1;
   }
 
   if (examinees > 0) {
