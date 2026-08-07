@@ -24,6 +24,7 @@ import { CodeReception } from "@/components/livraison/CodeReception";
 import { ChoixOperateur } from "@/components/paiement/ChoixOperateur";
 import { SuiviPaiement } from "@/components/paiement/SuiviPaiement";
 import { paiementSansRedirection } from "@/modules/paiement";
+import { choisirAlerte } from "@/modules/commande/alertes-core";
 import { env } from "@/lib/env";
 
 export const dynamic = "force-dynamic";
@@ -61,19 +62,6 @@ const ETAPE_LIB: Record<(typeof ETAPES)[number], string> = {
   LIVREE: "Livrée",
 };
 
-const ALERTES: Record<string, { classe: string; texte: string }> = {
-  creee: { classe: "border-emerald-200 bg-emerald-50 text-emerald-700", texte: "Commande enregistrée ! Vous paierez à la livraison." },
-  paye: { classe: "border-emerald-200 bg-emerald-50 text-emerald-700", texte: "Paiement confirmé. Merci !" },
-  annulee: { classe: "border-amber-200 bg-accent-fixe text-amber-800", texte: "Commande annulée. Les articles ont été remis en stock." },
-  echec: { classe: "border-red-200 bg-red-50 text-red-700", texte: "Le paiement a échoué. La commande a été annulée et le stock restitué." },
-  reception: { classe: "border-emerald-200 bg-emerald-50 text-emerald-700", texte: "Merci ! Vous avez confirmé avoir reçu cette commande." },
-  paiement_en_cours: {
-    classe: "border-amber-200 bg-accent-fixe text-amber-800",
-    texte:
-      "Une demande de paiement vient d'être envoyée sur votre téléphone. Validez-la avec votre code Mobile Money : cette page se met à jour dès la confirmation.",
-  },
-};
-
 export default async function DetailCommandePage({
   params,
   searchParams,
@@ -98,7 +86,9 @@ export default async function DetailCommandePage({
   // LIVREE est un état terminal : dès que le code a été scanné ou saisi, la
   // dernière étape est FAITE, pas « en cours ». Le parcours s'arrête là.
   const parcoursAcheve = commande.statutCommande === "LIVREE";
-  const alerte = ok ? ALERTES[ok] : undefined;
+  // Le bandeau ne survit pas au changement d'état qu'il annonçait : le
+  // paramètre d'URL est figé à l'arrivée, la commande continue de vivre.
+  const alerte = choisirAlerte(ok, commande);
   const signature = await signatureCommandeAcheteur(utilisateur.id, id);
   // Pendant l'attente d'un paiement Mobile Money, c'est `SuiviPaiement` qui
   // interroge le fournisseur toutes les 10 s : le suivi générique ferait
