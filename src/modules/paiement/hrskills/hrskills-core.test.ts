@@ -8,6 +8,7 @@ import {
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
   structureJson,
+  diagnosticCorps,
   estCleDeTest,
   environnementCle,
   clesCoherentes,
@@ -270,5 +271,41 @@ describe("structureJson", () => {
     expect(structureJson(null)).toBe("null");
     expect(structureJson("texte")).toBe("string");
     expect(structureJson(42)).toBe("number");
+  });
+});
+
+describe("diagnosticCorps", () => {
+  it("reconnaît un corps vide — le cas du simple ping", () => {
+    // `JSON.parse("")` lève : sans cette description, le refus resterait muet
+    // et indiscernable d'un vrai événement mal lu.
+    expect(diagnosticCorps("", "application/json")).toBe(
+      "longueur=0 · type=application/json · corps VIDE",
+    );
+  });
+
+  it("nomme les champs d'un formulaire, jamais leurs valeurs", () => {
+    const d = diagnosticCorps(
+      "reference=ref_abc&status=SUCCESS&phone=%2B237699823686",
+      "application/x-www-form-urlencoded",
+    );
+    expect(d).toContain("champs: reference, status, phone");
+    expect(d).not.toContain("699823686");
+    expect(d).not.toContain("ref_abc");
+  });
+
+  it("signale un JSON malformé par son premier caractère", () => {
+    const d = diagnosticCorps('{"reference":', "application/json");
+    expect(d).toContain('débute par "{"');
+    expect(d).not.toContain("champs");
+  });
+
+  it("ignore les paramètres du type de contenu", () => {
+    expect(diagnosticCorps("", "application/json; charset=utf-8")).toContain(
+      "type=application/json",
+    );
+  });
+
+  it("supporte un type de contenu absent", () => {
+    expect(diagnosticCorps("", "")).toContain("type=(absent)");
   });
 });

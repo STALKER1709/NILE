@@ -14,6 +14,7 @@ import {
   verifierSignatureHrSkills,
   lireWebhookHrSkills,
   structureJson,
+  diagnosticCorps,
   racineHrSkills,
   cleIdempotence,
 } from "@/modules/paiement/hrskills/hrskills-core";
@@ -276,6 +277,16 @@ export class HrSkillsPayProvider implements PaymentProvider {
     try {
       charge = JSON.parse(contexte.brut);
     } catch {
+      // Signature valide mais corps inanalysable. Décrit sans ses valeurs :
+      // c'est ce qui distingue un simple ping — que refuser est correct — d'un
+      // vrai événement encodé autrement qu'en JSON.
+      console.error(
+        "[hrskills] webhook authentique mais corps non-JSON ·",
+        diagnosticCorps(
+          contexte.brut,
+          contexte.entetes.get("content-type") ?? "",
+        ),
+      );
       return { ok: false, raison: "DONNEES_MANQUANTES" };
     }
     const lu = lireWebhookHrSkills(charge);

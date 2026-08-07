@@ -213,6 +213,41 @@ export function structureJson(valeur: unknown, profondeur = 3): string {
   return `{${entrees.join(", ")}}`;
 }
 
+/**
+ * Décrit un corps de webhook qui n'a pas pu être analysé — SANS ses valeurs.
+ *
+ * Ce cas est muet par nature : la signature est valide, donc la charge est
+ * authentique, mais elle ne se laisse pas lire. Sans description, on ne peut
+ * pas distinguer trois situations qui appellent trois réponses différentes :
+ * un corps vide (un simple ping du bouton « Tester », que refuser est
+ * correct), un corps encodé en formulaire plutôt qu'en JSON, ou un JSON
+ * réellement malformé.
+ *
+ * Longueur, type déclaré, premier caractère, et — si le corps ressemble à un
+ * formulaire — le NOM de ses champs. Jamais leur contenu : un webhook de
+ * paiement transporte un numéro de téléphone et un montant.
+ */
+export function diagnosticCorps(brut: string, contentType: string): string {
+  const type = contentType.split(";")[0]?.trim() || "(absent)";
+  const morceaux = [`longueur=${brut.length}`, `type=${type}`];
+
+  if (brut.length === 0) {
+    morceaux.push("corps VIDE");
+    return morceaux.join(" · ");
+  }
+  morceaux.push(`débute par ${JSON.stringify(brut[0])}`);
+
+  // Encodage de formulaire : reconnaissable à ses `clé=valeur` séparés par
+  // `&`, et dont seuls les noms sont restitués.
+  if (!brut.startsWith("{") && !brut.startsWith("[") && brut.includes("=")) {
+    const cles = [...new URLSearchParams(brut).keys()];
+    if (cles.length > 0) {
+      morceaux.push(`ressemble à un formulaire · champs: ${cles.join(", ")}`);
+    }
+  }
+  return morceaux.join(" · ");
+}
+
 export function lireWebhookHrSkills(charge: unknown): WebhookHrSkills | null {
   if (typeof charge !== "object" || charge === null) return null;
   const racine = charge as Json;
