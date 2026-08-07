@@ -1,0 +1,16 @@
+# Réglages pnpm du projet.
+#
+# À partir de pnpm 10, ces réglages ne sont PLUS lus depuis le champ `pnpm`
+# de package.json : ils vivent ici. Laissés là-bas, ils sont ignorés en
+# silence — pnpm bloque alors les scripts de build de Prisma et sort en
+# erreur, ce qui casse toute commande passant par `pnpm` (voir pnpm.io/settings).
+#
+# Ces paquets ont un besoin LÉGITIME d'exécuter un script d'installation :
+# Prisma télécharge ses moteurs, esbuild et sharp installent un binaire natif.
+# Sans cette autorisation, `prisma generate` et le build échouent.
+onlyBuiltDependencies:
+  - "@prisma/client"
+  - "@prisma/engines"
+  - prisma
+  - esbuild
+  - sharp
