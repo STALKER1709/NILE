@@ -1,15 +1,17 @@
-allowBuilds:
-  '@prisma/client': set this to true or false
-  '@prisma/engines': set this to true or false
-  esbuild: set this to true or false
-  prisma: set this to true or false
-  sharp: set this to true or false
 # Réglages pnpm du projet.
 #
-# Ils ne sont PLUS lus depuis le champ `pnpm` de package.json (retiré en
-# pnpm 10) : ils vivent ici. Deux clés cohabitent volontairement, car la
-# machine de développement et l'hébergeur n'ont pas forcément la même version
-# de pnpm, et une seule des deux suffit à faire échouer l'installation.
+# ⚠️ NE PAS ajouter un second bloc `allowBuilds:`. pnpm 11 en écrit un
+# lui-même — avec la valeur « set this to true or false » — quand un paquet
+# manque à la liste, et le fichier finit avec deux clés identiques. YAML
+# refuse alors de se charger (« duplicated mapping key ») et plus aucune
+# commande pnpm ne démarre. Si pnpm vient d'en ajouter un, remplace les
+# « set this to true or false » par `true` ou `false` DANS le bloc ci-dessous,
+# puis supprime le bloc qu'il a créé.
+#
+# Ces réglages ne sont plus lus depuis le champ `pnpm` de package.json
+# (retiré en pnpm 10). Les deux clés ci-dessous cohabitent volontairement :
+# la machine de développement et l'hébergeur n'ont pas forcément la même
+# version de pnpm, et chacune ignore sans bruit celle qu'elle ne connaît pas.
 #
 # Ces paquets ont un besoin LÉGITIME d'exécuter un script d'installation :
 # Prisma télécharge ses moteurs, esbuild et sharp posent un binaire natif.
