@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { getPaymentProvider } from "@/modules/paiement";
 import { conclurePaiement } from "@/modules/paiement/notification";
 import { decisionSuivi } from "@/modules/paiement/suivi-core";
+import { marquerBalayage } from "@/modules/paiement/battement";
 
 /**
  * Relecture du statut d'un paiement Mobile Money à notre initiative.
@@ -236,5 +237,9 @@ export async function balayerPaiementsEnAttente(): Promise<ResultatBalayage> {
   if (examinees > 0) {
     console.info(`[balayage] ${conclues} conclu(s) sur ${examinees} examiné(s)`);
   }
+  // Trace horodatée de CHAQUE passage, y compris quand il n'y avait rien à
+  // examiner : c'est l'absence de passage qu'on cherche à voir, pas le travail
+  // accompli. Sans elle, la panne de ce filet reste invisible.
+  await marquerBalayage(examinees, conclues);
   return { examinees, conclues };
 }

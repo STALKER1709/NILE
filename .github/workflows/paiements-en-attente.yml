@@ -26,9 +26,16 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           URL_SITE: ${{ vars.URL_SITE || 'https://nile-beige.vercel.app' }}
         run: |
+          # Échec BRUYANT, et non plus silencieux : depuis que des paiements
+          # réels transitent, un balayage qui ne tourne pas est un défaut, pas
+          # une configuration facultative. Un workflow rouge et son courriel
+          # valent mieux qu'une commande payée figée découverte des jours plus
+          # tard.
           if [ -z "$CRON_SECRET" ]; then
-            echo "CRON_SECRET absent des secrets du dépôt : rien à faire."
-            exit 0
+            echo "::error::CRON_SECRET absent des secrets du dépôt GitHub."
+            echo "Le balayage ne peut pas tourner : un acheteur qui paie puis"
+            echo "ferme son navigateur ne serait plus rattrapé."
+            exit 1
           fi
           code=$(curl -sS -o /tmp/reponse.json -w "%{http_code}" \
             -X POST "$URL_SITE/api/cron/paiements-en-attente" \
@@ -36,10 +43,13 @@ jobs:
           echo "HTTP $code"
           cat /tmp/reponse.json
           echo
-          # 503 = fonction non configurée côté app : on ne fait pas échouer le
-          # workflow pour autant (rien de cassé, la variable n'est pas posée).
+          # 503 = la route se déclare inactive, donc CRON_SECRET manque côté
+          # HÉBERGEUR. C'est le cas le plus traître : le secret est posé ici,
+          # tout semble configuré, et le filet ne tourne pas.
           if [ "$code" = "503" ]; then
-            echo "Route inactive (CRON_SECRET non configuré sur Vercel)."
-            exit 0
+            echo "::error::CRON_SECRET absent côté Vercel (la route répond 503)."
+            echo "Pose-le dans Vercel > Settings > Environment Variables, à"
+            echo "l'identique de celui des secrets du dépôt."
+            exit 1
           fi
           [ "$code" = "200" ]

@@ -11,6 +11,8 @@ import {
   BadgeStatutPaiement,
 } from "@/components/commande/StatutBadges";
 import { Carte, Prix } from "@/components/ui/kit";
+import { dernierBalayage } from "@/modules/paiement/battement";
+import { etatBalayage, messageBalayage } from "@/modules/paiement/battement-core";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Back-office" };
@@ -28,7 +30,7 @@ const LIENS = [
 
 export default async function AdminPage() {
   await exigerRole("ADMIN");
-  const [stats, soldes, nbUtilisateurs, nbVendeurs, nbEnAttente, produitsActifs] =
+  const [stats, soldes, nbUtilisateurs, nbVendeurs, nbEnAttente, produitsActifs, battement] =
     await Promise.all([
       statsAdmin(),
       listerSoldesVendeurs(),
@@ -36,7 +38,12 @@ export default async function AdminPage() {
       prisma.vendeur.count(),
       prisma.vendeur.count({ where: { statutValidation: "EN_ATTENTE" } }),
       prisma.produit.count({ where: { statut: "ACTIF" } }),
+      dernierBalayage(),
     ]);
+  // Dernier filet du parcours de paiement. Sa panne étant silencieuse, elle
+  // n'apparaît nulle part ailleurs — d'où cette alerte en tête de back-office,
+  // affichée UNIQUEMENT quand il y a lieu de s'inquiéter.
+  const etatSuivi = etatBalayage(battement);
   const duVendeurs = soldes.reduce((s, v) => s + v.solde, 0);
 
   return (
@@ -47,6 +54,13 @@ export default async function AdminPage() {
           <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
         )}
       </div>
+
+      {etatSuivi !== "ACTIF" && (
+        <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2.5 text-sm text-amber-900">
+          <strong>Paiements — filet de rattrapage inactif.</strong>{" "}
+          {messageBalayage(etatSuivi)}
+        </p>
+      )}
 
       {/* Argent */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
