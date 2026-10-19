@@ -8,8 +8,6 @@ import { favorisParmi } from "@/modules/catalogue/favoris";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { CarteBoutique } from "@/components/boutique/CarteBoutique";
-import { Carrousel } from "@/components/ui/Carrousel";
-import { DiapoMarque, DiapoLivraison, DiapoMomo } from "@/components/accueil/Diapos";
 import { IconeCategorie } from "@/components/categorie/IconeCategorie";
 import { btn } from "@/components/ui/kit";
 
@@ -47,55 +45,72 @@ export default async function AccueilPage() {
   );
 
   return (
-    <div className="space-y-8 sm:space-y-16">
-      {/* Bannière éditoriale (carrousel plein cadre) */}
+    <div className="space-y-10 sm:space-y-16">
       <h1 className="sr-only">NILE Marketplace, achats en ligne au Cameroun</h1>
-      <Carrousel etiquette="Offres et services NILE">
-        <DiapoMarque />
-        <DiapoLivraison />
-        <DiapoMomo />
-      </Carrousel>
 
-      {/* Barre de confiance */}
-      <section className="grid grid-cols-1 gap-gouttiere md:grid-cols-3">
-        <Garantie
-          titre="Paiement à la livraison"
-          texte="Commandez, vérifiez votre colis, puis payez en espèces à la réception."
-          index={0}
-          icone={
-            <path d="M3 6h18v12H3z M3 10h18 M7 15h4" strokeLinecap="round" strokeLinejoin="round" />
-          }
+      <section className="relative isolate overflow-hidden rounded-lg bg-nile-950 text-white">
+        <div className="absolute inset-y-0 right-0 w-full sm:w-[58%]">
+          <Image
+            src="/bannieres/marche.jpg"
+            alt="Commerçante dans sa boutique au Cameroun"
+            fill
+            priority
+            sizes="(max-width: 640px) 100vw, 58vw"
+            className="object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-nile-950 via-nile-950/65 to-nile-950/10 sm:bg-gradient-to-r sm:from-nile-950 sm:via-nile-950/80 sm:to-transparent" />
+        </div>
+        <div className="relative z-10 flex min-h-[30rem] max-w-2xl flex-col justify-end px-6 pb-9 pt-64 sm:min-h-[31rem] sm:justify-center sm:px-12 sm:py-12 lg:px-16">
+          <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-etiquette-xs font-semibold text-white backdrop-blur-sm">
+            <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
+            La marketplace du Cameroun
+          </span>
+          <h2 className="max-w-xl font-titre text-[2.5rem] font-bold leading-[1.05] sm:text-display-lg">
+            Les bonnes trouvailles, tout près de vous.
+          </h2>
+          <p className="mt-5 max-w-lg text-corps-md text-white/85 sm:text-corps-lg">
+            Découvrez les boutiques d'ici. Faites-vous livrer partout au Cameroun et payez à votre façon.
+          </p>
+          <div className="mt-7 flex flex-wrap items-center gap-3">
+            <Link href="/catalogue" className={btn("accent", "lg")}>
+              Explorer le catalogue
+            </Link>
+            <Link
+              href="/boutiques"
+              className="inline-flex min-h-12 items-center gap-2 rounded border border-white/55 px-5 py-3 text-etiquette-md font-semibold text-white transition-colors hover:bg-white/10"
+            >
+              Voir les boutiques
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section aria-label="Les avantages NILE" className="grid grid-cols-1 divide-y divide-contour-carte border-y border-contour-carte sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+        <Avantage
+          titre="Livraison gratuite"
+          texte="Partout au Cameroun"
+          icone={<path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" strokeLinejoin="round" />}
         />
-        <Garantie
-          titre="Mobile Money sécurisé"
-          texte="MTN MoMo et Orange Money : le paiement est confirmé côté serveur."
-          index={1}
-          icone={
-            <>
-              <rect x="6" y="3" width="12" height="18" rx="2" />
-              <path d="M11 18h2" strokeLinecap="round" />
-            </>
-          }
+        <Avantage
+          titre="Payez à la réception"
+          texte="Vérifiez avant de régler"
+          icone={<path d="M3 6h18v12H3z M3 10h18 M7 15h4" strokeLinecap="round" strokeLinejoin="round" />}
         />
-        <Garantie
-          titre="Livraison partout au Cameroun"
-          texte="Livraison gratuite à l'adresse que vous indiquez, dans tout le pays."
-          index={2}
-          icone={
-            <>
-              <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" strokeLinejoin="round" />
-              <circle cx="7" cy="17" r="1.5" />
-              <circle cx="17" cy="17" r="1.5" />
-            </>
-          }
+        <Avantage
+          titre="Mobile Money"
+          texte="MTN MoMo et Orange Money"
+          icone={<><rect x="6" y="3" width="12" height="18" rx="2" /><path d="M11 18h2" strokeLinecap="round" /></>}
         />
       </section>
 
-      {/* Rayons : grandes cartes illustrées */}
+      {/* Rayons : photos du catalogue, défilement horizontal sur mobile */}
       {racines.length > 0 && (
         <section>
-          <EnteteSection titre="Explorer les rayons" lien="/catalogue" libelleLien="Voir tout" />
-          <div className="grid grid-cols-1 gap-gouttiere sm:grid-cols-2">
+          <EnteteSection titre="Explorer les rayons" lien="/catalogue" libelleLien="Tous les rayons" />
+          <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible sm:px-0 lg:grid-cols-6">
             {racines.map((c, i) => {
               const visuel = visuels[c.id];
               return (
@@ -103,36 +118,28 @@ export default async function AccueilPage() {
                   key={c.id}
                   href={`/catalogue?categorie=${c.slug}`}
                   style={{ animationDelay: `${i * 60}ms` }}
-                  className="group relative flex h-48 animate-fondu-haut items-center overflow-hidden rounded-xl border border-contour-carte bg-surface-moyenne"
+                  className="group relative h-36 w-44 shrink-0 snap-start animate-fondu-haut overflow-hidden rounded bg-nile-800 sm:h-auto sm:w-auto sm:aspect-[4/3]"
                 >
-                  <div className="z-10 max-w-[60%] p-6 sm:p-10">
-                    <h3 className="text-titre-sm text-nile-800">{c.nom}</h3>
-                    <span className="mt-2 inline-flex items-center gap-1 text-etiquette-md text-accent-deep transition-transform group-hover:translate-x-2">
-                      Voir le rayon
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true">
-                        <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-                      </svg>
+                  {visuel ? (
+                    <Image
+                      src={visuel}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 176px, (max-width: 1024px) 30vw, 16vw"
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <span className="absolute inset-0 grid place-items-center text-white/80">
+                      <span className="scale-150"><IconeCategorie nom={c.nom} /></span>
                     </span>
-                  </div>
-                  <div className="absolute right-0 top-0 h-full w-1/2">
-                    {visuel ? (
-                      <Image
-                        src={visuel}
-                        alt=""
-                        fill
-                        sizes="(max-width: 640px) 50vw, 320px"
-                        className="object-cover opacity-60 grayscale transition-all duration-500 group-hover:opacity-100 group-hover:grayscale-0"
-                      />
-                    ) : (
-                      // Aucun produit illustré dans ce rayon : icône plutôt qu'une
-                      // photo qui ne représenterait rien du catalogue réel.
-                      <span className="grid h-full w-full place-items-center bg-nile-50 text-nile-500 transition-colors group-hover:text-nile-700">
-                        <span className="scale-[2.2]">
-                          <IconeCategorie nom={c.nom} />
-                        </span>
-                      </span>
-                    )}
-                  </div>
+                  )}
+                  <span className="absolute inset-0 bg-gradient-to-t from-nile-950/90 via-nile-950/15 to-transparent" />
+                  <span className="absolute inset-x-0 bottom-0 flex items-end justify-between gap-2 p-3 text-white">
+                    <span className="text-etiquette-md font-bold leading-tight">{c.nom}</span>
+                    <svg className="mb-0.5 shrink-0 transition-transform group-hover:translate-x-1" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                      <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
                 </Link>
               );
             })}
@@ -140,19 +147,7 @@ export default async function AccueilPage() {
         </section>
       )}
 
-      {/* Boutiques à découvrir */}
-      {boutiques.length > 0 && (
-        <section>
-          <EnteteSection titre="Boutiques à découvrir" lien="/boutiques" libelleLien="Toutes les boutiques" />
-          <div className="no-scrollbar flex gap-3.5 overflow-x-auto pb-2">
-            {boutiques.map((b, i) => (
-              <CarteBoutique key={b.id} boutique={b} compact index={i} />
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Les mieux notés */}
+      {/* Produits populaires : le catalogue arrive dès le premier défilement */}
       {populaires.length > 0 && (
         <SectionProduits
           titre="Les mieux notés"
@@ -183,32 +178,28 @@ export default async function AccueilPage() {
         vide="Le catalogue se remplit bientôt."
       />
 
-      {/* Paiements flexibles */}
-      <SectionPaiement />
-
-      {/* Appel à l'action final : bandeau pleine largeur, contenu centré */}
-      <section className="pleine-largeur bg-nile-dark py-16 text-white sm:py-section">
-        <div className="mx-auto max-w-conteneur px-4 text-center sm:px-10">
-          <h2 className="font-titre text-titre-sm sm:text-titre-md">Prêt à faire de bonnes affaires ?</h2>
-          <p className="mx-auto mt-4 max-w-2xl text-corps-md text-nile-surConteneur">
-            Créez votre compte en quelques instants et payez comme vous voulez :
-            Mobile Money ou en espèces à la livraison.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Link href="/catalogue" className={btn("accent", "lg")}>
-              Parcourir le catalogue
-            </Link>
-            {!utilisateur && (
-              <Link
-                href="/inscription"
-                className="inline-flex items-center justify-center rounded border border-nile-surConteneur px-8 py-3 text-etiquette-md font-bold text-white transition-colors hover:bg-nile-conteneur"
-              >
-                S'inscrire gratuitement
-              </Link>
-            )}
+      {boutiques.length > 0 && (
+        <section>
+          <EnteteSection titre="Les boutiques du moment" lien="/boutiques" libelleLien="Toutes les boutiques" />
+          <div className="no-scrollbar flex gap-3.5 overflow-x-auto pb-2">
+            {boutiques.map((b, i) => (
+              <CarteBoutique key={b.id} boutique={b} compact index={i} />
+            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
+
+      {!utilisateur && (
+        <section className="flex flex-col gap-5 rounded-lg bg-accent-fixe px-6 py-7 sm:flex-row sm:items-center sm:justify-between sm:px-10">
+          <div>
+            <h2 className="font-titre text-titre-sm text-nile-900">Vos prochaines trouvailles vous attendent.</h2>
+            <p className="mt-1 text-corps-sm text-nile-800">Créez un compte pour retrouver vos favoris et vos commandes.</p>
+          </div>
+          <Link href="/inscription" className={btn("primaire", "md")}>
+            Créer mon compte
+          </Link>
+        </section>
+      )}
     </div>
   );
 }
@@ -230,84 +221,6 @@ function EnteteSection({
         {libelleLien} →
       </Link>
     </div>
-  );
-}
-
-/**
- * Bloc « paiements flexibles » : rappelle les trois moyens de paiement
- * réellement disponibles sur la plateforme (Monetbil + espèces à la livraison).
- */
-function SectionPaiement() {
-  return (
-    <section className="rounded-xl2 border border-contour-carte bg-white p-6 sm:p-12">
-      <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
-        <div>
-          <span className="block text-etiquette-xs font-bold uppercase tracking-[0.2em] text-accent-deep">
-            Paiements flexibles
-          </span>
-          <h2 className="mt-4 font-titre text-display-mobile leading-tight text-nile-800 lg:text-display-lg">
-            Payez comme vous voulez, où que vous soyez
-          </h2>
-          <p className="mt-6 max-w-lg text-corps-md text-slate-600 sm:text-corps-lg">
-            Mobile Money via notre agrégateur, ou espèces à la remise du colis.
-            Choisissez le mode qui vous convient au moment de commander.
-          </p>
-          <ul className="mt-8 flex flex-wrap gap-4">
-            <MoyenPaiement pastille={<span className="text-xs font-bold text-accent-sur">MTN</span>} fond="bg-accent" libelle="MTN MoMo" />
-            <MoyenPaiement pastille={<span className="text-xs font-bold text-white">OM</span>} fond="bg-[#FF6600]" libelle="Orange Money" />
-            <MoyenPaiement
-              fond="bg-nile-100"
-              libelle="À la livraison"
-              pastille={
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="text-nile-700" aria-hidden="true">
-                  <rect x="2" y="6" width="20" height="12" rx="2" />
-                  <circle cx="12" cy="12" r="2.5" />
-                </svg>
-              }
-            />
-          </ul>
-        </div>
-
-        <div className="relative">
-          <div className="overflow-hidden rounded-[1.5rem] shadow-flottant lg:rotate-2">
-            <Image
-              src="/bannieres/momo.jpg"
-              alt="Paiement par téléphone mobile"
-              width={800}
-              height={600}
-              sizes="(max-width: 1024px) 100vw, 560px"
-              className="aspect-[4/3] w-full object-cover"
-            />
-          </div>
-          {/* Pastille « vérifié » : animation désactivée si l'utilisateur
-              a demandé de réduire les animations. */}
-          <span className="absolute -bottom-5 -left-5 grid h-[4.5rem] w-[4.5rem] place-items-center rounded-xl2 bg-accent text-accent-sur shadow-flottant motion-safe:animate-bounce">
-            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
-              <path d="M12 3l7.5 3v6c0 4.2-3 7.6-7.5 9-4.5-1.4-7.5-4.8-7.5-9V6z" strokeLinejoin="round" />
-              <path d="m8.8 12 2.2 2.2 4.2-4.4" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-          </span>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function MoyenPaiement({
-  pastille,
-  fond,
-  libelle,
-}: {
-  pastille: React.ReactNode;
-  /** Classe de fond de la pastille (couleur de l'opérateur). */
-  fond: string;
-  libelle: string;
-}) {
-  return (
-    <li className="flex items-center gap-3 rounded-xl border border-contour-carte bg-surface-moyenne px-5 py-3 transition-colors hover:border-accent">
-      <span className={`grid h-10 w-10 shrink-0 place-items-center rounded ${fond}`}>{pastille}</span>
-      <span className="text-etiquette-md font-bold text-slate-900">{libelle}</span>
-    </li>
   );
 }
 
@@ -350,30 +263,25 @@ function SectionProduits({
   );
 }
 
-function Garantie({
+function Avantage({
   titre,
   texte,
   icone,
-  index = 0,
 }: {
   titre: string;
   texte: string;
   icone: React.ReactNode;
-  index?: number;
 }) {
   return (
-    <div
-      style={{ animationDelay: `${index * 80}ms` }}
-      className="flex animate-fondu-haut items-start gap-4 rounded border border-contour-carte bg-white p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-carte-hover"
-    >
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-nile-200 text-nile-700">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
+    <div className="flex items-center gap-3 px-2 py-4 sm:justify-center sm:px-4 sm:py-5">
+      <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-nile-100 text-nile-800">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true">
           {icone}
         </svg>
       </span>
       <div>
         <h3 className="text-etiquette-md font-bold text-slate-900">{titre}</h3>
-        <p className="mt-1 text-corps-sm text-slate-600">{texte}</p>
+        <p className="text-corps-sm text-slate-600">{texte}</p>
       </div>
     </div>
   );
