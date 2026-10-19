@@ -36,6 +36,19 @@ enum StatutVendeur {
   SUSPENDU
 }
 
+enum StatutKyc {
+  NON_SOUMIS
+  EN_REVUE
+  VALIDE
+  REJETE
+}
+
+enum TypePieceIdentite {
+  CNI
+  PASSEPORT
+  RECEPISSE
+}
+
 enum StatutProduit {
   BROUILLON
   ACTIF
@@ -167,6 +180,7 @@ model Vendeur {
   lignesCommande LigneCommande[]
   reversements   Reversement[]
   promotions     Promotion[]
+  kyc            KycVendeur?
 
   @@index([statutValidation])
 }
@@ -631,3 +645,47 @@ model Annonce {
 
   @@index([epinglee, dateCreation])
 }
+
+// Dossier KYC (Know Your Customer) pour la vérification de l'identité du vendeur.
+// Obligatoire pour pouvoir publier et vendre sur la plateforme.
+// Inclut un selfie obligatoire pour certifier l'appartenance de la pièce d'identité.
+model KycVendeur {
+  id                     String            @id @default(uuid())
+  vendeurId              String            @unique
+  vendeur                Vendeur           @relation(fields: [vendeurId], references: [id], onDelete: Cascade)
+  statut                 StatutKyc         @default(NON_SOUMIS)
+
+  // Entreprise ou vendeur individuel
+  estEntreprise          Boolean           @default(false)
+  nomEntreprise          String?
+  niu                    String?           // Numéro d'Identification Unique (DGI Cameroun)
+  rccm                   String?           // Registre du Commerce et du Crédit Mobilier
+  registreCommerceUrl    String?
+  registreCommerceChemin String?
+
+  // Identité de la personne physique (ou représentant légal)
+  nomComplet             String?
+  typePiece              TypePieceIdentite @default(CNI)
+  numeroPiece            String?
+  dateExpirationPiece    DateTime?
+
+  // Justificatifs d'identité
+  pieceRectoUrl          String?
+  pieceRectoChemin       String?
+  pieceVersoUrl          String?
+  pieceVersoChemin       String?
+
+  // Selfie avec la pièce d'identité en main pour certifier l'appartenance
+  selfieUrl              String?
+  selfieChemin           String?
+
+  // Modération et audit
+  motifRejet             String?
+  dateSoumission         DateTime?
+  dateValidation         DateTime?
+  dateCreation           DateTime          @default(now())
+  dateMaj                DateTime          @updatedAt
+
+  @@index([statut])
+}
+

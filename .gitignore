@@ -27,3 +27,5 @@ npm-debug.log*
 .DS_Store
 /coverage
 /.vitest
+.vercel
+.env*

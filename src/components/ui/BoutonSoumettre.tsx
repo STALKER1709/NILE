@@ -13,15 +13,18 @@ export function BoutonSoumettre({
   children,
   enCours = "Un instant…",
   className,
+  disabled = false,
 }: {
   children: ReactNode;
   /** Libellé affiché pendant l'envoi. */
   enCours?: string;
   className: string;
+  disabled?: boolean;
 }) {
   const { pending } = useFormStatus();
+  const estDesactive = pending || disabled;
   return (
-    <button type="submit" disabled={pending} className={className} aria-busy={pending}>
+    <button type="submit" disabled={estDesactive} className={className} aria-busy={pending}>
       {pending ? (
         <>
           <IconeAttente />

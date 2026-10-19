@@ -20,7 +20,7 @@ export default async function VendeurPage() {
   const utilisateur = await exigerRole("VENDEUR");
   const vendeur = await prisma.vendeur.findUnique({
     where: { utilisateurId: utilisateur.id },
-    include: { _count: { select: { produits: true } } },
+    include: { _count: { select: { produits: true } }, kyc: true },
   });
   if (!vendeur) {
     return <p className="text-sm text-slate-500">Profil boutique introuvable.</p>;
@@ -46,15 +46,48 @@ export default async function VendeurPage() {
             <span className="font-semibold text-slate-700">{vendeur.nomBoutique}</span>.
           </p>
         </div>
-        <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
-          {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : "En attente de validation"}
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
+            {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : "En attente de validation"}
+          </Badge>
+          <Link href="/vendeur/kyc" className={btn("ghost", "sm")}>
+            Mon KYC
+          </Link>
+        </div>
       </div>
 
-      {vendeur.statutValidation === "EN_ATTENTE" && (
-        <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
-          Votre boutique est en attente de validation. Vous pouvez préparer vos
-          produits ; la publication sera possible une fois validée.
+      {/* Alerte KYC vendeur */}
+      {(!vendeur.kyc || vendeur.kyc.statut === "NON_SOUMIS") && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">
+          <div>
+            <p className="font-semibold">Vérification d'identité requise (KYC)</p>
+            <p className="text-xs text-amber-800">
+              Pour publier vos articles et recevoir vos reversements, soumettez votre pièce d'identité et votre selfie de vérification.
+            </p>
+          </div>
+          <Link href="/vendeur/kyc" className={btn("accent", "sm")}>
+            Compléter mon KYC →
+          </Link>
+        </div>
+      )}
+
+      {vendeur.kyc?.statut === "REJETE" && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded border border-red-300 bg-red-50 p-4 text-sm text-red-900">
+          <div>
+            <p className="font-semibold">Votre dossier KYC a été refusé</p>
+            <p className="text-xs text-red-700">
+              Motif : {vendeur.kyc.motifRejet ?? "Des pièces sont non conformes ou illisibles."}
+            </p>
+          </div>
+          <Link href="/vendeur/kyc" className={btn("danger", "sm")}>
+            Corriger mon dossier →
+          </Link>
+        </div>
+      )}
+
+      {vendeur.kyc?.statut === "EN_REVUE" && (
+        <p className="rounded border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-800">
+          Votre dossier KYC est en cours de vérification par un administrateur.
         </p>
       )}
 

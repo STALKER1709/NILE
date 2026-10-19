@@ -49,10 +49,38 @@ export default async function AdminVendeursPage({
                   {v.nomBoutique}
                   {v.estBoutiqueMaison && <span className="ml-2"><Badge ton="bleu">maison</Badge></span>}
                 </p>
-                <p className="text-xs text-slate-500">{v.utilisateur.nom} · {v.utilisateur.email} · {v._count.produits} produit(s)</p>
+                <p className="text-xs text-slate-500">
+                  {v.utilisateur.nom} · {v.utilisateur.email} · {v._count.produits} produit(s)
+                </p>
               </div>
-              <Badge ton={v.statutValidation === "VALIDE" ? "vert" : v.statutValidation === "EN_ATTENTE" ? "ambre" : "rouge"}>{v.statutValidation}</Badge>
-              <div className="flex gap-2">
+
+              {/* Statut KYC avec selfie */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px] text-slate-400">KYC :</span>
+                <Badge
+                  ton={
+                    v.kyc?.statut === "VALIDE"
+                      ? "vert"
+                      : v.kyc?.statut === "EN_REVUE"
+                      ? "ambre"
+                      : v.kyc?.statut === "REJETE"
+                      ? "rouge"
+                      : "neutre"
+                  }
+                >
+                  {v.kyc?.statut ? v.kyc.statut : "NON SOUMIS"}
+                </Badge>
+              </div>
+
+              {/* Statut Boutique */}
+              <Badge ton={v.statutValidation === "VALIDE" ? "vert" : v.statutValidation === "EN_ATTENTE" ? "ambre" : "rouge"}>
+                {v.statutValidation}
+              </Badge>
+
+              <div className="flex items-center gap-2">
+                <Link href={`/admin/vendeurs/${v.id}`} className={btn("secondaire", "sm")}>
+                  Dossier KYC →
+                </Link>
                 {v.statutValidation !== "VALIDE" && <BoutonStatut vendeurId={v.id} statut="VALIDE" libelle="Valider" variante="primaire" />}
                 {v.statutValidation === "EN_ATTENTE" && <BoutonStatut vendeurId={v.id} statut="REJETE" libelle="Rejeter" variante="danger" />}
                 {v.statutValidation === "VALIDE" && <BoutonStatut vendeurId={v.id} statut="SUSPENDU" libelle="Suspendre" variante="danger" />}

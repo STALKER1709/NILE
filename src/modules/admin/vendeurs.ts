@@ -7,6 +7,18 @@ export async function listerVendeurs() {
     include: {
       utilisateur: { select: { nom: true, email: true, telephone: true } },
       _count: { select: { produits: true } },
+      kyc: true,
+    },
+  });
+}
+
+export async function getVendeurDetail(vendeurId: string) {
+  return prisma.vendeur.findUnique({
+    where: { id: vendeurId },
+    include: {
+      utilisateur: { select: { nom: true, email: true, telephone: true } },
+      kyc: true,
+      _count: { select: { produits: true, lignesCommande: true } },
     },
   });
 }

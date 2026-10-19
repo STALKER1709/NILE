@@ -9,9 +9,9 @@
 - **Plateforme cible** : web responsive **mobile-first**, pages **légères** (la data mobile est chère et rare au Cameroun).
 
 ## État du projet
-- **MVP livré** (phases 0 → 5), puis quatre chantiers : déclinaisons, marques & navigation par rayons, codes promo, liste de souhaits.
-- **Le paiement n'est PAS en live.** L'intégration HR-Skills est éprouvée en sandbox ; le passage en production (KYC, clés `live`, webhook Live, `CRON_SECRET`) reste à faire.
-- **En attente, sur décision du propriétaire** : paiement des dettes vendeurs (prévu après le live), points de fidélité, abonnements vendeurs, parrainage.
+- **MVP livré** (phases 0 → 5), puis chantiers additionnels : déclinaisons, marques & navigation par rayons, codes promo, liste de souhaits, **KYC vendeur avec selfie obligatoire**.
+- **Le paiement est configuré et validé en production** (HR-Skills Pay).
+- **En attente, sur décision du propriétaire** : paiement des dettes vendeurs, points de fidélité, abonnements vendeurs, parrainage.
 
 ## Règles d'architecture non négociables
 1. **TypeScript strict partout.** Pas de `any` implicite. Le typage est notre premier filet anti-bug.
@@ -43,6 +43,12 @@
 - Les axes (leur nom, leurs valeurs, **leur ordre d'affichage**) sont déclarés par la **catégorie**. Ne jamais coder en dur une taille, une pointure ou une couleur : c'est ce qui rend impossible de demander une télévision « en taille M ».
 - Toute combinaison enregistrée est **validée côté serveur** contre les axes de la catégorie. Une liste déroulante ne protège de rien.
 - `Produit.stock` est un **champ historique**. Il n'est ni lu ni décrémenté à la vente : le stock vit sur la déclinaison, et c'est elle qu'on décrémente **et** qu'on recrédite (annulation, paiement échoué, refus à la livraison). Tout écran qui affiche `Produit.stock` est un bug.
+
+## Règles sur le KYC Vendeur
+- Tout vendeur tiers doit soumettre un dossier KYC pour que sa boutique soit activée pour la publication et la vente.
+- **Le selfie avec la pièce d'identité en main est OBLIGATOIRE** pour tous les vendeurs sans exception, afin de certifier l'appartenance de la pièce présentée.
+- Le dossier exige : nom officiel, numéro de pièce, photo recto (et verso pour CNI/récépissé), selfie de vérification, et données fiscales (NIU/RCCM) si société.
+- L'administrateur valide le dossier (ce qui active la boutique en `VALIDE`) ou le rejette avec un motif explicite d'au moins 5 caractères. En cas de rejet, le vendeur peut corriger ses pièces et re-soumettre.
 
 ## Règle de vérification (définition de « terminé »)
 Une tâche n'est **jamais** « terminée » tant que :
