@@ -39,8 +39,8 @@ export default async function FavorisPage() {
   );
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
+    <div className="min-w-0 space-y-5 sm:space-y-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between">
         <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
           Mes favoris
           {total > 0 && (
@@ -49,7 +49,7 @@ export default async function FavorisPage() {
             </span>
           )}
         </h1>
-        <Link href="/catalogue" className="text-corps-sm text-nile-700 hover:underline">
+        <Link href="/catalogue" className="self-start text-corps-sm font-semibold text-nile-700 hover:underline sm:self-auto">
           Continuer mes achats →
         </Link>
       </div>
@@ -64,7 +64,7 @@ export default async function FavorisPage() {
           </Link>
         </EtatVide>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-3 sm:space-y-2">
           {/* Dit plutôt que tronqué en silence : un acheteur qui compte ses
               favoris et n'en retrouve pas le nombre croit à une perte. */}
           {total > favoris.length && (
@@ -82,20 +82,20 @@ export default async function FavorisPage() {
             const action = actionFavori(f);
 
             return (
-              <Carte key={f.id} className="flex items-center gap-3 p-3 sm:p-4">
-                <Link href={`/produit/${f.produit.slug}`} className="shrink-0">
+              <Carte key={f.id} className="grid min-w-0 grid-cols-[76px_minmax(0,1fr)] gap-x-3 gap-y-3 p-3 sm:flex sm:items-center sm:gap-3 sm:p-4">
+                <Link href={`/produit/${f.produit.slug}`} className="row-span-2 block w-[76px] shrink-0 self-start sm:row-span-1 sm:w-auto">
                   <Vignette
                     url={f.produit.images[0]?.url}
                     alt={f.produit.titre}
                     sizes="72px"
-                    className="h-16 w-16 rounded border border-contour-carte sm:h-20 sm:w-20"
+                    className="h-[76px] w-[76px] rounded-xl border border-contour-carte bg-slate-50 sm:h-20 sm:w-20"
                   />
                 </Link>
 
-                <div className="min-w-0 flex-1">
+                <div className="min-w-0">
                   <Link
                     href={`/produit/${f.produit.slug}`}
-                    className="block truncate text-corps-sm font-semibold text-slate-900 hover:text-nile-700"
+                    className="block ligne-2 break-words text-sm font-semibold leading-snug text-slate-900 hover:text-nile-700 sm:text-corps-sm"
                   >
                     {f.produit.titre}
                   </Link>
@@ -103,7 +103,7 @@ export default async function FavorisPage() {
                     {f.produit.marque ? `${f.produit.marque} · ` : ""}
                     {f.produit.vendeur.nomBoutique}
                   </p>
-                  <p className="mt-0.5 flex items-center gap-2">
+                  <p className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-0.5">
                     <Prix montant={prix} className="text-corps-sm font-bold text-slate-900" />
                     {enPromo && (
                       <Prix
@@ -122,30 +122,36 @@ export default async function FavorisPage() {
                   )}
                 </div>
 
-                <div className="flex shrink-0 flex-col items-end gap-2">
-                  <BoutonFavori
-                    produitId={f.produit.id}
-                    enFavori
-                    retour="/favoris"
-                    taille="sm"
-                  />
-                  {action === "AJOUTER" && (
-                    <BoutonPanier
-                      varianteId={f.varianteId as string}
-                      stock={f.stock}
-                      quantiteInitiale={quantites[f.produit.id] ?? 0}
+                <div className="col-span-2 flex min-w-0 items-center gap-2 border-t border-stone-100 pt-3 sm:col-span-1 sm:ml-auto sm:flex-col sm:items-end sm:justify-start sm:gap-2 sm:border-0 sm:pt-0">
+                  <div className="shrink-0">
+                    <BoutonFavori
+                      produitId={f.produit.id}
+                      enFavori
+                      retour="/favoris"
                       taille="sm"
                     />
+                  </div>
+                  {action === "AJOUTER" && (
+                    <div className="min-w-0 flex-1 sm:w-[112px] sm:flex-none">
+                      <BoutonPanier
+                        varianteId={f.varianteId as string}
+                        stock={f.stock}
+                        quantiteInitiale={quantites[f.produit.id] ?? 0}
+                        taille="sm"
+                      />
+                    </div>
                   )}
                   {/* Article décliné : la taille se choisit sur la fiche, pas
                       depuis la liste de souhaits. */}
                   {action === "CHOISIR" && (
+                    <div className="min-w-0 flex-1 sm:w-[112px] sm:flex-none">
                     <Link
                       href={`/produit/${f.produit.slug}`}
-                      className={btn("primaire", "sm")}
+                      className={btn("primaire", "sm", "w-full sm:w-auto")}
                     >
                       Choisir
                     </Link>
+                    </div>
                   )}
                 </div>
               </Carte>
