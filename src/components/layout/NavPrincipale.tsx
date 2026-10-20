@@ -48,7 +48,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
     }`;
 
   return (
-    <div className="bg-nile-800 shadow-inner">
+    <div className="border-b border-white/10 bg-[#1e3a8a]">
       <div ref={conteneur} className="relative mx-auto max-w-conteneur px-2 sm:px-4">
         <nav
           aria-label="Navigation principale"
