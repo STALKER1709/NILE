@@ -142,7 +142,7 @@ export function CarteProduitVitrine({
               ) : (
                 <Link
                   href={lien}
-                  className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-accent text-xs font-bold text-slate-950 transition-all hover:bg-accent-dark hover:text-white"
+                  className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-accent text-xs font-bold text-slate-950 transition-all hover:bg-accent-dark hover:text-white"
                 >
                   {enRupture ? "Voir" : "Options"}
                 </Link>
@@ -166,7 +166,7 @@ export function CarteProduitVitrine({
             ) : (
               <Link
                 href={lien}
-                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-accent text-xs font-bold text-slate-950 transition-all hover:bg-accent-dark hover:text-white"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-accent text-xs font-bold text-slate-950 transition-all hover:bg-accent-dark hover:text-white"
               >
                 {enRupture ? "Voir l'article" : "Choisir les options"}
               </Link>
