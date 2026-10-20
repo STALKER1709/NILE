@@ -59,7 +59,7 @@ export default async function PromotionsPage({
                   ? { enFavori: favoris.has(p.id), retour: "/promotions" }
                   : undefined
               }
-              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 280px"
+              sizes="(max-width: 640px) 46vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 280px"
             />
           ))}
         </div>
