@@ -236,7 +236,7 @@ export default async function FicheProduitPage({
                 enRupture
                   ? "text-promo"
                   : stock <= 5
-                    ? "text-accent-dark"
+                    ? "text-[#f59e0b]-dark"
                     : "text-emerald-600"
               }`}
             >
