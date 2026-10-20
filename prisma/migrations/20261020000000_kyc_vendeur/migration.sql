@@ -1,21 +1,20 @@
 -- =============================================================================
 -- Migration : Dossier KYC Vendeur avec selfie de vérification obligatoire
+-- Idempotente pour Supabase SQL Editor et Prisma
 -- =============================================================================
 
--- Création des nouveaux types énumérés
-DO $$ BEGIN
-  CREATE TYPE "StatutKyc" AS ENUM ('NON_SOUMIS', 'EN_REVUE', 'VALIDE', 'REJETE');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'StatutKyc') THEN
+    CREATE TYPE "StatutKyc" AS ENUM ('NON_SOUMIS', 'EN_REVUE', 'VALIDE', 'REJETE');
+  END IF;
 
-DO $$ BEGIN
-  CREATE TYPE "TypePieceIdentite" AS ENUM ('CNI', 'PASSEPORT', 'RECEPISSE');
-EXCEPTION
-  WHEN duplicate_object THEN null;
-END $$;
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'TypePieceIdentite') THEN
+    CREATE TYPE "TypePieceIdentite" AS ENUM ('CNI', 'PASSEPORT', 'RECEPISSE');
+  END IF;
+END
+$$;
 
--- Table KycVendeur
 CREATE TABLE IF NOT EXISTS "KycVendeur" (
   "id"                     TEXT NOT NULL,
   "vendeurId"              TEXT NOT NULL,
@@ -50,17 +49,22 @@ CREATE TABLE IF NOT EXISTS "KycVendeur" (
   CONSTRAINT "KycVendeur_pkey" PRIMARY KEY ("id")
 );
 
--- Unicité du dossier KYC par vendeur
 CREATE UNIQUE INDEX IF NOT EXISTS "KycVendeur_vendeurId_key"
   ON "KycVendeur"("vendeurId");
 
--- Index par statut pour le tri et le filtrage admin
 CREATE INDEX IF NOT EXISTS "KycVendeur_statut_idx"
   ON "KycVendeur"("statut");
 
--- Clé étrangère vers Vendeur avec cascade à la suppression
-ALTER TABLE "KycVendeur" DROP CONSTRAINT IF EXISTS "KycVendeur_vendeurId_fkey";
-ALTER TABLE "KycVendeur"
-  ADD CONSTRAINT "KycVendeur_vendeurId_fkey"
-  FOREIGN KEY ("vendeurId") REFERENCES "Vendeur"("id")
-  ON DELETE CASCADE ON UPDATE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.table_constraints
+    WHERE constraint_name = 'KycVendeur_vendeurId_fkey'
+  ) THEN
+    ALTER TABLE "KycVendeur"
+      ADD CONSTRAINT "KycVendeur_vendeurId_fkey"
+      FOREIGN KEY ("vendeurId") REFERENCES "Vendeur"("id")
+      ON DELETE CASCADE ON UPDATE CASCADE;
+  END IF;
+END
+$$;
