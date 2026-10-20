@@ -31,9 +31,9 @@ export function CarteProduitVitrine({
   return (
     <article
       style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
-      className="group flex animate-fondu-haut flex-col rounded-2xl border border-stone-200 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-carte-hover sm:p-4"
+      className="group flex min-w-0 animate-fondu-haut flex-col rounded-2xl border border-stone-200 bg-white p-2.5 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-carte-hover sm:p-4"
     >
-      <div className="relative mb-3 overflow-hidden rounded-xl bg-stone-100">
+      <div className="relative mb-2 overflow-hidden rounded-xl bg-stone-100 sm:mb-3">
         <Link href={lien} className="block overflow-hidden">
           <Vignette
             url={produit.images[0]?.url}
@@ -77,7 +77,7 @@ export function CarteProduitVitrine({
       )}
 
       <Link href={lien}>
-        <h3 className="ligne-2 min-h-[2.6rem] font-titre text-base font-bold text-slate-900 transition-colors group-hover:text-nile-700">
+        <h3 className="ligne-2 min-h-[2.6rem] font-titre text-sm font-bold text-slate-900 transition-colors group-hover:text-nile-700 sm:text-base">
           {produit.titre}
         </h3>
       </Link>
@@ -99,7 +99,7 @@ export function CarteProduitVitrine({
             <div className="flex flex-wrap items-baseline gap-1.5">
               <Prix
                 montant={produit.prixPromo as number}
-                className="text-lg font-extrabold tracking-tight text-accent-dark sm:text-xl"
+                className="text-base font-extrabold tracking-tight text-accent-dark sm:text-xl"
               />
               <Prix
                 montant={produit.prix}
@@ -109,7 +109,7 @@ export function CarteProduitVitrine({
           ) : (
             <Prix
               montant={produit.prix}
-              className="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl"
+              className="text-base font-extrabold tracking-tight text-slate-900 sm:text-xl"
             />
           )}
 
@@ -129,7 +129,7 @@ export function CarteProduitVitrine({
       </div>
 
       {/* Boutons d'action */}
-      <div className="mt-3.5 flex gap-2">
+      <div className="mt-3 flex gap-1.5 sm:mt-3.5 sm:gap-2">
         {actions === "double" ? (
           <>
             <div className="flex-1">
@@ -150,7 +150,7 @@ export function CarteProduitVitrine({
             </div>
             <Link
               href={lien}
-              className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-xs font-semibold text-slate-700 transition-colors hover:border-nile-600 hover:bg-white hover:text-nile-800"
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-2 text-[11px] font-semibold text-slate-700 transition-colors sm:px-3.5 sm:text-xs hover:border-nile-600 hover:bg-white hover:text-nile-800"
             >
               Fiche
             </Link>
