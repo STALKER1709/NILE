@@ -42,7 +42,7 @@ export default async function AdminPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Back-office</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Back-office</h1>
         {env.NEXT_PUBLIC_VAPID_PUBLIC_KEY && (
           <ActiverNotifications clePublique={env.NEXT_PUBLIC_VAPID_PUBLIC_KEY} />
         )}
