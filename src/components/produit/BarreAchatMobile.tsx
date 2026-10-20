@@ -60,7 +60,7 @@ export function BarreAchatMobile({
           ) : (
             <a
               href="#achat-principal"
-              className="inline-flex h-9 w-full items-center justify-center rounded bg-accent text-sm font-semibold text-nile-950 transition-colors hover:bg-accent-dark"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded bg-accent text-sm font-semibold text-nile-950 transition-colors hover:bg-accent-dark"
             >
               Choisir les options
             </a>
