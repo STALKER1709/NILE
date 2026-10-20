@@ -45,11 +45,11 @@ export default async function AccueilPage() {
   );
 
   return (
-    <div className="space-y-10 sm:space-y-16">
+    <div className="space-y-12 sm:space-y-20">
       <h1 className="sr-only">NILE Marketplace, achats en ligne au Cameroun</h1>
 
-      <section className="relative isolate overflow-hidden rounded-lg bg-nile-950 text-white">
-        <div className="absolute inset-y-0 right-0 w-full sm:w-[58%]">
+      <section className="relative isolate overflow-hidden rounded-2xl bg-[#10275f] text-white shadow-[0_24px_70px_-36px_rgba(15,23,42,.65)]">
+        <div className="absolute inset-0 sm:left-[42%]">
           <Image
             src="/bannieres/marche.jpg"
             alt="Commerçante dans sa boutique au Cameroun"
@@ -58,32 +58,31 @@ export default async function AccueilPage() {
             sizes="(max-width: 640px) 100vw, 58vw"
             className="object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-nile-950 via-nile-950/65 to-nile-950/10 sm:bg-gradient-to-r sm:from-nile-950 sm:via-nile-950/80 sm:to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#10275f] via-[#10275f]/70 to-[#10275f]/10 sm:bg-gradient-to-r sm:from-[#10275f] sm:via-[#10275f]/30 sm:to-transparent" />
         </div>
-        <div className="relative z-10 flex min-h-[30rem] max-w-2xl flex-col justify-end px-6 pb-9 pt-64 sm:min-h-[31rem] sm:justify-center sm:px-12 sm:py-12 lg:px-16">
-          <span className="mb-4 inline-flex w-fit items-center gap-2 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-etiquette-xs font-semibold text-white backdrop-blur-sm">
-            <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
-            La marketplace du Cameroun
+        <div className="relative z-10 flex min-h-[34rem] max-w-3xl flex-col justify-end px-6 pb-8 pt-64 sm:min-h-[35rem] sm:justify-center sm:px-12 sm:py-14 lg:px-16">
+          <span className="mb-5 inline-flex w-fit items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3.5 py-2 text-xs font-semibold tracking-wide text-white">
+            <span className="h-2 w-2 rounded-full bg-[#f59e0b]" aria-hidden="true" />
+            Le commerce camerounais, à portée de main
           </span>
-          <h2 className="max-w-xl font-titre text-[2.5rem] font-bold leading-[1.05] sm:text-display-lg">
-            Les bonnes trouvailles, tout près de vous.
+          <h2 className="max-w-2xl font-titre text-[2.75rem] font-bold leading-[1.02] tracking-[-0.035em] sm:text-6xl">
+            Le meilleur du commerce local. <span className="text-[#fbbf24]">En un seul endroit.</span>
           </h2>
-          <p className="mt-5 max-w-lg text-corps-md text-white/85 sm:text-corps-lg">
-            Découvrez les boutiques d'ici. Faites-vous livrer partout au Cameroun et payez à votre façon.
+          <p className="mt-5 max-w-xl text-base leading-7 text-white/85 sm:text-lg">
+            Explorez les boutiques d’ici, commandez en quelques gestes et choisissez comment payer — Mobile Money ou à la livraison.
           </p>
-          <div className="mt-7 flex flex-wrap items-center gap-3">
-            <Link href="/catalogue" className={btn("accent", "lg")}>
-              Explorer le catalogue
+          <div className="mt-8 flex flex-wrap items-center gap-3">
+            <Link href="/catalogue" className="inline-flex min-h-12 items-center justify-center rounded-lg bg-[#f59e0b] px-5 py-3 text-sm font-bold text-[#172554] shadow-lg shadow-black/10 hover:bg-[#fbbf24]">
+              Explorer le catalogue <span aria-hidden="true" className="ml-2">→</span>
             </Link>
-            <Link
-              href="/boutiques"
-              className="inline-flex min-h-12 items-center gap-2 rounded border border-white/55 px-5 py-3 text-etiquette-md font-semibold text-white transition-colors hover:bg-white/10"
-            >
-              Voir les boutiques
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
-                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
+            <Link href="/boutiques" className="inline-flex min-h-12 items-center gap-2 rounded-lg border border-white/40 bg-white/5 px-5 py-3 text-sm font-semibold text-white hover:bg-white/15">
+              Découvrir les boutiques
             </Link>
+          </div>
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-medium text-white/75">
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300"/> Paiement sécurisé</span>
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300"/> Boutiques locales</span>
+            <span className="inline-flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-emerald-300"/> Livraison au Cameroun</span>
           </div>
         </div>
       </section>
@@ -158,7 +157,7 @@ export default async function AccueilPage() {
       )}
 
       {/* Ruban livraison */}
-      <section className="flex items-center justify-center gap-4 rounded-xl bg-nile-conteneur px-6 py-4 text-center text-white sm:px-8">
+      <section className="flex items-center justify-center gap-4 rounded-2xl bg-[#10275f] px-6 py-5 text-center text-white shadow-lg shadow-blue-950/10 sm:px-8">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className="shrink-0 text-accent" aria-hidden="true">
           <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" />
           <circle cx="7" cy="17" r="1.5" />
@@ -215,9 +214,9 @@ function EnteteSection({
   libelleLien: string;
 }) {
   return (
-    <div className="mb-4 flex items-center justify-between gap-3">
-      <h2 className="text-titre-sm text-nile-800">{titre}</h2>
-      <Link href={lien} className="shrink-0 text-etiquette-md text-accent-deep hover:underline">
+    <div className="mb-5 flex items-end justify-between gap-3 border-b border-slate-200 pb-3">
+      <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">{titre}</h2>
+      <Link href={lien} className="shrink-0 text-sm font-semibold text-[#1e3a8a] hover:text-[#f59e0b]">
         {libelleLien} →
       </Link>
     </div>
