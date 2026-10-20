@@ -17,7 +17,7 @@ export default async function MotDePasseOubliePage({
   return (
     <div className="mx-auto max-w-md space-y-4 py-6">
       <div className="text-center">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mot de passe oublié</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Mot de passe oublié</h1>
         <p className="mt-1 text-sm text-slate-500">
           Indique ton email : nous t&apos;enverrons un lien pour choisir un
           nouveau mot de passe.
