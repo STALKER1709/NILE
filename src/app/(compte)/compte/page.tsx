@@ -50,7 +50,7 @@ export default async function ComptePage({
             {utilisateur.nom.charAt(0).toUpperCase()}
           </span>
           <div className="min-w-0 flex-1 text-center sm:text-left">
-            <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
+            <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">
               {utilisateur.nom}
             </h1>
             <p className="mt-2 flex items-center justify-center gap-2 text-sm text-slate-500 sm:justify-start">
@@ -90,7 +90,7 @@ export default async function ComptePage({
         <div className="lg:col-span-8">
           <Carte className="p-5 sm:p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
-              <h2 className="text-titre-sm text-nile-800">Commandes récentes</h2>
+              <h2 className="text-2xl font-bold tracking-tight text-[#172554]">Commandes récentes</h2>
               <Link href="/commandes" className="shrink-0 text-etiquette-md text-accent-deep hover:underline">
                 Tout l&apos;historique
               </Link>
