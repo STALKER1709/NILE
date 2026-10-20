@@ -1,0 +1,51 @@
+name: Conformité NILE
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main, design/nile-experience-system]
+
+concurrency:
+  group: conformite-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Typecheck, tests et build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nile?schema=public
+      NEXT_PUBLIC_SITE_URL: https://nile-beige.vercel.app
+      AUTH_PROVIDER: mock
+      PAYMENT_PROVIDER: mock
+      STORAGE_PROVIDER: local
+      EMAIL_PROVIDER: mock
+      WHATSAPP_PROVIDER: mock
+      MOCK_AUTH_SECRET: ci-only-not-a-production-secret
+      MOCK_PAYMENT_SECRET: ci-only-not-a-production-secret
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+      - name: Installer pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+          run_install: false
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: Installer les dépendances
+        run: pnpm install --frozen-lockfile
+      - name: Vérifier TypeScript
+        run: pnpm typecheck
+      - name: Exécuter les tests unitaires
+        run: pnpm test
+      - name: Compiler l'application
+        run: pnpm build
