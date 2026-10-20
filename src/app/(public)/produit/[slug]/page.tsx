@@ -196,7 +196,7 @@ export default async function FicheProduitPage({
         />
 
         {/* Infos + achat */}
-        <div className="space-y-5">
+        <div className="space-y-7">
           <div>
             {produit.nbAvis > 0 ? (
               <p className="flex items-center gap-2 text-sm text-slate-500">
