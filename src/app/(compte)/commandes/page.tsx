@@ -32,7 +32,7 @@ export default async function MesCommandesPage() {
         lire={signatureCommandesAction}
         actif={enCours}
       />
-      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mes commandes</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Mes commandes</h1>
 
       {commandes.length === 0 ? (
         <EtatVide titre="Aucune commande pour l'instant.">
