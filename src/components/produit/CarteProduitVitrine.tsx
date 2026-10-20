@@ -150,7 +150,7 @@ export function CarteProduitVitrine({
             </div>
             <Link
               href={lien}
-              className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-2 text-[11px] font-semibold text-slate-700 transition-colors sm:px-3.5 sm:text-xs hover:border-nile-600 hover:bg-white hover:text-nile-800"
+              className="inline-flex min-h-11 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-2 text-[11px] font-semibold text-slate-700 transition-colors sm:px-3.5 sm:text-xs hover:border-nile-600 hover:bg-white hover:text-nile-800"
             >
               Fiche
             </Link>
