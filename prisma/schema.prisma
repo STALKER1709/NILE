@@ -180,11 +180,8 @@ model Vendeur {
   lignesCommande LigneCommande[]
   reversements   Reversement[]
   promotions     Promotion[]
-<<<<<<< HEAD
   kyc            KycVendeur?
-=======
   publications   Publication[]
->>>>>>> 2613d09 (feat: Reels, migrations de rattrapage, corrections upload vidéo et gardes-corps)
 
   @@index([statutValidation])
 }
