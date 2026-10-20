@@ -39,7 +39,7 @@ export function Entete({ utilisateur, nbArticles, nbFavoris, categories }: {
             <form action={deconnexionAction} className="hidden lg:block"><button type="submit" className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900">Déconnexion</button></form>
           </> : <>
             <Link href="/connexion" className="hidden rounded-xl px-3 py-2 text-sm font-extrabold text-slate-700 transition-colors hover:bg-stone-100 sm:block">Connexion</Link>
-            <Link href="/inscription" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-blue-900 px-3.5 py-2 text-xs font-extrabold text-white transition-colors hover:bg-blue-950 sm:px-4 sm:text-sm"><span className="sm:hidden">S’inscrire</span><span className="hidden sm:inline">Créer un compte</span></Link>
+            <Link href="/inscription" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-blue-900 px-3.5 py-2 text-xs font-extrabold text-white transition-colors hover:bg-blue-950 sm:px-4 sm:text-sm"><span className="sm:hidden">S’inscrire</span><span className="hidden sm:inline">Créer un compte</span></Link>
             <Link href="/panier" aria-label={"Panier, " + nbArticles + " articles"} className="relative grid h-11 w-11 place-items-center rounded-xl text-slate-700 transition-colors hover:bg-blue-50"><Cart />{nbArticles > 0 && <span className="absolute right-0.5 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-amber-400 px-1 text-[9px] font-extrabold text-blue-950">{nbArticles > 99 ? "99+" : nbArticles}</span>}</Link>
           </>}
         </nav>
