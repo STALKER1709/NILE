@@ -134,3 +134,23 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
+
+/* NILE Premium 2026 — tokens communs aux pages publiques, compte et vendeur. */
+:root {
+  --nile-brand: #1e3a8a;
+  --nile-brand-strong: #172554;
+  --nile-brand-soft: #eff6ff;
+  --nile-accent: #f59e0b;
+  --nile-accent-strong: #b45309;
+  --nile-ink: #111827;
+  --nile-muted: #64748b;
+  --nile-line: #e2e8f0;
+  --nile-paper: #ffffff;
+}
+body { background: #f8fafc; color: var(--nile-ink); }
+::selection { background: #dbeafe; color: #172554; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #f59e0b;
+  outline-offset: 3px;
+}
