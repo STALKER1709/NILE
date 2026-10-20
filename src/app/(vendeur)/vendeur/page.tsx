@@ -149,7 +149,7 @@ export default async function VendeurPage() {
 
       {/* Commandes récentes */}
       <Carte className="overflow-hidden">
-        <div className="flex items-center justify-between border-b border-contour-carte px-5 py-4">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-contour-carte px-4 py-4 sm:px-5">
           <h2 className="font-bold text-slate-900">Commandes récentes</h2>
           <Link
             href="/vendeur/commandes"
@@ -248,7 +248,7 @@ export default async function VendeurPage() {
           ) : (
             <ul className="mt-2 divide-y divide-slate-100 text-sm">
               {stats.produitsEnAlerte.map((p) => (
-                <li key={p.id} className="flex items-center justify-between gap-2 py-2">
+                <li key={p.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
                   <Link
                     href={`/vendeur/produits/${p.id}`}
                     className="min-w-0 truncate hover:text-nile hover:underline"

@@ -14,7 +14,7 @@ const VARIANTES: Record<Variante, string> = {
   ghost: "text-slate-600 font-extrabold hover:bg-blue-50 hover:text-blue-900",
 };
 const TAILLES: Record<Taille, string> = {
-  sm: "min-h-9 rounded-[9px] px-3 py-2 text-xs",
+  sm: "min-h-10 rounded-[9px] px-3 py-2 text-xs",
   md: "min-h-10 rounded-[10px] px-4 py-2.5 text-sm",
   lg: "min-h-12 rounded-[12px] px-5 py-3 text-sm",
 };

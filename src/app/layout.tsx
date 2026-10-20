@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: DESCRIPTION,
   openGraph: { siteName: "NILE", locale: "fr_CM", type: "website", title: "NILE — Le commerce à portée de main", description: DESCRIPTION },
 };
-export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1e3a8a" };
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1e3a8a", viewportFit: "cover" };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return <html lang="fr" suppressHydrationWarning className={`${policeTitre.variable} ${policeCorps.variable}`}>
     <body id="top" suppressHydrationWarning className="min-h-screen overflow-x-clip">{children}</body>

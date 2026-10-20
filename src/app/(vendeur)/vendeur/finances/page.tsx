@@ -153,7 +153,7 @@ export default async function FinancesVendeurPage({
             {solde.enAttente > 0 && (
               <LigneDetail libelle="Demandes en attente" valeur={-solde.enAttente} />
             )}
-            <div className="flex items-baseline justify-between gap-2 border-t border-contour-carte pt-2.5 text-etiquette-md text-nile-800">
+            <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-contour-carte pt-2.5 text-etiquette-md text-nile-800">
               <dt>Disponible</dt>
               <dd className="whitespace-nowrap font-bold">
                 <Prix montant={solde.solde} />
@@ -389,7 +389,7 @@ function NumeroReversement({
 function LigneDetail({ libelle, valeur }: { libelle: string; valeur: number }) {
   const deduction = valeur < 0;
   return (
-    <div className="flex items-baseline justify-between gap-3">
+    <div className="flex flex-wrap items-baseline justify-between gap-3">
       <dt className="min-w-0 text-slate-600">{libelle}</dt>
       <dd
         className={`whitespace-nowrap ${deduction ? "text-promo" : "font-semibold text-slate-900"}`}

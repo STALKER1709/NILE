@@ -122,7 +122,7 @@ export default async function BoutiquePage({
         </div>
       </div>
 
-      <div className="flex items-baseline justify-between">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="text-titre-sm text-slate-900">Produits</h2>
         <span className="text-sm text-slate-500">
           {produits.length} produit{produits.length > 1 ? "s" : ""}
@@ -153,7 +153,7 @@ export default async function BoutiquePage({
       {/* Reels de la boutique : défilement horizontal, lecture au clic */}
       {publications.length > 0 && (
         <section aria-label="Publications de la boutique" className="space-y-3">
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="text-titre-sm text-slate-900">Reels</h2>
             <span className="text-sm text-slate-500">
               {publications.length} publication

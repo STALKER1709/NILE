@@ -22,7 +22,7 @@ export default async function AdminCommandesPage() {
   return (
     <div className="space-y-5">
       <RafraichirSiChange signature={signature} lire={signatureCommandesAdminAction} />
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Commandes & livraisons</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
@@ -40,7 +40,7 @@ export default async function AdminCommandesPage() {
         <div className="space-y-2">
           {commandes.map((c) => (
             <Link key={c.id} href={`/admin/commandes/${c.id}`} className="block">
-              <Carte className="flex items-center justify-between gap-3 p-4 transition hover:shadow-flottant">
+              <Carte className="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:shadow-flottant">
                 <div className="min-w-0">
                   <p className="font-semibold">{c.numero}</p>
                   <p className="text-xs text-slate-500">{c.acheteur.nom} · {c._count.lignes} article(s) · {c.modePaiement === "COD" ? "COD" : "Monetbil"}</p>

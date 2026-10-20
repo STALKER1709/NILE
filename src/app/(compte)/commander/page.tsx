@@ -311,7 +311,7 @@ export default async function CommanderPage({
               })}
             </ul>
             <div className="space-y-2 bg-surface-basse px-5 py-4">
-              <div className="flex justify-between text-titre-sm text-slate-900">
+              <div className="flex flex-wrap items-baseline justify-between gap-2 text-titre-sm text-slate-900">
                 <span>Total</span>
                 <Prix montant={total} className="text-nile-700" />
               </div>

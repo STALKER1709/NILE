@@ -22,9 +22,9 @@ export default async function NouveauProduitPage({
 
   return (
     <div className="mx-auto max-w-lg space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Nouveau produit</h1>
-        <Link href="/vendeur/produits" className="text-sm text-slate-500 hover:underline">← Retour</Link>
+        <Link href="/vendeur/produits" className="shrink-0 text-sm text-slate-500 hover:underline">← Retour</Link>
       </div>
 
       {erreur && (
@@ -41,7 +41,7 @@ export default async function NouveauProduitPage({
             <label htmlFor="description" className={labelClass}>Description</label>
             <textarea id="description" name="description" required rows={4} className={`${champClass} mt-1`} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="prix" className={labelClass}>Prix (FCFA)</label>
               <input id="prix" name="prix" type="number" min={1} step={1} required className={`${champClass} mt-1`} />

@@ -27,7 +27,7 @@ export function Entete({ utilisateur, nbArticles, nbFavoris, categories }: {
           <span className="nile-brand-mark grid h-10 w-10 place-items-center rounded-[14px] bg-blue-900 font-titre text-[25px] font-extrabold text-white sm:h-[43px] sm:w-[43px]">N</span>
           <span><span className="block font-titre text-[21px] font-extrabold leading-none tracking-[-.05em] text-blue-900 sm:text-[25px]">NILE</span><span className="mt-1 hidden text-[9px] font-extrabold uppercase tracking-[.16em] text-slate-400 sm:block">Le marché sans frontières</span></span>
         </Link>
-        <div className="col-span-3 row-start-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1"><BarreRecherche /></div>
+        <div className="col-span-3 row-start-2 min-w-0 md:col-span-1 md:col-start-2 md:row-start-1"><BarreRecherche /></div>
         <nav aria-label="Actions du compte" className="col-start-3 row-start-1 ml-auto flex shrink-0 items-center gap-1 sm:gap-2">
           {utilisateur ? <>
             <Link href="/compte" className="hidden items-center gap-2 rounded-xl px-3 py-2 text-left transition-colors hover:bg-blue-50 md:flex">
