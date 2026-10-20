@@ -31,16 +31,16 @@ export function CarteProduitVitrine({
   return (
     <article
       style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
-      className="group flex animate-fondu-haut flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-md"
+      className="group flex animate-fondu-haut flex-col rounded-2xl border border-stone-200 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg sm:p-4"
     >
-      <div className="relative mb-3.5 overflow-hidden rounded-xl bg-slate-50">
+      <div className="relative mb-3 overflow-hidden rounded-xl bg-stone-100">
         <Link href={lien} className="block overflow-hidden">
           <Vignette
             url={produit.images[0]?.url}
             alt={produit.titre}
             priority={priority}
             fond="bg-slate-50"
-            className="aspect-[1.4] w-full"
+            className="aspect-square w-full"
             classImage="transition-transform duration-500 group-hover:scale-105"
             sizes={sizes}
           />
