@@ -60,6 +60,16 @@ const LIENS: { href: string; libelle: string; icone: ReactNode; exact?: boolean 
     ),
   },
   {
+    href: "/vendeur/reels",
+    libelle: "Reels",
+    icone: (
+      <>
+        <rect x="3" y="5" width="18" height="14" rx="2.5" />
+        <path d="m10 9.5 5 2.5-5 2.5z" strokeLinejoin="round" />
+      </>
+    ),
+  },
+  {
     href: "/vendeur/annonces",
     libelle: "Annonces NILE",
     icone: (

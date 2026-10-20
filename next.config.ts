@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "8mb",
     },
+    // Le clone du corps de requête destiné au middleware est tronqué à 10 Mo
+    // par défaut (flux clos proprement → la troncature est INVISIBLE côté
+    // route : une vidéo de 16 Mo était acceptée comme « 10 Mo », fichier
+    // corrompu pour l'acheteur). On relève au-dessus du plafond applicatif
+    // des Reels (15 Mo) pour que NOTRE limite s'applique — avec refus net.
+    // En production, les vidéos partent en direct vers Supabase.
+    middlewareClientMaxBodySize: "16mb",
   },
   // En-têtes de sécurité de base appliqués à toutes les réponses.
   async headers() {

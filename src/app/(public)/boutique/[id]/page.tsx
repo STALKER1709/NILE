@@ -6,6 +6,8 @@ import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduit } from "@/components/produit/CarteProduit";
 import { Badge, EtatVide, Etoiles } from "@/components/ui/kit";
 import { enrichirProduitsPourCartes } from "@/modules/promotion/promotion";
+import { listerPublicationsBoutique } from "@/modules/reels/reels";
+import { CarteReelBoutique } from "@/components/reels/CarteReelBoutique";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +45,7 @@ export default async function BoutiquePage({
   if (!boutique) notFound();
 
   const utilisateur = await getUtilisateurCourant();
-  const [produitsBruts, quantites] = await Promise.all([
+  const [produitsBruts, quantites, publications] = await Promise.all([
     prisma.produit.findMany({
       where: { vendeurId: boutique.id, statut: "ACTIF" },
       orderBy: { dateMaj: "desc" },
@@ -53,6 +55,7 @@ export default async function BoutiquePage({
       },
     }),
     getQuantitesAffichees(utilisateur?.id ?? null),
+    listerPublicationsBoutique(boutique.id),
   ]);
   const produits = await enrichirProduitsPourCartes(produitsBruts);
   // Restreint aux articles affichés : charger toute la liste de souhaits pour
@@ -145,6 +148,24 @@ export default async function BoutiquePage({
             />
           ))}
         </div>
+      )}
+
+      {/* Reels de la boutique : défilement horizontal, lecture au clic */}
+      {publications.length > 0 && (
+        <section aria-label="Publications de la boutique" className="space-y-3">
+          <div className="flex items-baseline justify-between">
+            <h2 className="text-titre-sm text-slate-900">Reels</h2>
+            <span className="text-sm text-slate-500">
+              {publications.length} publication
+              {publications.length > 1 ? "s" : ""}
+            </span>
+          </div>
+          <div className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0">
+            {publications.map((pub, i) => (
+              <CarteReelBoutique key={pub.id} publication={pub} index={i} />
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );
