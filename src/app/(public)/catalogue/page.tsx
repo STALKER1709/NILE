@@ -215,14 +215,14 @@ export default async function CataloguePage({
   );
 
   return (
-    <div className="flex flex-col gap-gouttiere lg:flex-row">
+    <div className="grid gap-6 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-8">
       {/* Colonne de filtres : latérale et collante sur grand écran, repliable
           sur mobile pour que le premier produit reste visible sans défiler. */}
-      <aside className="lg:w-64 lg:shrink-0">
-        <div className="hidden space-y-4 rounded-xl border border-contour-carte bg-white p-5 lg:sticky lg:top-24 lg:block">
+      <aside className="min-w-0">
+        <div className="hidden space-y-4 rounded-2xl border border-stone-200 bg-white p-5 lg:sticky lg:top-40 lg:block">
           {filtres}
         </div>
-        <details className="group rounded-xl border border-contour-carte bg-white lg:hidden" open={filtreActif}>
+        <details className="group rounded-2xl border border-stone-200 bg-white lg:hidden" open={filtreActif}>
           <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-semibold text-slate-900">
             Filtres
             <span className="text-slate-400 transition-transform group-open:rotate-180">▾</span>
@@ -234,7 +234,7 @@ export default async function CataloguePage({
       <div className="min-w-0 flex-1 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
+            <p className="nile-eyebrow mb-2 text-blue-700">{categorieChoisie ? "Rayon sélectionné" : "Le catalogue NILE"}</p>\n            <h1 className="font-titre text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
               {categorieChoisie ? categorieChoisie.nom : "Tous les produits"}
             </h1>
             <p className="mt-1 text-corps-sm text-slate-500">
@@ -268,7 +268,7 @@ export default async function CataloguePage({
               <Link
                 key={b.id}
                 href={`/boutique/${b.id}`}
-                className="flex min-w-[13rem] shrink-0 items-center gap-3 rounded border border-contour-carte p-3 transition hover:-translate-y-0.5 hover:border-nile-100 hover:shadow-flottant"
+                className="flex min-w-[13rem] shrink-0 items-center gap-3 rounded-xl border border-stone-200 p-3 transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-lg"
               >
                 <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-nile text-lg font-bold text-white">
                   {b.nomBoutique.charAt(0).toUpperCase()}
@@ -302,7 +302,7 @@ export default async function CataloguePage({
         // 2 colonnes dès le plus petit écran : la maquette en prévoyait une
         // seule, mais 12 grandes cartes empilées font ~6 900 px de défilement.
         // La data mobile est chère au Cameroun, on privilégie la densité.
-        <div className="grid grid-cols-2 gap-3 sm:gap-gouttiere lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
           {produits.map((p, i) => (
             <CarteProduitVitrine
               key={p.id}

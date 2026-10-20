@@ -1,104 +1,21 @@
 import type { Metadata, Viewport } from "next";
-import { Hanken_Grotesk, Inter } from "next/font/google";
+import { DM_Sans, Manrope } from "next/font/google";
 import "./globals.css";
 import { env } from "@/lib/env";
-import { getUtilisateurCourant } from "@/modules/auth/access";
-import { compterArticlesAffiches } from "@/modules/commande/panier-invite";
-import { compterFavoris } from "@/modules/catalogue/favoris";
-import { listerCategories } from "@/modules/catalogue/categories";
-import { Entete } from "@/components/layout/Entete";
-import { PiedDePage } from "@/components/layout/PiedDePage";
-import { NavMobile } from "@/components/layout/NavMobile";
-import { BulleWhatsApp } from "@/components/layout/BulleWhatsApp";
-import { RetourHaut } from "@/components/layout/RetourHaut";
 
-/* Stratégie à deux polices (voir DESIGN.md) : Hanken Grotesk pour les titres,
-   Inter pour le corps et les interfaces denses. Auto-hébergées par Next :
-   aucune requête vers un tiers au chargement. */
-const policeTitre = Hanken_Grotesk({
-  subsets: ["latin"],
-  weight: ["600", "700"],
-  variable: "--police-titre",
-  display: "swap",
-});
+const policeTitre = Manrope({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--police-titre", display: "swap" });
+const policeCorps = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--police-corps", display: "swap" });
 
-const policeCorps = Inter({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--police-corps",
-  display: "swap",
-});
-
-const DESCRIPTION =
-  "Marketplace du Cameroun · achats en ligne, paiement mobile (MTN MoMo, Orange Money) et à la livraison.";
-
+const DESCRIPTION = "La marketplace pensée pour le Cameroun : découvrez les produits des boutiques locales et commandez simplement.";
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
-  title: {
-    default: "NILE Marketplace · Achats en ligne au Cameroun",
-    template: "%s | NILE Marketplace",
-  },
+  title: { default: "NILE — Le commerce à portée de main", template: "%s | NILE" },
   description: DESCRIPTION,
-  openGraph: {
-    siteName: "NILE Marketplace",
-    locale: "fr_FR",
-    type: "website",
-    title: "NILE Marketplace · Achats en ligne au Cameroun",
-    description: DESCRIPTION,
-  },
+  openGraph: { siteName: "NILE", locale: "fr_CM", type: "website", title: "NILE — Le commerce à portée de main", description: DESCRIPTION },
 };
-
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: "#0a3d38",
-};
-
-export default async function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const [utilisateur, categories] = await Promise.all([
-    getUtilisateurCourant(),
-    listerCategories(),
-  ]);
-  const [nbArticles, nbFavoris] = await Promise.all([
-    compterArticlesAffiches(utilisateur?.id ?? null),
-    // Zéro pour un visiteur : sans compte, il n'y a pas de liste de souhaits.
-    compterFavoris(utilisateur?.id ?? null),
-  ]);
-  const rayons = categories
-    .filter((c) => !c.parentId)
-    .slice(0, 10)
-    .map((c) => ({ nom: c.nom, slug: c.slug }));
-
-  return (
-    <html lang="fr" suppressHydrationWarning className={`${policeTitre.variable} ${policeCorps.variable}`}>
-      {/* overflow-x-clip : absorbe les sections `.pleine-largeur` (100vw) sans
-          créer de conteneur de défilement — l'en-tête `sticky` reste collant. */}
-      <body id="top" suppressHydrationWarning className="min-h-screen overflow-x-clip">
-        <Entete
-          utilisateur={
-            utilisateur ? { nom: utilisateur.nom, role: utilisateur.role } : null
-          }
-          nbArticles={nbArticles}
-          nbFavoris={nbFavoris}
-          categories={rayons}
-        />
-        {/* pb-24 : laisse la place à la barre de navigation mobile fixe */}
-        <main className="mx-auto max-w-conteneur px-4 py-5 pb-24 sm:px-10 sm:pb-8">
-          {children}
-        </main>
-        <PiedDePage />
-        <NavMobile
-          connecte={!!utilisateur}
-          nbArticles={nbArticles}
-          nbFavoris={nbFavoris}
-        />
-        {env.CONTACT_WHATSAPP && <BulleWhatsApp numero={env.CONTACT_WHATSAPP} />}
-        <RetourHaut />
-      </body>
-    </html>
-  );
+export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1e3a8a" };
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return <html lang="fr" suppressHydrationWarning className={`${policeTitre.variable} ${policeCorps.variable}`}>
+    <body id="top" suppressHydrationWarning className="min-h-screen overflow-x-clip">{children}</body>
+  </html>;
 }

@@ -1,95 +1,33 @@
 import Link from "next/link";
 
 export function PiedDePage() {
-  return (
-    <footer className="mt-16 bg-nile-950 pb-20 text-white sm:pb-0 border-t border-nile-900">
-      {/* Bouton retour en haut fluide */}
-      <Link
-        href="#top"
-        className="block bg-nile-900/60 py-3.5 text-center text-xs font-semibold text-slate-300 transition-colors hover:bg-nile-800 hover:text-white"
-      >
-        Retour en haut ↑
-      </Link>
-
-      <div className="mx-auto grid max-w-conteneur grid-cols-2 gap-8 px-4 py-12 text-sm sm:grid-cols-4">
-        {/* Identité NILE */}
-        <div className="col-span-2 sm:col-span-1">
-          <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-accent to-accent-dark font-titre font-bold text-nile-950">
-              N
-            </span>
-            <span className="font-titre text-lg font-bold tracking-tight text-white">
-              NILE
-            </span>
-          </div>
-          <p className="mt-3 text-xs leading-relaxed text-slate-400">
-            La marketplace de référence au Cameroun. Achats en ligne fiables, paiements mobiles sécurisés et livraison avec vérification.
-          </p>
+  return <footer className="mt-10 bg-[#101f4d] pb-24 text-white sm:pb-0">
+    <div className="mx-auto max-w-[1284px] px-[14px] py-10 sm:px-[22px] sm:py-12">
+      <div className="grid gap-9 border-b border-white/10 pb-9 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
+        <div className="max-w-sm">
+          <Link href="/" className="inline-flex items-center gap-3">
+            <span className="nile-brand-mark grid h-11 w-11 place-items-center rounded-[14px] bg-blue-900 font-titre text-xl font-extrabold text-white">N</span>
+            <span><span className="block font-titre text-2xl font-extrabold tracking-tight">NILE</span><span className="block text-[10px] font-extrabold uppercase tracking-[.16em] text-blue-200/70">Le marché sans frontières</span></span>
+          </Link>
+          <p className="mt-5 max-w-[280px] text-[11px] leading-6 text-blue-100/70">Les boutiques locales et les produits du quotidien, réunis dans une expérience pensée pour le Cameroun.</p>
+          <Link href="/catalogue" className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-amber-300 hover:text-white">Explorer le catalogue <span aria-hidden="true">↗</span></Link>
         </div>
-
-        {/* Acheter */}
-        <div>
-          <h3 className="font-titre text-xs font-bold uppercase tracking-wider text-slate-300">
-            Acheter
-          </h3>
-          <ul className="mt-3.5 space-y-2 text-xs text-slate-400">
-            <li><Link href="/catalogue" className="transition-colors hover:text-white">Catalogue complet</Link></li>
-            <li><Link href="/promotions" className="transition-colors hover:text-white">Offres &amp; promotions</Link></li>
-            <li><Link href="/boutiques" className="transition-colors hover:text-white">Boutiques certifiées</Link></li>
-            <li><Link href="/panier" className="transition-colors hover:text-white">Mon panier</Link></li>
-            <li><Link href="/commandes" className="transition-colors hover:text-white">Suivi de commande</Link></li>
-          </ul>
-        </div>
-
-        {/* Vendre */}
-        <div>
-          <h3 className="font-titre text-xs font-bold uppercase tracking-wider text-slate-300">
-            Vendre
-          </h3>
-          <ul className="mt-3.5 space-y-2 text-xs text-slate-400">
-            <li><Link href="/inscription" className="transition-colors hover:text-white">Ouvrir ma boutique</Link></li>
-            <li><Link href="/vendeur" className="transition-colors hover:text-white">Espace vendeur</Link></li>
-            <li><Link href="/vendeur/kyc" className="transition-colors hover:text-white">Vérification KYC</Link></li>
-            <li><Link href="/conditions" className="transition-colors hover:text-white">Charte vendeurs</Link></li>
-          </ul>
-        </div>
-
-        {/* Support & Légal */}
-        <div>
-          <h3 className="font-titre text-xs font-bold uppercase tracking-wider text-slate-300">
-            Assistance
-          </h3>
-          <ul className="mt-3.5 space-y-2 text-xs text-slate-400">
-            <li><Link href="/aide" className="transition-colors hover:text-white">Centre d'aide</Link></li>
-            <li><Link href="/contact" className="transition-colors hover:text-white">Service client WhatsApp</Link></li>
-            <li><Link href="/conditions" className="transition-colors hover:text-white">Conditions d'utilisation</Link></li>
-            <li><Link href="/confidentialite" className="transition-colors hover:text-white">Confidentialité</Link></li>
-          </ul>
+        <FooterCol title="Acheter" links={[["Catalogue","/catalogue"],["Promotions","/promotions"],["Boutiques","/boutiques"],["Mes commandes","/commandes"],["Favoris","/favoris"]]} />
+        <FooterCol title="Vendre" links={[["Ouvrir une boutique","/inscription"],["Espace vendeur","/vendeur"],["Vérification vendeur","/vendeur/kyc"],["Annonces","/vendeur/annonces"]]} />
+        <FooterCol title="Accompagnement" links={[["Centre d’aide","/aide"],["Nous contacter","/contact"],["Conditions d’utilisation","/conditions"],["Confidentialité","/confidentialite"]]} />
+      </div>
+      <div className="flex flex-col gap-5 py-6 md:flex-row md:items-center md:justify-between">
+        <div><p className="text-xs font-extrabold text-white">Modes de paiement</p><p className="mt-1 max-w-lg text-[11px] leading-5 text-blue-100/60">Les options proposées sont celles disponibles au moment de la commande. Les marques ci-dessous identifient les fournisseurs de paiement, sans impliquer de partenariat commercial.</p></div>
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex h-12 min-w-32 items-center justify-center rounded-[12px] bg-white px-4"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/MTN_Logo.svg" alt="Logo MTN" className="max-h-7 max-w-24 object-contain" loading="lazy" /></div>
+          <div className="flex h-12 min-w-32 items-center justify-center rounded-[12px] bg-white px-4"><img src="https://commons.wikimedia.org/wiki/Special:FilePath/Orange_logo.svg" alt="Logo Orange" className="max-h-7 max-w-24 object-contain" loading="lazy" /></div>
         </div>
       </div>
+      <div className="flex flex-col gap-3 border-t border-white/10 pt-5 text-[10px] text-blue-100/55 sm:flex-row sm:items-center sm:justify-between"><span>© {new Date().getFullYear()} NILE Marketplace. Tous droits réservés.</span><Link href="#top" className="font-extrabold text-blue-100/75 hover:text-white">Retour en haut ↑</Link></div>
+    </div>
+  </footer>;
+}
 
-      {/* Badges de paiement sécurisé */}
-      <div className="border-t border-white/5 py-5">
-        <div className="mx-auto flex max-w-conteneur flex-wrap items-center justify-center gap-3 px-4">
-          <span className="rounded-md bg-[#ffcb05] px-3 py-1 text-[11px] font-bold text-slate-900 shadow-xs">
-            MTN Mobile Money
-          </span>
-          <span className="rounded-md bg-[#ff7900] px-3 py-1 text-[11px] font-bold text-white shadow-xs">
-            Orange Money
-          </span>
-          <span className="rounded-md border border-white/20 bg-white/5 px-3 py-1 text-[11px] font-medium text-slate-300">
-            Espèces à la livraison
-          </span>
-          <span className="rounded-md border border-emerald-400/30 bg-emerald-950/40 px-3 py-1 text-[11px] font-medium text-emerald-300">
-            Vérification par code secret
-          </span>
-        </div>
-      </div>
-
-      {/* Mentions légales */}
-      <div className="border-t border-white/5 py-4 text-center text-[11px] text-slate-500">
-        <p>© {new Date().getFullYear()} NILE Marketplace · Cameroun · FCFA (XAF)</p>
-      </div>
-    </footer>
-  );
+function FooterCol({ title, links }: { title: string; links: [string, string][] }) {
+  return <div><h2 className="text-[11px] font-extrabold uppercase tracking-[.13em] text-amber-300">{title}</h2><ul className="mt-4 grid gap-3">{links.map(([label, href]) => <li key={href}><Link href={href} className="text-[11px] text-blue-100/70 transition-colors hover:text-white">{label}</Link></li>)}</ul></div>;
 }

@@ -1,184 +1,100 @@
 ---
-name: Lumina Nile
+name: NILE — Le marché sans frontières
 colors:
-  surface: '#f7f9fb'
-  surface-dim: '#d8dadc'
-  surface-bright: '#f7f9fb'
-  surface-container-lowest: '#ffffff'
-  surface-container-low: '#f2f4f6'
-  surface-container: '#eceef0'
-  surface-container-high: '#e6e8ea'
-  surface-container-highest: '#e0e3e5'
-  on-surface: '#191c1e'
-  on-surface-variant: '#404946'
-  inverse-surface: '#2d3133'
-  inverse-on-surface: '#eff1f3'
-  outline: '#707976'
-  outline-variant: '#bfc9c5'
-  surface-tint: '#2d685f'
-  primary: '#00352f'
-  on-primary: '#ffffff'
-  primary-container: '#0a4d45'
-  on-primary-container: '#82bdb2'
-  inverse-primary: '#97d2c7'
-  secondary: '#855300'
-  on-secondary: '#ffffff'
-  secondary-container: '#fea619'
-  on-secondary-container: '#684000'
-  tertiary: '#242f41'
-  on-tertiary: '#ffffff'
-  tertiary-container: '#3a4558'
-  on-tertiary-container: '#a7b2c9'
-  error: '#ba1a1a'
-  on-error: '#ffffff'
-  error-container: '#ffdad6'
-  on-error-container: '#93000a'
-  primary-fixed: '#b2eee3'
-  primary-fixed-dim: '#97d2c7'
-  on-primary-fixed: '#00201c'
-  on-primary-fixed-variant: '#0f5048'
-  secondary-fixed: '#ffddb8'
-  secondary-fixed-dim: '#ffb95f'
-  on-secondary-fixed: '#2a1700'
-  on-secondary-fixed-variant: '#653e00'
-  tertiary-fixed: '#d8e3fb'
-  tertiary-fixed-dim: '#bcc7de'
-  on-tertiary-fixed: '#111c2d'
-  on-tertiary-fixed-variant: '#3c475a'
-  background: '#f7f9fb'
-  on-background: '#191c1e'
-  surface-variant: '#e0e3e5'
-  nile-deep: '#062C29'
-  accent-gold: '#D97706'
-  slate-900: '#0F172A'
-  surface-subtle: '#F1F5F9'
+  background: '#F7F8FC'
+  surface: '#FFFFFF'
+  surface-muted: '#F1F3F8'
+  surface-strong: '#E7EAF0'
+  ink: '#151D32'
+  ink-muted: '#6D7689'
+  primary: '#1E3A8A'
+  primary-deep: '#13275E'
+  primary-soft: '#EAF0FF'
+  accent: '#F59E0B'
+  accent-soft: '#FFF2D4'
+  border: '#E7EAF0'
+  success: '#14845D'
+  warning: '#92400E'
+  danger: '#B42318'
 typography:
-  display-lg:
-    fontFamily: Hanken Grotesk
-    fontSize: 48px
-    fontWeight: '700'
-    lineHeight: 56px
-    letterSpacing: -0.02em
-  display-lg-mobile:
-    fontFamily: Hanken Grotesk
-    fontSize: 36px
-    fontWeight: '700'
-    lineHeight: 44px
-    letterSpacing: -0.02em
-  headline-md:
-    fontFamily: Hanken Grotesk
-    fontSize: 30px
-    fontWeight: '600'
-    lineHeight: 38px
-    letterSpacing: -0.01em
-  headline-sm:
-    fontFamily: Hanken Grotesk
-    fontSize: 24px
-    fontWeight: '600'
-    lineHeight: 32px
-  body-lg:
-    fontFamily: Inter
-    fontSize: 18px
-    fontWeight: '400'
-    lineHeight: 28px
-  body-md:
-    fontFamily: Inter
-    fontSize: 16px
-    fontWeight: '400'
-    lineHeight: 24px
-  body-sm:
-    fontFamily: Inter
+  display:
+    fontFamily: Manrope
+    fontSize: 54px
+    fontWeight: '800'
+    lineHeight: 1.1
+    letterSpacing: '-0.045em'
+  display-mobile:
+    fontFamily: Manrope
+    fontSize: 35px
+    fontWeight: '800'
+    lineHeight: 1.1
+    letterSpacing: '-0.035em'
+  heading:
+    fontFamily: Manrope
+    fontSize: 28px
+    fontWeight: '800'
+    lineHeight: 1.2
+    letterSpacing: '-0.03em'
+  body:
+    fontFamily: DM Sans
     fontSize: 14px
     fontWeight: '400'
-    lineHeight: 20px
-  label-md:
-    fontFamily: Inter
-    fontSize: 14px
-    fontWeight: '600'
-    lineHeight: 20px
-    letterSpacing: 0.01em
-  label-xs:
-    fontFamily: Inter
-    fontSize: 12px
-    fontWeight: '500'
-    lineHeight: 16px
+    lineHeight: 1.5
+  label:
+    fontFamily: DM Sans
+    fontSize: 11px
+    fontWeight: '700'
+    lineHeight: 1.4
 rounded:
-  sm: 0.25rem
-  DEFAULT: 0.5rem
+  sm: 0.5rem
+  DEFAULT: 0.625rem
   md: 0.75rem
   lg: 1rem
-  xl: 1.5rem
+  xl: 1.25rem
+  2xl: 1.0625rem
+  3xl: 1.75rem
   full: 9999px
 spacing:
   base: 8px
-  container-max: 1280px
-  gutter: 24px
-  margin-mobile: 16px
-  margin-desktop: 40px
-  stack-sm: 8px
-  stack-md: 16px
-  stack-lg: 32px
-  section-padding: 80px
+  container-max: 1240px
+  gutter: 22px
+  margin-mobile: 14px
+  margin-desktop: 22px
+  section-padding: 36px
+shadows:
+  default: '0 6px 22px rgba(20, 35, 73, 0.07)'
+  hover: '0 14px 40px rgba(20, 35, 73, 0.08)'
+  floating: '0 8px 24px -4px rgba(20, 35, 73, 0.10)'
 ---
 
-## Brand & Style
+## Product direction
 
-The design system is rooted in the concepts of "Flow and Precision." It targets a sophisticated audience that values both innovation and the reliability of established institutions. The brand personality is professional, calm, and forward-thinking, evoking an emotional response of security paired with cutting-edge capability.
+NILE is a Cameroonian-first multi-vendor marketplace for physical goods. The interface helps people discover products from local sellers, compare clear product details, and understand each order's available options. It is mobile-first and must remain useful on slow networks and modest devices.
 
-The visual style is **Corporate Modern with a Minimalist edge**. It leverages high-quality typography and generous whitespace to create a premium feel. Subtle depth is achieved through tonal layering rather than aggressive shadows, ensuring the interface feels light, fast, and structured. This approach avoids the clutter of traditional enterprise software while maintaining the "trustworthy" essence of the original Nile brand.
+## Visual concept — the connected trading floor
 
-## Colors
+Follow the supplied NILE reference: a clean white shopping header under a compact deep-blue service strip; a warm pale-blue-to-amber hero; product photography framed like a curated shop window; restrained white cards; navy promotion panels; and orange reserved for decisive actions and real promotion cues. It should feel like contemporary commerce, not a generic dashboard or discount flyer.
 
-The palette is a refined evolution of the original colors. The primary green (`#0A4D45`) has been slightly adjusted for better accessibility and a more modern, jewel-toned depth. It represents stability and growth. The secondary gold (`#F59E0B`) is used sparingly as an "action" or "highlight" color to draw attention to critical conversion points without overwhelming the professional aesthetic.
+## Brand
 
-The neutral palette shifts toward a cooler "Slate" spectrum to ensure the interface feels crisp and modern. We utilize a "Light" default mode with high-contrast text (`#0F172A`) to ensure maximum legibility and a premium, paper-like quality. Backgrounds use very subtle grays to distinguish between different content zones without needing heavy borders.
+- Primary cobalt: `#1E3A8A`; deep service blue: `#13275E`; secondary cobalt: `#2849A5`.
+- Action orange: `#F59E0B`; soft orange: `#FFF2D4`.
+- Page paper: `#F7F8FC`; surfaces: white; ink: `#151D32`; muted copy: `#6D7689`; borders: `#E7EAF0`.
+- Display and interface headings use **Manrope** (700–800); interface/body copy uses **DM Sans**.
+- Orange is for primary actions, active navigation cues, and actual offers—not for every panel.
+- MTN MoMo and Orange Money marks identify payment providers only. They do not imply endorsement or live integration; checkout options are determined by runtime configuration.
 
-## Typography
+## Layout and components
 
-This design system utilizes a dual-font strategy to balance character with utility. **Hanken Grotesk** is used for headlines; its sharp, contemporary geometry provides a "designed" feel that signals innovation. For body text and data-heavy interfaces, **Inter** is employed for its exceptional legibility and neutral, systematic tone.
+- Public shopping pages use a 1240px editorial grid, clear product discovery, compact utility header, white search field, and white navigation with an orange active underline.
+- Hero sections use a pale blue-to-cream field and real NILE catalog imagery—not fabricated product or review data.
+- Product cards prioritize image, title, price, availability, real promotion status, and one clear action.
+- Buyer/checkout, seller, and admin surfaces share the same visual language but retain separate shells and operational navigation.
+- Use an 8px rhythm, 12–17px card radii, 20–28px feature-panel radii, subtle borders, and restrained shadows.
+- Never fill an empty state with invented ratings, countdowns, stock claims, delivery promises, or customer statistics.
 
-Text hierarchy is strictly enforced through weight and scale. Large display headers use tight letter spacing to feel more cohesive, while small labels use slightly increased tracking to ensure clarity at small sizes. All body text is optimized for a comfortable 1.5x line height to promote reading endurance.
+## Responsive and accessibility
 
-## Layout & Spacing
-
-The layout follows a **12-column fluid grid** for desktop and a **4-column grid** for mobile. A consistent 8px base unit (the "spacing rhythm") governs all margins and paddings, ensuring mathematical harmony across the interface.
-
-On desktop, the container is centered with a maximum width of 1280px to prevent line lengths from becoming unreadable. Whitespace is used intentionally as a structural element—sections are separated by significant vertical padding (`80px`) to create a sense of "premium" breathing room. Elements should be "stacked" using the defined stack variables to maintain consistent grouping logic.
-
-## Elevation & Depth
-
-This design system moves away from traditional heavy shadows in favor of **Tonal Layers** and **Low-Contrast Outlines**. 
-
-1.  **Level 0 (Base):** The primary background color (`#F8FAFC`).
-2.  **Level 1 (Cards/Surface):** White background with a 1px border (`#E2E8F0`). No shadow.
-3.  **Level 2 (Interaction):** White background with a very soft, ambient shadow (Color: `#0A4D45` at 4% opacity, 12px blur, 4px Y-offset). Used for hovered states or menus.
-4.  **Overlays:** High-diffusion "shadow-glows" using the primary green tint are reserved for modals to suggest focus without using harsh blacks.
-
-## Shapes
-
-The shape language is "Refined-Rounded." By using a **0.5rem (8px)** base roundedness, we avoid the clinical feel of sharp corners while remaining more professional than fully pill-shaped "playful" designs. 
-
-Buttons, input fields, and cards all share this 8px radius to create a unified visual language. Larger components, like hero sections or large containers, may scale up to `rounded-xl` (1.5rem) to emphasize their role as structural containers.
-
-## Components
-
-### Buttons
-- **Primary:** Solid primary green (`#0A4D45`) with white text. 8px radius.
-- **Secondary:** Transparent background with a 1px border of primary green.
-- **Tertiary:** Text-only with a subtle background hover state (`#F1F5F9`).
-- **Interaction:** All buttons should have a 150ms transition on hover, slightly darkening the background.
-
-### Input Fields
-- Inputs use a white background, 1px slate-200 border, and `body-md` typography.
-- On focus, the border changes to primary green with a 2px "soft glow" (box-shadow) in the same color at 10% opacity.
-
-### Cards
-- Cards are the primary container for information. They feature a white background, 1px `#E2E8F0` border, and 24px internal padding. 
-- Avoid heavy shadows; use a subtle 1px border to define the edge.
-
-### Chips & Tags
-- Used for categorization. These should have a `rounded-full` (pill) shape to contrast against the 8px corners of larger containers. 
-- Use low-saturation background tints of the primary or secondary colors with dark text for high legibility.
-
-### Data Tables
-- Use `body-sm` for table content. Row separators should be minimal (`1px solid #F1F5F9`). Headers should use `label-xs` (uppercase) for clear distinction.
+- Work from 320px width upward; keep search discoverable on mobile and preserve touch targets around 44px.
+- Preserve server authorization, checkout validation, inventory/variant handling, provider-verified payment status, seller KYC, and admin controls.
+- Use semantic links and buttons, visible keyboard focus, accessible labels, descriptive image alternatives, stable loading/error states, and reduced-motion support.
