@@ -4,8 +4,10 @@
 
 :root {
   color-scheme: light;
-  --repli: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+  --repli: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --nile-blue: #1e3a8a;
+  --nile-blue-deep: #14265a;
+  --nile-orange: #f59e0b;
 }
 
 html {
@@ -13,124 +15,28 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* Typographie d'affichage Hanken Grotesk avec crénage précis */
-h1,
-h2,
-h3,
-h4 {
-  font-family: var(--police-titre), var(--repli);
-  letter-spacing: -0.015em;
-}
-
-/* Fond de page : surface de base épurée */
-body {
-  background-color: #f8fafc;
-  color: #0f172a;
-}
-
-/* Défilement doux accessible */
-@media (prefers-reduced-motion: no-preference) {
-  html {
-    scroll-behavior: smooth;
-  }
-}
-
-/* Personnalisation de la sélection du texte aux couleurs NILE */
-::selection {
-  background: #b2eee3; /* nile-200 */
-  color: #00201c; /* nile-900 */
-}
-
-/* Scrollbar ultra fine et moderne */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
-}
-
-body {
-  @apply bg-surface text-slate-900 antialiased selection:bg-nile-200 selection:text-nile-900;
-}
+h1, h2, h3 { font-family: var(--police-titre), var(--repli); }
+body { background-color: #f7f9fc; color: #0f172a; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+::selection { background: #dbeafe; color: #14265a; }
+body { @apply bg-surface text-slate-900 antialiased selection:bg-nile-100 selection:text-nile-950; }
 
 @layer base {
-  a,
-  button,
-  [role="button"] {
-    -webkit-tap-highlight-color: transparent;
-  }
-  :focus-visible {
-    @apply outline-none ring-2 ring-nile-700 ring-offset-2 ring-offset-white;
-  }
+  a, button, [role="button"] { -webkit-tap-highlight-color: transparent; }
+  :focus-visible { @apply outline-none ring-2 ring-nile ring-offset-2 ring-offset-slate-50; }
 }
-
 @layer utilities {
-  .ligne-1 {
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .ligne-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .no-scrollbar::-webkit-scrollbar {
-    display: none;
-  }
-  .no-scrollbar {
-    -ms-overflow-style: none;
-    scrollbar-width: none;
-  }
-
-  .pleine-largeur {
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
-  }
-
-  .skeleton {
-    position: relative;
-    overflow: hidden;
-    background: #e2e8f0;
-  }
+  .ligne-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+  .pleine-largeur { margin-left: calc(50% - 50vw); margin-right: calc(50% - 50vw); }
+  .skeleton { position: relative; overflow: hidden; background: #e5e7eb; }
   .skeleton::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.7),
-      transparent
-    );
+    content: ""; position: absolute; inset: 0; transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent);
     animation: brillance 1.5s infinite;
   }
 }
-
-@keyframes brillance {
-  100% {
-    transform: translateX(100%);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
+  *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
 }
