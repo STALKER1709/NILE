@@ -16,30 +16,48 @@ export function NavMobile({
   nbFavoris: number;
 }) {
   return (
-    // Cinq entrées pour un acheteur connecté, quatre pour un visiteur : sans
-    // compte il n'y a pas de liste de souhaits, et une entrée qui renverrait
-    // vers la connexion occuperait un cinquième de la barre pour rien.
     <nav
-      className={`fixed inset-x-0 bottom-0 z-40 grid border-t border-contour-carte bg-white/90 backdrop-blur-md shadow-flottant sm:hidden ${
+      className={`fixed inset-x-0 bottom-0 z-40 grid border-t border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-[0_-4px_16px_rgba(0,0,0,0.05)] sm:hidden ${
         connecte ? "grid-cols-5" : "grid-cols-4"
       }`}
     >
       <Item href="/" libelle="Accueil">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><path d="M9 21V12h6v9" /></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="m3 10 9-7 9 7v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+          <path d="M9 21V12h6v9" />
+        </svg>
       </Item>
+
       <Item href="/catalogue" libelle="Catalogue">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="3" y="3" width="7" height="7" rx="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1.5" />
+        </svg>
       </Item>
+
       {connecte && (
         <Item href="/favoris" libelle="Favoris" badgeFavoris={nbFavoris}>
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round"><path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 0 1 19.8 13z" /></svg>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinejoin="round">
+            <path d="M12 20.5 4.2 13a4.8 4.8 0 0 1 6.8-6.8l1 1 1-1A4.8 4.8 0 0 1 19.8 13z" />
+          </svg>
         </Item>
       )}
+
       <Item href="/panier" libelle="Panier" badge={nbArticles}>
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="21" r="1" /><circle cx="20" cy="21" r="1" /><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" /></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="9" cy="21" r="1" />
+          <circle cx="20" cy="21" r="1" />
+          <path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6" />
+        </svg>
       </Item>
+
       <Item href={connecte ? "/compte" : "/connexion"} libelle="Compte">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
       </Item>
     </nav>
   );
@@ -55,39 +73,40 @@ function Item({
   href: string;
   libelle: string;
   children: ReactNode;
-  /** Ne passer que sur l'item Panier : la pastille s'abonne au total du panier. */
   badge?: number;
-  /** Idem pour l'item Favoris, qui suit son propre compteur. */
   badgeFavoris?: number;
 }) {
   const chemin = usePathname();
   const actif = chemin === href || (href !== "/" && chemin.startsWith(href));
+
   return (
     <Link
       href={href}
       aria-current={actif ? "page" : undefined}
-      className={`relative flex flex-col items-center gap-0.5 py-2 text-[11px] transition-colors ${
-        actif
-          ? "font-bold text-nile-700"
-          : "font-medium text-slate-500 hover:text-nile-600"
+      className={`relative flex min-h-[56px] flex-col items-center justify-center gap-1 py-1.5 text-[11px] transition-colors ${
+        actif ? "font-bold text-nile-800" : "font-medium text-slate-500 hover:text-nile-700"
       }`}
     >
-      {children}
-      <span>{libelle}</span>
+      <div className="relative">
+        {children}
+        {badge !== undefined && (
+          <BadgePanier
+            initial={badge}
+            className="absolute -right-2.5 -top-1.5 grid h-4 min-w-[1rem] place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-slate-950 shadow-xs"
+          />
+        )}
+        {badgeFavoris !== undefined && (
+          <BadgeFavoris
+            initial={badgeFavoris}
+            className="absolute -right-2.5 -top-1.5 grid h-4 min-w-[1rem] place-items-center rounded-full bg-accent px-1 text-[9px] font-bold text-slate-950 shadow-xs"
+          />
+        )}
+      </div>
+
+      <span className="leading-none">{libelle}</span>
+
       {actif && (
-        <span className="absolute bottom-0.5 h-1 w-5 rounded-full bg-nile-600" />
-      )}
-      {badge !== undefined && (
-        <BadgePanier
-          initial={badge}
-          className="absolute right-1/2 top-1 translate-x-3 grid h-4 min-w-[1rem] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-nile-950 shadow-xs"
-        />
-      )}
-      {badgeFavoris !== undefined && (
-        <BadgeFavoris
-          initial={badgeFavoris}
-          className="absolute right-1/2 top-1 translate-x-3 grid h-4 min-w-[1rem] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold text-nile-950 shadow-xs"
-        />
+        <span className="absolute bottom-1 h-1 w-6 rounded-full bg-nile-700 transition-all" />
       )}
     </Link>
   );

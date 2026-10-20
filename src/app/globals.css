@@ -4,8 +4,6 @@
 
 :root {
   color-scheme: light;
-  /* Polices du système de design, chargées par next/font (auto-hébergées).
-     La pile système sert de repli le temps du chargement. */
   --repli: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
     Arial, sans-serif;
 }
@@ -15,36 +13,54 @@ html {
   -webkit-text-size-adjust: 100%;
 }
 
-/* Les titres portent la police d'affichage. */
+/* Typographie d'affichage Hanken Grotesk avec crénage précis */
 h1,
 h2,
-h3 {
+h3,
+h4 {
   font-family: var(--police-titre), var(--repli);
+  letter-spacing: -0.015em;
 }
 
-/* Fond de page : surface de base du système de design. */
+/* Fond de page : surface de base épurée */
 body {
-  background-color: #f7f9fb;
+  background-color: #f8fafc;
   color: #0f172a;
 }
 
-/* Défilement doux (lien « Retour en haut »), sauf préférence contraire. */
+/* Défilement doux accessible */
 @media (prefers-reduced-motion: no-preference) {
   html {
     scroll-behavior: smooth;
   }
 }
 
+/* Personnalisation de la sélection du texte aux couleurs NILE */
 ::selection {
-  background: #ccfbf1; /* nile-100 */
-  color: #06231f; /* nile-950 */
+  background: #b2eee3; /* nile-200 */
+  color: #00201c; /* nile-900 */
+}
+
+/* Scrollbar ultra fine et moderne */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 body {
-  @apply bg-surface text-slate-900 antialiased selection:bg-nile-100 selection:text-nile-950;
+  @apply bg-surface text-slate-900 antialiased selection:bg-nile-200 selection:text-nile-900;
 }
 
-/* Cible de tap confortable sur mobile + focus visible accessible. */
 @layer base {
   a,
   button,
@@ -52,12 +68,17 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
   :focus-visible {
-    @apply outline-none ring-2 ring-nile ring-offset-2 ring-offset-slate-50;
+    @apply outline-none ring-2 ring-nile-700 ring-offset-2 ring-offset-white;
   }
 }
 
 @layer utilities {
-  /* Coupe le texte à 2 lignes (titres de produits). */
+  .ligne-1 {
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
   .ligne-2 {
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -72,26 +93,15 @@ body {
     scrollbar-width: none;
   }
 
-  /*
-   * Section pleine largeur écran depuis l'intérieur du gabarit centré
-   * (`main` est limité à 1280 px). Le fond déborde jusqu'aux bords, le
-   * contenu reste cadré par son propre conteneur.
-   *
-   * `body` porte `overflow-x: clip` pour absorber le dépassement de 100vw
-   * quand une barre de défilement classique est présente. On utilise `clip`
-   * et non `hidden` : `clip` ne crée pas de conteneur de défilement, donc
-   * l'en-tête et les filtres `sticky` continuent de fonctionner.
-   */
   .pleine-largeur {
     margin-left: calc(50% - 50vw);
     margin-right: calc(50% - 50vw);
   }
 
-  /* Bloc de chargement (skeleton) avec reflet qui balaie. */
   .skeleton {
     position: relative;
     overflow: hidden;
-    background: #e5e7eb;
+    background: #e2e8f0;
   }
   .skeleton::after {
     content: "";
@@ -101,14 +111,19 @@ body {
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.6),
+      rgba(255, 255, 255, 0.7),
       transparent
     );
     animation: brillance 1.5s infinite;
   }
 }
 
-/* Accessibilité : coupe animations et transitions pour qui préfère le calme. */
+@keyframes brillance {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

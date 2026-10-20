@@ -121,7 +121,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       <form
         method="get"
         action="/catalogue"
-        className="flex w-full overflow-hidden rounded bg-white shadow-sm ring-1 ring-white/20 transition-all focus-within:ring-2 focus-within:ring-amber-400"
+        className="flex w-full overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-white/20 transition-all focus-within:ring-2 focus-within:ring-accent"
         autoComplete="off"
       >
         <input
@@ -156,7 +156,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       {afficherListe && (
         <ul
           role="listbox"
-          className="absolute inset-x-0 top-full z-50 mt-1 overflow-hidden rounded border border-contour-carte bg-white py-1 text-left shadow-flottant"
+          className="absolute inset-x-0 top-full z-50 mt-1.5 overflow-hidden rounded-xl border border-slate-200 bg-white py-1.5 text-left shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
         >
           {boutiques.length > 0 && (
             <li className="px-3 pb-1 pt-1.5 text-[11px] font-semibold uppercase tracking-wide text-slate-400">

@@ -2,67 +2,93 @@ import Link from "next/link";
 
 export function PiedDePage() {
   return (
-    // pb-16 mobile : la barre de navigation fixe ne recouvre pas le contenu.
-    <footer className="mt-10 bg-nile-900 pb-16 text-white sm:pb-0">
-      {/* Bandeau « retour en haut » (signal marketplace) */}
+    <footer className="mt-16 bg-nile-950 pb-20 text-white sm:pb-0 border-t border-nile-900">
+      {/* Bouton retour en haut fluide */}
       <Link
         href="#top"
-        className="block bg-nile-800 py-3 text-center text-sm font-medium text-white/90 hover:bg-nile-dark"
+        className="block bg-nile-900/60 py-3.5 text-center text-xs font-semibold text-slate-300 transition-colors hover:bg-nile-800 hover:text-white"
       >
         Retour en haut ↑
       </Link>
 
-      <div className="mx-auto grid max-w-conteneur grid-cols-2 gap-6 px-4 py-9 text-sm sm:grid-cols-3">
+      <div className="mx-auto grid max-w-conteneur grid-cols-2 gap-8 px-4 py-12 text-sm sm:grid-cols-4">
+        {/* Identité NILE */}
         <div className="col-span-2 sm:col-span-1">
-          <p className="flex items-center gap-1.5 text-lg font-bold">
-            <span className="grid h-7 w-7 place-items-center rounded bg-accent text-nile-950">N</span>
-            NILE
-          </p>
-          <p className="mt-2 text-white/60">
-            La marketplace du Cameroun. Paiement mobile &amp; à la livraison.
+          <div className="flex items-center gap-2">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-to-br from-accent to-accent-dark font-titre font-bold text-nile-950">
+              N
+            </span>
+            <span className="font-titre text-lg font-bold tracking-tight text-white">
+              NILE
+            </span>
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-slate-400">
+            La marketplace de référence au Cameroun. Achats en ligne fiables, paiements mobiles sécurisés et livraison avec vérification.
           </p>
         </div>
+
+        {/* Acheter */}
         <div>
-          <p className="font-semibold">Acheter</p>
-          <ul className="mt-2 space-y-1.5 text-white/60">
-            <li><Link href="/catalogue" className="hover:text-white">Catalogue</Link></li>
-            <li><Link href="/promotions" className="hover:text-white">Promotions</Link></li>
-            <li><Link href="/boutiques" className="hover:text-white">Boutiques</Link></li>
-            <li><Link href="/panier" className="hover:text-white">Mon panier</Link></li>
-            <li><Link href="/commandes" className="hover:text-white">Mes commandes</Link></li>
+          <h3 className="font-titre text-xs font-bold uppercase tracking-wider text-slate-300">
+            Acheter
+          </h3>
+          <ul className="mt-3.5 space-y-2 text-xs text-slate-400">
+            <li><Link href="/catalogue" className="transition-colors hover:text-white">Catalogue complet</Link></li>
+            <li><Link href="/promotions" className="transition-colors hover:text-white">Offres &amp; promotions</Link></li>
+            <li><Link href="/boutiques" className="transition-colors hover:text-white">Boutiques certifiées</Link></li>
+            <li><Link href="/panier" className="transition-colors hover:text-white">Mon panier</Link></li>
+            <li><Link href="/commandes" className="transition-colors hover:text-white">Suivi de commande</Link></li>
           </ul>
         </div>
+
+        {/* Vendre */}
         <div>
-          <p className="font-semibold">Vendre</p>
-          <ul className="mt-2 space-y-1.5 text-white/60">
-            <li><Link href="/inscription" className="hover:text-white">Devenir vendeur</Link></li>
-            <li><Link href="/vendeur" className="hover:text-white">Espace vendeur</Link></li>
+          <h3 className="font-titre text-xs font-bold uppercase tracking-wider text-slate-300">
+            Vendre
+          </h3>
+          <ul className="mt-3.5 space-y-2 text-xs text-slate-400">
+            <li><Link href="/inscription" className="transition-colors hover:text-white">Ouvrir ma boutique</Link></li>
+            <li><Link href="/vendeur" className="transition-colors hover:text-white">Espace vendeur</Link></li>
+            <li><Link href="/vendeur/kyc" className="transition-colors hover:text-white">Vérification KYC</Link></li>
+            <li><Link href="/conditions" className="transition-colors hover:text-white">Charte vendeurs</Link></li>
+          </ul>
+        </div>
+
+        {/* Support & Légal */}
+        <div>
+          <h3 className="font-titre text-xs font-bold uppercase tracking-wider text-slate-300">
+            Assistance
+          </h3>
+          <ul className="mt-3.5 space-y-2 text-xs text-slate-400">
+            <li><Link href="/aide" className="transition-colors hover:text-white">Centre d'aide</Link></li>
+            <li><Link href="/contact" className="transition-colors hover:text-white">Service client WhatsApp</Link></li>
+            <li><Link href="/conditions" className="transition-colors hover:text-white">Conditions d'utilisation</Link></li>
+            <li><Link href="/confidentialite" className="transition-colors hover:text-white">Confidentialité</Link></li>
           </ul>
         </div>
       </div>
-      {/* Les moyens de paiement ne sont plus listés qu'ICI. Une colonne
-          « Paiement » les énumérait juste au-dessus, en texte, et ces pastilles
-          les répétaient immédiatement — deux fois la même information à trois
-          centimètres d'écart. Les pastilles gagnent : on reconnaît un logo
-          MTN ou Orange d'un coup d'œil, pas une ligne de liste. */}
-      <div className="border-t border-white/10 py-4">
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <span className="rounded bg-[#ffcb05] px-2.5 py-1 text-[11px] font-bold text-slate-900">MTN MoMo</span>
-          <span className="rounded bg-[#ff7900] px-2.5 py-1 text-[11px] font-bold text-white">Orange Money</span>
-          <span className="rounded border border-white/30 px-2.5 py-1 text-[11px] font-semibold text-white/85">Espèces à la livraison</span>
+
+      {/* Badges de paiement sécurisé */}
+      <div className="border-t border-white/5 py-5">
+        <div className="mx-auto flex max-w-conteneur flex-wrap items-center justify-center gap-3 px-4">
+          <span className="rounded-md bg-[#ffcb05] px-3 py-1 text-[11px] font-bold text-slate-900 shadow-xs">
+            MTN Mobile Money
+          </span>
+          <span className="rounded-md bg-[#ff7900] px-3 py-1 text-[11px] font-bold text-white shadow-xs">
+            Orange Money
+          </span>
+          <span className="rounded-md border border-white/20 bg-white/5 px-3 py-1 text-[11px] font-medium text-slate-300">
+            Espèces à la livraison
+          </span>
+          <span className="rounded-md border border-emerald-400/30 bg-emerald-950/40 px-3 py-1 text-[11px] font-medium text-emerald-300">
+            Vérification par code secret
+          </span>
         </div>
       </div>
-      <div className="space-y-2 border-t border-white/10 py-4 text-center text-xs text-white/50">
-        <p className="space-x-3">
-          <Link href="/aide" className="hover:text-white">Aide</Link>
-          <span aria-hidden="true">·</span>
-          <Link href="/contact" className="hover:text-white">Contact</Link>
-          <span aria-hidden="true">·</span>
-          <Link href="/conditions" className="hover:text-white">Conditions générales</Link>
-          <span aria-hidden="true">·</span>
-          <Link href="/confidentialite" className="hover:text-white">Confidentialité</Link>
-        </p>
-        <p>© {new Date().getFullYear()} NILE Marketplace · FCFA (XAF)</p>
+
+      {/* Mentions légales */}
+      <div className="border-t border-white/5 py-4 text-center text-[11px] text-slate-500">
+        <p>© {new Date().getFullYear()} NILE Marketplace · Cameroun · FCFA (XAF)</p>
       </div>
     </footer>
   );

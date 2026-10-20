@@ -5,14 +5,6 @@ import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { BoutonFavori } from "@/components/produit/BoutonFavori";
 import type { ProduitCarte, EtatFavoriCarte } from "@/components/produit/CarteProduit";
 
-/**
- * Carte produit « vitrine » : format large utilisé sur l'accueil (3 colonnes
- * sur grand écran). Visuel en 3:2, prix en titre, boutique en étiquette dorée,
- * puis deux actions côte à côte (ajout au panier / fiche produit).
- *
- * La carte compacte de catalogue reste `CarteProduit` : les deux grilles n'ont
- * pas la même densité, on ne mutualise donc que les primitives.
- */
 export function CarteProduitVitrine({
   produit,
   quantitePanier = 0,
@@ -26,52 +18,48 @@ export function CarteProduitVitrine({
   produit: ProduitCarte;
   quantitePanier?: number;
   priority?: boolean;
-  /**
-   * Cœur de mise en favori. Absent pour un visiteur non connecté : il n'y a
-   * nulle part où enregistrer sa liste.
-   */
   favori?: EtatFavoriCarte;
-  /** Position dans la grille : décale l'apparition (effet en cascade). */
   index?: number;
-  /**
-   * "double" : ajout au panier + lien vers la fiche (accueil).
-   * "simple" : un seul bouton pleine largeur (catalogue) — l'image et le
-   * titre restent des liens vers la fiche produit.
-   */
   actions?: "double" | "simple";
-  /** Surtitre de rayon au-dessus du titre (grilles de catalogue). */
   afficherCategorie?: boolean;
   sizes?: string;
 }) {
   const lien = `/produit/${produit.slug}`;
   const enPromo = produit.prixPromo != null && produit.prixPromo < produit.prix;
+  const enRupture = produit.stock === 0;
+
   return (
     <article
-      style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
-      className="group flex animate-fondu-haut flex-col rounded-xl border border-contour-carte bg-white p-4 transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-carte-hover"
+      style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
+      className="group flex animate-fondu-haut flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-md"
     >
-      {/* Le cœur est un formulaire : il ne peut pas vivre DANS le lien vers la
-          fiche produit (un bouton imbriqué dans un lien est invalide et ne
-          répondrait pas). Il en est donc le voisin, posé par-dessus. */}
-      <div className="relative mb-4 overflow-hidden rounded">
-        <Link href={lien} className="block overflow-hidden rounded">
+      <div className="relative mb-3.5 overflow-hidden rounded-xl bg-slate-50">
+        <Link href={lien} className="block overflow-hidden">
           <Vignette
             url={produit.images[0]?.url}
             alt={produit.titre}
             priority={priority}
-            fond="bg-surface-basse"
-            className="aspect-[1.5] w-full"
-            classImage="transition-transform duration-300 group-hover:scale-105"
+            fond="bg-slate-50"
+            className="aspect-[1.4] w-full"
+            classImage="transition-transform duration-500 group-hover:scale-105"
             sizes={sizes}
           />
         </Link>
+
         {enPromo && (
-          <span className="pointer-events-none absolute left-2 top-2 rounded-full bg-promo px-2.5 py-1 text-[11px] font-bold text-white shadow-sm">
+          <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-rose-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
             -{produit.pourcentageReduction}%
           </span>
         )}
+
+        {enRupture && (
+          <span className="pointer-events-none absolute bottom-3 left-3 rounded-md bg-slate-900/80 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur-xs">
+            Épuisé
+          </span>
+        )}
+
         {favori && (
-          <div className="absolute right-2 top-2">
+          <div className="absolute right-3 top-3">
             <BoutonFavori
               produitId={produit.id}
               enFavori={favori.enFavori}
@@ -83,66 +71,92 @@ export function CarteProduitVitrine({
       </div>
 
       {afficherCategorie && produit.categorie && (
-        <p className="mb-1 truncate text-etiquette-xs uppercase tracking-wider text-slate-400">
+        <p className="mb-1 truncate text-[10px] font-semibold uppercase tracking-wider text-slate-400">
           {produit.categorie.nom}
         </p>
       )}
 
       <Link href={lien}>
-        <h3 className="ligne-2 text-etiquette-md font-bold text-nile-800 transition-colors hover:text-nile-600">
+        <h3 className="ligne-2 min-h-[2.6rem] font-titre text-base font-bold text-slate-900 transition-colors group-hover:text-nile-700">
           {produit.titre}
         </h3>
       </Link>
 
-      <div className="mb-2 mt-1 flex min-h-[1.25rem] items-center gap-1">
+      <div className="mb-3 mt-1 flex min-h-[1.2rem] items-center gap-1.5">
         {produit.nbAvis > 0 ? (
           <>
             <Etoiles note={produit.noteMoyenne} />
-            <span className="text-etiquette-xs text-slate-500">({produit.nbAvis})</span>
+            <span className="text-xs font-medium text-slate-400">({produit.nbAvis})</span>
           </>
         ) : (
-          <span className="text-etiquette-xs text-slate-400">Nouveau</span>
+          <span className="text-xs font-medium text-slate-400">Nouveau</span>
         )}
       </div>
 
-      <div className="mt-auto">
-        {enPromo ? (
-          <span className="flex flex-wrap items-baseline gap-2">
-            <Prix montant={produit.prixPromo as number} className="block text-titre-sm text-promo" />
-            <Prix montant={produit.prix} className="text-etiquette-xs text-slate-400 line-through" />
-          </span>
-        ) : (
-          <Prix montant={produit.prix} className="block text-titre-sm text-nile-800" />
-        )}
-        {produit.vendeur.id ? (
-          <Link
-            href={`/boutique/${produit.vendeur.id}`}
-            className="mb-4 mt-1 block truncate text-etiquette-xs uppercase tracking-wider text-accent-deep hover:underline"
-          >
-            {produit.vendeur.nomBoutique}
-          </Link>
-        ) : (
-          <p className="mb-4 mt-1 truncate text-etiquette-xs uppercase tracking-wider text-accent-deep">
-            {produit.vendeur.nomBoutique}
-          </p>
-        )}
-
-        {/* Article décliné (`varianteId` absent) : la grille ne peut pas
-            choisir la taille à la place de l'acheteur, elle renvoie à la
-            fiche produit plutôt que de proposer un ajout voué au refus. */}
-        {actions === "simple" ? (
-          produit.varianteId ? (
-            <BoutonPanier
-              varianteId={produit.varianteId}
-              stock={produit.stock}
-              quantiteInitiale={quantitePanier}
-              libelle="Ajouter au panier"
-            />
+      <div className="mt-auto flex items-baseline justify-between gap-2 border-t border-slate-100 pt-3">
+        <div>
+          {enPromo ? (
+            <div className="flex flex-wrap items-baseline gap-1.5">
+              <Prix
+                montant={produit.prixPromo as number}
+                className="text-lg font-extrabold tracking-tight text-rose-600 sm:text-xl"
+              />
+              <Prix
+                montant={produit.prix}
+                className="text-xs text-slate-400 line-through"
+              />
+            </div>
           ) : (
-            <BoutonChoisir lien={lien} epuise={produit.stock === 0} />
-          )
+            <Prix
+              montant={produit.prix}
+              className="text-lg font-extrabold tracking-tight text-slate-900 sm:text-xl"
+            />
+          )}
+
+          {produit.vendeur.id ? (
+            <Link
+              href={`/boutique/${produit.vendeur.id}`}
+              className="block truncate text-xs font-medium text-slate-500 hover:text-nile-700 hover:underline"
+            >
+              {produit.vendeur.nomBoutique}
+            </Link>
+          ) : (
+            <p className="truncate text-xs text-slate-400">
+              {produit.vendeur.nomBoutique}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* Boutons d'action */}
+      <div className="mt-3.5 flex gap-2">
+        {actions === "double" ? (
+          <>
+            <div className="flex-1">
+              {produit.varianteId ? (
+                <BoutonPanier
+                  varianteId={produit.varianteId}
+                  stock={produit.stock}
+                  quantiteInitiale={quantitePanier}
+                />
+              ) : (
+                <Link
+                  href={lien}
+                  className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-accent text-xs font-bold text-slate-950 transition-all hover:bg-accent-dark hover:text-white"
+                >
+                  {enRupture ? "Voir" : "Options"}
+                </Link>
+              )}
+            </div>
+            <Link
+              href={lien}
+              className="inline-flex h-10 items-center justify-center rounded-lg border border-slate-200 bg-slate-50 px-3.5 text-xs font-semibold text-slate-700 transition-colors hover:border-nile-600 hover:bg-white hover:text-nile-800"
+            >
+              Fiche
+            </Link>
+          </>
         ) : (
-          <div className="grid grid-cols-2 items-start gap-2">
+          <div className="w-full">
             {produit.varianteId ? (
               <BoutonPanier
                 varianteId={produit.varianteId}
@@ -150,29 +164,16 @@ export function CarteProduitVitrine({
                 quantiteInitiale={quantitePanier}
               />
             ) : (
-              <BoutonChoisir lien={lien} epuise={produit.stock === 0} />
+              <Link
+                href={lien}
+                className="inline-flex h-10 w-full items-center justify-center rounded-lg bg-accent text-xs font-bold text-slate-950 transition-all hover:bg-accent-dark hover:text-white"
+              >
+                {enRupture ? "Voir l'article" : "Choisir les options"}
+              </Link>
             )}
-            <Link
-              href={lien}
-              className="inline-flex h-9 w-full items-center justify-center rounded border border-contour text-etiquette-md font-bold text-nile-800 transition-colors hover:bg-surface-moyenne"
-            >
-              Détails
-            </Link>
           </div>
         )}
       </div>
     </article>
-  );
-}
-
-/** Renvoi vers la fiche produit, pour un article dont la taille reste à choisir. */
-function BoutonChoisir({ lien, epuise }: { lien: string; epuise: boolean }) {
-  return (
-    <Link
-      href={lien}
-      className="inline-flex h-9 w-full items-center justify-center rounded bg-accent text-etiquette-md font-bold text-nile-950 transition-colors hover:bg-accent-dark"
-    >
-      {epuise ? "Voir l'article" : "Choisir les options"}
-    </Link>
   );
 }
