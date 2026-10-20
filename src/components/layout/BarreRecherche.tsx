@@ -121,7 +121,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       <form
         method="get"
         action="/catalogue"
-        className="flex h-12 w-full items-center overflow-hidden rounded-[14px] border border-stone-200 bg-[#f8f9fc] p-[5px] transition-colors focus-within:border-blue-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-900/5"
+        className="flex h-14 w-full items-center overflow-hidden rounded-[14px] border border-stone-200 bg-[#f8f9fc] p-[5px] transition-colors focus-within:border-blue-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-900/5"
         autoComplete="off"
       >
         <span className="ml-2.5 grid shrink-0 place-items-center text-slate-400" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" strokeLinecap="round" /></svg></span>
@@ -145,7 +145,7 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
         <button
           type="submit"
           aria-label="Lancer la recherche"
-          className="grid h-9 w-11 shrink-0 place-items-center rounded-[10px] bg-accent font-extrabold text-blue-950 transition-colors hover:bg-accent-dark active:scale-95"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px] bg-accent font-extrabold text-blue-950 transition-colors hover:bg-accent-dark active:scale-95"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="11" cy="11" r="7" />

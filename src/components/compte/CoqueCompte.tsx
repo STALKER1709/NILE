@@ -34,7 +34,7 @@ export function CoqueCompte({ children, nom }: { children: ReactNode; nom: strin
         <aside className="self-start rounded-2xl border border-stone-200 bg-white p-2 lg:sticky lg:top-6">
           <div className="flex items-center gap-3 border-b border-stone-100 px-3 py-4"><span className="grid h-11 w-11 place-items-center rounded-full bg-blue-100 font-titre text-lg font-bold text-blue-900">{nom.trim().charAt(0).toUpperCase()}</span><div className="min-w-0"><p className="truncate text-sm font-bold text-slate-900">{nom}</p><p className="text-xs text-slate-500">Espace client</p></div></div>
           <nav aria-label="Navigation du compte" className="no-scrollbar flex gap-1 overflow-x-auto py-2 lg:flex-col">
-            {LINKS.map((link) => { const active = pathname === link.href || (link.href !== "/compte" && pathname.startsWith(link.href + "/")); return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={`shrink-0 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active ? "bg-blue-50 text-blue-900" : "text-slate-600 hover:bg-stone-50 hover:text-slate-950"}`}>{link.label}</Link>; })}
+            {LINKS.map((link) => { const active = pathname === link.href || (link.href !== "/compte" && pathname.startsWith(link.href + "/")); return <Link key={link.href} href={link.href} aria-current={active ? "page" : undefined} className={`flex min-h-11 shrink-0 items-center whitespace-nowrap rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${active ? "bg-blue-50 text-blue-900" : "text-slate-600 hover:bg-stone-50 hover:text-slate-950"}`}>{link.label}</Link>; })}
           </nav>
         </aside>
         <section className="min-w-0">{children}</section>
