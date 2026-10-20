@@ -124,7 +124,7 @@ export function NavVendeur({
 
       <nav
         aria-label="Navigation vendeur"
-        className="no-scrollbar flex snap-x snap-proximity gap-1.5 overflow-x-auto scroll-px-3 pb-2 lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0"
+        className="no-scrollbar flex gap-1.5 overflow-x-auto pb-1 lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0"
       >
         {LIENS.map((l) => {
           const actif = estActif(l.href, l.exact);
@@ -133,7 +133,7 @@ export function NavVendeur({
               key={l.href}
               href={l.href}
               aria-current={actif ? "page" : undefined}
-              className={`flex min-h-11 shrink-0 snap-start items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
+              className={`flex shrink-0 items-center gap-2.5 rounded-xl px-3 py-3 text-sm font-semibold transition-colors ${
                 actif
                   ? "bg-blue-900 text-white"
                   : "text-slate-600 hover:bg-blue-50 hover:text-blue-900"

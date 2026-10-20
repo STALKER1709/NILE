@@ -79,12 +79,8 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--police-titre),var(--repli); letter-spacin
 @layer utilities {
   .ligne-1 { display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden; }
   .ligne-2 { display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  /* Les zones horizontales restent découvrables : barre discrète, non supprimée. */
-  .no-scrollbar { scrollbar-width: thin; scrollbar-color: #b8c1d4 var(--nile-paper); }
-  .no-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-  .no-scrollbar::-webkit-scrollbar-track { background: var(--nile-paper); }
-  .no-scrollbar::-webkit-scrollbar-thumb { background: #b8c1d4; border-radius: 999px; }
-  .no-scrollbar::-webkit-scrollbar-thumb:hover { background: #7c8bb0; }
+  .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
+  .no-scrollbar::-webkit-scrollbar { display:none; }
   .pleine-largeur { margin-left:calc(50% - 50vw); margin-right:calc(50% - 50vw); }
   .skeleton { position:relative; overflow:hidden; background:#e9edf4; }
   .skeleton::after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent); animation:brillance 1.5s infinite; }
@@ -95,5 +91,5 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--police-titre),var(--repli); letter-spacin
 }
 
 @media (prefers-reduced-motion:reduce) {
-  *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; }
+  *,*::before,*::after { animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; scroll-behavior:auto!important; }
 }

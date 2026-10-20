@@ -17,7 +17,7 @@ export function NavMobile({
 }) {
   return (
     <nav
-      className={`fixed inset-x-0 bottom-0 z-40 grid border-t border-slate-200/80 bg-white/95 pb-[max(0.5rem,env(safe-area-inset-bottom))] shadow-[0_-4px_16px_rgba(0,0,0,0.05)] backdrop-blur-xl sm:hidden ${
+      className={`fixed inset-x-0 bottom-0 z-40 grid border-t border-slate-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(0,0,0,0.05)] backdrop-blur-xl sm:hidden ${
         connecte ? "grid-cols-5" : "grid-cols-4"
       }`}
     >
@@ -82,7 +82,7 @@ function Item({
     <Link
       href={href}
       aria-current={actif ? "page" : undefined}
-      className={`relative flex min-h-[56px] min-w-0 px-1 flex-col items-center justify-center gap-1 py-1.5 text-[11px] transition-colors ${
+      className={`relative flex min-h-[56px] flex-col items-center justify-center gap-1 py-1.5 text-[11px] transition-colors ${
         actif ? "font-bold text-nile-800" : "font-medium text-slate-500 hover:text-nile-700"
       }`}
     >
