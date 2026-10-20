@@ -145,10 +145,13 @@ model Utilisateur {
 
   vendeur         Vendeur?
   abonnementsPush AbonnementPush[]
-  panier          Panier?
-  commandes       Commande[]
-  avis            Avis[]
-  favoris         Favori[]
+  panier                    Panier?
+  commandes                 Commande[]
+  avis                      Avis[]
+  favoris                   Favori[]
+  publicationLikes          PublicationLike[]
+  publicationCommentaires   PublicationCommentaire[]
+  publicationPartages       PublicationPartage[]
 
   @@index([role])
 }
@@ -672,8 +675,11 @@ model Publication {
   dateCreation DateTime          @default(now())
   dateMaj      DateTime          @updatedAt
 
-  medias   PublicationMedia[]
-  produits PublicationProduit[]
+  medias    PublicationMedia[]
+  produits  PublicationProduit[]
+  likes     PublicationLike[]
+  commentaires PublicationCommentaire[]
+  partages  PublicationPartage[]
   // likes et signalements : modèles ajoutés aux incréments 2 et 3.
 
   @@index([vendeurId, dateCreation])
@@ -771,3 +777,53 @@ model KycVendeur {
   @@index([statut])
 }
 
+
+// ---------------------------------------------------------------------------
+// REELS — extensions hors MVP (likes, commentaires, partages)
+// ---------------------------------------------------------------------------
+
+enum StatutCommentaire {
+  ACTIF
+  MASQUE
+  SIGNALE
+}
+
+model PublicationLike {
+  id            String      @id @default(uuid())
+  publicationId String
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  utilisateurId String
+  utilisateur   Utilisateur @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
+  dateCreation  DateTime    @default(now())
+
+  @@unique([publicationId, utilisateurId])
+  @@index([publicationId])
+  @@index([utilisateurId])
+}
+
+model PublicationCommentaire {
+  id            String             @id @default(uuid())
+  publicationId String
+  publication   Publication        @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  utilisateurId String
+  utilisateur   Utilisateur        @relation(fields: [utilisateurId], references: [id])
+  contenu       String             @db.Text
+  statut        StatutCommentaire  @default(ACTIF)
+  dateCreation  DateTime           @default(now())
+  dateMaj       DateTime           @updatedAt
+
+  @@index([publicationId, dateCreation])
+  @@index([statut])
+}
+
+model PublicationPartage {
+  id            String      @id @default(uuid())
+  publicationId String
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  utilisateurId String?
+  utilisateur   Utilisateur? @relation(fields: [utilisateurId], references: [id], onDelete: SetNull)
+  canal         String      @default("whatsapp") // whatsapp, facebook, copy_link, etc.
+  dateCreation  DateTime    @default(now())
+
+  @@index([publicationId, dateCreation])
+}
