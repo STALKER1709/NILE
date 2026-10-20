@@ -27,7 +27,7 @@ export default async function ReconciliationPage() {
   return (
     <div className="space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Suivi du cash (COD)</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Suivi du cash (COD)</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
