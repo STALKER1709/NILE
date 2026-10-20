@@ -58,6 +58,28 @@ const config: Config = {
           fixe: "#d8e3fb",
         },
       },
+      // Typography tokens retained for pages that have not migrated yet.
+      fontFamily: {
+        titre: ["var(--police-titre)", "system-ui", "sans-serif"],
+        sans: ["var(--police-corps)", "system-ui", "sans-serif"],
+      },
+      fontSize: {
+        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "display-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
+        "titre-md": ["30px", { lineHeight: "38px", letterSpacing: "-0.01em", fontWeight: "600" }],
+        "titre-sm": ["24px", { lineHeight: "32px", fontWeight: "600" }],
+        "corps-lg": ["18px", { lineHeight: "28px" }],
+        "corps-md": ["16px", { lineHeight: "24px" }],
+        "corps-sm": ["14px", { lineHeight: "20px" }],
+        "etiquette-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }],
+        "etiquette-xs": ["12px", { lineHeight: "16px", fontWeight: "500" }],
+      },
+      boxShadow: {
+        carte: "none",
+        "carte-hover": "0 4px 12px 0 rgba(30, 58, 138, 0.04)",
+        flottant: "0 8px 24px -4px rgba(30, 58, 138, 0.10)",
+        modale: "0 24px 60px -12px rgba(20, 38, 93, 0.22)",
+      },
       // Forme « arrondi maîtrisé » : 8px de base, conteneurs jusqu'à 1,5rem.
       borderRadius: {
         sm: "0.25rem",
