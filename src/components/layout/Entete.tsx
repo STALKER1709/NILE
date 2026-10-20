@@ -14,7 +14,7 @@ export function Entete({ utilisateur, nbArticles, nbFavoris, categories }: {
   categories: LienCategorie[];
 }) {
   return <header className="sticky top-0 z-40">
-    <div className="bg-blue-950 text-blue-50">
+    <div className="hidden bg-blue-950 text-blue-50 sm:block">
       <div className="mx-auto flex min-h-9 max-w-[1284px] items-center justify-between gap-3 px-[14px] text-[10px] font-semibold tracking-wide sm:px-[22px] sm:text-xs">
         <span className="flex items-center gap-2"><span className="h-1.5 w-1.5 rounded-full bg-amber-400" /> Le commerce local, connecté</span>
         <span className="hidden sm:block text-blue-100/75">Une marketplace pensée pour le Cameroun</span>
@@ -22,7 +22,7 @@ export function Entete({ utilisateur, nbArticles, nbFavoris, categories }: {
       </div>
     </div>
     <div className="border-b border-stone-200 bg-white">
-      <div className="mx-auto grid w-full max-w-[1284px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-[14px] py-3 sm:gap-5 sm:px-[22px] lg:min-h-[88px] lg:py-4">
+      <div className="mx-auto grid w-full max-w-[1284px] grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-[14px] py-2.5 sm:gap-5 sm:px-[22px] sm:py-3 lg:min-h-[88px] lg:py-4">
         <Link href="/" className="col-start-1 row-start-1 flex shrink-0 items-center gap-2.5" aria-label="NILE, accueil">
           <span className="nile-brand-mark grid h-10 w-10 place-items-center rounded-[14px] bg-blue-900 font-titre text-[25px] font-extrabold text-white sm:h-[43px] sm:w-[43px]">N</span>
           <span><span className="block font-titre text-[21px] font-extrabold leading-none tracking-[-.05em] text-blue-900 sm:text-[25px]">NILE</span><span className="mt-1 hidden text-[9px] font-extrabold uppercase tracking-[.16em] text-slate-400 sm:block">Le marché sans frontières</span></span>
@@ -39,7 +39,7 @@ export function Entete({ utilisateur, nbArticles, nbFavoris, categories }: {
             <form action={deconnexionAction} className="hidden lg:block"><button type="submit" className="rounded-xl px-3 py-2 text-xs font-semibold text-slate-500 transition-colors hover:bg-stone-100 hover:text-slate-900">Déconnexion</button></form>
           </> : <>
             <Link href="/connexion" className="hidden rounded-xl px-3 py-2 text-sm font-extrabold text-slate-700 transition-colors hover:bg-stone-100 sm:block">Connexion</Link>
-            <Link href="/inscription" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-blue-900 px-3.5 py-2 text-xs font-extrabold text-white transition-colors hover:bg-blue-950 sm:px-4 sm:text-sm">Créer un compte</Link>
+            <Link href="/inscription" className="inline-flex min-h-10 items-center justify-center rounded-xl bg-blue-900 px-3.5 py-2 text-xs font-extrabold text-white transition-colors hover:bg-blue-950 sm:px-4 sm:text-sm"><span className="sm:hidden">S’inscrire</span><span className="hidden sm:inline">Créer un compte</span></Link>
             <Link href="/panier" aria-label={"Panier, " + nbArticles + " articles"} className="relative grid h-10 w-10 place-items-center rounded-xl text-slate-700 transition-colors hover:bg-blue-50"><Cart />{nbArticles > 0 && <span className="absolute right-0.5 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-amber-400 px-1 text-[9px] font-extrabold text-blue-950">{nbArticles > 99 ? "99+" : nbArticles}</span>}</Link>
           </>}
         </nav>
