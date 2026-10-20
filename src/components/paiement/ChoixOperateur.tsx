@@ -1,83 +1,28 @@
 /**
- * Choix de l'opérateur Mobile Money.
- *
- * Réclamé uniquement par les fournisseurs qui sollicitent directement le
- * portefeuille du client (pas de page de paiement hébergée) : il faut alors
- * savoir QUEL opérateur interroger.
- *
- * Volontairement SANS attribut `required` : ces boutons vivent dans le même
- * formulaire que le choix du mode de paiement, et un `required` HTML sur un
- * groupe de radios s'applique quel que soit le mode retenu — il bloquerait
- * donc aussi les commandes payées à la livraison, qui n'ont pas d'opérateur.
- * La vérification est faite côté serveur, où le mode est connu.
+ * Choix de l'opérateur Mobile Money. Le champ reste optionnel côté HTML :
+ * le serveur valide le choix selon le mode de paiement sélectionné.
  */
-export function ChoixOperateur({
-  telephone,
-  note,
-  valeurInitiale,
-}: {
-  /** Numéro sur lequel la demande de paiement sera envoyée. */
-  telephone: string;
-  /** Précision affichée sous les boutons (contexte propre à l'écran). */
-  note?: string;
-  /** Opérateur déjà retenu, à rétablir après un refus de commande. */
-  valeurInitiale?: string;
-}) {
+export function ChoixOperateur({ telephone, note, valeurInitiale }: { telephone: string; note?: string; valeurInitiale?: string }) {
   return (
-    <fieldset className="rounded border border-contour-carte p-4">
-      <legend className="px-1 text-etiquette-md text-slate-900">
-        Votre opérateur Mobile Money
-      </legend>
-      <p className="mb-3 text-corps-sm text-slate-500">
-        La demande de paiement arrivera sur le <strong>{telephone}</strong>.
-      </p>
-      <div className="grid grid-cols-2 gap-2">
-        <Operateur
-          valeur="mtn"
-          libelle="MoMo"
-          pastille="MTN"
-          fond="bg-[#ffcb05]"
-          couleurTexte="text-black"
-          choisi={valeurInitiale === "mtn"}
-        />
-        <Operateur
-          valeur="orange"
-          libelle="Orange Money"
-          pastille="OM"
-          fond="bg-[#ff7900]"
-          couleurTexte="text-white"
-          choisi={valeurInitiale === "orange"}
-        />
+    <fieldset className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <legend className="px-2 text-base font-bold tracking-tight text-slate-900">Votre opérateur Mobile Money</legend>
+      <p className="mb-4 text-sm leading-6 text-slate-600">La demande de paiement arrivera sur le <strong className="font-semibold text-slate-900">{telephone}</strong>.</p>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <Operateur valeur="mtn" libelle="MTN Mobile Money" description="Paiement via MTN MoMo" logo="https://commons.wikimedia.org/wiki/Special:Redirect/file/MTN_2022_logo.svg" choisi={valeurInitiale === "mtn"} />
+        <Operateur valeur="orange" libelle="Orange Money" description="Paiement via Orange Money" logo="https://cdn.simpleicons.org/orange" choisi={valeurInitiale === "orange"} />
       </div>
-      {note && <p className="mt-3 text-etiquette-xs text-slate-500">{note}</p>}
+      {note && <p className="mt-4 text-xs leading-5 text-slate-500">{note}</p>}
     </fieldset>
   );
 }
 
-function Operateur({
-  valeur,
-  libelle,
-  pastille,
-  fond,
-  couleurTexte,
-  choisi,
-}: {
-  valeur: string;
-  libelle: string;
-  pastille: string;
-  fond: string;
-  couleurTexte: string;
-  choisi?: boolean;
-}) {
+function Operateur({ valeur, libelle, description, logo, choisi }: { valeur: string; libelle: string; description: string; logo: string; choisi?: boolean }) {
   return (
-    <label className="flex cursor-pointer items-center gap-2 rounded border border-contour-carte px-3 py-2.5 transition-colors hover:bg-surface-basse has-[:checked]:border-nile-700 has-[:checked]:bg-nile-50">
-      <input type="radio" name="operateur" value={valeur} defaultChecked={choisi} className="accent-nile-700" />
-      <span
-        className={`grid h-7 w-7 shrink-0 place-items-center rounded ${fond} text-[10px] font-bold ${couleurTexte}`}
-      >
-        {pastille}
-      </span>
-      <span className="text-corps-sm font-semibold text-slate-900">{libelle}</span>
+    <label className="group relative flex min-h-[88px] cursor-pointer items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 transition hover:border-blue-300 hover:bg-slate-50 has-[:checked]:border-[#1e3a8a] has-[:checked]:bg-blue-50/70 has-[:checked]:ring-2 has-[:checked]:ring-[#1e3a8a]/15">
+      <input type="radio" name="operateur" value={valeur} defaultChecked={choisi} className="h-4 w-4 shrink-0 accent-[#1e3a8a]" />
+      <span className="grid h-12 w-14 shrink-0 place-items-center rounded-lg border border-slate-100 bg-white p-1.5"><img src={logo} alt={valeur === "mtn" ? "Logo MTN" : "Logo Orange"} className="max-h-9 w-full object-contain" loading="eager" /></span>
+      <span className="min-w-0"><span className="block text-sm font-bold text-slate-900">{libelle}</span><span className="mt-1 block text-xs leading-4 text-slate-500">{description}</span></span>
+      <span className="absolute right-3 top-3 hidden h-2 w-2 rounded-full bg-[#1e3a8a] group-has-[:checked]:block" aria-hidden="true" />
     </label>
   );
 }
