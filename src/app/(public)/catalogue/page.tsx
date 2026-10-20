@@ -234,7 +234,7 @@ export default async function CataloguePage({
       <div className="min-w-0 flex-1 space-y-5">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
+            <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">
               {categorieChoisie ? categorieChoisie.nom : "Tous les produits"}
             </h1>
             <p className="mt-1 text-corps-sm text-slate-500">
