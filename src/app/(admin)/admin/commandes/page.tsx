@@ -23,7 +23,7 @@ export default async function AdminCommandesPage() {
     <div className="space-y-5">
       <RafraichirSiChange signature={signature} lire={signatureCommandesAdminAction} />
       <div className="flex items-center justify-between">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Commandes & livraisons</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Commandes & livraisons</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>
 
