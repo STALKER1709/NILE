@@ -3,8 +3,6 @@
 import Link from "next/link";
 import type { Role } from "@prisma/client";
 import { deconnexionAction } from "@/app/(auth)/actions";
-import { BadgePanier } from "@/components/panier/BadgePanier";
-import { BadgeFavoris } from "@/components/produit/BadgeFavoris";
 import { BarreRecherche } from "@/components/layout/BarreRecherche";
 import { NavPrincipale } from "@/components/layout/NavPrincipale";
 import type { LienCategorie } from "@/components/layout/NavPrincipale";
