@@ -39,7 +39,7 @@ export default async function PromotionsVendeurPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Promotions</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Promotions</h1>
         <p className="mt-1 text-corps-sm text-slate-500">
           Réduisez le prix d&apos;un produit précis, ou de toute votre boutique,
           pendant une période choisie.
@@ -56,7 +56,7 @@ export default async function PromotionsVendeurPage({
       )}
 
       <Carte className="p-5 sm:p-6">
-        <h2 className="text-titre-sm text-nile-800">Créer une promotion</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-[#172554]">Créer une promotion</h2>
         <form action={creerPromotionAction} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label htmlFor="produitId" className={labelClass}>Cible</label>
@@ -136,7 +136,7 @@ function PromotionsListe({
   if (promotions.length === 0) return null;
   return (
     <div>
-      <h2 className="mb-3 text-titre-sm text-nile-800">{titre}</h2>
+      <h2 className="mb-3 text-2xl font-bold tracking-tight text-[#172554]">{titre}</h2>
       <ul className="space-y-2">
         {promotions.map((p) => (
           <li
