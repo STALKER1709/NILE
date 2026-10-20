@@ -23,12 +23,12 @@ export function Entete({
   categories: LienCategorie[];
 }) {
   return (
-    <header className="relative z-40 text-white shadow-carte-hover sm:sticky sm:top-0">
+    <header className="relative z-40 text-white shadow-[0_10px_30px_-24px_rgba(15,23,42,.7)] sm:sticky sm:top-0">
       {/* Barre principale (sombre, type marketplace) */}
-      <div className="bg-nile-900 border-b border-nile-800/50">
+      <div className="border-b border-white/10 bg-[#172554]">
         <div className="mx-auto flex max-w-conteneur items-center gap-3 px-3 py-2.5 sm:gap-4 sm:px-4">
           <Link href="/" className="flex shrink-0 items-center gap-2 text-xl font-bold tracking-tight">
-            <span className="grid h-9 w-9 place-items-center rounded bg-gradient-to-br from-accent to-accent-dark font-bold text-nile-950 shadow-sm">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-[#f59e0b] font-titre text-xl font-bold text-[#172554] shadow-sm">
               N
             </span>
             <span className="hidden font-bold tracking-wide sm:inline text-white">NILE</span>
