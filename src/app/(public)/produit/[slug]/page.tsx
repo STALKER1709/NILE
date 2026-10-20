@@ -178,7 +178,7 @@ export default async function FicheProduitPage({
   const prixEffectif = affichagePrix.prixPromo ?? produit.prix;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-16 sm:pb-0">
       {/* Fil d'Ariane */}
       <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-sm text-slate-500">
         <Link href="/" className="transition-colors hover:text-nile-700">Accueil</Link>
