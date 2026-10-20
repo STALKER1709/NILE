@@ -83,7 +83,7 @@ export default async function FavorisPage() {
 
             return (
               <Carte key={f.id} className="grid min-w-0 grid-cols-[76px_minmax(0,1fr)] gap-x-3 gap-y-3 p-3 sm:flex sm:items-center sm:gap-3 sm:p-4">
-                <Link href={`/produit/${f.produit.slug}`} className="row-span-2 block w-[76px] shrink-0 self-start sm:row-span-1 sm:w-auto">
+                <Link href={`/produit/${f.produit.slug}`} className="block w-[76px] shrink-0 self-start sm:w-auto">
                   <Vignette
                     url={f.produit.images[0]?.url}
                     alt={f.produit.titre}
@@ -92,7 +92,7 @@ export default async function FavorisPage() {
                   />
                 </Link>
 
-                <div className="min-w-0">
+                <div className="min-w-0 sm:flex-1">
                   <Link
                     href={`/produit/${f.produit.slug}`}
                     className="block ligne-2 break-words text-sm font-semibold leading-snug text-slate-900 hover:text-nile-700 sm:text-corps-sm"
