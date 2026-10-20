@@ -16,15 +16,15 @@ const LINKS = [
 export function CoqueCompte({ children, nom }: { children: ReactNode; nom: string }) {
   const pathname = usePathname();
   const flow = pathname.startsWith("/panier") || pathname.startsWith("/commander") || pathname.startsWith("/paiement");
-  if (flow) return <div className="min-h-screen bg-[#f8f7f3]">
+  if (flow) return <div className="min-h-screen bg-[#f7f8fc]">
     <header className="border-b border-stone-200 bg-white"><div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-4 sm:px-6">
-      <Link href="/" className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-xl bg-blue-900 font-titre text-xl font-bold text-amber-400">N</span><span className="font-titre text-xl font-bold text-blue-950">NILE <span className="text-sm font-medium text-slate-400">/ Commande</span></span></Link>
+      <Link href="/" className="flex items-center gap-3"><span className="nile-brand-mark grid h-10 w-10 place-items-center rounded-[14px] bg-blue-900 font-titre text-xl font-extrabold text-white">N</span><span className="font-titre text-xl font-bold text-blue-950">NILE <span className="text-sm font-medium text-slate-400">/ Commande</span></span></Link>
       <Link href="/catalogue" className="text-sm font-semibold text-slate-600 hover:text-blue-900">Continuer mes achats ↗</Link>
     </div></header>
     <main className="mx-auto max-w-6xl px-4 py-6 pb-12 sm:px-6 sm:py-10">{children}</main>
   </div>;
 
-  return <div className="min-h-[70vh] bg-[#f8f7f3]">
+  return <div className="min-h-[70vh] bg-[#f7f8fc]">
     <div className="mx-auto max-w-[1360px] px-4 py-6 sm:px-6 sm:py-9 lg:px-10">
       <div className="mb-7 flex flex-col justify-between gap-4 border-b border-stone-200 pb-6 sm:flex-row sm:items-end">
         <div><p className="nile-eyebrow text-blue-700">Votre espace NILE</p><h1 className="mt-2 font-titre text-3xl font-bold tracking-tight text-slate-950">Bonjour, {nom.split(" ")[0]}</h1><p className="mt-1 text-sm text-slate-500">Suivez vos achats, vos préférences et vos informations.</p></div>

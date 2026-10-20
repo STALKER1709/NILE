@@ -121,9 +121,10 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       <form
         method="get"
         action="/catalogue"
-        className="flex w-full overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-white/20 transition-all focus-within:ring-2 focus-within:ring-accent"
+        className="flex h-12 w-full items-center overflow-hidden rounded-[14px] border border-stone-200 bg-[#f8f9fc] p-[5px] transition-colors focus-within:border-blue-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-900/5"
         autoComplete="off"
       >
+        <span className="ml-2.5 grid shrink-0 place-items-center text-slate-400" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" strokeLinecap="round" /></svg></span>
         <input
           type="search"
           name="q"
@@ -134,17 +135,17 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
           }}
           onFocus={() => setOuvert(true)}
           onKeyDown={surTouche}
-          placeholder="Rechercher un produit, une boutique…"
+          placeholder="Que recherchez-vous aujourd’hui ?"
           aria-label="Rechercher"
           aria-expanded={afficherListe}
           aria-autocomplete="list"
           role="combobox"
-          className="min-w-0 flex-1 bg-white px-3.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
         />
         <button
           type="submit"
           aria-label="Lancer la recherche"
-          className="grid w-11 place-items-center bg-gradient-to-br from-accent to-accent-dark font-bold text-nile-950 transition-all hover:brightness-105 active:scale-95"
+          className="grid h-9 w-11 shrink-0 place-items-center rounded-[10px] bg-accent font-extrabold text-blue-950 transition-colors hover:bg-accent-dark active:scale-95"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="11" cy="11" r="7" />

@@ -31,7 +31,7 @@ export function CarteProduitVitrine({
   return (
     <article
       style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
-      className="group flex animate-fondu-haut flex-col rounded-2xl border border-stone-200 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-lg sm:p-4"
+      className="group flex animate-fondu-haut flex-col rounded-2xl border border-stone-200 bg-white p-3 transition-all duration-200 hover:-translate-y-0.5 hover:border-blue-300 hover:shadow-carte-hover sm:p-4"
     >
       <div className="relative mb-3 overflow-hidden rounded-xl bg-stone-100">
         <Link href={lien} className="block overflow-hidden">
@@ -47,7 +47,7 @@ export function CarteProduitVitrine({
         </Link>
 
         {enPromo && (
-          <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-rose-600 px-2.5 py-1 text-xs font-bold text-white shadow-sm">
+          <span className="pointer-events-none absolute left-3 top-3 rounded-[7px] bg-amber-400 px-2 py-1 text-[10px] font-extrabold text-blue-950">
             -{produit.pourcentageReduction}%
           </span>
         )}
@@ -89,7 +89,7 @@ export function CarteProduitVitrine({
             <span className="text-xs font-medium text-slate-400">({produit.nbAvis})</span>
           </>
         ) : (
-          <span className="text-xs font-medium text-slate-400">Nouveau</span>
+          <span className="text-xs font-medium text-slate-400">Pas encore noté</span>
         )}
       </div>
 
@@ -99,7 +99,7 @@ export function CarteProduitVitrine({
             <div className="flex flex-wrap items-baseline gap-1.5">
               <Prix
                 montant={produit.prixPromo as number}
-                className="text-lg font-extrabold tracking-tight text-rose-600 sm:text-xl"
+                className="text-lg font-extrabold tracking-tight text-accent-dark sm:text-xl"
               />
               <Prix
                 montant={produit.prix}

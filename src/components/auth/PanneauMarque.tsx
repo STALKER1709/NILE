@@ -7,7 +7,7 @@ export function PanneauMarque() {
     <div className="absolute -right-20 -top-16 h-80 w-80 rounded-full border border-white/10" aria-hidden="true" />
     <div className="absolute -right-4 top-0 h-48 w-48 rounded-full border border-white/10" aria-hidden="true" />
     <div className="relative z-10">
-      <p className="flex items-center gap-3 text-lg font-bold"><span className="grid h-10 w-10 place-items-center rounded-xl bg-amber-400 font-titre text-xl text-blue-950">N</span><span className="font-titre text-xl tracking-tight">NILE <span className="font-normal text-blue-200">Marketplace</span></span></p>
+      <p className="flex items-center gap-3 text-lg font-bold"><span className="nile-brand-mark grid h-10 w-10 place-items-center rounded-[14px] bg-blue-900 font-titre text-xl font-extrabold text-white">N</span><span className="font-titre text-xl tracking-tight">NILE <span className="font-normal text-blue-200">Marketplace</span></span></p>
       <p className="mt-14 text-[11px] font-bold uppercase tracking-[.2em] text-amber-300">Le commerce local, connecté</p>
       <h2 className="mt-4 max-w-md font-titre text-4xl font-bold leading-[1.08] tracking-tight xl:text-5xl">Le bon produit. La bonne boutique. En quelques gestes.</h2>
       <p className="mt-5 max-w-md text-sm leading-7 text-blue-100/75">Un espace pour acheter, suivre vos commandes et, si vous le souhaitez, développer votre propre boutique en ligne.</p>
