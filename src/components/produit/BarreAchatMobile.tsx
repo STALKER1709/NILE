@@ -41,7 +41,7 @@ export function BarreAchatMobile({
 
   return (
     <div
-      className={`fixed inset-x-0 bottom-14 z-30 border-t border-slate-200 bg-white/95 px-3 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur transition-transform duration-300 sm:hidden ${
+      className={`fixed inset-x-0 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-30 border-t border-slate-200 bg-white/95 px-3 py-2 shadow-[0_-4px_12px_rgba(0,0,0,0.06)] backdrop-blur transition-transform duration-300 sm:hidden ${
         visible ? "translate-y-0" : "translate-y-[130%]"
       }`}
     >
@@ -60,7 +60,7 @@ export function BarreAchatMobile({
           ) : (
             <a
               href="#achat-principal"
-              className="inline-flex h-9 w-full items-center justify-center rounded bg-accent text-sm font-semibold text-nile-950 transition-colors hover:bg-accent-dark"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded bg-accent text-sm font-semibold text-nile-950 transition-colors hover:bg-accent-dark"
             >
               Choisir les options
             </a>
@@ -70,3 +70,4 @@ export function BarreAchatMobile({
     </div>
   );
 }
+
