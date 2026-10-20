@@ -8,8 +8,6 @@ import { favorisParmi } from "@/modules/catalogue/favoris";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { CarteBoutique } from "@/components/boutique/CarteBoutique";
-import { Carrousel } from "@/components/ui/Carrousel";
-import { DiapoMarque, DiapoLivraison, DiapoMomo } from "@/components/accueil/Diapos";
 import { IconeCategorie } from "@/components/categorie/IconeCategorie";
 import { btn } from "@/components/ui/kit";
 
@@ -46,13 +44,49 @@ export default async function AccueilPage() {
 
   return (
     <div className="space-y-12 sm:space-y-20">
-      {/* Bannière principale */}
       <h1 className="sr-only">NILE Marketplace, achats en ligne au Cameroun</h1>
-      <Carrousel etiquette="Offres et services NILE">
-        <DiapoMarque />
-        <DiapoLivraison />
-        <DiapoMomo />
-      </Carrousel>
+      <section className="grid overflow-hidden rounded-2xl bg-nile-950 text-white shadow-carte-hover lg:min-h-[32rem] lg:grid-cols-[1.02fr_.98fr]">
+        <div className="relative z-10 flex flex-col items-start px-6 py-9 sm:px-10 sm:py-12 lg:justify-center lg:px-14 lg:py-14">
+          <span className="mb-6 inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] px-3.5 py-2 text-etiquette-xs font-semibold tracking-wide text-white/90">
+            <span className="h-2 w-2 rounded-full bg-accent" aria-hidden="true" />
+            LE COMMERCE CAMEROUNAIS, EN MIEUX
+          </span>
+          <h2 className="max-w-xl font-titre text-[2.7rem] font-bold leading-[1.02] tracking-[-0.045em] sm:text-[3.5rem] lg:text-[3.85rem]">
+            Le commerce d’ici.
+            <span className="mt-1 block text-accent">À portée de main.</span>
+          </h2>
+          <p className="mt-5 max-w-lg text-corps-md leading-7 text-white/75 sm:text-corps-lg">
+            Trouvez ce qu’il vous faut auprès des boutiques locales. Commandez en quelques gestes, choisissez votre paiement et faites-vous livrer au Cameroun.
+          </p>
+          <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+            <Link href="/catalogue" className={btn("accent", "lg")}>
+              Découvrir les produits
+              <svg className="ml-2" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+                <path d="M5 12h14M13 6l6 6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+            <Link href="/boutiques" className="inline-flex min-h-12 items-center justify-center rounded-lg border border-white/25 px-5 py-3 text-etiquette-md font-semibold text-white transition-colors hover:border-white/50 hover:bg-white/[0.07]">
+              Explorer les boutiques
+            </Link>
+          </div>
+          <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-2 border-t border-white/15 pt-5 text-etiquette-xs text-white/70">
+            <span className="inline-flex items-center gap-2"><span className="text-accent">✓</span> Paiement à la livraison</span>
+            <span className="inline-flex items-center gap-2"><span className="text-accent">✓</span> MTN MoMo &amp; Orange Money</span>
+          </div>
+        </div>
+        <div className="relative min-h-[16rem] overflow-hidden sm:min-h-[22rem] lg:min-h-full">
+          <Image src="/bannieres/marche.jpg" alt="Commerçante camerounaise dans sa boutique" fill priority sizes="(max-width: 1024px) 100vw, 49vw" className="object-cover object-center" />
+          <div className="absolute inset-0 bg-gradient-to-t from-nile-950/75 via-transparent to-transparent lg:bg-gradient-to-r lg:from-nile-950/20 lg:via-transparent lg:to-transparent" />
+          <div className="absolute bottom-5 left-5 right-5 flex items-center gap-3 rounded-xl border border-white/40 bg-white/95 p-3.5 text-nile-900 shadow-xl backdrop-blur sm:bottom-7 sm:left-7 sm:right-auto sm:max-w-[18rem]">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-lg bg-nile-100 text-nile-800">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" /><circle cx="7" cy="19" r="1.5" /><circle cx="17" cy="19" r="1.5" />
+              </svg>
+            </span>
+            <span><span className="block text-etiquette-md font-bold">De la boutique à chez vous</span><span className="mt-0.5 block text-etiquette-xs text-slate-600">Une expérience pensée pour le Cameroun</span></span>
+          </div>
+        </div>
+      </section>
 
       {/* Barre de réassurance locale (Cameroun) */}
       <section className="grid grid-cols-1 gap-4 sm:gap-6 md:grid-cols-3">
