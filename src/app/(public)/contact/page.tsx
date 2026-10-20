@@ -15,7 +15,7 @@ export default function ContactPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-5">
       <div>
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Nous contacter</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Nous contacter</h1>
         <p className="mt-1 text-sm text-slate-500">
           Une question sur une commande, une livraison, un produit ? On te répond.
         </p>
