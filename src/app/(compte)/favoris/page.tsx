@@ -39,9 +39,9 @@ export default async function FavorisPage() {
   );
 
   return (
-    <div className="min-w-0 space-y-5 sm:space-y-6">
+    <div className="w-full min-w-0 space-y-5 sm:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-baseline sm:justify-between">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
+        <h1 className="min-w-0 break-words text-titre-sm text-nile-800 sm:text-titre-md">
           Mes favoris
           {total > 0 && (
             <span className="ml-2 text-corps-sm font-normal text-slate-500">
@@ -82,13 +82,13 @@ export default async function FavorisPage() {
             const action = actionFavori(f);
 
             return (
-              <Carte key={f.id} className="grid min-w-0 grid-cols-[76px_minmax(0,1fr)] gap-x-3 gap-y-3 p-3 sm:flex sm:items-center sm:gap-3 sm:p-4">
-                <Link href={`/produit/${f.produit.slug}`} className="block w-[76px] shrink-0 self-start sm:w-auto">
+              <Carte key={f.id} className="grid w-full min-w-0 grid-cols-[64px_minmax(0,1fr)] gap-x-3 gap-y-3 overflow-hidden p-3 sm:grid-cols-[80px_minmax(0,1fr)_112px] sm:items-center sm:gap-3 sm:p-4">
+                <Link href={`/produit/${f.produit.slug}`} className="block w-16 min-w-0 shrink-0 self-start sm:w-20">
                   <Vignette
                     url={f.produit.images[0]?.url}
                     alt={f.produit.titre}
                     sizes="72px"
-                    className="h-[76px] w-[76px] rounded-xl border border-contour-carte bg-slate-50 sm:h-20 sm:w-20"
+                    className="h-16 w-16 max-w-full rounded-xl border border-contour-carte bg-slate-50 sm:h-20 sm:w-20"
                   />
                 </Link>
 
@@ -99,7 +99,7 @@ export default async function FavorisPage() {
                   >
                     {f.produit.titre}
                   </Link>
-                  <p className="truncate text-etiquette-xs text-slate-500">
+                  <p className="break-words text-etiquette-xs text-slate-500">
                     {f.produit.marque ? `${f.produit.marque} · ` : ""}
                     {f.produit.vendeur.nomBoutique}
                   </p>
@@ -122,7 +122,7 @@ export default async function FavorisPage() {
                   )}
                 </div>
 
-                <div className="col-span-2 flex min-w-0 items-center gap-2 border-t border-stone-100 pt-3 sm:col-span-1 sm:ml-auto sm:flex-col sm:items-end sm:justify-start sm:gap-2 sm:border-0 sm:pt-0">
+                <div className="col-span-2 flex w-full min-w-0 items-center gap-2 border-t border-stone-100 pt-3 sm:col-span-1 sm:ml-0 sm:flex-col sm:items-stretch sm:justify-start sm:gap-2 sm:border-0 sm:pt-0">
                   <div className="shrink-0">
                     <BoutonFavori
                       produitId={f.produit.id}
@@ -132,7 +132,7 @@ export default async function FavorisPage() {
                     />
                   </div>
                   {action === "AJOUTER" && (
-                    <div className="min-w-0 flex-1 sm:w-[112px] sm:flex-none">
+                    <div className="min-w-0 flex-1 sm:w-full sm:flex-none">
                       <BoutonPanier
                         varianteId={f.varianteId as string}
                         stock={f.stock}
@@ -147,7 +147,7 @@ export default async function FavorisPage() {
                     <div className="min-w-0 flex-1 sm:w-[112px] sm:flex-none">
                     <Link
                       href={`/produit/${f.produit.slug}`}
-                      className={btn("primaire", "sm", "w-full sm:w-auto")}
+                      className={btn("primaire", "sm", "w-full min-w-0 whitespace-normal sm:w-full")}
                     >
                       Choisir
                     </Link>
