@@ -17,7 +17,7 @@ export function NavMobile({
 }) {
   return (
     <nav
-      className={`fixed inset-x-0 bottom-0 z-40 grid border-t border-slate-200/80 bg-white/95 backdrop-blur-xl shadow-[0_-4px_16px_rgba(0,0,0,0.05)] sm:hidden ${
+      className={`fixed inset-x-0 bottom-0 z-40 grid border-t border-slate-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(0,0,0,0.05)] backdrop-blur-xl sm:hidden ${
         connecte ? "grid-cols-5" : "grid-cols-4"
       }`}
     >

@@ -48,7 +48,7 @@ export default async function AdminDetailCommandePage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">{commande.numero}</h1>
         <Link href="/admin/commandes" className="text-sm text-slate-500 hover:underline">← Commandes</Link>
       </div>
@@ -72,10 +72,10 @@ export default async function AdminDetailCommandePage({
         <h2 className="mb-2 text-sm font-semibold">Articles</h2>
         <ul className="space-y-1 text-sm text-slate-600">
           {commande.lignes.map((l) => (
-            <li key={l.id} className="flex justify-between"><span className="truncate">{l.titreProduit} × {l.quantite}</span><Prix montant={l.sousTotal} /></li>
+            <li key={l.id} className="flex flex-wrap items-baseline justify-between gap-2"><span className="min-w-0 flex-1 break-words">{l.titreProduit} × {l.quantite}</span><Prix montant={l.sousTotal} className="shrink-0" /></li>
           ))}
         </ul>
-        <div className="mt-2 flex justify-between border-t border-slate-100 pt-2 font-bold"><span>Total</span><Prix montant={commande.total} className="text-nile" /></div>
+        <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-100 pt-2 font-bold"><span>Total</span><Prix montant={commande.total} className="text-nile" /></div>
       </Carte>
 
       <Carte className="space-y-3 p-4">

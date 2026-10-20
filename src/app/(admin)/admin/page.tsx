@@ -100,7 +100,7 @@ export default async function AdminPage() {
         </Carte>
 
         <Carte className="p-5">
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h2 className="font-bold text-slate-900">Dernières commandes</h2>
             <Link href="/admin/commandes" className="text-xs text-nile hover:underline">
               Tout voir →

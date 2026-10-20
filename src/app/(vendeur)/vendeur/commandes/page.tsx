@@ -51,7 +51,7 @@ export default async function CommandesVendeurPage({
         <Link href="/vendeur" className="text-sm text-nile hover:underline">← Espace vendeur</Link>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-3">
         <Compteur label="À préparer" valeur={compteurs.aPreparer} accent />
         <Compteur label="Expédiées" valeur={compteurs.enCours} />
         <Compteur label="Livrées" valeur={compteurs.livrees} />

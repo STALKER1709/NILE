@@ -17,9 +17,9 @@ export function CoqueCompte({ children, nom }: { children: ReactNode; nom: strin
   const pathname = usePathname();
   const flow = pathname.startsWith("/panier") || pathname.startsWith("/commander") || pathname.startsWith("/paiement");
   if (flow) return <div className="min-h-screen bg-[#f7f8fc]">
-    <header className="border-b border-stone-200 bg-white"><div className="mx-auto flex h-[68px] max-w-6xl items-center justify-between px-4 sm:px-6">
+    <header className="border-b border-stone-200 bg-white"><div className="mx-auto flex min-h-[68px] max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3 sm:h-[68px] sm:flex-nowrap sm:px-6 sm:py-0">
       <Link href="/" className="flex items-center gap-3"><span className="nile-brand-mark grid h-10 w-10 place-items-center rounded-[14px] bg-blue-900 font-titre text-xl font-extrabold text-white">N</span><span className="font-titre text-xl font-bold text-blue-950">NILE <span className="text-sm font-medium text-slate-400">/ Commande</span></span></Link>
-      <Link href="/catalogue" className="text-sm font-semibold text-slate-600 hover:text-blue-900">Continuer mes achats ↗</Link>
+      <Link href="/catalogue" className="shrink-0 text-xs font-semibold text-slate-600 hover:text-blue-900 sm:text-sm">Continuer mes achats ↗</Link>
     </div></header>
     <main className="mx-auto max-w-6xl px-4 py-6 pb-12 sm:px-6 sm:py-10">{children}</main>
   </div>;

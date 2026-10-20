@@ -45,7 +45,7 @@ export default async function MesCommandesPage() {
               bloc d'informations est cliquable. */}
           {commandes.map((c) => (
             <Carte key={c.id} className="p-4 transition hover:shadow-flottant">
-              <div className="flex items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 <Link href={`/commandes/${c.id}`} className="min-w-0 flex-1">
                   <p className="font-semibold">{c.numero}</p>
                   <p className="text-xs text-slate-500">

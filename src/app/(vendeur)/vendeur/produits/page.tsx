@@ -141,7 +141,7 @@ export default async function ListeProduitsVendeurPage({
         <Carte className="overflow-hidden">
           {/* Recherche : vrai formulaire GET, fonctionne sans JavaScript. */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-contour-carte p-4 sm:p-5">
-            <form method="get" className="flex flex-1 flex-wrap items-center gap-2">
+            <form method="get" className="flex min-w-0 flex-1 flex-wrap items-center gap-2">
               <label htmlFor="q" className="sr-only">Rechercher un produit</label>
               {enCorbeille && <input type="hidden" name="corbeille" value="1" />}
               <input
@@ -150,7 +150,7 @@ export default async function ListeProduitsVendeurPage({
                 type="search"
                 defaultValue={q ?? ""}
                 placeholder="Rechercher un produit…"
-                className={`${champClass} max-w-[16rem]`}
+                className={`${champClass} min-w-0 max-w-[16rem]`}
               />
               <button type="submit" className={btn("secondaire", "sm")}>Rechercher</button>
               {q && (

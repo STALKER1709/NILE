@@ -48,7 +48,7 @@ export default async function CodesPromoPage({
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Codes promo</h1>
         <Link href="/admin" className="text-sm text-slate-500 hover:underline">← Back-office</Link>
       </div>

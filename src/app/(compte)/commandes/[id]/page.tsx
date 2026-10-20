@@ -486,11 +486,11 @@ export default async function DetailCommandePage({
         <div className="mt-5 space-y-2 border-t border-contour-carte pt-4 text-corps-sm">
           {commande.remise > 0 && (
             <>
-              <div className="flex justify-between">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-slate-600">Sous-total</span>
                 <Prix montant={commande.total + commande.remise} className="text-slate-900" />
               </div>
-              <div className="flex justify-between">
+              <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-slate-600">
                   Remise{commande.codePromo ? ` · ${commande.codePromo}` : ""}
                 </span>
@@ -500,7 +500,7 @@ export default async function DetailCommandePage({
               </div>
             </>
           )}
-          <div className="flex items-baseline justify-between text-corps-lg font-bold">
+          <div className="flex flex-wrap items-baseline justify-between gap-3 text-corps-lg font-bold">
             <span className="text-slate-900">Total</span>
             <Prix montant={commande.total} className="whitespace-nowrap text-nile-800" />
           </div>

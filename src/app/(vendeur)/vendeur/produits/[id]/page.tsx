@@ -67,9 +67,9 @@ export default async function GestionProduitPage({
   if (produit.statut === "SUPPRIME") {
     return (
       <div className="mx-auto max-w-lg space-y-5">
-        <div className="flex items-center justify-between">
-          <h1 className="truncate text-titre-sm text-nile-800 sm:text-titre-md">{produit.titre}</h1>
-          <Link href="/vendeur/produits" className="shrink-0 text-sm text-slate-500 hover:underline">← Mes produits</Link>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="min-w-0 break-words text-titre-sm text-nile-800 sm:text-titre-md">{produit.titre}</h1>
+          <Link href="/vendeur/produits" className="shrink-0 text-xs text-slate-500 hover:underline sm:text-sm">← Mes produits</Link>
         </div>
 
         {ok && MESSAGES_OK[ok] && (
@@ -107,9 +107,9 @@ export default async function GestionProduitPage({
 
   return (
     <div className="mx-auto max-w-lg space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="truncate text-titre-sm text-nile-800 sm:text-titre-md">{produit.titre}</h1>
-        <Link href="/vendeur/produits" className="shrink-0 text-sm text-slate-500 hover:underline">← Mes produits</Link>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="min-w-0 break-words text-titre-sm text-nile-800 sm:text-titre-md">{produit.titre}</h1>
+        <Link href="/vendeur/produits" className="shrink-0 text-xs text-slate-500 hover:underline sm:text-sm">← Mes produits</Link>
       </div>
 
       {ok && MESSAGES_OK[ok] && (
@@ -121,7 +121,7 @@ export default async function GestionProduitPage({
 
       {/* Statut / publication */}
       <Carte className="p-4">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="text-sm">Statut</span>
           <Badge ton={produit.statut === "ACTIF" ? "vert" : produit.statut === "REJETE" ? "rouge" : "neutre"}>{produit.statut}</Badge>
         </div>
@@ -174,7 +174,7 @@ export default async function GestionProduitPage({
             <label htmlFor="description" className={labelClass}>Description</label>
             <textarea id="description" name="description" required rows={4} defaultValue={produit.description} className={`${champClass} mt-1`} />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="prix" className={labelClass}>Prix (FCFA)</label>
               <input id="prix" name="prix" type="number" min={1} step={1} required defaultValue={produit.prix} className={`${champClass} mt-1`} />

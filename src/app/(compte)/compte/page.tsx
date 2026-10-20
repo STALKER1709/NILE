@@ -78,7 +78,7 @@ export default async function ComptePage({
         </div>
 
         {/* Chiffres clés */}
-        <div className="mt-6 grid grid-cols-3 gap-3 border-t border-contour-carte pt-5">
+        <div className="mt-6 grid grid-cols-1 gap-3 border-t border-contour-carte pt-5 min-[420px]:grid-cols-3">
           <Kpi label="En cours" valeur={String(stats.enCours)} accent={stats.enCours > 0} />
           <Kpi label="Livrées" valeur={String(stats.livrees)} />
           <Kpi label="Total dépensé" valeur={<Prix montant={stats.totalDepense} />} />
@@ -89,7 +89,7 @@ export default async function ComptePage({
         {/* Commandes récentes */}
         <div className="lg:col-span-8">
           <Carte className="p-5 sm:p-6">
-            <div className="mb-4 flex items-center justify-between gap-3">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <h2 className="text-titre-sm text-nile-800">Commandes récentes</h2>
               <Link href="/commandes" className="shrink-0 text-etiquette-md text-accent-deep hover:underline">
                 Tout l&apos;historique
@@ -272,7 +272,7 @@ function LigneReglage({
   return (
     <Link
       href={href}
-      className="group flex items-center justify-between gap-3 rounded p-3 transition-colors hover:bg-slate-50"
+      className="group flex flex-wrap items-center justify-between gap-3 rounded p-3 transition-colors hover:bg-slate-50"
     >
       <span className="flex items-center gap-3">
         <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="shrink-0 text-slate-400 transition-colors group-hover:text-nile-700" aria-hidden="true">

@@ -42,6 +42,12 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--police-titre),var(--repli); letter-spacin
   input::placeholder,textarea::placeholder { color: var(--nile-muted); opacity: 1; }
   button:disabled { cursor: not-allowed; }
   img { color: transparent; }
+  :where(img, video, canvas, iframe) { max-width: 100%; }
+  :where(input, select, textarea, button) { max-width: 100%; }
+  :where(p, li, td, th, label, a, button, strong) { overflow-wrap: break-word; }
+  :where(pre, code) { max-width: 100%; }
+  pre { overflow-x: auto; }
+
 }
 @layer components {
   .nile-container { @apply mx-auto w-full max-w-[1240px] px-[14px] sm:px-[22px]; }
@@ -51,6 +57,19 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--police-titre),var(--repli); letter-spacin
   .nile-control { @apply min-h-11 rounded-[10px] border border-stone-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 transition-colors hover:border-slate-400 focus:border-blue-700 focus:outline-none focus:ring-4 focus:ring-blue-900/5; }
   .nile-action { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-blue-900 px-5 py-3 text-sm font-bold text-white transition-colors hover:bg-blue-950 active:bg-blue-950 disabled:cursor-not-allowed disabled:opacity-50; }
   .nile-action-accent { @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-amber-400 px-5 py-3 text-sm font-extrabold text-blue-950 transition-colors hover:bg-amber-300 active:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-50; }
+  .nile-scroll-x {
+    max-width: 100%;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nile-responsive-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+  }
   .nile-brand-mark { position: relative; isolation: isolate; overflow: hidden; }
   .nile-brand-mark::after { content:""; position:absolute; z-index:0; width:50px; height:9px; left:-5px; bottom:8px; border-bottom:3px solid var(--nile-orange); border-radius:50%; transform:rotate(-21deg); pointer-events:none; }
   .nile-brand-mark > span { position:relative; z-index:1; }
@@ -67,6 +86,10 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--police-titre),var(--repli); letter-spacin
   .skeleton::after { content:""; position:absolute; inset:0; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent); animation:brillance 1.5s infinite; }
 }
 @keyframes brillance { 100% { transform:translateX(100%); } }
+@media (max-width: 639px) {
+  :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) { font-size: 16px; }
+}
+
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; scroll-behavior:auto!important; }
 }
