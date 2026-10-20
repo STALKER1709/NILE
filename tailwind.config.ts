@@ -7,85 +7,56 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      // Jeu de couleurs « Lumina Nile » (voir DESIGN.md).
+      // NILE trading-floor palette: cobalt, warm paper and conversion orange.
       colors: {
-        // Vert de marque : primaire profond + conteneur, déclinés en échelle
-        // pour les fonds, bordures et états survolés.
         nile: {
-          50: "#eef6f4",
-          100: "#d3e9e5",
-          200: "#b2eee3", // primary-fixed
-          300: "#97d2c7", // primary-fixed-dim / inverse-primary
-          500: "#2d685f", // surface-tint
-          600: "#0f5048", // on-primary-fixed-variant
-          DEFAULT: "#0a4d45", // primary-container
-          700: "#0a4d45",
-          dark: "#00352f",
-          800: "#00352f", // primary
-          900: "#00201c", // on-primary-fixed
-          950: "#062c29", // nile-deep
-          conteneur: "#0a4d45",
-          surConteneur: "#82bdb2",
+          50: "#eef2ff",
+          100: "#e0e7ff",
+          200: "#c7d2fe",
+          300: "#a5b4fc",
+          500: "#3b5bb5",
+          600: "#29479f",
+          DEFAULT: "#1e3a8a",
+          700: "#1e3a8a",
+          dark: "#14265d",
+          800: "#14265d",
+          900: "#101d45",
+          950: "#0b1430",
+          conteneur: "#1e3a8a",
+          surConteneur: "#dbe5ff",
         },
-        // Or d'action : réservé aux points de conversion (usage parcimonieux).
         accent: {
-          DEFAULT: "#fea619", // secondary-container
-          dark: "#d97706", // accent-gold
-          deep: "#855300", // secondary
-          sur: "#684000", // on-secondary-container
-          fixe: "#ffddb8",
+          DEFAULT: "#f59e0b",
+          dark: "#d97706",
+          deep: "#92400e",
+          sur: "#78350f",
+          fixe: "#fff0cc",
         },
-        // Erreur / urgence (prix barrés, ruptures).
         promo: {
-          DEFAULT: "#ba1a1a", // error
-          dark: "#93000a", // on-error-container
-          deep: "#93000a",
-          conteneur: "#ffdad6",
+          DEFAULT: "#b42318",
+          dark: "#7a271a",
+          deep: "#7a271a",
+          conteneur: "#fee4e2",
         },
-        // Surfaces et texte : spectre « slate » froid.
         surface: {
-          DEFAULT: "#f7f9fb",
-          basse: "#f2f4f6",
-          moyenne: "#eceef0",
-          haute: "#e6e8ea",
-          extreme: "#e0e3e5",
-          subtile: "#f1f5f9",
-          inverse: "#2d3133",
+          DEFAULT: "#f8f7f3",
+          basse: "#f0efe9",
+          moyenne: "#e7e5df",
+          haute: "#dedbd2",
+          extreme: "#d3d0c7",
+          subtile: "#f4f3ee",
+          inverse: "#111827",
         },
         contour: {
-          DEFAULT: "#707976",
-          clair: "#bfc9c5",
-          carte: "#e2e8f0",
+          DEFAULT: "#667085",
+          clair: "#c9c6bd",
+          carte: "#e7e5df",
         },
         tertiaire: {
           DEFAULT: "#242f41",
           conteneur: "#3a4558",
           fixe: "#d8e3fb",
         },
-      },
-      fontFamily: {
-        // Titres : géométrie contemporaine. Corps : lisibilité systématique.
-        titre: ["var(--police-titre)", "system-ui", "sans-serif"],
-        sans: ["var(--police-corps)", "system-ui", "sans-serif"],
-      },
-      fontSize: {
-        "display-lg": ["48px", { lineHeight: "56px", letterSpacing: "-0.02em", fontWeight: "700" }],
-        "display-mobile": ["36px", { lineHeight: "44px", letterSpacing: "-0.02em", fontWeight: "700" }],
-        "titre-md": ["30px", { lineHeight: "38px", letterSpacing: "-0.01em", fontWeight: "600" }],
-        "titre-sm": ["24px", { lineHeight: "32px", fontWeight: "600" }],
-        "corps-lg": ["18px", { lineHeight: "28px" }],
-        "corps-md": ["16px", { lineHeight: "24px" }],
-        "corps-sm": ["14px", { lineHeight: "20px" }],
-        "etiquette-md": ["14px", { lineHeight: "20px", letterSpacing: "0.01em", fontWeight: "600" }],
-        "etiquette-xs": ["12px", { lineHeight: "16px", fontWeight: "500" }],
-      },
-      // Profondeur par couches tonales : surface = bordure seule (niveau 1),
-      // ombre ambiante teintée réservée aux états survolés (niveau 2).
-      boxShadow: {
-        carte: "none",
-        "carte-hover": "0 4px 12px 0 rgba(10, 77, 69, 0.04)",
-        flottant: "0 8px 24px -4px rgba(10, 77, 69, 0.10)",
-        modale: "0 24px 60px -12px rgba(10, 77, 69, 0.22)",
       },
       // Forme « arrondi maîtrisé » : 8px de base, conteneurs jusqu'à 1,5rem.
       borderRadius: {
