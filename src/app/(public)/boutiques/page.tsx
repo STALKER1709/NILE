@@ -13,9 +13,9 @@ export default async function BoutiquesPage() {
   const boutiques = await listerBoutiques({ tri: "nom" });
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-8">
       <div>
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Boutiques</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Boutiques</h1>
         <p className="mt-1 text-sm text-slate-500">
           {boutiques.length} boutique{boutiques.length > 1 ? "s" : ""} vérifiée
           {boutiques.length > 1 ? "s" : ""} · vendeurs de confiance au Cameroun
@@ -27,7 +27,7 @@ export default async function BoutiquesPage() {
           Revenez bientôt, de nouveaux vendeurs arrivent.
         </EtatVide>
       ) : (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {boutiques.map((b, i) => (
             <CarteBoutique key={b.id} boutique={b} index={i} />
           ))}

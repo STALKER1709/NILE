@@ -34,7 +34,7 @@ export default async function PromotionsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Promotions</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Promotions</h1>
         <p className="mt-1 text-corps-md text-slate-600">
           Les articles actuellement en réduction, tous vendeurs confondus.
         </p>

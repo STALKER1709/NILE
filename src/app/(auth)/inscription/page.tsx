@@ -16,11 +16,11 @@ export default async function InscriptionPage({
   const suiteSure = suite?.startsWith("/") && !suite.startsWith("//") ? suite : "";
 
   return (
-    <div className="mx-auto grid max-w-4xl gap-6 py-6 lg:grid-cols-2">
+    <div className="mx-auto grid max-w-5xl gap-8 py-8 lg:grid-cols-2 lg:items-center">
       <PanneauMarque />
       <div className="mx-auto w-full max-w-md space-y-4 lg:mx-0">
       <div className="text-center">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Créer un compte</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-[#172554] sm:text-4xl">Créer un compte</h1>
         <p className="mt-1 text-sm text-slate-500">Rejoignez NILE Marketplace en quelques secondes.</p>
       </div>
 

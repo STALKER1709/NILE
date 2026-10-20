@@ -31,7 +31,7 @@ export function CarteProduitVitrine({
   return (
     <article
       style={{ animationDelay: `${Math.min(index, 8) * 50}ms` }}
-      className="group flex animate-fondu-haut flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-md"
+      className="group flex animate-fondu-haut flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-[#1e3a8a]/40 hover:shadow-md"
     >
       <div className="relative mb-3.5 overflow-hidden rounded-xl bg-slate-50">
         <Link href={lien} className="block overflow-hidden">

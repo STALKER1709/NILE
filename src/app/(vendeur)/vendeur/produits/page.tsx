@@ -69,7 +69,7 @@ export default async function ListeProduitsVendeurPage({
     <div className="space-y-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Gestion d'inventaire</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Gestion d'inventaire</h1>
           <p className="mt-1 text-corps-sm text-slate-500">
             {stats.total} produit{stats.total > 1 ? "s" : ""} dans votre boutique.
           </p>

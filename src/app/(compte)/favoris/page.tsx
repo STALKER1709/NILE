@@ -41,7 +41,7 @@ export default async function FavorisPage() {
   return (
     <div className="space-y-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">
           Mes favoris
           {total > 0 && (
             <span className="ml-2 text-corps-sm font-normal text-slate-500">

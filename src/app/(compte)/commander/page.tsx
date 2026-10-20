@@ -80,7 +80,7 @@ export default async function CommanderPage({
   const modeCOD = brouillon.mode ? brouillon.mode === "COD" && codPossible : codPossible;
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-7">
       <nav aria-label="Étapes" className="flex items-center gap-2 text-corps-sm">
         <Link href="/panier" className="text-slate-500 transition-colors hover:text-nile-700">Panier</Link>
         <span className="text-slate-300">›</span>
@@ -89,7 +89,7 @@ export default async function CommanderPage({
         <span className="text-slate-400">Confirmation</span>
       </nav>
 
-      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Passer la commande</h1>
+      <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Passer la commande</h1>
 
       {erreur && (
         <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>

@@ -2,11 +2,11 @@ import Link from "next/link";
 
 export function PiedDePage() {
   return (
-    <footer className="mt-16 bg-nile-950 pb-20 text-white sm:pb-0 border-t border-nile-900">
+    <footer className="mt-20 border-t border-white/10 bg-[#172554] pb-20 text-white sm:pb-0">
       {/* Bouton retour en haut fluide */}
       <Link
         href="#top"
-        className="block bg-nile-900/60 py-3.5 text-center text-xs font-semibold text-slate-300 transition-colors hover:bg-nile-800 hover:text-white"
+        className="block border-b border-white/10 bg-[#1e3a8a]/50 py-3.5 text-center text-xs font-semibold text-slate-200 transition-colors hover:bg-[#1e3a8a] hover:text-white"
       >
         Retour en haut ↑
       </Link>

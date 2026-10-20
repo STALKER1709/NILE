@@ -111,7 +111,7 @@ export function NavVendeur({
     <aside className="lg:w-60 lg:shrink-0">
       {/* En-tête boutique (grand écran) */}
       <div className="mb-5 hidden items-center gap-3 lg:flex">
-        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-nile-800 to-nile-600 text-lg font-bold text-accent">
+        <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-nile-800 to-nile-600 text-lg font-bold text-[#f59e0b]">
           {nomBoutique.charAt(0).toUpperCase()}
         </span>
         <span className="min-w-0">
@@ -160,7 +160,7 @@ export function NavVendeur({
       <div className="mt-4 space-y-2 border-t border-contour-carte pt-4">
         <Link
           href="/vendeur/produits/nouveau"
-          className="flex w-full items-center justify-center gap-2 rounded bg-nile-900 px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-nile-800"
+          className="flex w-full items-center justify-center gap-2 rounded bg-[#172554] px-4 py-2.5 text-sm font-bold text-white transition-colors hover:bg-[#1e3a8a]"
         >
           <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
             <path d="M12 5v14M5 12h14" strokeLinecap="round" />

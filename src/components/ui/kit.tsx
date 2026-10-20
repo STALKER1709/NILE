@@ -6,7 +6,7 @@ import { formaterXAF } from "@/lib/money";
 
 // Champ de saisie : fond blanc, bordure nette, transition douce, focus émeraude NILE avec halo subtil
 export const champClass =
-  "block w-full rounded-lg border border-slate-300/80 bg-white px-3.5 py-2.5 text-[15px] leading-6 text-slate-900 placeholder:text-slate-400 transition-all duration-150 hover:border-slate-400 focus:border-nile-600 focus:outline-none focus:ring-4 focus:ring-nile-700/10 shadow-[0_1px_2px_rgba(0,0,0,0.03)]";
+  "block w-full rounded-lg border border-slate-300/80 bg-white px-3.5 py-2.5 text-[15px] leading-6 text-slate-900 placeholder:text-slate-400 transition-all duration-150 hover:border-slate-400 focus:border-[#1e3a8a] focus:outline-none focus:ring-4 focus:ring-blue-900/10 shadow-[0_1px_2px_rgba(0,0,0,0.03)]";
 
 export const labelClass =
   "block text-etiquette-md text-slate-700 font-medium mb-1.5";
@@ -18,15 +18,15 @@ type Taille = "sm" | "md" | "lg";
 
 const VARIANTES: Record<Variante, string> = {
   primaire:
-    "bg-nile-700 text-white font-medium hover:bg-nile-800 shadow-sm hover:shadow active:scale-[0.98]",
+    "bg-[#1e3a8a] text-white font-semibold hover:bg-[#172554] shadow-sm hover:shadow active:scale-[0.98]",
   accent:
-    "bg-accent text-slate-950 font-bold hover:bg-accent-dark hover:text-white shadow-sm hover:shadow active:scale-[0.98]",
+    "bg-[#f59e0b] text-[#172554] font-bold hover:bg-[#fbbf24] shadow-sm hover:shadow active:scale-[0.98]",
   secondaire:
     "border border-slate-300/90 bg-white text-slate-800 hover:bg-slate-50 hover:border-slate-400 font-medium shadow-xs active:scale-[0.98]",
   danger:
     "border border-red-200 bg-red-50 text-red-700 hover:bg-red-100 hover:border-red-300 font-medium active:scale-[0.98]",
   ghost:
-    "text-slate-700 hover:text-nile-800 hover:bg-slate-100/70 font-medium",
+    "text-slate-700 hover:text-[#1e3a8a] hover:bg-blue-50 font-medium",
 };
 
 const TAILLES: Record<Taille, string> = {
@@ -57,7 +57,7 @@ export function Carte({
   return (
     <section
       id={id}
-      className={`rounded-xl border border-slate-200/80 bg-white shadow-[0_2px_8px_-2px_rgba(15,23,42,0.04)] transition-shadow duration-200 ${className}`}
+      className={`rounded-2xl border border-slate-200 bg-white shadow-[0_2px_10px_-4px_rgba(15,23,42,.08)] transition-shadow duration-200 hover:shadow-[0_12px_32px_-20px_rgba(30,58,138,.25)] ${className}`}
     >
       {children}
     </section>

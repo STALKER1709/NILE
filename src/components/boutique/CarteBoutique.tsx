@@ -20,16 +20,16 @@ export function CarteBoutique({
     <Link
       href={`/boutique/${boutique.id}`}
       style={{ animationDelay: `${Math.min(index, 11) * 45}ms` }}
-      className={`group flex animate-fondu-haut flex-col rounded-2xl border border-slate-200/80 bg-white p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-md ${
+      className={`group flex animate-fondu-haut flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-xs transition-all duration-300 hover:-translate-y-1 hover:border-[#1e3a8a]/40 hover:shadow-md ${
         compact ? "w-60 shrink-0" : ""
       }`}
     >
       <div className="flex items-center gap-3">
-        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-nile-900 to-nile-800 text-base font-bold text-accent shadow-xs transition-transform duration-300 group-hover:scale-105">
+        <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-[#172554] to-[#1e3a8a] text-base font-bold text-[#fbbf24] shadow-xs transition-transform duration-300 group-hover:scale-105">
           {boutique.nomBoutique.charAt(0).toUpperCase()}
         </span>
         <div className="min-w-0 flex-1">
-          <h3 className="truncate font-titre text-sm font-bold text-slate-900 transition-colors group-hover:text-nile-800">
+          <h3 className="truncate font-titre text-sm font-bold text-slate-900 transition-colors group-hover:text-[#1e3a8a]">
             {boutique.nomBoutique}
           </h3>
           <div className="mt-0.5">

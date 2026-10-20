@@ -48,7 +48,7 @@ export default async function FinancesVendeurPage({
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Finances</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-[#172554] sm:text-3xl">Finances</h1>
         <p className="mt-1 text-corps-sm text-slate-500">
           Vos gains, ce qui vous reste dû et l&apos;historique de vos règlements.
         </p>
@@ -173,7 +173,7 @@ export default async function FinancesVendeurPage({
 
       {/* Demande de versement */}
       <Carte className="p-5 sm:p-6">
-        <h2 className="text-titre-sm text-nile-800">Demander un versement</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-[#172554]">Demander un versement</h2>
         {!coordonneesPretes ? (
           <>
             <p className="mt-2 text-corps-sm text-slate-600">
@@ -253,7 +253,7 @@ export default async function FinancesVendeurPage({
       <Carte className="p-5 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h2 className="text-titre-sm text-nile-800">Où vous êtes payé</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-[#172554]">Où vous êtes payé</h2>
             <p className="text-corps-sm text-slate-500">
               Les numéros Mobile Money utilisés pour vos reversements.
             </p>
@@ -301,7 +301,7 @@ export default async function FinancesVendeurPage({
       <Carte className="p-6 sm:p-8">
         <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <h2 className="text-titre-sm text-nile-800">Revenus des 7 derniers jours</h2>
+            <h2 className="text-2xl font-bold tracking-tight text-[#172554]">Revenus des 7 derniers jours</h2>
             <p className="text-corps-sm text-slate-500">
               Commandes encaissables, annulations exclues.
             </p>
