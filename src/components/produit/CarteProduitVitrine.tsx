@@ -48,7 +48,7 @@ export function CarteProduitVitrine({
   return (
     <article
       style={{ animationDelay: `${Math.min(index, 8) * 60}ms` }}
-      className="group flex animate-fondu-haut flex-col rounded-xl border border-contour-carte bg-white p-4 transition-all duration-300 hover:-translate-y-1 hover:border-nile-700/30 hover:shadow-carte-hover"
+      className="group flex animate-fondu-haut flex-col rounded-2xl border border-slate-200/80 bg-white p-3.5 transition-all duration-300 hover:-translate-y-1 hover:border-[#1E3A8A]/25 hover:shadow-[0_16px_40px_rgba(20,38,90,.10)]"
     >
       {/* Le cœur est un formulaire : il ne peut pas vivre DANS le lien vers la
           fiche produit (un bouton imbriqué dans un lien est invalide et ne
@@ -154,7 +154,7 @@ export function CarteProduitVitrine({
             )}
             <Link
               href={lien}
-              className="inline-flex h-9 w-full items-center justify-center rounded border border-contour text-etiquette-md font-bold text-nile-800 transition-colors hover:bg-surface-moyenne"
+              className="inline-flex h-9 w-full items-center justify-center rounded-lg border border-slate-200 text-etiquette-md font-bold text-nile-800 transition-colors hover:bg-surface-moyenne"
             >
               Détails
             </Link>
