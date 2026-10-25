@@ -71,6 +71,8 @@ const schema = z
     //   "supabase" -> bucket Supabase Storage (production).
     STORAGE_PROVIDER: z.enum(["local", "supabase"]).default("local"),
     SUPABASE_STORAGE_BUCKET: z.string().default("produits"),
+    // Bucket distinct et PRIVÉ pour les justificatifs d’identité KYC.
+    SUPABASE_KYC_BUCKET: z.string().min(1).default("kyc-prive"),
 
     // Email transactionnel (confirmations de commande) :
     //   "mock"  -> journalise seulement (développement).
@@ -229,6 +231,9 @@ const schema = z
     // Production must fail closed: never silently run a mock checkout,
     // local ephemeral storage, or mock transactional email after a missed env var.
     if (val.NODE_ENV === "production") {
+      if (val.SUPABASE_KYC_BUCKET === val.SUPABASE_STORAGE_BUCKET) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["SUPABASE_KYC_BUCKET"], message: "Le bucket KYC doit être distinct du bucket public des médias." });
+      }
       if (val.PAYMENT_PROVIDER === "mock") {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["PAYMENT_PROVIDER"], message: "Le fournisseur de paiement mock est interdit en production." });
       }
