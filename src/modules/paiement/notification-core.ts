@@ -31,7 +31,7 @@ export function verifierSign(
   return calculerSign(secret, sansSign) === sign;
 }
 
-export type StatutPaiementNotifie = "PAYE" | "ECHOUE";
+export type StatutPaiementNotifie = "PAYE" | "ECHOUE" | "REMBOURSE";
 
 /**
  * Statuts Monetbil connus : 1/7 = succès ; 0/-1/8/9 = échec/annulation.
