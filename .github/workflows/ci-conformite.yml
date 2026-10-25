@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 20
     env:
       VERCEL_ENV: test
-    DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nile?schema=public
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/nile?schema=public
       NEXT_PUBLIC_SITE_URL: https://nile-beige.vercel.app
       AUTH_PROVIDER: mock
       PAYMENT_PROVIDER: mock
