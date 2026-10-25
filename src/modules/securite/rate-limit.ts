@@ -28,9 +28,13 @@ export async function consommerTentative(
     const debutFenetre = new Date(maintenant - fenetreMinutes * 60_000);
 
     // Le verrou consultatif PostgreSQL sérialise les tentatives pour une clé.
-    // Sans verrou, des requêtes concurrentes pourraient dépasser le plafond.
+    // La CTE force l'exécution du verrou, mais ne renvoie pas la colonne void
+    // de pg_advisory_xact_lock à Prisma (qui ne sait pas la désérialiser).
     return await prisma.$transaction(async (tx) => {
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${cle}))`;
+      await tx.$queryRaw<{ locked: boolean }>`WITH verrou AS MATERIALIZED (
+        SELECT pg_advisory_xact_lock(hashtext(${cle}))
+      )
+      SELECT TRUE AS locked FROM verrou`;
       await tx.evenementAbus.deleteMany({
         where: { cle, dateCreation: { lt: debutFenetre } },
       });
