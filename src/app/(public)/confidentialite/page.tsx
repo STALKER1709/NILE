@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     "Comment NILE Marketplace collecte, utilise et protège vos données personnelles.",
 };
 
-const MAJ = "10 juillet 2026";
+const MAJ = "25 octobre 2026";
 
 export default function ConfidentialitePage() {
   return (
@@ -31,19 +31,18 @@ export default function ConfidentialitePage() {
             </li>
             <li>
               <span className="font-medium">Paiement</span> : référence de la
-              transaction Mobile Money transmise par l&apos;agrégateur Monetbil.
+              référence de transaction Mobile Money et statut de paiement transmis par le prestataire utilisé par NILE. NILE ne stocke jamais vos codes secrets Mobile Money.
               NILE ne stocke <span className="font-medium">jamais</span> vos
               codes secrets Mobile Money.
             </li>
+            <li><span className="font-medium">Vérification vendeur (KYC)</span> : photos ou scans de pièces d’identité, selfie de vérification et, le cas échéant, documents d’entreprise. Ces données sont sensibles et réservées aux personnes habilitées à vérifier le dossier.</li>
+            <li><span className="font-medium">Contenus et interactions</span> : photos/vidéos publiées par les vendeurs, commentaires, mentions J’aime et partages liés aux publications.</li>
           </ul>
         </Section>
 
         <Section titre="2. Utilisation">
           <p>
-            Vos données servent uniquement à : traiter et livrer vos commandes,
-            sécuriser les paiements, lutter contre la fraude, et vous contacter
-            au sujet de vos commandes. Elles ne sont ni vendues ni louées à des
-            tiers.
+            Vos données servent à créer et sécuriser le compte, traiter et livrer les commandes, rapprocher les paiements, prévenir la fraude, vérifier l’identité des vendeurs, modérer les contenus et répondre aux demandes d’assistance. Elles ne sont ni vendues ni louées.
           </p>
         </Section>
 
@@ -59,10 +58,7 @@ export default function ConfidentialitePage() {
 
         <Section titre="4. Conservation et sécurité">
           <p>
-            Les données sont conservées tant que votre compte est actif, puis le
-            temps des obligations légales (facturation, litiges). Les échanges
-            avec la plateforme sont chiffrés (HTTPS) et l&apos;accès aux données
-            est restreint par rôle.
+            Les données sont conservées pendant la durée nécessaire aux finalités annoncées et aux obligations légales ou à la gestion des litiges. Les pièces KYC doivent être conservées séparément dans un espace privé et accessibles uniquement par des URL signées de courte durée après contrôle d’accès. Les échanges avec la plateforme sont chiffrés (HTTPS) et l’accès aux données est restreint par rôle.
           </p>
         </Section>
 
