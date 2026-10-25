@@ -8,9 +8,8 @@ import { prisma } from "@/lib/db";
  * lignes de la clé dans la fenêtre ; au-delà du plafond, on refuse. Les lignes
  * expirées sont purgées au passage (pas de tâche planifiée nécessaire).
  *
- * Fail-open : si la base est injoignable, on AUTORISE (l'opération métier
- * échouera de toute façon, et on ne verrouille pas tout le site pour un
- * incident d'infrastructure) — l'erreur est journalisée.
+ * Fail-closed : si la base est injoignable, on refuse temporairement la
+ * tentative sensible. Une panne du limiteur ne doit pas devenir un contournement.
  */
 
 export interface ResultatLimite {
@@ -53,8 +52,8 @@ export async function consommerTentative(
       return { autorise: true, minutesRestantes: 0 };
     });
   } catch (erreur) {
-    console.error("[rate-limit] indisponible (fail-open):", erreur);
-    return { autorise: true, minutesRestantes: 0 };
+    console.error("[rate-limit] indisponible (fail-closed):", erreur);
+    return { autorise: false, minutesRestantes: 1 };
   }
 }
 
