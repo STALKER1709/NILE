@@ -135,9 +135,10 @@ export class HrSkillsPayProvider implements PaymentProvider {
    */
   private async enTetes(cleIdem: string | null): Promise<HeadersInit> {
     const entetes: Record<string, string> = {
-      Authorization: `Bearer ${this.cleA()}`,
+      // Contrat des appels métier HR-Skills Pay : Clé B bearer + token
+      // obtenu par l'échange Clé A / Clé B. La Clé A ne sert qu'à cet échange.
+      Authorization: `Bearer ${this.cleB()}`,
       "X-Transaction-Token": await this.transactionToken(),
-      "X-API-Secret": this.cleB(),
       "Content-Type": "application/json",
     };
     if (cleIdem) entetes["Idempotency-Key"] = cleIdem;
