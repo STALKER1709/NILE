@@ -226,6 +226,22 @@ const schema = z
         });
       }
     }
+    // Production must fail closed: never silently run a mock checkout,
+    // local ephemeral storage, or mock transactional email after a missed env var.
+    if (val.NODE_ENV === "production") {
+      if (val.PAYMENT_PROVIDER === "mock") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["PAYMENT_PROVIDER"], message: "Le fournisseur de paiement mock est interdit en production." });
+      }
+      if (val.STORAGE_PROVIDER !== "supabase") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["STORAGE_PROVIDER"], message: "STORAGE_PROVIDER=supabase est obligatoire en production." });
+      }
+      if (val.AUTH_PROVIDER === "mock" && !val.ALLOW_MOCK_AUTH) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["AUTH_PROVIDER"], message: "AUTH_PROVIDER=supabase est obligatoire en production (sauf démo explicitement autorisée)." });
+      }
+      if (val.EMAIL_PROVIDER === "mock") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["EMAIL_PROVIDER"], message: "Les e-mails mock sont interdits en production : configure Brevo." });
+      }
+    }
     if (val.AUTH_PROVIDER === "supabase") {
       if (!val.NEXT_PUBLIC_SUPABASE_URL || !val.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
         ctx.addIssue({
