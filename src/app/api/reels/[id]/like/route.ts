@@ -14,6 +14,8 @@ export async function POST(
   }
 
   try {
+    const publication = await prisma.publication.findFirst({ where: { id, statut: "ACTIF" }, select: { id: true } });
+    if (!publication) return NextResponse.json({ ok: false, error: "Publication introuvable" }, { status: 404 });
     const existing = await prisma.publicationLike.findUnique({
       where: {
         publicationId_utilisateurId: {
@@ -50,6 +52,8 @@ export async function GET(
   const utilisateur = await getUtilisateurCourant();
   
   try {
+    const publication = await prisma.publication.findFirst({ where: { id, statut: "ACTIF" }, select: { id: true } });
+    if (!publication) return NextResponse.json({ ok: false, error: "Publication introuvable" }, { status: 404 });
     const count = await prisma.publicationLike.count({
       where: { publicationId: id },
     });
