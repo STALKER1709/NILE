@@ -120,8 +120,8 @@ export function mapperStatutHrSkills(statut: string): StatutPaiementNotifie | nu
       // Rien de définitif : on n'écrit pas de statut final.
       return null;
     case "REFUNDED":
-      // Remboursement : traité comme un échec du point de vue de la commande.
-      return "ECHOUE";
+      // Un remboursement est un état financier distinct d’un échec initial.
+      return "REMBOURSE";
     default:
       return null;
   }
