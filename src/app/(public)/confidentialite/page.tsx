@@ -31,9 +31,7 @@ export default function ConfidentialitePage() {
             </li>
             <li>
               <span className="font-medium">Paiement</span> : référence de la
-              référence de transaction Mobile Money et statut de paiement transmis par le prestataire utilisé par NILE. NILE ne stocke jamais vos codes secrets Mobile Money.
-              NILE ne stocke <span className="font-medium">jamais</span> vos
-              codes secrets Mobile Money.
+              référence de transaction Mobile Money et statut de paiement transmis par le prestataire utilisé par NILE. NILE ne stocke <span className="font-medium">jamais</span> vos codes secrets Mobile Money.
             </li>
             <li><span className="font-medium">Vérification vendeur (KYC)</span> : photos ou scans de pièces d’identité, selfie de vérification et, le cas échéant, documents d’entreprise. Ces données sont sensibles et réservées aux personnes habilitées à vérifier le dossier.</li>
             <li><span className="font-medium">Contenus et interactions</span> : photos/vidéos publiées par les vendeurs, commentaires, mentions J’aime et partages liés aux publications.</li>
