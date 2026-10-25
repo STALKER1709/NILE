@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getUtilisateurCourant } from "@/modules/auth/access";
+import { consommerTentative } from "@/modules/securite/rate-limit";
 
 export async function POST(
   req: Request,
@@ -12,6 +13,9 @@ export async function POST(
   if (!utilisateur) {
     return NextResponse.json({ ok: false, error: "Non connecté" }, { status: 401 });
   }
+
+  const limite = await consommerTentative(`reel-like:${utilisateur.id}`, 60, 10);
+  if (!limite.autorise) return NextResponse.json({ ok: false, error: "Trop de requêtes. Réessaie plus tard." }, { status: 429 });
 
   try {
     const publication = await prisma.publication.findFirst({ where: { id, statut: "ACTIF" }, select: { id: true } });
