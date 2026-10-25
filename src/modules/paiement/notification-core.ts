@@ -41,8 +41,8 @@ export type StatutPaiementNotifie = "PAYE" | "ECHOUE" | "REMBOURSE";
 export function mapperStatutMonetbil(
   status: number | string,
 ): StatutPaiementNotifie {
-  const n = Number(status);
-  if (n === 1 || n === 7) return "PAYE";
-  if (n === 0 || n === -1 || n === 8 || n === 9) return "ECHOUE";
+  const valeur = String(status).trim();
+  if (valeur === "1" || valeur === "7") return "PAYE";
+  if (valeur === "0" || valeur === "-1" || valeur === "8" || valeur === "9") return "ECHOUE";
   throw new Error("Statut Monetbil inconnu : vérification manuelle requise.");
 }
