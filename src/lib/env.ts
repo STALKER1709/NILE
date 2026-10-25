@@ -17,6 +17,8 @@ const schema = z
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    // Vercel distinguishes Production from Preview, although both build with NODE_ENV=production.
+    VERCEL_ENV: z.enum(["development", "preview", "production", "test"]).optional(),
     DATABASE_URL: z.string().min(1, "DATABASE_URL manquant"),
 
     AUTH_PROVIDER: z.enum(["mock", "supabase"]).default("mock"),
@@ -230,7 +232,10 @@ const schema = z
     }
     // Production must fail closed: never silently run a mock checkout,
     // local ephemeral storage, or mock transactional email after a missed env var.
-    if (val.NODE_ENV === "production") {
+    const estDeploiementProduction = val.VERCEL_ENV
+      ? val.VERCEL_ENV === "production"
+      : val.NODE_ENV === "production";
+    if (estDeploiementProduction) {
       if (val.SUPABASE_KYC_BUCKET === val.SUPABASE_STORAGE_BUCKET) {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["SUPABASE_KYC_BUCKET"], message: "Le bucket KYC doit être distinct du bucket public des médias." });
       }
