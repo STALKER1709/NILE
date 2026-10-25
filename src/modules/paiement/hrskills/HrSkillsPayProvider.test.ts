@@ -54,7 +54,7 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
     expect(JSON.parse(String(optionsAuth.body))).toEqual({ api_secret: "hrsk_sk_test_secret" });
 
     const [urlCashin, optionsCashin] = fetchMock.mock.calls[1] as [string, RequestInit];
-    expect(urlCashin).toBe("https://api.hrskills-pay.com/sandbox/v1/cashin");
+    expect(urlCashin).toBe("https://api.hrskills-pay.com/v1/cashin");
     const headers = new Headers(optionsCashin.headers);
     expect(headers.get("authorization")).toBe("Bearer hrsk_sk_test_secret");
     expect(headers.get("x-transaction-token")).toBe("transaction-test-token");
