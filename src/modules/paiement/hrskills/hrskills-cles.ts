@@ -53,5 +53,6 @@ export function clesCoherentes(cleA: string, cleB: string): boolean {
  * aucun préfixe /sandbox.
  */
 export function racineHrSkills(baseUrl: string, _cle: string): string {
-  return baseUrl.replace(/\/+$/, "");
+  while (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
+  return baseUrl;
 }
