@@ -47,26 +47,12 @@ export function clesCoherentes(cleA: string, cleB: string): boolean {
 }
 
 /**
- * Racine des appels qui consomment le token de transaction.
- *
- * En test, ces appels ne sont servis que sous `/sandbox` ; ailleurs l'API
- * renvoie un 403 `sandbox_path_required`. En production, aucun préfixe. La
- * fonction est idempotente : une base déjà terminée par `/sandbox` n'est pas
- * préfixée deux fois.
- *
- * ⚠️ Ce préfixe ne vient PAS de la documentation, qui n'en parle nulle part :
- * il vient du refus renvoyé par l'API avec des clés de test, et il est depuis
- * CONFIRMÉ en sandbox — `/sandbox/api/v1/payin/mobile-money` répond. Comme
- * rien ne le documente, il reste susceptible de disparaître sans préavis : si
- * les encaissements de test se mettaient un jour à répondre 404, c'est ici
- * qu'il faut regarder en premier.
- *
- * L'échange des clés contre un token (`/v1/auth/transaction-token`) n'est PAS
- * concerné : il fonctionne avec des clés de test sur le chemin normal — c'est
- * vérifié, cet appel aboutit là où le paiement était refusé.
+ * Racine des appels métier. Le SDK officiel HR-Skills Pay sélectionne
+ * sandbox/production à partir du préfixe des clés ; le chemin REST reste v1.
+ * L'échange du token et les appels métier utilisent donc le même hôte et
+ * aucun préfixe /sandbox.
  */
-export function racineHrSkills(baseUrl: string, cle: string): string {
-  const base = baseUrl.replace(/\/+$/, "");
-  if (!estCleDeTest(cle)) return base;
-  return base.endsWith("/sandbox") ? base : `${base}/sandbox`;
+export function racineHrSkills(baseUrl: string, _cle: string): string {
+  while (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
+  return baseUrl;
 }

@@ -22,22 +22,13 @@ import {
  * Fournisseur HR-Skills Pay (Cash-In Mobile Money — MTN, Orange).
  *
  * Implémenté d'après la documentation « HR-Skills Pay API v1 » fournie :
- *   - Authentification à double clé : la Clé A voyage dans `Authorization:
- *     Bearer`, la Clé B est échangée contre un token de transaction (valide
- *     45 min) réclamé par l'en-tête `X-Transaction-Token`. La Clé B accompagne
- *     AUSSI chaque appel dans `X-API-Secret` : la doc décrit l'échange de token
- *     dans ses exemples complets, mais publie par ailleurs un
- *     `401 missing_api_secret` — « X-API-Secret absent, envoyer la Clé B dans
- *     ce header ». Les deux en-têtes sont donc envoyés, faute de pouvoir
- *     trancher sans essai réel ; aucun des deux n'est de trop.
- *   - Encaissement : POST /api/v1/payin/mobile-money -> 202 PENDING + une
- *     référence « ref_… ». Le client valide ensuite sur son téléphone.
- *   - Statut : GET /v1/payments/:reference (SUCCESS · FAILED · PENDING ·
- *     HOLD · REFUNDED).
+ *   - Authentification à double clé : la Clé A sert à obtenir le jeton,
+ *     puis la Clé B est utilisée comme Bearer avec X-Transaction-Token.
+ *   - Encaissement : POST /v1/cashin -> référence et statut PENDING.
+ *   - Statut : GET /v1/transactions/:reference.
  *   - Webhooks signés en HMAC-SHA256 sur le corps brut.
  *
- * Les chemins mélangent volontairement `/v1/…` et `/api/v1/…` : c'est ainsi
- * que la documentation les publie, on les reproduit tels quels.
+ * Les chemins suivent la référence officielle de l'API et du SDK HR-Skills Pay.
  *
  * ⚠️ JAMAIS exécuté contre le vrai service depuis cet environnement (ni accès
  * réseau à api.hrskills-pay.com, ni identifiants). À éprouver en sandbox —
@@ -135,9 +126,10 @@ export class HrSkillsPayProvider implements PaymentProvider {
    */
   private async enTetes(cleIdem: string | null): Promise<HeadersInit> {
     const entetes: Record<string, string> = {
-      Authorization: `Bearer ${this.cleA()}`,
+      // Contrat des appels métier HR-Skills Pay : Clé B bearer + token
+      // obtenu par l'échange Clé A / Clé B. La Clé A ne sert qu'à cet échange.
+      Authorization: `Bearer ${this.cleB()}`,
       "X-Transaction-Token": await this.transactionToken(),
-      "X-API-Secret": this.cleB(),
       "Content-Type": "application/json",
     };
     if (cleIdem) entetes["Idempotency-Key"] = cleIdem;
@@ -155,21 +147,17 @@ export class HrSkillsPayProvider implements PaymentProvider {
     }
 
     const champs = {
-      operator: operateur,
+      phone: numero,
+      operator: operateur.toUpperCase(),
       country: "CM",
-      phone_number: numero,
       amount: ctx.montant,
       currency: "XAF",
+      reference: ctx.reference,
       description: `Commande ${ctx.numeroCommande} · NILE`,
-      // Renvoyé tel quel dans le webhook : permet de retrouver NOTRE
-      // paiement même si la correspondance par référence échouait.
       metadata: { reference_interne: ctx.reference, commande: ctx.numeroCommande },
     };
-    // Chemin unique, confirmé en sandbox (log « chemin payin retenu » du
-    // 2026-08-05) : `/sandbox/api/v1/payin/mobile-money`. La liste de
-    // candidats qui existait ici n'a plus lieu d'être — on n'explore pas des
-    // routes au hasard sur un encaissement.
-    const chemin = `${this.racine()}/api/v1/payin/mobile-money`;
+    // Endpoint Cash-In publié dans la documentation officielle HR-Skills Pay.
+    const chemin = `${this.racine()}/v1/cashin`;
 
     // Clé d'idempotence dérivée du paiement, donc identique d'un passage à
     // l'autre dans cette méthode (relance du paiement par l'acheteur).
@@ -186,13 +174,13 @@ export class HrSkillsPayProvider implements PaymentProvider {
         `HR-Skills payin: HTTP ${reponse.status} · ${chemin} · ${texte.slice(0, 300)}`,
       );
     }
-    let data: { data?: { reference?: string; status?: string } };
+    let data: { reference?: string; status?: string; data?: { reference?: string; status?: string } };
     try {
       data = JSON.parse(texte) as typeof data;
     } catch {
       throw new Error(`HR-Skills payin: réponse non-JSON · ${texte.slice(0, 200)}`);
     }
-    const referenceFournisseur = data.data?.reference;
+    const referenceFournisseur = data.reference ?? data.data?.reference;
     if (!referenceFournisseur) {
       throw new Error(`HR-Skills payin: référence absente · ${texte.slice(0, 300)}`);
     }
@@ -227,7 +215,7 @@ export class HrSkillsPayProvider implements PaymentProvider {
   ): Promise<{ ok: true; statut: string } | { ok: false }> {
     try {
       const reponse = await fetch(
-        `${this.racine()}/v1/payments/${encodeURIComponent(referenceFournisseur)}`,
+        `${this.racine()}/v1/transactions/${encodeURIComponent(referenceFournisseur)}`,
         { method: "GET", headers: await this.enTetes(null), cache: "no-store" },
       );
       const texte = await reponse.text();
