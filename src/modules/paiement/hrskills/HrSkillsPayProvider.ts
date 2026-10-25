@@ -22,14 +22,13 @@ import {
  * Fournisseur HR-Skills Pay (Cash-In Mobile Money — MTN, Orange).
  *
  * Implémenté d'après la documentation « HR-Skills Pay API v1 » fournie :
- *   - Authentification à double clé : la Clé A voyage dans `Authorization:
- *     Bearer`, la Clé B est échangée contre un token de transaction (valide
- *     45 min) réclamé par l'en-tête `X-Transaction-Token`. La Clé B accompagne
- *     AUSSI chaque appel dans `X-API-Secret` : la doc décrit l'échange de token
- *     dans ses exemples complets, mais publie par ailleurs un
- *     `401 missing_api_secret` — « X-API-Secret absent, envoyer la Clé B dans
- *     ce header ». Les deux en-têtes sont donc envoyés, faute de pouvoir
- *     trancher sans essai réel ; aucun des deux n'est de trop.
+ *   - Authentification à double clé : l'échange initial utilise la Clé A dans
+ *     `Authorization: Bearer` et la Clé B dans le corps `api_secret`. Pour
+ *     les appels métier, la documentation officielle du SDK HR-Skills Pay
+ *     précise que la Clé B devient le bearer et que le token de transaction
+ *     voyage dans `X-Transaction-Token`. Ne pas envoyer la Clé A ni dupliquer
+ *     la Clé B dans `X-API-Secret` sur ces appels : l'API répondait « Clé B
+ *     invalide » avec l'ancien contrat d'en-têtes.
  *   - Encaissement : POST /api/v1/payin/mobile-money -> 202 PENDING + une
  *     référence « ref_… ». Le client valide ensuite sur son téléphone.
  *   - Statut : GET /v1/payments/:reference (SUCCESS · FAILED · PENDING ·
@@ -135,9 +134,10 @@ export class HrSkillsPayProvider implements PaymentProvider {
    */
   private async enTetes(cleIdem: string | null): Promise<HeadersInit> {
     const entetes: Record<string, string> = {
-      Authorization: `Bearer ${this.cleA()}`,
+      // Contrat des appels métier HR-Skills Pay : Clé B bearer + token
+      // obtenu par l'échange Clé A / Clé B. La Clé A ne sert qu'à cet échange.
+      Authorization: `Bearer ${this.cleB()}`,
       "X-Transaction-Token": await this.transactionToken(),
-      "X-API-Secret": this.cleB(),
       "Content-Type": "application/json",
     };
     if (cleIdem) entetes["Idempotency-Key"] = cleIdem;
