@@ -252,6 +252,13 @@ const schema = z
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["EMAIL_PROVIDER"], message: "Les e-mails mock sont interdits en production : configure Brevo." });
       }
     }
+    if (val.STORAGE_PROVIDER === "supabase" && !val.SUPABASE_SERVICE_ROLE_KEY) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["SUPABASE_SERVICE_ROLE_KEY"],
+        message: 'SUPABASE_SERVICE_ROLE_KEY requis quand STORAGE_PROVIDER="supabase" pour les opérations de stockage côté serveur.',
+      });
+    }
     if (val.AUTH_PROVIDER === "supabase") {
       if (!val.NEXT_PUBLIC_SUPABASE_URL || !val.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
         ctx.addIssue({
