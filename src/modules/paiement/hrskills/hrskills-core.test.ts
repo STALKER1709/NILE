@@ -37,9 +37,9 @@ describe("environnement sandbox / live", () => {
     expect(estCleDeTest("hrsk_pk_abc123")).toBe(false);
   });
 
-  it("préfixe /sandbox avec une clé de test", () => {
+  it("conserve la racine API pour les clés de test (sandbox sélectionnée par les clés)", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com", test)).toBe(
-      "https://api.hrskills-pay.com/sandbox",
+      "https://api.hrskills-pay.com",
     );
   });
 
@@ -49,7 +49,7 @@ describe("environnement sandbox / live", () => {
     );
   });
 
-  it("ne double jamais le préfixe déjà présent dans la base", () => {
+  it("normalise une racine contenant déjà /sandbox sans la modifier autrement", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com/sandbox", test)).toBe(
       "https://api.hrskills-pay.com/sandbox",
     );
@@ -58,9 +58,9 @@ describe("environnement sandbox / live", () => {
     );
   });
 
-  it("tolère une barre oblique finale", () => {
+  it("retire les barres obliques finales", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com/", test)).toBe(
-      "https://api.hrskills-pay.com/sandbox",
+      "https://api.hrskills-pay.com",
     );
     expect(racineHrSkills("https://api.hrskills-pay.com/", live)).toBe(
       "https://api.hrskills-pay.com",
