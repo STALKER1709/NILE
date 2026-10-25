@@ -24,10 +24,8 @@ import {
  * Implémenté d'après la documentation « HR-Skills Pay API v1 » fournie :
  *   - Authentification à double clé : la Clé A sert à obtenir le jeton,
  *     puis la Clé B est utilisée comme Bearer avec X-Transaction-Token.
- *   - Encaissement : POST /api/v1/payin/mobile-money -> 202 PENDING + une
- *     référence « ref_… ». Le client valide ensuite sur son téléphone.
- *   - Statut : GET /v1/payments/:reference (SUCCESS · FAILED · PENDING ·
- *     HOLD · REFUNDED).
+ *   - Encaissement : POST /v1/cashin -> référence et statut PENDING.
+ *   - Statut : GET /v1/transactions/:reference.
  *   - Webhooks signés en HMAC-SHA256 sur le corps brut.
  *
  * Les chemins suivent la référence officielle de l'API et du SDK HR-Skills Pay.
