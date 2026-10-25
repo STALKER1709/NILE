@@ -70,6 +70,16 @@ async function main() {
         continue;
       }
 
+      // Défense supplémentaire : ne jamais supprimer un objet encore référencé
+      // par le catalogue ou les publications publiques.
+      const [imagesCatalogue, mediasPublication] = await Promise.all([
+        prisma.imageProduit.count({ where: { chemin: fichier.chemin } }),
+        prisma.publicationMedia.count({ where: { chemin: fichier.chemin } }),
+      ]);
+      if (imagesCatalogue > 0 || mediasPublication > 0) {
+        console.error(`KYC ${dossier.id}: chemin partagé avec un média public; suppression automatique ignorée (${fichier.champ}).`);
+        continue;
+      }
       const { error: suppressionErreur } = await client.storage
         .from(env.SUPABASE_STORAGE_BUCKET)
         .remove([fichier.chemin]);
