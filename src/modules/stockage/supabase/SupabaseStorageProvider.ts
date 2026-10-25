@@ -30,6 +30,8 @@ import {
  * il est calqué sur la source du SDK installé. À valider au branchement, comme
  * le reste du provider (voir la note historique ci-dessous).
  *
+ * Médias publics : bucket nommé comme SUPABASE_STORAGE_BUCKET. Les pièces KYC
+ * sont envoyées vers SUPABASE_KYC_BUCKET, séparé et privé.
  * Prérequis inchangé : bucket PUBLIC nommé comme SUPABASE_STORAGE_BUCKET,
  * avec une limite de taille de fichier ≥ 15 Mo (filet complémentaire côté
  * plateforme, la validation applicative restant le premier verrou).
@@ -54,6 +56,27 @@ export class SupabaseStorageProvider implements StorageProvider {
 
     const { data } = client.storage.from(bucket).getPublicUrl(chemin);
     return { url: data.publicUrl, chemin };
+  }
+
+  /** Stocke un justificatif KYC dans un bucket séparé, qui doit rester privé. */
+  async enregistrerKyc(fichier: FichierAEnregistrer): Promise<FichierEnregistre> {
+    const client = creerClientAdmin();
+    const chemin = `${randomUUID()}.${extensionDepuisMime(fichier.typeMime)}`;
+    const { error } = await client.storage.from(env.SUPABASE_KYC_BUCKET).upload(chemin, fichier.contenu, {
+      contentType: fichier.typeMime,
+      upsert: false,
+    });
+    if (error) throw new Error(`Échec de l'upload privé KYC : ${error.message}`);
+    // Jamais d'URL publique : la base conserve un identifiant interne opaque.
+    return { url: `kyc://${chemin}`, chemin };
+  }
+
+  /** URL signée à courte durée de vie, appelée uniquement après contrôle ADMIN. */
+  async urlSigneeKyc(chemin: string): Promise<string> {
+    const client = creerClientAdmin();
+    const { data, error } = await client.storage.from(env.SUPABASE_KYC_BUCKET).createSignedUrl(chemin, 300);
+    if (error || !data?.signedUrl) throw new Error(`Impossible de signer le document KYC : ${error?.message ?? "URL absente"}`);
+    return data.signedUrl;
   }
 
   async supprimer(chemin: string): Promise<void> {

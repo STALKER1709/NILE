@@ -10,7 +10,7 @@ import {
 import { restituerStockTx } from "@/modules/commande/stock";
 
 export type ResultatTraitement =
-  | { ok: true; statut: "PAYE" | "ECHOUE" | "DEJA_TRAITE" }
+  | { ok: true; statut: "PAYE" | "ECHOUE" | "REMBOURSE" | "DEJA_TRAITE" }
   | { ok: false; raison: string };
 
 /**
@@ -50,7 +50,7 @@ export async function traiterNotificationPaiement(
  */
 export async function conclurePaiement(
   reference: string,
-  statut: "PAYE" | "ECHOUE",
+  statut: "PAYE" | "ECHOUE" | "REMBOURSE",
   charge: Record<string, string>,
 ): Promise<ResultatTraitement> {
   // La référence est soit notre identifiant de paiement, soit celle attribuée
@@ -71,8 +71,32 @@ export async function conclurePaiement(
   // fournisseur : `reference` peut être l'un ou l'autre.
   const paiementId = paiement.id;
 
-  // Idempotence : un paiement déjà finalisé n'est pas retraité.
+  // Un remboursement est un état financier distinct d’un échec initial.
+  if (statut === "REMBOURSE") {
+    if (paiement.statut === "REMBOURSE") return { ok: true, statut: "DEJA_TRAITE" };
+    if (paiement.statut !== "PAYE") {
+      return { ok: false, raison: "REMBOURSEMENT_SANS_PAIEMENT_CONFIRME" };
+    }
+    const rembourse = await prisma.$transaction(async (tx) => {
+      const majPaiement = await tx.paiement.updateMany({
+        where: { id: paiementId, statut: "PAYE" },
+        data: { statut: "REMBOURSE", payload: charge },
+      });
+      if (majPaiement.count !== 1) return false;
+      await tx.commande.updateMany({
+        where: { id: paiement.commandeId, statutPaiement: "PAYE" },
+        data: { statutPaiement: "REMBOURSE" },
+      });
+      return true;
+    });
+    return rembourse
+      ? { ok: true, statut: "REMBOURSE" }
+      : { ok: false, raison: "REMBOURSEMENT_CONCURRENT" };
+  }
+
+  // Idempotence : un paiement déjà finalisé n’est pas retraité.
   if (paiement.statut === "PAYE") return { ok: true, statut: "DEJA_TRAITE" };
+  if (paiement.statut === "REMBOURSE") return { ok: true, statut: "DEJA_TRAITE" };
   if (paiement.statut === "ECHOUE" && statut === "ECHOUE") {
     return { ok: true, statut: "DEJA_TRAITE" };
   }

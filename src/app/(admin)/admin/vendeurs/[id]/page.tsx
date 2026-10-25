@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { exigerRole } from "@/modules/auth/access";
 import { getVendeurDetail } from "@/modules/admin/vendeurs";
+import { resoudreUrlKyc } from "@/modules/kyc/kyc-storage";
 import {
   libelleStatutKyc,
   badgeTonKyc,
@@ -31,7 +32,15 @@ export default async function AdminVendeurDetailPage({
   const vendeur = await getVendeurDetail(id);
   if (!vendeur) notFound();
 
-  const kyc = vendeur.kyc;
+  const kycBrut = vendeur.kyc;
+  // Les URL signées ne sont générées qu'après exigerRole("ADMIN") ci-dessus.
+  const kyc = kycBrut ? {
+    ...kycBrut,
+    pieceRectoUrl: await resoudreUrlKyc(kycBrut.pieceRectoUrl, kycBrut.pieceRectoChemin),
+    pieceVersoUrl: await resoudreUrlKyc(kycBrut.pieceVersoUrl, kycBrut.pieceVersoChemin),
+    selfieUrl: await resoudreUrlKyc(kycBrut.selfieUrl, kycBrut.selfieChemin),
+    registreCommerceUrl: await resoudreUrlKyc(kycBrut.registreCommerceUrl, kycBrut.registreCommerceChemin),
+  } : null;
   const statutKyc: StatutKyc = (kyc?.statut as StatutKyc) ?? "NON_SOUMIS";
   const peutAgir = peutValiderKyc(statutKyc);
 

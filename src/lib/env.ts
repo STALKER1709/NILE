@@ -17,6 +17,8 @@ const schema = z
     NODE_ENV: z
       .enum(["development", "test", "production"])
       .default("development"),
+    // Vercel distinguishes Production from Preview, although both build with NODE_ENV=production.
+    VERCEL_ENV: z.enum(["development", "preview", "production", "test"]).optional(),
     DATABASE_URL: z.string().min(1, "DATABASE_URL manquant"),
 
     AUTH_PROVIDER: z.enum(["mock", "supabase"]).default("mock"),
@@ -71,6 +73,8 @@ const schema = z
     //   "supabase" -> bucket Supabase Storage (production).
     STORAGE_PROVIDER: z.enum(["local", "supabase"]).default("local"),
     SUPABASE_STORAGE_BUCKET: z.string().default("produits"),
+    // Bucket distinct et PRIVÉ pour les justificatifs d’identité KYC.
+    SUPABASE_KYC_BUCKET: z.string().min(1).default("kyc-prive"),
 
     // Email transactionnel (confirmations de commande) :
     //   "mock"  -> journalise seulement (développement).
@@ -225,6 +229,35 @@ const schema = z
             'WHATSAPP_PHONE_NUMBER_ID, WHATSAPP_TOKEN, WHATSAPP_APP_SECRET et WHATSAPP_VERIFY_TOKEN requis quand WHATSAPP_PROVIDER="meta".',
         });
       }
+    }
+    // Production must fail closed: never silently run a mock checkout,
+    // local ephemeral storage, or mock transactional email after a missed env var.
+    const estDeploiementProduction = val.VERCEL_ENV
+      ? val.VERCEL_ENV === "production"
+      : val.NODE_ENV === "production";
+    if (estDeploiementProduction) {
+      if (val.SUPABASE_KYC_BUCKET === val.SUPABASE_STORAGE_BUCKET) {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["SUPABASE_KYC_BUCKET"], message: "Le bucket KYC doit être distinct du bucket public des médias." });
+      }
+      if (val.PAYMENT_PROVIDER === "mock") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["PAYMENT_PROVIDER"], message: "Le fournisseur de paiement mock est interdit en production." });
+      }
+      if (val.STORAGE_PROVIDER !== "supabase") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["STORAGE_PROVIDER"], message: "STORAGE_PROVIDER=supabase est obligatoire en production." });
+      }
+      if (val.AUTH_PROVIDER === "mock") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["AUTH_PROVIDER"], message: "AUTH_PROVIDER=mock est interdit en production ; configure Supabase Auth." });
+      }
+      if (val.EMAIL_PROVIDER === "mock") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["EMAIL_PROVIDER"], message: "Les e-mails mock sont interdits en production : configure Brevo." });
+      }
+    }
+    if (val.STORAGE_PROVIDER === "supabase" && !val.SUPABASE_SERVICE_ROLE_KEY) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["SUPABASE_SERVICE_ROLE_KEY"],
+        message: 'SUPABASE_SERVICE_ROLE_KEY requis quand STORAGE_PROVIDER="supabase" pour les opérations de stockage côté serveur.',
+      });
     }
     if (val.AUTH_PROVIDER === "supabase") {
       if (!val.NEXT_PUBLIC_SUPABASE_URL || !val.NEXT_PUBLIC_SUPABASE_ANON_KEY) {

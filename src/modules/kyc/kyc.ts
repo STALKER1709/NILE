@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getStorageProvider } from "@/modules/stockage";
+import { SupabaseStorageProvider } from "@/modules/stockage/supabase/SupabaseStorageProvider";
 import type { FichierAEnregistrer } from "@/modules/stockage/StorageProvider";
 import {
   peutSoumettreKyc,
@@ -59,12 +60,18 @@ export async function soumettreKycVendeur(
   }
 
   const storage = getStorageProvider();
+  // Les justificatifs KYC ne doivent jamais rejoindre le bucket public des médias.
+  // Le stockage local n’est possible qu’en développement (production fail-closed).
+  const enregistrerKyc = (fichier: FichierAEnregistrer) =>
+    storage instanceof SupabaseStorageProvider
+      ? storage.enregistrerKyc(fichier)
+      : storage.enregistrer(fichier);
 
   // Téléversement sécurisé des fichiers fournis
   let pieceRectoUrl = vendeur.kyc?.pieceRectoUrl ?? "";
   let pieceRectoChemin = vendeur.kyc?.pieceRectoChemin ?? null;
   if (fichiers.pieceRecto) {
-    const res = await storage.enregistrer(fichiers.pieceRecto);
+    const res = await enregistrerKyc(fichiers.pieceRecto);
     pieceRectoUrl = res.url;
     pieceRectoChemin = res.chemin;
   }
@@ -72,7 +79,7 @@ export async function soumettreKycVendeur(
   let pieceVersoUrl = vendeur.kyc?.pieceVersoUrl ?? "";
   let pieceVersoChemin = vendeur.kyc?.pieceVersoChemin ?? null;
   if (fichiers.pieceVerso) {
-    const res = await storage.enregistrer(fichiers.pieceVerso);
+    const res = await enregistrerKyc(fichiers.pieceVerso);
     pieceVersoUrl = res.url;
     pieceVersoChemin = res.chemin;
   }
@@ -80,7 +87,7 @@ export async function soumettreKycVendeur(
   let selfieUrl = vendeur.kyc?.selfieUrl ?? "";
   let selfieChemin = vendeur.kyc?.selfieChemin ?? null;
   if (fichiers.selfie) {
-    const res = await storage.enregistrer(fichiers.selfie);
+    const res = await enregistrerKyc(fichiers.selfie);
     selfieUrl = res.url;
     selfieChemin = res.chemin;
   }
@@ -88,7 +95,7 @@ export async function soumettreKycVendeur(
   let registreCommerceUrl = vendeur.kyc?.registreCommerceUrl ?? null;
   let registreCommerceChemin = vendeur.kyc?.registreCommerceChemin ?? null;
   if (fichiers.registreCommerce) {
-    const res = await storage.enregistrer(fichiers.registreCommerce);
+    const res = await enregistrerKyc(fichiers.registreCommerce);
     registreCommerceUrl = res.url;
     registreCommerceChemin = res.chemin;
   }

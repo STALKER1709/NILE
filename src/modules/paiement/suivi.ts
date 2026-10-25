@@ -159,14 +159,7 @@ async function interroger(
  */
 const AGE_MINIMUM_MS = 60_000;
 
-/**
- * Au-delà, la transaction est morte depuis longtemps chez le fournisseur
- * (expiration à 10 min) : le balayage la conclura en ECHOUE et libérera le
- * stock. La fenêtre est large à dessein — une commande oubliée en attente
- * immobilise des articles que personne d'autre ne peut acheter.
- */
-const FENETRE_JOURS = 7;
-
+/** Les anciennes transactions restent réconciliables ; aucune expiration locale aveugle. */
 /** Plafond par passage : borne la durée et le nombre d'appels au fournisseur. */
 const LOT_MAX = 50;
 
@@ -193,10 +186,9 @@ export async function balayerPaiementsEnAttente(): Promise<ResultatBalayage> {
       modePaiement: { not: "COD" },
       statutPaiement: "EN_ATTENTE",
       statutCommande: "EN_ATTENTE",
-      dateCreation: {
-        gte: new Date(maintenant - FENETRE_JOURS * 24 * 60 * 60 * 1000),
-        lte: new Date(maintenant - AGE_MINIMUM_MS),
-      },
+      // Aucun plancher d'âge : les paiements plus vieux que la fenêtre
+      // habituelle doivent aussi être réconciliés, jamais abandonnés.
+      dateCreation: { lte: new Date(maintenant - AGE_MINIMUM_MS) },
     },
     include: { paiements: { orderBy: { dateCreation: "desc" } } },
     orderBy: { dateCreation: "asc" },

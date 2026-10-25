@@ -48,4 +48,9 @@ describe("mapperStatutMonetbil", () => {
     expect(mapperStatutMonetbil(8)).toBe("ECHOUE");
     expect(mapperStatutMonetbil(9)).toBe("ECHOUE");
   });
+  it("refuse un statut inconnu au lieu de le traiter comme un échec", () => {
+    expect(() => mapperStatutMonetbil(42)).toThrow(/inconnu/i);
+    expect(() => mapperStatutMonetbil("pending")).toThrow(/inconnu/i);
+    expect(() => mapperStatutMonetbil("")).toThrow(/inconnu/i);
+  });
 });

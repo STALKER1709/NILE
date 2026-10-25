@@ -31,17 +31,18 @@ export function verifierSign(
   return calculerSign(secret, sansSign) === sign;
 }
 
-export type StatutPaiementNotifie = "PAYE" | "ECHOUE";
+export type StatutPaiementNotifie = "PAYE" | "ECHOUE" | "REMBOURSE";
 
 /**
- * Statuts Monetbil : 1 = succès, 0 = échec, -1 = annulé
- * (7/8/9 = équivalents en mode test). Tout ce qui n'est pas un succès = échec.
+ * Statuts Monetbil connus : 1/7 = succès ; 0/-1/8/9 = échec/annulation.
+ * Une valeur inconnue ne doit JAMAIS libérer le stock comme un échec : le
+ * contrat peut évoluer et l'état financier doit alors rester à vérifier.
  */
 export function mapperStatutMonetbil(
   status: number | string,
 ): StatutPaiementNotifie {
-  // Coercition volontaire : Monetbil peut renvoyer le statut en nombre OU en
-  // texte ("7"). 1 = succès, 7 = succès (mode test).
-  const n = Number(status);
-  return n === 1 || n === 7 ? "PAYE" : "ECHOUE";
+  const valeur = String(status).trim();
+  if (valeur === "1" || valeur === "7") return "PAYE";
+  if (valeur === "0" || valeur === "-1" || valeur === "8" || valeur === "9") return "ECHOUE";
+  throw new Error("Statut Monetbil inconnu : vérification manuelle requise.");
 }

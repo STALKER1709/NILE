@@ -9,7 +9,7 @@ export const metadata: Metadata = {
     "Conditions générales d'utilisation et de vente de NILE Marketplace.",
 };
 
-const MAJ = "10 juillet 2026";
+const MAJ = "25 octobre 2026";
 
 /** Sommaire du document (ancres des sections ci-dessous). */
 const SOMMAIRE = [
@@ -96,7 +96,7 @@ export default function ConditionsPage() {
         <Section titre="4. Paiement" ancre="paiement">
           <p>
             Deux modes de paiement sont proposés : le paiement mobile (MTN
-            Mobile Money, Orange Money) via l&apos;agrégateur Monetbil, et le
+            Mobile Money, Orange Money) via le prestataire de paiement Mobile Money indiqué au moment du paiement, et le
             paiement en espèces à la livraison (dans la limite d&apos;un plafond
             affiché au moment de la commande). Un paiement mobile n&apos;est
             considéré comme reçu qu&apos;après confirmation par
@@ -113,9 +113,7 @@ export default function ConditionsPage() {
 
         <Section titre="5. Livraison" ancre="livraison">
           <p>
-            La livraison est <strong>gratuite</strong> et assurée au Cameroun à
-            l&apos;adresse indiquée par l&apos;acheteur (ville, quartier, points
-            de repère). Les délais affichés lors de la commande sont indicatifs.
+            La livraison est assurée dans les zones desservies, à l&apos;adresse ou au point de rendez-vous indiqué par l&apos;acheteur. Les éventuels frais et délais applicables doivent être affichés avant la confirmation de la commande.
           </p>
         </Section>
 
@@ -128,10 +126,7 @@ export default function ConditionsPage() {
             annulée (et remboursée si elle avait été payée par Mobile Money).
           </p>
           <p>
-            Une fois le colis accepté, <strong>les ventes sont fermes : aucun
-            retour ni échange n&apos;est accepté</strong>. En cas de refus de
-            colis répétés sans motif légitime, NILE peut restreindre
-            l&apos;accès au paiement à la livraison.
+            Après acceptation du colis, toute demande de retour, d&apos;échange ou de remboursement est examinée selon la politique applicable et les droits impératifs prévus par la réglementation. En cas de refus de colis répétés sans motif légitime, NILE peut restreindre l&apos;accès au paiement à la livraison.
           </p>
         </Section>
 
