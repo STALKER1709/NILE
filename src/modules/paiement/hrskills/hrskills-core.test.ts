@@ -157,8 +157,8 @@ describe("mapperStatutHrSkills", () => {
     expect(mapperStatutHrSkills("PENDING")).toBeNull();
     expect(mapperStatutHrSkills("HOLD")).toBeNull();
   });
-  it("REFUNDED est traité comme un échec de commande", () => {
-    expect(mapperStatutHrSkills("REFUNDED")).toBe("ECHOUE");
+  it("REFUNDED reste un statut financier distinct", () => {
+    expect(mapperStatutHrSkills("REFUNDED")).toBe("REMBOURSE");
   });
   it("un statut inconnu ne conclut rien", () => {
     expect(mapperStatutHrSkills("BIZARRE")).toBeNull();
