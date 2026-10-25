@@ -240,8 +240,8 @@ const schema = z
       if (val.STORAGE_PROVIDER !== "supabase") {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["STORAGE_PROVIDER"], message: "STORAGE_PROVIDER=supabase est obligatoire en production." });
       }
-      if (val.AUTH_PROVIDER === "mock" && !val.ALLOW_MOCK_AUTH) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["AUTH_PROVIDER"], message: "AUTH_PROVIDER=supabase est obligatoire en production (sauf démo explicitement autorisée)." });
+      if (val.AUTH_PROVIDER === "mock") {
+        ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["AUTH_PROVIDER"], message: "AUTH_PROVIDER=mock est interdit en production ; configure Supabase Auth." });
       }
       if (val.EMAIL_PROVIDER === "mock") {
         ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["EMAIL_PROVIDER"], message: "Les e-mails mock sont interdits en production : configure Brevo." });
