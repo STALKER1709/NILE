@@ -14,6 +14,9 @@ Cette branche durcit la configuration de production et isole les nouveaux docume
 
 Les dossiers existants peuvent encore contenir des URL publiques héritées du bucket média. Le code conserve leur compatibilité et **ne peut pas rendre rétroactivement privées les anciennes URL**. Avant d’accepter des dossiers réels :
 
+- sauvegarder la base de données ;
+- faire un dry-run avec `pnpm exec tsx --env-file-if-exists=.env scripts/migrate-kyc-private.ts` ;
+- après validation du décompte, exécuter `pnpm exec tsx --env-file-if-exists=.env scripts/migrate-kyc-private.ts --apply` ;
 - inventorier les champs `pieceRectoChemin`, `pieceVersoChemin`, `selfieChemin` et `registreCommerceChemin` déjà renseignés ;
 - copier chaque objet du bucket public vers `kyc-prive` ;
 - mettre à jour les URL en base au format `kyc://<chemin>` ;
