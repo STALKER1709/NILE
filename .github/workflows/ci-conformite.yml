@@ -4,7 +4,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [main, design/nile-experience-system]
+    branches: [main, design/nile-experience-system, "fix/**"]
 
 concurrency:
   group: conformite-${{ github.ref }}
