@@ -1,27 +1,35 @@
 # Outils design et animation — NILE
 
-NILE utilise Next.js App Router, React 19, Tailwind CSS 3.4 et pnpm. Les outils doivent être ajoutés progressivement et testés avant fusion sur `main`.
+NILE utilise Next.js App Router, React 19, TypeScript, Tailwind CSS 3.4 et pnpm. Motion est compatible avec React 18.2 et supérieur. Voir la documentation officielle : https://motion.dev/docs/react-installation.
 
-## 1. Motion (anciennement Framer Motion)
+## 1. Installer Motion et les skills
 
-Depuis la racine du dépôt :
+Depuis PowerShell, à la racine du dépôt NILE :
 
-```bash
+```powershell
+Set-ExecutionPolicy -Scope Process Bypass
+.\scripts\setup-design-tools.ps1
+```
+
+Le script :
+- ajoute le paquet `motion` au projet via pnpm et met à jour `package.json` ainsi que `pnpm-lock.yaml` ;
+- installe le skill officiel Motion ;
+- installe les skills 21st.dev via skills.sh et le CLI officiel.
+
+Si tu préfères installer Motion séparément :
+
+```powershell
 pnpm add motion
+npx --yes motion-ai
+npx --yes skills add 21st-dev/skill -y
+npx --yes @21st-dev/cli install-skill
 ```
 
-Vérifier que `package.json` et `pnpm-lock.yaml` sont tous deux modifiés, puis lancer :
-
-```bash
-pnpm typecheck
-pnpm test
-pnpm build
-```
-
-Exemple dans un composant interactif :
+Exemple d'animation dans un composant interactif :
 
 ```tsx
 "use client";
+
 import { motion } from "motion/react";
 
 export function ExampleMotion() {
@@ -37,52 +45,47 @@ export function ExampleMotion() {
 }
 ```
 
-La bibliothèque ne doit être utilisée que là où l'animation apporte une vraie valeur. Préserver l'accessibilité et les préférences de réduction des animations.
+N'ajoute `"use client"` qu'aux composants qui en ont besoin. Pour les composants compatibles, `motion/react-client` peut limiter le JavaScript client. Privilégie les animations courtes et respecte `prefers-reduced-motion`.
 
-## 2. Skills Claude Code
+## 2. Skills Claude Code versionnés dans le dépôt
 
-Des instructions spécifiques au dépôt sont versionnées dans :
-- `.claude/skills/nile-ui-ux/SKILL.md`
-- `.claude/skills/motion-react/SKILL.md`
-- `.claude/skills/21st-components/SKILL.md`
+- `.claude/skills/nile-ui-ux/SKILL.md` : règles responsive, accessibilité, performances et parcours marketplace.
+- `.claude/skills/motion-react/SKILL.md` : usage responsable de Motion dans Next.js App Router.
+- `.claude/skills/21st-components/SKILL.md` : recherche, revue et intégration de composants 21st.dev.
 
-Claude Code doit être redémarré/rechargé si les nouveaux skills ne sont pas reconnus.
+Les instructions sont dans le dépôt. Les skills installés par les commandes ci-dessus complètent ces règles.
 
-Le skill Motion officiel peut aussi être installé depuis la racine du dépôt avec :
+## 3. Connecter 21st MCP dans Claude Code
 
-```bash
-npx motion-ai
+La connexion MCP nécessite une session Claude Code locale et une clé API 21st.dev. Aucune clé ne doit être commitée.
+
+Dans Claude Code, exécute :
+
+```text
+/plugin marketplace add 21st-dev/claude-code-plugin
+/plugin install 21st@21st
 ```
 
-Vérifier les choix de l'installateur avant de confirmer.
+Obtiens une clé sur https://21st.dev/settings/api-keys et configure la variable d'environnement `API_KEY_21ST` dans l'environnement qui lance Claude Code. Redémarre ou recharge Claude Code puis vérifie avec `/mcp` que le serveur `21st` est connecté.
 
-## 3. 21st.dev / 21st MCP
+Documentation officielle : https://github.com/21st-dev/claude-code-plugin
 
-Le CLI et MCP officiels permettent de rechercher et intégrer des composants. L'activation nécessite un compte et peut nécessiter une clé API.
+## 4. Ajouter des composants 21st.dev
 
-Installation du CLI :
+21st.dev est un catalogue, pas un paquet unique à importer intégralement. Cherche un composant adapté au besoin, inspecte son code, ses dépendances, son accessibilité et sa compatibilité avec Tailwind 3.4, puis adapte-le aux tokens et au système de design existants de NILE.
 
-```bash
-npm i -g @21st-dev/cli
-21st login
-npx @21st-dev/cli install-skill
-```
+Priorités recommandées : recherche, cartes produit, carrousel de catégories, états de chargement, tiroir mobile et notifications accessibles. Ne remplace pas les données réelles par des données fictives et ne modifie pas les flux de paiement ou d'authentification pour une simple refonte visuelle.
 
-Ou installer le plugin officiel dans Claude Code en suivant les instructions maintenues par 21st :
-https://github.com/21st-dev/claude-code-plugin
+## 5. Contrôle avant fusion
 
-Ne jamais commiter une clé API. Vérifier la connexion via `/mcp` dans Claude Code.
-
-## 4. Composants
-
-La bibliothèque 21st.dev est un catalogue de composants à rechercher et intégrer individuellement, pas une dépendance unique qu'il faut importer entièrement. Choisir un composant, inspecter ses dépendances et son accessibilité, l'adapter aux tokens de NILE, puis vérifier le build.
-
-## Contrôle final avant fusion
-
-```bash
+```powershell
 pnpm typecheck
 pnpm test
 pnpm build
 ```
 
-Ne pas fusionner sur `main` tant que CI et le déploiement de prévisualisation ne sont pas verts.
+Vérifie aussi le rendu à 320 px, 375 px, 768 px et desktop, le clavier, les états de chargement/erreur et les préférences de réduction des animations. Ne fusionne pas un changement UI si les contrôles CI échouent.
+
+## Limites d'exécution
+
+Le script d'installation s'exécute sur la machine du développeur, pas sur GitHub. Après l'avoir lancé localement, vérifie `git status`, puis committe et pousse les fichiers générés par pnpm et les éventuelles configurations non sensibles. N'ajoute jamais une clé API ou un jeton au dépôt.
