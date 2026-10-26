@@ -13,7 +13,7 @@ export function PiedDePage() {
           <Link href="/catalogue" className="mt-5 inline-flex items-center gap-2 text-xs font-extrabold text-amber-300 hover:text-white">Explorer le catalogue <span aria-hidden="true">↗</span></Link>
         </div>
         <FooterCol title="Acheter" links={[["Catalogue","/catalogue"],["Promotions","/promotions"],["Boutiques","/boutiques"],["Mes commandes","/commandes"],["Favoris","/favoris"]]} />
-        <FooterCol title="Vendre" links={[["Ouvrir une boutique","/inscription"],["Espace vendeur","/vendeur"],["Vérification vendeur","/vendeur/kyc"],["Annonces","/vendeur/annonces"]]} />
+        <FooterCol title="Vendre" links={[["Ouvrir une boutique","/inscription?role=VENDEUR"],["Espace vendeur","/vendeur"],["Vérification vendeur","/vendeur/kyc"],["Annonces","/vendeur/annonces"]]} />
         <FooterCol title="Accompagnement" links={[["Centre d’aide","/aide"],["Nous contacter","/contact"],["Conditions d’utilisation","/conditions"],["Confidentialité","/confidentialite"]]} />
       </div>
       <div className="flex flex-col gap-5 py-6 md:flex-row md:items-center md:justify-between">
