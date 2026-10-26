@@ -25,9 +25,14 @@ import {
  * Cible de redirection après connexion/inscription (`suite`) : uniquement un
  * chemin interne au site (jamais une URL externe).
  */
-function cibleApresAuth(formData: FormData): string {
+function cibleApresAuth(formData: FormData, fallback = "/compte"): string {
   const suite = String(formData.get("suite") ?? "");
-  return suite.startsWith("/") && !suite.startsWith("//") ? suite : "/compte";
+  return suite.startsWith("/") && !suite.startsWith("//") ? suite : fallback;
+}
+
+/** Préserve le rôle vendeur sélectionné lorsqu’une inscription échoue. */
+function suffixeRoleInscription(formData: FormData): string {
+  return String(formData.get("role") ?? "") === "VENDEUR" ? "&role=VENDEUR" : "";
 }
 
 /** Suffixe `&suite=...` à conserver dans les redirections d'erreur du formulaire. */
@@ -73,7 +78,7 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
   const parsed = inscriptionSchema.safeParse(brut);
   if (!parsed.success) {
     const msg = parsed.error.issues[0]?.message ?? "Données invalides.";
-    redirect(`/inscription?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}`);
+    redirect(`/inscription?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}${suffixeRoleInscription(formData)}`);
   }
 
   // Anti-abus : créations de comptes en rafale depuis une même IP.
@@ -84,7 +89,7 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
   );
   if (!limite.autorise) {
     redirect(
-      `/inscription?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}${suffixeSuite(formData)}`,
+      `/inscription?erreur=${encodeURIComponent(messageTropDeTentatives(limite.minutesRestantes))}${suffixeSuite(formData)}${suffixeRoleInscription(formData)}`,
     );
   }
 
@@ -98,7 +103,7 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
   }
 
   await recupererPanierInvite();
-  redirect(cibleApresAuth(formData));
+  redirect(cibleApresAuth(formData, parsed.data.role === "VENDEUR" ? "/vendeur" : "/compte"));
 }
 
 export async function connexionAction(formData: FormData): Promise<void> {
@@ -140,7 +145,9 @@ export async function connexionAction(formData: FormData): Promise<void> {
 
   await reinitialiserLimite(cleLimite);
   await recupererPanierInvite();
-  redirect(cibleApresAuth(formData));
+  const utilisateur = await getUtilisateurCourant();
+  const destinationParDefaut = utilisateur?.role === "ADMIN" ? "/admin" : utilisateur?.role === "VENDEUR" ? "/vendeur" : "/compte";
+  redirect(cibleApresAuth(formData, destinationParDefaut));
 }
 
 export async function deconnexionAction(): Promise<void> {
