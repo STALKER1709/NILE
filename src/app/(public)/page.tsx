@@ -53,7 +53,7 @@ export default async function AccueilPage() {
         </p>
         <div className="mt-5 flex w-full flex-col gap-2.5 sm:mt-6 sm:w-auto sm:flex-row sm:gap-3">
           <Link href="/catalogue" className={btn("primaire", "lg")}>Explorer le catalogue <Arrow /></Link>
-          <Link href="/inscription" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#dce3f5] bg-white px-5 py-3 text-sm font-extrabold text-blue-900 transition-colors hover:border-blue-300 hover:bg-blue-50">
+          <Link href="/inscription?role=VENDEUR" className="inline-flex min-h-12 items-center justify-center gap-2 rounded-xl border border-[#dce3f5] bg-white px-5 py-3 text-sm font-extrabold text-blue-900 transition-colors hover:border-blue-300 hover:bg-blue-50">
             Ouvrir ma boutique <span aria-hidden="true">＋</span>
           </Link>
         </div>
