@@ -8,7 +8,6 @@ const LINKS = [
   { href: "/compte", label: "Vue d'ensemble" },
   { href: "/commandes", label: "Mes commandes" },
   { href: "/favoris", label: "Mes favoris" },
-  { href: "/notifications", label: "Notifications" },
   { href: "/compte/profil", label: "Profil et coordonnées" },
   { href: "/panier", label: "Mon panier" },
 ];
