@@ -53,10 +53,10 @@ const schema = z
     MONETBIL_SERVICE_SECRET: z.string().optional(),
 
     // HR-Skills Pay (MTN MoMo + Orange Money, 16 pays africains).
-    // Clé A (en-tête Authorization: Bearer) et Clé B (échangée contre un token
-    // de transaction, et renvoyée dans X-API-Secret). Aucune des deux ne doit
-    // atteindre le navigateur. Dashboard > Développeurs. Requises quand
-    // PAYMENT_PROVIDER="hrskills", et toutes deux du même environnement.
+    // Clé A : Authorization: Bearer lors de l'échange du jeton de transaction.
+    // Clé B : api_secret lors de cet échange, puis Authorization: Bearer des
+    // appels métier avec X-Transaction-Token. Aucune clé côté navigateur.
+    // Requises quand PAYMENT_PROVIDER="hrskills", toutes deux du même environnement.
     HRSKILLS_CLE_A: z.string().optional(),
     HRSKILLS_CLE_B: z.string().optional(),
     // Secret de signature des webhooks (Dashboard > Paramètres > Webhooks).
