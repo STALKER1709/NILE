@@ -22,13 +22,13 @@ import {
  * Fournisseur HR-Skills Pay (Cash-In Mobile Money — MTN, Orange).
  *
  * Implémenté d'après la documentation « HR-Skills Pay API v1 » fournie :
- *   - Authentification à double clé : la Clé A sert à obtenir le jeton,
- *     puis la Clé B est utilisée comme Bearer avec X-Transaction-Token.
- *   - Encaissement : POST /v1/cashin -> référence et statut PENDING.
+ *   - Authentification à double clé : la Clé A est le Bearer de tous les
+ *     appels ; la Clé B sert au corps d'échange du transaction token.
+ *   - Encaissement : POST /api/v1/payin/mobile-money -> référence et statut PENDING.
  *   - Statut : GET /v1/transactions/:reference.
  *   - Webhooks signés en HMAC-SHA256 sur le corps brut.
  *
- * Les chemins suivent la référence officielle de l'API et du SDK HR-Skills Pay.
+ * Les chemins, champs et en-têtes suivent la documentation API v1 fournie.
  *
  * ⚠️ JAMAIS exécuté contre le vrai service depuis cet environnement (ni accès
  * réseau à api.hrskills-pay.com, ni identifiants). À éprouver en sandbox —
@@ -58,9 +58,9 @@ export class HrSkillsPayProvider implements PaymentProvider {
     if (!env.HRSKILLS_CLE_B) throw new Error("HRSKILLS_CLE_B manquant.");
     return env.HRSKILLS_CLE_B;
   }
-  /** Racine des appels d'authentification (jamais préfixée, voir core). */
+  /** Racine API adaptée à la clé : production ou /sandbox pour les clés TEST. */
   private base(): string {
-    return env.HRSKILLS_BASE_URL.replace(/\/+$/, "");
+    return racineHrSkills(env.HRSKILLS_BASE_URL, this.cleA());
   }
 
   /** Racine des appels qui consomment le token : `/sandbox` en test. */
@@ -126,9 +126,9 @@ export class HrSkillsPayProvider implements PaymentProvider {
    */
   private async enTetes(cleIdem: string | null): Promise<HeadersInit> {
     const entetes: Record<string, string> = {
-      // Contrat des appels métier HR-Skills Pay : Clé B bearer + token
-      // obtenu par l'échange Clé A / Clé B. La Clé A ne sert qu'à cet échange.
-      Authorization: `Bearer ${this.cleB()}`,
+      // La doc exige la Clé A comme Bearer sur les appels métier aussi.
+      // La Clé B est uniquement envoyée lors de l'obtention du transaction token.
+      Authorization: `Bearer ${this.cleA()}`,
       "X-Transaction-Token": await this.transactionToken(),
       "Content-Type": "application/json",
     };
@@ -147,17 +147,16 @@ export class HrSkillsPayProvider implements PaymentProvider {
     }
 
     const champs = {
-      phone: numero,
+      phone_number: numero,
       operator: operateur.toUpperCase(),
       country: "CM",
       amount: ctx.montant,
       currency: "XAF",
-      reference: ctx.reference,
       description: `Commande ${ctx.numeroCommande} · NILE`,
       metadata: { reference_interne: ctx.reference, commande: ctx.numeroCommande },
     };
-    // Endpoint Cash-In publié dans la documentation officielle HR-Skills Pay.
-    const chemin = `${this.racine()}/v1/cashin`;
+    // Endpoint Cash-In documenté (les anciennes routes /v1/cashin sont dépréciées).
+    const chemin = `${this.racine()}/api/v1/payin/mobile-money`;
 
     // Clé d'idempotence dérivée du paiement, donc identique d'un passage à
     // l'autre dans cette méthode (relance du paiement par l'acheteur).
