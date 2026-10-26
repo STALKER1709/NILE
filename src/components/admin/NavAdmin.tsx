@@ -27,7 +27,7 @@ export function NavAdmin() {
       {NAV.map((item) => {
         const actif = chemin === item.href || (item.href !== "/admin" && chemin.startsWith(item.href + "/"));
         return <Link key={item.href} href={item.href} aria-current={actif ? "page" : undefined}
-          className={"flex min-h-10 shrink-0 items-center gap-2 rounded-[10px] px-3 py-2.5 text-sm font-bold transition-colors " +
+          className={"flex min-h-11 shrink-0 items-center gap-2 rounded-[10px] px-3 py-2.5 text-sm font-bold transition-colors " +
             (actif ? "bg-blue-900 text-white" : "text-slate-600 hover:bg-blue-50 hover:text-blue-900")}>
           <span className={"h-1.5 w-1.5 shrink-0 rounded-full " + (actif ? "bg-amber-400" : "bg-stone-300")} aria-hidden="true" />
           {item.label}
