@@ -22,13 +22,13 @@ import {
  * Fournisseur HR-Skills Pay (Cash-In Mobile Money — MTN, Orange).
  *
  * Implémenté d'après la documentation « HR-Skills Pay API v1 » fournie :
- *   - Authentification à double clé : la Clé A sert à obtenir le jeton,
- *     puis la Clé B est utilisée comme Bearer avec X-Transaction-Token.
- *   - Encaissement : POST /v1/cashin -> référence et statut PENDING.
+ *   - Authentification à double clé : la Clé A autorise l'échange du jeton ;
+ *     la Clé B est le Bearer des appels métier, avec le transaction token.
+ *   - Encaissement : POST /api/v1/payin/mobile-money -> référence et statut PENDING.
  *   - Statut : GET /v1/transactions/:reference.
  *   - Webhooks signés en HMAC-SHA256 sur le corps brut.
  *
- * Les chemins suivent la référence officielle de l'API et du SDK HR-Skills Pay.
+ * Les chemins, champs et en-têtes suivent la documentation API v1 fournie.
  *
  * ⚠️ JAMAIS exécuté contre le vrai service depuis cet environnement (ni accès
  * réseau à api.hrskills-pay.com, ni identifiants). À éprouver en sandbox —
@@ -58,9 +58,9 @@ export class HrSkillsPayProvider implements PaymentProvider {
     if (!env.HRSKILLS_CLE_B) throw new Error("HRSKILLS_CLE_B manquant.");
     return env.HRSKILLS_CLE_B;
   }
-  /** Racine des appels d'authentification (jamais préfixée, voir core). */
+  /** Racine API adaptée à la clé : production ou /sandbox pour les clés TEST. */
   private base(): string {
-    return env.HRSKILLS_BASE_URL.replace(/\/+$/, "");
+    return racineHrSkills(env.HRSKILLS_BASE_URL, this.cleA());
   }
 
   /** Racine des appels qui consomment le token : `/sandbox` en test. */
@@ -126,8 +126,8 @@ export class HrSkillsPayProvider implements PaymentProvider {
    */
   private async enTetes(cleIdem: string | null): Promise<HeadersInit> {
     const entetes: Record<string, string> = {
-      // Contrat des appels métier HR-Skills Pay : Clé B bearer + token
-      // obtenu par l'échange Clé A / Clé B. La Clé A ne sert qu'à cet échange.
+      // Contrat du SDK HR-Skills Pay : la Clé B authentifie les appels métier.
+      // La Clé A n'est utilisée que pour obtenir le transaction token.
       Authorization: `Bearer ${this.cleB()}`,
       "X-Transaction-Token": await this.transactionToken(),
       "Content-Type": "application/json",
@@ -147,17 +147,16 @@ export class HrSkillsPayProvider implements PaymentProvider {
     }
 
     const champs = {
-      phone: numero,
+      phone_number: numero,
       operator: operateur.toUpperCase(),
       country: "CM",
       amount: ctx.montant,
       currency: "XAF",
-      reference: ctx.reference,
       description: `Commande ${ctx.numeroCommande} · NILE`,
       metadata: { reference_interne: ctx.reference, commande: ctx.numeroCommande },
     };
-    // Endpoint Cash-In publié dans la documentation officielle HR-Skills Pay.
-    const chemin = `${this.racine()}/v1/cashin`;
+    // Endpoint Cash-In documenté (les anciennes routes /v1/cashin sont dépréciées).
+    const chemin = `${this.racine()}/api/v1/payin/mobile-money`;
 
     // Clé d'idempotence dérivée du paiement, donc identique d'un passage à
     // l'autre dans cette méthode (relance du paiement par l'acheteur).
@@ -268,16 +267,34 @@ export class HrSkillsPayProvider implements PaymentProvider {
     }
     const lu = lireWebhookHrSkills(charge);
     if (!lu) {
-      // Signature valide, donc notification authentique — mais illisible. La
-      // structure est journalisée (clés seules, jamais les valeurs) : c'est la
-      // seule façon d'apprendre comment le fournisseur nomme ses champs, sa
-      // documentation n'en publiant aucun exemple. Sans cette trace, on en
-      // serait réduit à deviner sur une API de paiement.
-      console.error(
-        "[hrskills] webhook authentique mais illisible · structure reçue:",
+      // Les webhooks de test/minimaux peuvent ne contenir que {data:{message}}
+      // et l'enveloppe {id,event,...}. On ne déduit JAMAIS un paiement depuis
+      // l'id de l'événement ni depuis son message. Pour un événement de paiement
+      // signé, le callback déclenche une réconciliation bornée des paiements en
+      // attente : chaque transaction est ensuite confirmée par GET chez HR-Skills.
+      const evenement =
+        typeof charge === "object" && charge !== null && !Array.isArray(charge)
+          ? (charge as Record<string, unknown>).event
+          : null;
+      if (
+        evenement === "payment.succeeded" ||
+        evenement === "payment.failed" ||
+        evenement === "payment.refunded"
+      ) {
+        console.warn(
+          "[hrskills] événement de paiement signé sans référence ; réconciliation nécessaire · structure:",
+          structureJson(charge),
+        );
+        return { ok: false, raison: "RECONCILIATION_REQUISE", evenement };
+      }
+
+      // Un ping ou événement non transactionnel signé ne doit pas être traité
+      // comme un paiement ni faire échouer les livraisons du fournisseur.
+      console.info(
+        "[hrskills] webhook signé sans référence transactionnelle, ignoré · structure:",
         structureJson(charge),
       );
-      return { ok: false, raison: "DONNEES_MANQUANTES" };
+      return { ok: false, raison: "NON_DEFINITIF" };
     }
 
     // 3) Statut : jamais celui annoncé dans le webhook. On le redemande à

@@ -47,12 +47,12 @@ export type VerificationNotification =
   | { ok: true; data: ResultatVerification }
   | {
       ok: false;
-      raison:
-        | "SIGNATURE_INVALIDE"
-        | "DONNEES_MANQUANTES"
-        | "ERREUR"
-        /** Notification reçue et authentique, mais statut non définitif. */
-        | "NON_DEFINITIF";
+      raison: "RECONCILIATION_REQUISE";
+      evenement: "payment.succeeded" | "payment.failed" | "payment.refunded";
+    }
+  | {
+      ok: false;
+      raison: "SIGNATURE_INVALIDE" | "DONNEES_MANQUANTES" | "ERREUR" | "NON_DEFINITIF";
     };
 
 /** Ce qui accompagne une notification, au-delà du corps décodé. */

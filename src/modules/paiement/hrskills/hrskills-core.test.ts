@@ -37,9 +37,9 @@ describe("environnement sandbox / live", () => {
     expect(estCleDeTest("hrsk_pk_abc123")).toBe(false);
   });
 
-  it("conserve la racine API pour les clés de test (sandbox sélectionnée par les clés)", () => {
+  it("ajoute /sandbox à la racine API pour les clés TEST", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com", test)).toBe(
-      "https://api.hrskills-pay.com",
+      "https://api.hrskills-pay.com/sandbox",
     );
   });
 
@@ -58,9 +58,9 @@ describe("environnement sandbox / live", () => {
     );
   });
 
-  it("retire les barres obliques finales", () => {
+  it("retire les barres finales et garde le préfixe sandbox des clés TEST", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com/", test)).toBe(
-      "https://api.hrskills-pay.com",
+      "https://api.hrskills-pay.com/sandbox",
     );
     expect(racineHrSkills("https://api.hrskills-pay.com/", live)).toBe(
       "https://api.hrskills-pay.com",
@@ -224,6 +224,33 @@ describe("lireWebhookHrSkills", () => {
     const lu = lireWebhookHrSkills({ data: { reference: "ref_abc" } });
     expect(lu?.reference).toBe("ref_abc");
     expect(lu?.statutAnnonce).toBeNull();
+  });
+
+  it("lit la référence depuis un objet transaction imbriqué et le metadata renvoyé", () => {
+    const lu = lireWebhookHrSkills({
+      id: "evt_do_not_use_as_transaction_ref",
+      event: "payment.succeeded",
+      data: {
+        transaction: {
+          reference: "ref_transaction_123",
+          status: "SUCCESS",
+          metadata: { reference_interne: "paiement-local-123" },
+        },
+      },
+    });
+    expect(lu).toEqual({
+      reference: "ref_transaction_123",
+      statutAnnonce: "SUCCESS",
+      referenceInterne: "paiement-local-123",
+    });
+  });
+
+  it("ne confond jamais l'id d'événement avec la référence fournisseur", () => {
+    expect(lireWebhookHrSkills({
+      id: "evt_123",
+      event: "payment.succeeded",
+      data: { message: "Payment succeeded" },
+    })).toBeNull();
   });
 
   it("refuse une charge sans référence exploitable", () => {

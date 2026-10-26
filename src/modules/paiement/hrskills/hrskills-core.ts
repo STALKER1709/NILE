@@ -214,29 +214,66 @@ export function structureJson(valeur: unknown, profondeur = 3): string {
 }
 
 export function lireWebhookHrSkills(charge: unknown): WebhookHrSkills | null {
-  if (typeof charge !== "object" || charge === null) return null;
+  if (typeof charge !== "object" || charge === null || Array.isArray(charge)) return null;
   const racine = charge as Json;
-  const data = (typeof racine.data === "object" && racine.data !== null
+  const data = (typeof racine.data === "object" && racine.data !== null && !Array.isArray(racine.data)
     ? racine.data
     : {}) as Json;
+  const transaction = (typeof data.transaction === "object" && data.transaction !== null
+    ? data.transaction
+    : typeof racine.transaction === "object" && racine.transaction !== null
+      ? racine.transaction
+      : {}) as Json;
+  const payment = (typeof data.payment === "object" && data.payment !== null
+    ? data.payment
+    : typeof racine.payment === "object" && racine.payment !== null
+      ? racine.payment
+      : {}) as Json;
 
+  // Le champ "id" de l'enveloppe identifie l'événement webhook : il ne faut
+  // jamais le confondre avec la référence de transaction HR-Skills.
   const reference =
     texte(data.reference) ??
     texte(racine.reference) ??
     texte(data.transaction_reference) ??
-    texte(racine.transaction_reference);
+    texte(racine.transaction_reference) ??
+    texte(data.payment_reference) ??
+    texte(racine.payment_reference) ??
+    texte(data.transactionReference) ??
+    texte(racine.transactionReference) ??
+    texte(data.paymentReference) ??
+    texte(racine.paymentReference) ??
+    texte(transaction.reference) ??
+    texte(transaction.transaction_reference) ??
+    texte(transaction.payment_reference) ??
+    texte(payment.reference) ??
+    texte(payment.transaction_reference) ??
+    texte(payment.payment_reference);
   if (!reference) return null;
 
   const metadata = (typeof data.metadata === "object" && data.metadata !== null
     ? data.metadata
     : typeof racine.metadata === "object" && racine.metadata !== null
       ? racine.metadata
-      : {}) as Json;
+      : typeof transaction.metadata === "object" && transaction.metadata !== null
+        ? transaction.metadata
+        : typeof payment.metadata === "object" && payment.metadata !== null
+          ? payment.metadata
+          : {}) as Json;
 
   return {
     reference,
-    statutAnnonce: texte(data.status) ?? texte(racine.status),
+    statutAnnonce:
+      texte(data.status) ??
+      texte(racine.status) ??
+      texte(transaction.status) ??
+      texte(payment.status),
     referenceInterne:
-      texte(metadata.reference_interne) ?? texte(metadata.reference) ?? null,
+      texte(metadata.reference_interne) ??
+      texte(metadata.referenceInterne) ??
+      texte(metadata.reference) ??
+      texte(metadata.payment_id) ??
+      texte(metadata.paymentId) ??
+      null,
   };
 }

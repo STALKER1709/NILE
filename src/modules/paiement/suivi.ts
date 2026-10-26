@@ -179,16 +179,21 @@ export interface ResultatBalayage {
  * Sans effet de bord visible quand tout va bien : les paiements déjà conclus
  * par webhook ou par relecture ne sont même pas examinés.
  */
-export async function balayerPaiementsEnAttente(): Promise<ResultatBalayage> {
+export async function balayerPaiementsEnAttente(
+  options: { inclureRecents?: boolean } = {},
+): Promise<ResultatBalayage> {
   const maintenant = Date.now();
   const commandes = await prisma.commande.findMany({
     where: {
       modePaiement: { not: "COD" },
       statutPaiement: "EN_ATTENTE",
       statutCommande: "EN_ATTENTE",
-      // Aucun plancher d'âge : les paiements plus vieux que la fenêtre
-      // habituelle doivent aussi être réconciliés, jamais abandonnés.
-      dateCreation: { lte: new Date(maintenant - AGE_MINIMUM_MS) },
+      // Le balayage périodique évite de redoubler les interrogations de l'écran
+      // de suivi. Un webhook signé incomplet passe inclureRecents=true : il faut
+      // aussi rattraper une transaction de quelques secondes.
+      ...(options.inclureRecents ? {} : {
+        dateCreation: { lte: new Date(maintenant - AGE_MINIMUM_MS) },
+      }),
     },
     include: { paiements: { orderBy: { dateCreation: "desc" } } },
     orderBy: { dateCreation: "asc" },
@@ -227,6 +232,71 @@ export async function balayerPaiementsEnAttente(): Promise<ResultatBalayage> {
 
   if (examinees > 0) {
     console.info(`[balayage] ${conclues} conclu(s) sur ${examinees} examiné(s)`);
+  }
+  return { examinees, conclues };
+}
+
+
+/**
+ * Filet de réconciliation pour un webhook HR-Skills `payment.refunded`
+ * signé qui ne contient pas de référence de transaction.
+ *
+ * Les références HR-Skills du Cash-In sont préfixées `ref_` ; on ne sonde
+ * donc que les paiements Mobile Money déjà PAYÉS portant ce préfixe. Chaque
+ * candidat est relu directement chez le fournisseur et seul le statut
+ * REFUNDED peut déclencher la mise à jour. Le lot est plafonné pour borner les
+ * appels réseau ; un remboursement avec référence dans le webhook suit le
+ * chemin direct et ne dépend pas de ce balayage.
+ */
+export async function balayerRemboursementsPaiements(): Promise<ResultatBalayage> {
+  const fournisseur = getPaymentProvider();
+  if (!fournisseur.consulterStatut) return { examinees: 0, conclues: 0 };
+
+  const paiements = await prisma.paiement.findMany({
+    where: {
+      mode: "MONETBIL",
+      statut: "PAYE",
+      reference: { startsWith: "ref_" },
+    },
+    orderBy: { dateMaj: "desc" },
+    take: LOT_MAX,
+  });
+
+  let examinees = 0;
+  let conclues = 0;
+  for (const paiement of paiements) {
+    const reference = paiement.reference;
+    if (!reference) continue;
+    examinees += 1;
+    try {
+      const statut = await fournisseur.consulterStatut(reference);
+      if (statut !== "REMBOURSE") continue;
+
+      const resultat = await conclurePaiement(reference, "REMBOURSE", {
+        source: "relecture:webhook-remboursement",
+        statut: "REMBOURSE",
+        reference,
+        lu_le: new Date().toISOString(),
+      });
+      if (resultat.ok && resultat.statut === "REMBOURSE") conclues += 1;
+      else {
+        console.error(
+          "[hrskills] remboursement détecté mais non appliqué · paiement=",
+          paiement.id,
+          resultat.ok ? resultat.statut : resultat.raison,
+        );
+      }
+    } catch (erreur) {
+      console.error(
+        "[hrskills] vérification de remboursement échouée · paiement=",
+        paiement.id,
+        erreur instanceof Error ? erreur.message : erreur,
+      );
+    }
+  }
+
+  if (examinees > 0) {
+    console.info(`[hrskills] ${conclues} remboursement(s) réconcilié(s) sur ${examinees} vérifié(s)`);
   }
   return { examinees, conclues };
 }
