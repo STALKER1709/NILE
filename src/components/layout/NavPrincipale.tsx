@@ -41,7 +41,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
         </Link>
         <Link href="/catalogue?tri=recent" className={classeLien(false)}>Nouveautés</Link>
         <Link href="/aide" aria-current={chemin === "/aide" ? "page" : undefined} className={classeLien(chemin === "/aide")}>Aide</Link>
-        <Link href="/inscription" className="ml-auto inline-flex h-12 shrink-0 items-center gap-1.5 border-b-[3px] border-transparent px-2.5 text-xs font-extrabold text-blue-900 transition-colors hover:border-amber-400 sm:px-3 sm:text-sm"><span className="text-amber-600">＋</span> Vendre sur NILE</Link>
+        <Link href="/inscription?role=VENDEUR" className="ml-auto inline-flex h-12 shrink-0 items-center gap-1.5 border-b-[3px] border-transparent px-2.5 text-xs font-extrabold text-blue-900 transition-colors hover:border-amber-400 sm:px-3 sm:text-sm"><span className="text-amber-600">＋</span> Vendre sur NILE</Link>
       </nav>
       {ouvert && <div className="absolute inset-x-[14px] top-full z-50 mt-0.5 overflow-hidden rounded-b-[14px] border border-stone-200 bg-white shadow-flottant sm:inset-x-[22px]">
         <div className="grid grid-cols-2 gap-0.5 p-2 sm:grid-cols-4">
