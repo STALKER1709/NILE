@@ -52,7 +52,9 @@ export type VerificationNotification =
         | "DONNEES_MANQUANTES"
         | "ERREUR"
         /** Notification reçue et authentique, mais statut non définitif. */
-        | "NON_DEFINITIF";
+        | "NON_DEFINITIF"
+        /** Webhook HR-Skills signé mais sans référence : lancer une réconciliation. */
+        | "RECONCILIATION_REQUISE";
     };
 
 /** Ce qui accompagne une notification, au-delà du corps décodé. */
