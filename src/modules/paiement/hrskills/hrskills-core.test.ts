@@ -58,9 +58,9 @@ describe("environnement sandbox / live", () => {
     );
   });
 
-  it("retire les barres obliques finales", () => {
+  it("retire les barres finales et garde le préfixe sandbox des clés TEST", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com/", test)).toBe(
-      "https://api.hrskills-pay.com",
+      "https://api.hrskills-pay.com/sandbox",
     );
     expect(racineHrSkills("https://api.hrskills-pay.com/", live)).toBe(
       "https://api.hrskills-pay.com",
