@@ -47,10 +47,9 @@ export function clesCoherentes(cleA: string, cleB: string): boolean {
 }
 
 /**
- * Racine des appels métier. Le SDK officiel HR-Skills Pay sélectionne
- * sandbox/production à partir du préfixe des clés ; le chemin REST reste v1.
- * L'échange du token et les appels métier utilisent donc le même hôte et
- * aucun préfixe /sandbox.
+ * Racine API : la documentation v1 indique que le sandbox est servi sous
+ * /sandbox. Pour les clés TEST, ce préfixe s'applique à l'échange du token
+ * et aux appels métier ; on évite de le doubler si la base le contient déjà.
  */
 export function racineHrSkills(baseUrl: string, cle: string): string {
   while (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
