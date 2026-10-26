@@ -277,14 +277,15 @@ export class HrSkillsPayProvider implements PaymentProvider {
           ? (charge as Record<string, unknown>).event
           : null;
       if (
-        typeof evenement === "string" &&
-        ["payment.succeeded", "payment.failed", "payment.refunded"].includes(evenement)
+        evenement === "payment.succeeded" ||
+        evenement === "payment.failed" ||
+        evenement === "payment.refunded"
       ) {
         console.warn(
           "[hrskills] événement de paiement signé sans référence ; réconciliation nécessaire · structure:",
           structureJson(charge),
         );
-        return { ok: false, raison: "RECONCILIATION_REQUISE" };
+        return { ok: false, raison: "RECONCILIATION_REQUISE", evenement };
       }
 
       // Un ping ou événement non transactionnel signé ne doit pas être traité
