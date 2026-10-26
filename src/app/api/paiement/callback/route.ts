@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { traiterNotificationPaiement } from "@/modules/paiement/notification";
-import { balayerPaiementsEnAttente } from "@/modules/paiement/suivi";
+import {
+  balayerPaiementsEnAttente,
+  balayerRemboursementsPaiements,
+} from "@/modules/paiement/suivi";
 
 /**
  * Callback serveur de paiement (Monetbil notify_url).
@@ -45,7 +48,10 @@ export async function POST(req: Request): Promise<Response> {
     // références fournisseur déjà enregistrées, puis chaque statut est confirmé
     // côté HR-Skills avant qu'une commande puisse changer d'état.
     try {
-      const bilan = await balayerPaiementsEnAttente({ inclureRecents: true });
+      const bilan =
+        res.evenement === "payment.refunded"
+          ? await balayerRemboursementsPaiements()
+          : await balayerPaiementsEnAttente({ inclureRecents: true });
       return NextResponse.json({
         ok: true,
         reconciliation: { examinees: bilan.examinees, conclues: bilan.conclues },
