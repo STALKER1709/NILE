@@ -6,6 +6,7 @@ import {
   badgeTonKyc,
   peutSoumettreKyc,
   type StatutKyc,
+  messageEtatBoutiqueApresKyc,
 } from "@/modules/kyc/kyc-core";
 import { soumettreKycAction } from "./actions";
 import { Carte, Badge, champClass, labelClass, btn } from "@/components/ui/kit";
@@ -80,7 +81,7 @@ export default async function VendeurKycPage({
             Votre identité est validée
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Votre boutique <span className="font-semibold text-slate-800">{vendeur.nomBoutique}</span> est certifiée. Vous pouvez publier vos produits et recevoir vos reversements.
+            {messageEtatBoutiqueApresKyc(vendeur.statutValidation)}
           </p>
           <div className="mt-4 flex justify-center gap-3">
             <Link href="/vendeur/produits" className={btn("primaire", "md")}>
