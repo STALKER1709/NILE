@@ -1,9 +1,11 @@
 import { cache } from "react";
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import type { Role, Utilisateur, Vendeur } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { getAuthProvider } from "@/modules/auth";
 import { evaluerAcces } from "@/modules/auth/access-core";
+import { cheminInterneSecurise } from "@/modules/auth/redirect-core";
 
 export { evaluerAcces, TOUS_LES_ROLES } from "@/modules/auth/access-core";
 export type { DecisionAcces } from "@/modules/auth/access-core";
@@ -37,8 +39,11 @@ export async function exigerRole(
   switch (decision) {
     case "OK":
       return utilisateur as Utilisateur;
-    case "NON_AUTHENTIFIE":
-      redirect("/connexion");
+    case "NON_AUTHENTIFIE": {
+      const chemin = cheminInterneSecurise((await headers()).get("x-nile-pathname"));
+      const cheminAuth = chemin && !["/connexion", "/inscription", "/mot-de-passe-oublie", "/reinitialiser"].some((p) => chemin === p || chemin.startsWith(`${p}/`));
+      redirect(cheminAuth ? `/connexion?suite=${encodeURIComponent(chemin)}` : "/connexion");
+    }
     case "SUSPENDU":
       redirect("/acces-refuse?motif=suspendu");
     case "INTERDIT":
