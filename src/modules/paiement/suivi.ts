@@ -179,16 +179,21 @@ export interface ResultatBalayage {
  * Sans effet de bord visible quand tout va bien : les paiements déjà conclus
  * par webhook ou par relecture ne sont même pas examinés.
  */
-export async function balayerPaiementsEnAttente(): Promise<ResultatBalayage> {
+export async function balayerPaiementsEnAttente(
+  options: { inclureRecents?: boolean } = {},
+): Promise<ResultatBalayage> {
   const maintenant = Date.now();
   const commandes = await prisma.commande.findMany({
     where: {
       modePaiement: { not: "COD" },
       statutPaiement: "EN_ATTENTE",
       statutCommande: "EN_ATTENTE",
-      // Aucun plancher d'âge : les paiements plus vieux que la fenêtre
-      // habituelle doivent aussi être réconciliés, jamais abandonnés.
-      dateCreation: { lte: new Date(maintenant - AGE_MINIMUM_MS) },
+      // Le balayage périodique évite de redoubler les interrogations de l'écran
+      // de suivi. Un webhook signé incomplet passe inclureRecents=true : il faut
+      // aussi rattraper une transaction de quelques secondes.
+      ...(options.inclureRecents ? {} : {
+        dateCreation: { lte: new Date(maintenant - AGE_MINIMUM_MS) },
+      }),
     },
     include: { paiements: { orderBy: { dateCreation: "desc" } } },
     orderBy: { dateCreation: "asc" },
