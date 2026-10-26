@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { traiterNotificationPaiement } from "@/modules/paiement/notification";
+import { balayerPaiementsEnAttente } from "@/modules/paiement/suivi";
 
 /**
  * Callback serveur de paiement (Monetbil notify_url).
@@ -38,6 +39,22 @@ export async function POST(req: Request): Promise<Response> {
     brut,
     entetes: req.headers,
   });
+  if (!res.ok && res.raison === "RECONCILIATION_REQUISE") {
+    // Le webhook est authentifié, mais ne fournit pas la référence de transaction.
+    // On ne devine jamais à partir de l'id de l'événement : on interroge les
+    // références fournisseur déjà enregistrées, puis chaque statut est confirmé
+    // côté HR-Skills avant qu'une commande puisse changer d'état.
+    try {
+      const bilan = await balayerPaiementsEnAttente();
+      return NextResponse.json({
+        ok: true,
+        reconciliation: { examinees: bilan.examinees, conclues: bilan.conclues },
+      });
+    } catch (erreur) {
+      console.error("[callback] réconciliation HR-Skills échouée", erreur);
+      return NextResponse.json({ ok: false, raison: "ERREUR_RECONCILIATION" }, { status: 500 });
+    }
+  }
   if (!res.ok) {
     // « Pas encore définitif » (paiement en cours, ou bloqué en revue
     // manuelle) n'est PAS une erreur : la notification a été reçue et
