@@ -11,7 +11,12 @@ import { restituerStockTx } from "@/modules/commande/stock";
 
 export type ResultatTraitement =
   | { ok: true; statut: "PAYE" | "ECHOUE" | "REMBOURSE" | "DEJA_TRAITE" }
-  | { ok: false; raison: string };
+  | {
+      ok: false;
+      raison: string;
+      /** Présent uniquement lorsqu'un webhook HR-Skills signé nécessite une réconciliation. */
+      evenement?: "payment.succeeded" | "payment.failed" | "payment.refunded";
+    };
 
 /**
  * Traite une notification de paiement (callback serveur vérifié).
@@ -26,7 +31,16 @@ export async function traiterNotificationPaiement(
   contexte?: ContexteNotification,
 ): Promise<ResultatTraitement> {
   const verif = await getPaymentProvider().verifierNotification(corps, contexte);
-  if (!verif.ok) return { ok: false, raison: verif.raison };
+  if (!verif.ok) {
+    if (verif.raison === "RECONCILIATION_REQUISE") {
+      return {
+        ok: false,
+        raison: verif.raison,
+        evenement: verif.evenement,
+      };
+    }
+    return { ok: false, raison: verif.raison };
+  }
 
   return conclurePaiement(verif.data.reference, verif.data.statut, corps);
 }
