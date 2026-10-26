@@ -45,7 +45,7 @@ export async function POST(req: Request): Promise<Response> {
     // références fournisseur déjà enregistrées, puis chaque statut est confirmé
     // côté HR-Skills avant qu'une commande puisse changer d'état.
     try {
-      const bilan = await balayerPaiementsEnAttente();
+      const bilan = await balayerPaiementsEnAttente({ inclureRecents: true });
       return NextResponse.json({
         ok: true,
         reconciliation: { examinees: bilan.examinees, conclues: bilan.conclues },
