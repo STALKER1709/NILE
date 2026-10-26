@@ -58,9 +58,18 @@ export function ActiverNotifications({
       try {
         const reg = await navigator.serviceWorker.getRegistration();
         const abonnement = await reg?.pushManager.getSubscription();
-        setEtat(abonnement ? "actif" : "inactif");
+        if (!abonnement) {
+          setEtat("inactif");
+          return;
+        }
+
+        // L'abonnement local peut survivre à une suppression côté serveur
+        // (migration, nettoyage DB ou changement de session). Le resynchroniser
+        // évite d'afficher « activées » quand aucun abonnement n'est enregistré.
+        const res = await enregistrerPushAction(JSON.stringify(abonnement));
+        setEtat(res.ok ? "actif" : "erreur");
       } catch {
-        setEtat("inactif");
+        setEtat("erreur");
       }
     })();
   }, []);
@@ -73,9 +82,9 @@ export function ActiverNotifications({
         setEtat("refuse");
         return;
       }
-      const reg = await navigator.serviceWorker.register("/sw.js");
-      await navigator.serviceWorker.ready;
-      const abonnement = await reg.pushManager.subscribe({
+      await navigator.serviceWorker.register("/sw.js");
+      const reg = await navigator.serviceWorker.ready;
+      const abonnement = (await reg.pushManager.getSubscription()) ?? await reg.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: cleEnUint8Array(clePublique) as BufferSource,
       });
