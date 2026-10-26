@@ -43,7 +43,7 @@ export function BadgeFavoris({
   // `key={nb}` : le span est remonté à chaque changement, ce qui rejoue le pop.
   return (
     <span key={nb} className={`${className} animate-pop`}>
-      {nb}
+      {libelle}
     </span>
   );
 }
