@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("HrSkillsPayProvider — contrat Cash-In", () => {
-  it("échange les clés puis appelle /v1/cashin avec la Clé B, le token et une clé d'idempotence stable", async () => {
+  it("échange les clés puis appelle le Cash-In documenté avec la Clé A, le token et une clé d'idempotence stable", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({
         transaction_token: "transaction-test-token",
@@ -49,24 +49,24 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
 
     const [urlAuth, optionsAuth] = fetchMock.mock.calls[0] as [string, RequestInit];
-    expect(urlAuth).toBe("https://api.hrskills-pay.com/v1/auth/transaction-token");
+    expect(urlAuth).toBe("https://api.hrskills-pay.com/sandbox/v1/auth/transaction-token");
     expect(new Headers(optionsAuth.headers).get("authorization")).toBe("Bearer hrsk_pk_test_public");
     expect(JSON.parse(String(optionsAuth.body))).toEqual({ api_secret: "hrsk_sk_test_secret" });
 
     const [urlCashin, optionsCashin] = fetchMock.mock.calls[1] as [string, RequestInit];
-    expect(urlCashin).toBe("https://api.hrskills-pay.com/v1/cashin");
+    expect(urlCashin).toBe("https://api.hrskills-pay.com/sandbox/api/v1/payin/mobile-money");
     const headers = new Headers(optionsCashin.headers);
-    expect(headers.get("authorization")).toBe("Bearer hrsk_sk_test_secret");
+    expect(headers.get("authorization")).toBe("Bearer hrsk_pk_test_public");
     expect(headers.get("x-transaction-token")).toBe("transaction-test-token");
     expect(headers.get("idempotency-key")).toBe(contexte.reference);
     expect(headers.has("x-api-secret")).toBe(false);
     expect(JSON.parse(String(optionsCashin.body))).toMatchObject({
-      phone: "237699823686",
+      phone_number: "237699823686",
       operator: "ORANGE",
       country: "CM",
       amount: 100,
       currency: "XAF",
-      reference: contexte.reference,
+      metadata: { reference_interne: contexte.reference, commande: contexte.numeroCommande },
     });
   });
 
