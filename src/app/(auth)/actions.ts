@@ -15,6 +15,7 @@ import {
 } from "@/modules/auth/service";
 import { getAuthProvider } from "@/modules/auth";
 import { getUtilisateurCourant } from "@/modules/auth/access";
+import { cheminInterneSecurise } from "@/modules/auth/redirect-core";
 import { fusionnerPanierInvite } from "@/modules/commande/panier-invite";
 import {
   consommerTentative,
@@ -27,7 +28,7 @@ import {
  */
 function cibleApresAuth(formData: FormData, fallback = "/compte"): string {
   const suite = String(formData.get("suite") ?? "");
-  return suite.startsWith("/") && !suite.startsWith("//") ? suite : fallback;
+  return cheminInterneSecurise(suite) ?? fallback;
 }
 
 /** Préserve le rôle vendeur sélectionné lorsqu’une inscription échoue. */
@@ -38,9 +39,8 @@ function suffixeRoleInscription(formData: FormData): string {
 /** Suffixe `&suite=...` à conserver dans les redirections d'erreur du formulaire. */
 function suffixeSuite(formData: FormData): string {
   const suite = String(formData.get("suite") ?? "");
-  return suite.startsWith("/") && !suite.startsWith("//")
-    ? `&suite=${encodeURIComponent(suite)}`
-    : "";
+  const chemin = cheminInterneSecurise(suite);
+  return chemin ? `&suite=${encodeURIComponent(chemin)}` : "";
 }
 
 /** Fusionne l'éventuel panier invité dans le panier du compte connecté. */
@@ -99,7 +99,7 @@ export async function inscriptionAction(formData: FormData): Promise<void> {
       res.code === "EMAIL_DEJA_UTILISE"
         ? "Cet email est déjà utilisé."
         : "Une erreur est survenue. Réessaie.";
-    redirect(`/inscription?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}`);
+    redirect(`/inscription?erreur=${encodeURIComponent(msg)}${suffixeSuite(formData)}${suffixeRoleInscription(formData)}`);
   }
 
   await recupererPanierInvite();
