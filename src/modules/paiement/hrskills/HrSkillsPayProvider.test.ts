@@ -85,7 +85,11 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
       brut,
       entetes: new Headers({ "x-hub-signature": signature }),
     });
-    expect(resultat).toEqual({ ok: false, raison: "RECONCILIATION_REQUISE" });
+    expect(resultat).toEqual({
+      ok: false,
+      raison: "RECONCILIATION_REQUISE",
+      evenement: "payment.succeeded",
+    });
   });
 
   it("renvoie l'erreur HTTP du fournisseur sans masquer le code de réponse", async () => {
