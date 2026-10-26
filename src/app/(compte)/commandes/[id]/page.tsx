@@ -120,14 +120,14 @@ export default async function DetailCommandePage({
           {env.CONTACT_WHATSAPP && (
             <Link
               href={`https://wa.me/${env.CONTACT_WHATSAPP}?text=${encodeURIComponent(
-                `Bonjour NILE, je souhaite suivre ma commande ${commande.numero}.`,
+                `Bonjour NILE, j’ai besoin d’aide concernant ma commande ${commande.numero} (statut : ${commande.statutCommande}).`,
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               className={btn("secondaire", "md")}
             >
               <IconeWhatsApp taille={17} />
-              Suivre sur WhatsApp
+              Aide sur cette commande
             </Link>
           )}
           <Link href="/aide" className={btn("secondaire", "md")}>

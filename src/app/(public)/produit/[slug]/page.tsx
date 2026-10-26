@@ -229,6 +229,12 @@ export default async function FicheProduitPage({
               </p>
             )}
             <p className="mt-0.5 text-xs text-slate-500">Prix TTC · FCFA (XAF), sans frais cachés</p>
+            {env.DELAI_LIVRAISON_TEXTE && (
+              <p className="mt-2 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50/70 px-3 py-2.5 text-xs leading-5 text-blue-950">
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="mt-0.5 h-4 w-4 shrink-0 fill-none stroke-current" strokeWidth="1.8"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7z" strokeLinejoin="round"/><circle cx="7" cy="19" r="2"/><circle cx="18" cy="19" r="2"/></svg>
+                <span><strong>Délai indicatif de livraison :</strong> {env.DELAI_LIVRAISON_TEXTE}. <Link href="/aide" className="font-bold underline underline-offset-2">Voir les informations de livraison</Link>.</span>
+              </p>
+            )}
 
             {/* Disponibilité (pastille colorée) */}
             <p
@@ -267,6 +273,10 @@ export default async function FicheProduitPage({
                 <Link href={`/boutique/${produit.vendeur.id}`} className="font-bold text-nile-700 hover:underline">
                   {produit.vendeur.nomBoutique}
                 </Link>
+                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold text-emerald-800" title="Boutique validée par NILE">
+                  <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3 w-3 fill-none stroke-current" strokeWidth="2"><path d="m3 8 3 3 7-7" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                  Boutique validée
+                </span>
               </p>
               <BoutonPartage titre={produit.titre} />
             </div>
