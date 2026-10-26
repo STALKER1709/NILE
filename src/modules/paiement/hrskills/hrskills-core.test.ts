@@ -226,6 +226,33 @@ describe("lireWebhookHrSkills", () => {
     expect(lu?.statutAnnonce).toBeNull();
   });
 
+  it("lit la référence depuis un objet transaction imbriqué et le metadata renvoyé", () => {
+    const lu = lireWebhookHrSkills({
+      id: "evt_do_not_use_as_transaction_ref",
+      event: "payment.succeeded",
+      data: {
+        transaction: {
+          reference: "ref_transaction_123",
+          status: "SUCCESS",
+          metadata: { reference_interne: "paiement-local-123" },
+        },
+      },
+    });
+    expect(lu).toEqual({
+      reference: "ref_transaction_123",
+      statutAnnonce: "SUCCESS",
+      referenceInterne: "paiement-local-123",
+    });
+  });
+
+  it("ne confond jamais l'id d'événement avec la référence fournisseur", () => {
+    expect(lireWebhookHrSkills({
+      id: "evt_123",
+      event: "payment.succeeded",
+      data: { message: "Payment succeeded" },
+    })).toBeNull();
+  });
+
   it("refuse une charge sans référence exploitable", () => {
     expect(lireWebhookHrSkills({ data: { status: "SUCCESS" } })).toBeNull();
     expect(lireWebhookHrSkills({})).toBeNull();
