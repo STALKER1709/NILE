@@ -106,7 +106,7 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
       nomComplet: "Test Client",
       numeroCommande: "NILE-TEST-2",
       urlRetour: "https://nile.example/retour",
-      urlNotification: "https://nile.example/api/webhook/hrskills",
+      urlNotification: "https://nile-beige.vercel.app/api/paiement/callback",
       operateur: "orange",
     })).rejects.toThrow("HTTP 403");
   });
