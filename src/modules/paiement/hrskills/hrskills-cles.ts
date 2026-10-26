@@ -52,7 +52,10 @@ export function clesCoherentes(cleA: string, cleB: string): boolean {
  * L'échange du token et les appels métier utilisent donc le même hôte et
  * aucun préfixe /sandbox.
  */
-export function racineHrSkills(baseUrl: string, _cle: string): string {
+export function racineHrSkills(baseUrl: string, cle: string): string {
   while (baseUrl.endsWith("/")) baseUrl = baseUrl.slice(0, -1);
+  if (environnementCle(cle) === "test" && !baseUrl.endsWith("/sandbox")) {
+    return `${baseUrl}/sandbox`;
+  }
   return baseUrl;
 }
