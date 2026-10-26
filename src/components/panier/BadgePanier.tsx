@@ -27,13 +27,12 @@ export function BadgePanier({
   useEffect(() => setNb(initial), [initial]);
 
   useEffect(() => {
-    const h = (e: Event) =>
-      {
+    const h = (e: Event) => {
       const total = (e as CustomEvent<{ total: number }>).detail?.total;
       if (typeof total === "number" && Number.isFinite(total)) {
         setNb(Math.max(0, Math.floor(total)));
       }
-    }
+    };
     window.addEventListener(EVENEMENT_PANIER, h);
     return () => window.removeEventListener(EVENEMENT_PANIER, h);
   }, []);
