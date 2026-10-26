@@ -4,6 +4,7 @@ import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
 import { PanneauMarque } from "@/components/auth/PanneauMarque";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
 import { roleInitialInscription } from "@/modules/auth/registration-core";
+import { cheminInterneSecurise } from "@/modules/auth/redirect-core";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Créer un compte" };
@@ -14,7 +15,7 @@ export default async function InscriptionPage({
   searchParams: Promise<{ erreur?: string; suite?: string; role?: string }>;
 }) {
   const { erreur, suite, role } = await searchParams;
-  const suiteSure = suite?.startsWith("/") && !suite.startsWith("//") ? suite : "";
+  const suiteSure = cheminInterneSecurise(suite) ?? "";
 
   return (
     <div className="mx-auto grid max-w-4xl gap-6 py-6 lg:grid-cols-2">
