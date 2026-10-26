@@ -29,12 +29,18 @@ export function BadgeFavoris({
 
   useEffect(() => {
     const h = (e: Event) =>
-      setNb((e as CustomEvent<{ total: number }>).detail.total);
+      {
+      const total = (e as CustomEvent<{ total: number }>).detail?.total;
+      if (typeof total === "number" && Number.isFinite(total)) {
+        setNb(Math.max(0, Math.floor(total)));
+      }
+    }
     window.addEventListener(EVENEMENT_FAVORIS, h);
     return () => window.removeEventListener(EVENEMENT_FAVORIS, h);
   }, []);
 
   if (nb <= 0) return null;
+  const libelle = nb > 99 ? "99+" : String(nb);
   // `key={nb}` : le span est remonté à chaque changement, ce qui rejoue le pop.
   return (
     <span key={nb} className={`${className} animate-pop`}>
