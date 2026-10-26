@@ -317,7 +317,7 @@ export default async function CataloguePage({
                   : undefined
               }
               afficherCategorie
-              sizes="(max-width: 640px) 92vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 280px"
+              sizes="(max-width: 640px) 46vw, (max-width: 1024px) 45vw, (max-width: 1280px) 30vw, 280px"
             />
           ))}
         </div>
