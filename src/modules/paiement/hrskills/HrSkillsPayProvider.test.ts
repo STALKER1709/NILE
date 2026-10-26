@@ -24,9 +24,9 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
         expires_in: 2700,
       }), { status: 200 }))
       .mockResolvedValueOnce(new Response(JSON.stringify({
-        reference: "ref_test_123",
-        status: "PENDING",
-      }), { status: 202 }));
+        data: { reference: "ref_test_123", status: "PENDING" },
+        message: "Payment initiated",
+      }), { status: 200 }));
     vi.stubGlobal("fetch", fetchMock);
 
     const provider = new HrSkillsPayProvider();
