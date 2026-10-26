@@ -83,13 +83,21 @@ export default async function VendeurKycPage({
           <p className="mt-1 text-sm text-slate-600">
             {messageEtatBoutiqueApresKyc(vendeur.statutValidation)}
           </p>
-          <div className="mt-4 flex justify-center gap-3">
-            <Link href="/vendeur/produits" className={btn("primaire", "md")}>
-              Gérer mes produits
-            </Link>
-            <Link href="/vendeur" className={btn("secondaire", "md")}>
-              Retour à l'accueil vendeur
-            </Link>
+          <div className="mt-4 flex flex-wrap justify-center gap-3">
+            {vendeur.statutValidation === "VALIDE" ? (
+              <>
+                <Link href="/vendeur/produits" className={btn("primaire", "md")}>
+                  Gérer mes produits
+                </Link>
+                <Link href="/vendeur" className={btn("secondaire", "md")}>
+                  Retour à l'accueil vendeur
+                </Link>
+              </>
+            ) : (
+              <Link href="/vendeur" className={btn("primaire", "md")}>
+                Suivre la validation de ma boutique
+              </Link>
+            )}
           </div>
         </Carte>
       )}
