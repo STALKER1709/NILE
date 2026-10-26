@@ -37,9 +37,9 @@ describe("environnement sandbox / live", () => {
     expect(estCleDeTest("hrsk_pk_abc123")).toBe(false);
   });
 
-  it("conserve la racine API pour les clés de test (sandbox sélectionnée par les clés)", () => {
+  it("ajoute /sandbox à la racine API pour les clés TEST", () => {
     expect(racineHrSkills("https://api.hrskills-pay.com", test)).toBe(
-      "https://api.hrskills-pay.com",
+      "https://api.hrskills-pay.com/sandbox",
     );
   });
 
