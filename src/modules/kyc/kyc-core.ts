@@ -149,3 +149,19 @@ export function badgeTonKyc(statut: StatutKyc): "vert" | "ambre" | "rouge" | "ne
       return "neutre";
   }
 }
+
+/** État lisible de la boutique après validation de l'identité du vendeur. */
+export type StatutValidationBoutique = "EN_ATTENTE" | "VALIDE" | "REJETE" | "SUSPENDU";
+
+export function messageEtatBoutiqueApresKyc(statutBoutique: StatutValidationBoutique): string {
+  switch (statutBoutique) {
+    case "VALIDE":
+      return "Votre identité est validée et votre boutique est autorisée à vendre.";
+    case "EN_ATTENTE":
+      return "Votre identité est validée. Votre boutique reste en attente de validation administrative et n'est pas encore autorisée à vendre.";
+    case "REJETE":
+      return "Votre identité est validée, mais votre boutique a été rejetée. Consultez les informations de votre espace vendeur ou contactez l'assistance.";
+    case "SUSPENDU":
+      return "Votre identité est validée, mais votre boutique est suspendue et ne peut pas vendre pour le moment.";
+  }
+}

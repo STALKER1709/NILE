@@ -3,6 +3,8 @@ import { inscriptionAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
 import { PanneauMarque } from "@/components/auth/PanneauMarque";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
+import { roleInitialInscription } from "@/modules/auth/registration-core";
+import { cheminInterneSecurise } from "@/modules/auth/redirect-core";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Créer un compte" };
@@ -10,10 +12,10 @@ export const metadata = { title: "Créer un compte" };
 export default async function InscriptionPage({
   searchParams,
 }: {
-  searchParams: Promise<{ erreur?: string; suite?: string }>;
+  searchParams: Promise<{ erreur?: string; suite?: string; role?: string }>;
 }) {
-  const { erreur, suite } = await searchParams;
-  const suiteSure = suite?.startsWith("/") && !suite.startsWith("//") ? suite : "";
+  const { erreur, suite, role } = await searchParams;
+  const suiteSure = cheminInterneSecurise(suite) ?? "";
 
   return (
     <div className="mx-auto grid max-w-4xl gap-6 py-6 lg:grid-cols-2">
@@ -50,7 +52,7 @@ export default async function InscriptionPage({
           </div>
           <div>
             <label htmlFor="role" className={labelClass}>Je veux</label>
-            <select id="role" name="role" required defaultValue="ACHETEUR" className={`${champClass} mt-1`}>
+            <select id="role" name="role" required defaultValue={roleInitialInscription(role)} className={`${champClass} mt-1`}>
               <option value="ACHETEUR">Acheter des produits</option>
               <option value="VENDEUR">Vendre des produits</option>
             </select>

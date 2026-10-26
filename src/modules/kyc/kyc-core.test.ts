@@ -6,6 +6,7 @@ import {
   validerCompletudeKyc,
   libelleStatutKyc,
   badgeTonKyc,
+  messageEtatBoutiqueApresKyc,
   type DonneesSoumissionKyc,
 } from "./kyc-core";
 
@@ -142,6 +143,18 @@ describe("KYC Vendeur — kyc-core", () => {
       expect(badgeTonKyc("EN_REVUE")).toBe("ambre");
       expect(badgeTonKyc("REJETE")).toBe("rouge");
       expect(badgeTonKyc("NON_SOUMIS")).toBe("neutre");
+    });
+  });
+  describe("État de boutique après validation KYC", () => {
+    it("ne confond pas identité validée et boutique encore en attente", () => {
+      expect(messageEtatBoutiqueApresKyc("EN_ATTENTE")).toContain("en attente de validation administrative");
+      expect(messageEtatBoutiqueApresKyc("EN_ATTENTE")).toContain("pas encore autorisée");
+    });
+
+    it("confirme la vente uniquement si la boutique est VALIDE", () => {
+      expect(messageEtatBoutiqueApresKyc("VALIDE")).toContain("autorisée à vendre");
+      expect(messageEtatBoutiqueApresKyc("REJETE")).toContain("rejetée");
+      expect(messageEtatBoutiqueApresKyc("SUSPENDU")).toContain("suspendue");
     });
   });
 });
