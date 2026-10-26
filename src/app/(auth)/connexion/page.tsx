@@ -3,6 +3,7 @@ import { connexionAction } from "@/app/(auth)/actions";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
 import { PanneauMarque } from "@/components/auth/PanneauMarque";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
+import { cheminInterneSecurise } from "@/modules/auth/redirect-core";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Connexion" };
@@ -13,7 +14,7 @@ export default async function ConnexionPage({
   searchParams: Promise<{ erreur?: string; suite?: string }>;
 }) {
   const { erreur, suite } = await searchParams;
-  const suiteSure = suite?.startsWith("/") && !suite.startsWith("//") ? suite : "";
+  const suiteSure = cheminInterneSecurise(suite) ?? "";
 
   return (
     <div className="mx-auto grid max-w-4xl gap-6 py-6 lg:grid-cols-2">
