@@ -17,7 +17,7 @@ afterEach(() => {
 });
 
 describe("HrSkillsPayProvider — contrat Cash-In", () => {
-  it("échange les clés puis appelle le Cash-In documenté avec la Clé A, le token et une clé d'idempotence stable", async () => {
+  it("échange les clés puis appelle le Cash-In avec la Clé B, le token et une clé d'idempotence stable", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(new Response(JSON.stringify({
         transaction_token: "transaction-test-token",
@@ -38,7 +38,7 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
       nomComplet: "Test Client",
       numeroCommande: "NILE-TEST-1",
       urlRetour: "https://nile.example/retour",
-      urlNotification: "https://nile.example/api/webhook/hrskills",
+      urlNotification: "https://nile-beige.vercel.app/api/paiement/callback",
       operateur: "orange",
     };
 
@@ -56,7 +56,7 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
     const [urlCashin, optionsCashin] = fetchMock.mock.calls[1] as [string, RequestInit];
     expect(urlCashin).toBe("https://api.hrskills-pay.com/sandbox/api/v1/payin/mobile-money");
     const headers = new Headers(optionsCashin.headers);
-    expect(headers.get("authorization")).toBe("Bearer hrsk_pk_test_public");
+    expect(headers.get("authorization")).toBe("Bearer hrsk_sk_test_secret");
     expect(headers.get("x-transaction-token")).toBe("transaction-test-token");
     expect(headers.get("idempotency-key")).toBe(contexte.reference);
     expect(headers.has("x-api-secret")).toBe(false);
@@ -68,6 +68,24 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
       currency: "XAF",
       metadata: { reference_interne: contexte.reference, commande: contexte.numeroCommande },
     });
+  });
+
+  it("demande une réconciliation si un webhook de paiement signé ne contient aucune référence", async () => {
+    const { createHmac } = await import("node:crypto");
+    const brut = JSON.stringify({
+      id: "evt_123",
+      event: "payment.succeeded",
+      merchant_id: "merchant_123",
+      created_at: "2026-10-26T08:00:00.000Z",
+      data: { message: "Payment succeeded" },
+    });
+    const signature = "sha256=" + createHmac("sha256", "webhook-test-secret").update(brut).digest("hex");
+    const provider = new HrSkillsPayProvider();
+    const resultat = await provider.verifierNotification({}, {
+      brut,
+      entetes: new Headers({ "x-hub-signature": signature }),
+    });
+    expect(resultat).toEqual({ ok: false, raison: "RECONCILIATION_REQUISE" });
   });
 
   it("renvoie l'erreur HTTP du fournisseur sans masquer le code de réponse", async () => {
