@@ -5,8 +5,9 @@ import { prisma } from "@/lib/db";
 import { exigerRole } from "@/modules/auth/access";
 
 /**
- * Enregistrement des abonnements Web Push. Réservé aux VENDEURS et ADMINS
- * (ce sont eux que les nouvelles commandes concernent).
+ * Enregistrement des abonnements Web Push.
+ * Les acheteurs reçoivent l'avancement de leurs commandes ; les vendeurs et
+ * admins reçoivent les nouvelles commandes et les alertes de gestion.
  */
 
 const abonnementSchema = z.object({
@@ -22,7 +23,7 @@ export type ResultatPush = { ok: true } | { ok: false; message: string };
 export async function enregistrerPushAction(
   abonnementJson: string,
 ): Promise<ResultatPush> {
-  const utilisateur = await exigerRole("VENDEUR", "ADMIN");
+  const utilisateur = await exigerRole("ACHETEUR", "VENDEUR", "ADMIN");
 
   let brut: unknown;
   try {
@@ -53,7 +54,7 @@ export async function enregistrerPushAction(
 export async function supprimerPushAction(
   endpoint: string,
 ): Promise<ResultatPush> {
-  const utilisateur = await exigerRole("VENDEUR", "ADMIN");
+  const utilisateur = await exigerRole("ACHETEUR", "VENDEUR", "ADMIN");
   await prisma.abonnementPush.deleteMany({
     where: { endpoint, utilisateurId: utilisateur.id },
   });
