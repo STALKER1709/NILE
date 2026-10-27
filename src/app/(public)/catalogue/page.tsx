@@ -15,7 +15,7 @@ import { IconeCategorie } from "@/components/categorie/IconeCategorie";
 import { listerMarquesCatalogue } from "@/modules/catalogue/produits";
 import { SelectTri } from "@/components/catalogue/SelectTri";
 import { Pagination } from "@/components/ui/Pagination";
-import { bornesAffichage } from "@/modules/catalogue/pagination";
+import { bornesAffichage, normaliserPageDemandee } from "@/modules/catalogue/pagination";
 import { champClass, btn, EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -54,7 +54,7 @@ export default async function CataloguePage({
   const utilisateur = await getUtilisateurCourant();
   const quantites = await getQuantitesAffichees(utilisateur?.id ?? null);
 
-  const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
+  const page = normaliserPageDemandee(sp.page);
   const { produits, total, pages } = await rechercherProduitsCatalogue({
     q,
     categorieIds,

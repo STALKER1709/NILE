@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   bornesAffichage,
   entreesPagination,
+  normaliserPageDemandee,
 } from "@/modules/catalogue/pagination";
 
 describe("entreesPagination", () => {
@@ -48,4 +49,17 @@ describe("bornesAffichage", () => {
   it("renvoie 0 quand il n'y a aucun résultat", () => {
     expect(bornesAffichage(1, 10, 0)).toEqual({ debut: 0, fin: 0 });
   });
+});
+
+describe("normaliserPageDemandee", () => {
+  it("accepte une page entière positive", () => {
+    expect(normaliserPageDemandee("12")).toBe(12);
+  });
+
+  it.each([undefined, "", "0", "-1", "2.5", "3abc", "NaN", "999999999999999999999999999", "10001"])(
+    "retombe sur la première page pour une valeur invalide ou excessive: %s",
+    (valeur) => {
+      expect(normaliserPageDemandee(valeur)).toBe(1);
+    },
+  );
 });
