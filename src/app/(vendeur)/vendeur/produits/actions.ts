@@ -12,7 +12,14 @@ import {
   ajouterImageProduit,
   supprimerImageProduit,
 } from "@/modules/catalogue/produits";
-import type { FichierAEnregistrer } from "@/modules/stockage/StorageProvider";
+import {
+  TYPES_IMAGE_ACCEPTES,
+  TAILLE_IMAGE_MAX_OCTETS,
+  type FichierAEnregistrer,
+} from "@/modules/stockage/StorageProvider";
+
+const NOMBRE_MAX_IMAGES_PRODUIT = 3;
+const POIDS_MAX_TOTAL_IMAGES = 3.5 * 1024 * 1024;
 
 /** Convertit un File de formulaire en fichier à enregistrer (null si vide). */
 async function fichierDepuisFile(
@@ -52,19 +59,38 @@ export async function creerProduitAction(formData: FormData): Promise<void> {
     redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent(msg)}`);
   }
 
-  const produit = await creerProduit(vendeur.id, parsed.data);
+  // Valider tous les fichiers AVANT de créer la fiche : une sélection invalide
+  // ne doit pas laisser un brouillon incomplet sans explication.
+  const fichiers = formData
+    .getAll("images")
+    .filter((f): f is File => f instanceof File && f.size > 0);
+  if (fichiers.length > NOMBRE_MAX_IMAGES_PRODUIT) {
+    redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Ajoutez 3 images maximum à la création. Vous pourrez compléter la galerie après.")}`);
+  }
+  const poidsTotal = fichiers.reduce((total, fichier) => total + fichier.size, 0);
+  if (poidsTotal > POIDS_MAX_TOTAL_IMAGES) {
+    redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Les images sélectionnées dépassent 3,5 Mo au total. Réduisez leur taille ou ajoutez-les en plusieurs fois après la création.")}`);
+  }
+  const fichierInvalide = fichiers.find((f) =>
+    !TYPES_IMAGE_ACCEPTES.includes(f.type as (typeof TYPES_IMAGE_ACCEPTES)[number]) ||
+    f.size > TAILLE_IMAGE_MAX_OCTETS
+  );
+  if (fichierInvalide) {
+    const raison = !TYPES_IMAGE_ACCEPTES.includes(fichierInvalide.type as (typeof TYPES_IMAGE_ACCEPTES)[number])
+      ? "Format d'image non accepté (JPEG, PNG ou WEBP seulement)."
+      : "Chaque image doit peser 2 Mo maximum.";
+    redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent(raison)}`);
+  }
 
-  // Images éventuelles jointes à la création.
-  const fichiers = formData.getAll("images");
+  const produit = await creerProduit(vendeur.id, parsed.data);
   for (const f of fichiers) {
     const fichier = await fichierDepuisFile(f);
-    if (fichier) {
-      const res = await ajouterImageProduit(vendeur.id, produit.id, fichier);
-      if (!res.ok) {
-        redirect(
-          `/vendeur/produits/${produit.id}?erreur=${encodeURIComponent(messageErreurImage(res.code))}`,
-        );
-      }
+    if (!fichier) continue;
+    const res = await ajouterImageProduit(vendeur.id, produit.id, fichier);
+    if (!res.ok) {
+      redirect(
+        `/vendeur/produits/${produit.id}?erreur=${encodeURIComponent(messageErreurImage(res.code))}`,
+      );
     }
   }
 
@@ -97,8 +123,10 @@ export async function mettreAJourProduitAction(
     const msg =
       res.code === "SUPPRIME"
         ? "Ce produit est dans la corbeille : restaurez-le avant de le modifier."
-        : "Produit introuvable.";
-    redirect(`/vendeur/produits?erreur=${encodeURIComponent(msg)}`);
+        : res.code === "DECLINAISONS_INCOMPATIBLES"
+          ? "Cette catégorie ne prend pas en charge les déclinaisons actuelles. Choisissez une catégorie compatible ou adaptez d'abord les déclinaisons."
+          : "Produit introuvable.";
+    redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/vendeur/produits/${produitId}?ok=maj`);
 }
@@ -121,7 +149,11 @@ export async function changerStatutProduitAction(
         ? "Votre boutique doit être validée par un administrateur avant de publier."
         : res.code === "SUPPRIME"
           ? "Ce produit est dans la corbeille : restaurez-le avant de changer son statut."
-          : "Produit introuvable.";
+          : res.code === "IMAGE_REQUISE"
+            ? "Ajoutez au moins une image avant de publier ce produit."
+            : res.code === "STOCK_INDISPONIBLE"
+              ? "Ajoutez du stock à au moins une déclinaison active avant de publier."
+              : "Produit introuvable.";
     redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/vendeur/produits/${produitId}?ok=statut`);

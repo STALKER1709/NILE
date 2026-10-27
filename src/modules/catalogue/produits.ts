@@ -11,6 +11,8 @@ import {
   type TriProduits,
 } from "@/modules/catalogue/recherche";
 import { getStorageProvider } from "@/modules/stockage";
+import { axesDeCategorie } from "@/modules/catalogue/axes";
+import { verifierCombinaison } from "@/modules/catalogue/variante-core";
 import { stocksParProduit } from "@/modules/catalogue/stocks";
 import { enrichirProduitsPourCartes } from "@/modules/promotion/promotion";
 import {
@@ -178,7 +180,7 @@ export async function creerProduit(
 
 export type ResultatMaj =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "SUPPRIME" };
+  | { ok: false; code: "INTROUVABLE" | "SUPPRIME" | "DECLINAISONS_INCOMPATIBLES" };
 
 /** Un produit dans la corbeille doit être restauré avant d'être modifié. */
 function estModifiable(produit: { statut: StatutProduit }): boolean {
@@ -190,13 +192,35 @@ export async function mettreAJourProduit(
   produitId: string,
   input: ProduitInput,
 ): Promise<ResultatMaj> {
-  const produit = await prisma.produit.findUnique({ where: { id: produitId } });
+  const produit = await prisma.produit.findUnique({
+    where: { id: produitId },
+    include: { variantes: { select: { valeur1: true, valeur2: true } } },
+  });
   if (!produit || !estProprietaire(vendeurId, produit.vendeurId)) {
     return { ok: false, code: "INTROUVABLE" };
   }
   if (!estModifiable(produit)) {
     return { ok: false, code: "SUPPRIME" };
   }
+
+  // Un changement de catégorie ne doit pas laisser des tailles/couleurs que
+  // la nouvelle catégorie n'autorise pas. La variante par défaut (axes vides)
+  // reste valide pour un produit simple, même si la catégorie a des axes.
+  if (input.categorieId !== produit.categorieId) {
+    const variantesReelles = produit.variantes.filter(
+      (v) => v.valeur1 !== "" || v.valeur2 !== "",
+    );
+    if (variantesReelles.length > 0) {
+      const axesCible = await axesDeCategorie(input.categorieId);
+      const incompatible = variantesReelles.some(
+        (v) => verifierCombinaison(axesCible, v.valeur1, v.valeur2) !== "OK",
+      );
+      if (incompatible) {
+        return { ok: false, code: "DECLINAISONS_INCOMPATIBLES" };
+      }
+    }
+  }
+
   await prisma.produit.update({
     where: { id: produitId },
     data: {
@@ -225,7 +249,15 @@ export async function mettreAJourProduit(
 
 export type ResultatStatut =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "BOUTIQUE_NON_VALIDEE" | "SUPPRIME" };
+  | {
+      ok: false;
+      code:
+        | "INTROUVABLE"
+        | "BOUTIQUE_NON_VALIDEE"
+        | "SUPPRIME"
+        | "IMAGE_REQUISE"
+        | "STOCK_INDISPONIBLE";
+    };
 
 /**
  * Change le statut d'un produit. Garde-fou : publier (ACTIF) exige une boutique
@@ -239,7 +271,11 @@ export async function changerStatutProduit(
 ): Promise<ResultatStatut> {
   const produit = await prisma.produit.findUnique({
     where: { id: produitId },
-    include: { vendeur: true },
+    include: {
+      vendeur: true,
+      images: { select: { id: true }, take: 1 },
+      variantes: { select: { actif: true, stock: true } },
+    },
   });
   if (!produit || !estProprietaire(vendeurId, produit.vendeurId)) {
     return { ok: false, code: "INTROUVABLE" };
@@ -252,6 +288,14 @@ export async function changerStatutProduit(
     produit.vendeur.statutValidation !== "VALIDE"
   ) {
     return { ok: false, code: "BOUTIQUE_NON_VALIDEE" };
+  }
+  if (nouveauStatut === "ACTIF") {
+    if (produit.images.length === 0) {
+      return { ok: false, code: "IMAGE_REQUISE" };
+    }
+    if (!produit.variantes.some((v) => v.actif && v.stock > 0)) {
+      return { ok: false, code: "STOCK_INDISPONIBLE" };
+    }
   }
   await prisma.produit.update({
     where: { id: produitId },
