@@ -62,18 +62,9 @@ export async function creerPromotion(
   });
   if (!decision.ok) return { ok: false, code: decision.code };
 
-  // Une promotion boutique couvre aussi le produit ciblé. Empêcher les
-  // chevauchements entre une promotion globale et une promotion produit évite
-  // un prix ambigu dont le résultat dépendrait de l'ordre d'application.
   const existantes = await prisma.promotion.findMany({
-    where: {
-      vendeurId,
-      annulee: false,
-      ...(input.produitId
-        ? { OR: [{ produitId: null }, { produitId: input.produitId }] }
-        : {}),
-    },
-    select: { dateDebut: true, dateFin: true, produitId: true },
+    where: { vendeurId, produitId: input.produitId, annulee: false },
+    select: { dateDebut: true, dateFin: true },
   });
   if (promotionChevaucheExistantes({ dateDebut: input.dateDebut, dateFin: input.dateFin }, existantes)) {
     return { ok: false, code: "CHEVAUCHEMENT" };
