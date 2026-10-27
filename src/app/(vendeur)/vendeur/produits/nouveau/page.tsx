@@ -87,7 +87,7 @@ export default async function NouveauProduitPage({
           <div>
             <label htmlFor="images" className={labelClass}>Images (facultatif)</label>
             <input id="images" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple className={`${champClass} mt-1`} />
-            <p className="mt-1 text-xs text-slate-500">JPEG, PNG ou WEBP · 2 Mo max par image.</p>
+            <p className="mt-1 text-xs text-slate-500">JPEG, PNG ou WEBP · 2 Mo maximum par image · 3 images et 6 Mo au total à la création. Vous pourrez compléter la galerie ensuite.</p>
           </div>
           <BoutonSoumettre enCours="Création (envoi des images)…" className={btn("primaire", "lg", "w-full")}>Créer le produit</BoutonSoumettre>
         </form>
