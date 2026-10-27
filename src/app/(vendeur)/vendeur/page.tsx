@@ -48,7 +48,7 @@ export default async function VendeurPage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
-            {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : "En attente de validation"}
+            {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : vendeur.statutValidation === "REJETE" ? "Boutique rejetée" : vendeur.statutValidation === "SUSPENDU" ? "Boutique suspendue" : "En attente de validation"}
           </Badge>
           <Link href="/vendeur/kyc" className={btn("ghost", "sm")}>
             Mon KYC
