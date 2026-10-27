@@ -1,10 +1,5 @@
 import { prisma } from "@/lib/db";
 
-/**
- * Vue vendeur de ses commandes. Une commande peut contenir plusieurs boutiques :
- * le vendeur ne voit que ses lignes et ne pilote la logistique que si toutes
- * les lignes appartiennent à sa boutique.
- */
 export async function listerCommandesVendeur(vendeurId: string) {
   const commandes = await prisma.commande.findMany({
     where: { lignes: { some: { vendeurId } } },
@@ -31,29 +26,16 @@ export async function vendeurGereCommande(vendeurId: string, commandeId: string)
   return total > 0 && total === duVendeur;
 }
 
-/**
- * « À préparer » ne compte que les commandes que le vendeur peut effectivement
- * piloter. Les commandes multi-boutiques restent coordonnées par NILE.
- */
+/** « À préparer » ne compte que les commandes que le vendeur peut piloter. */
 export async function compterCommandesVendeur(vendeurId: string) {
   const commandesVendeur = { lignes: { some: { vendeurId } } } as const;
-  const commandesEntierementVendeur = {
-    lignes: { some: { vendeurId }, every: { vendeurId } },
-  } as const;
-
+  const commandesEntierementVendeur = { lignes: { some: { vendeurId }, every: { vendeurId } } } as const;
   const [aPreparer, enCours, livrees] = await Promise.all([
     prisma.commande.count({
-      where: {
-        ...commandesEntierementVendeur,
-        statutCommande: { in: ["CONFIRMEE", "EN_PREPARATION"] },
-      },
+      where: { ...commandesEntierementVendeur, statutCommande: { in: ["CONFIRMEE", "EN_PREPARATION"] } },
     }),
-    prisma.commande.count({
-      where: { ...commandesVendeur, statutCommande: "EXPEDIEE" },
-    }),
-    prisma.commande.count({
-      where: { ...commandesVendeur, statutCommande: "LIVREE" },
-    }),
+    prisma.commande.count({ where: { ...commandesVendeur, statutCommande: "EXPEDIEE" } }),
+    prisma.commande.count({ where: { ...commandesVendeur, statutCommande: "LIVREE" } }),
   ]);
   return { aPreparer, enCours, livrees };
 }
