@@ -133,7 +133,7 @@ export async function statsAdmin() {
         where: {
           statutCommande: "LIVREE",
           statutPaiement: "PAYE",
-          dateCreation: { gte: debutDuMois() },
+          livraison: { is: { dateLivraison: { gte: debutDuMois() } } },
         },
         _sum: { total: true },
       }),
