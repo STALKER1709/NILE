@@ -144,7 +144,7 @@ export default async function VendeurPage() {
 
       {/* Activité de la semaine */}
       <Carte className="p-5">
-        <GraphBarres points={stats.activite7Jours} titre="Tes ventes des 7 derniers jours" />
+        <GraphBarres points={stats.activite7Jours} titre="Activité commerciale des 7 derniers jours" />
       </Carte>
 
       {/* Commandes récentes */}
