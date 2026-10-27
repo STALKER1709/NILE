@@ -42,7 +42,7 @@ export async function getFinancesVendeur(vendeurId: string): Promise<FinancesVen
     }),
     prisma.ligneCommande.findMany({
       where: { vendeurId }, orderBy: { commande: { dateCreation: "desc" } }, take: NB_TRANSACTIONS,
-      select: { id: true, titreProduit: true, quantite: true, sousTotal: true, commande: { select: { numero: true, dateCreation: true, statutCommande: true, statutPaiement: true } } },
+      select: { id: true, titreProduit: true, quantite: true, sousTotal: true, commande: { select: { numero: true, dateCreation: true, statutCommande: true, statutPaiement: true, livraison: { select: { dateLivraison: true } } } } },
     }),
     prisma.reversement.findMany({
       where: { vendeurId }, orderBy: { dateCreation: "desc" }, take: NB_TRANSACTIONS,
@@ -51,7 +51,7 @@ export async function getFinancesVendeur(vendeurId: string): Promise<FinancesVen
   ]);
 
   const ventes: TransactionVendeur[] = lignes.map((l) => ({
-    id: l.id, date: l.commande.dateCreation, type: "VENTE",
+    id: l.id, date: l.commande.livraison?.dateLivraison ?? l.commande.dateCreation, type: "VENTE",
     libelle: l.quantite > 1 ? `Vente · ${l.titreProduit} × ${l.quantite}` : `Vente · ${l.titreProduit}`,
     reference: l.commande.numero, montant: l.sousTotal,
     etat: etatVente(l.commande.statutCommande, l.commande.statutPaiement),
