@@ -6,6 +6,7 @@ import { exigerVendeur } from "@/modules/auth/access";
 import {
   listerCommandesVendeur,
   compterCommandesVendeur,
+  compterTotalCommandesVendeur,
 } from "@/modules/commande/vendeur";
 import {
   affecterTransporteurVendeurAction,
@@ -31,15 +32,19 @@ const MESSAGES_OK: Record<string, string> = {
 export default async function CommandesVendeurPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ok?: string; erreur?: string }>;
+  searchParams: Promise<{ ok?: string; erreur?: string; page?: string }>;
 }) {
-  const { ok, erreur } = await searchParams;
+  const { ok, erreur, page: pageParam } = await searchParams;
+  const numeroDemande = Number.parseInt(pageParam ?? "1", 10);
+  const page = Number.isInteger(numeroDemande) && numeroDemande > 0 ? numeroDemande : 1;
   const { vendeur } = await exigerVendeur();
-  const [commandes, compteurs, signature] = await Promise.all([
-    listerCommandesVendeur(vendeur.id),
+  const [commandes, compteurs, signature, totalCommandes] = await Promise.all([
+    listerCommandesVendeur(vendeur.id, page, 20),
     compterCommandesVendeur(vendeur.id),
     signatureCommandesVendeur(vendeur.id),
+    compterTotalCommandesVendeur(vendeur.id),
   ]);
+  const totalPages = Math.max(1, Math.ceil(totalCommandes / 20));
 
   return (
     <div className="space-y-5">
@@ -184,6 +189,24 @@ export default async function CommandesVendeurPage({
             </Carte>
           ))}
         </div>
+      )}
+
+      {totalPages > 1 && (
+        <nav aria-label="Pagination des commandes" className="flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+          <span className="text-xs text-slate-500">Page {page} sur {totalPages} · {totalCommandes} commandes</span>
+          <div className="flex items-center gap-2">
+            {page > 1 ? (
+              <Link href={`/vendeur/commandes?page=${page - 1}`} className={btn("secondaire", "sm")}>Précédent</Link>
+            ) : (
+              <span className={btn("secondaire", "sm") + " pointer-events-none opacity-40"}>Précédent</span>
+            )}
+            {page < totalPages ? (
+              <Link href={`/vendeur/commandes?page=${page + 1}`} className={btn("secondaire", "sm")}>Suivant</Link>
+            ) : (
+              <span className={btn("secondaire", "sm") + " pointer-events-none opacity-40"}>Suivant</span>
+            )}
+          </div>
+        </nav>
       )}
     </div>
   );
