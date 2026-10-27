@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
-import { getUtilisateurCourant } from "@/modules/auth/access";
+import { getUtilisateurCourant, evaluerAcces } from "@/modules/auth/access";
 import {
   ErreurStockage,
   tailleMaxPourType,
@@ -39,7 +39,10 @@ export async function PUT(request: Request): Promise<Response> {
   if (!utilisateur) {
     return Response.json({ ok: false, code: "NON_CONNECTE" }, { status: 401 });
   }
-  if (utilisateur.role !== "VENDEUR") {
+  // Appliquer la même règle d’accès que les gardes serveur : un compte
+  // suspendu ne doit pas pouvoir envoyer de nouveaux médias, même s’il a
+  // encore une session valide et conserve le rôle VENDEUR.
+  if (evaluerAcces(utilisateur, ["VENDEUR"]) !== "OK") {
     return Response.json({ ok: false, code: "INTERDIT" }, { status: 403 });
   }
   const vendeur = await prisma.vendeur.findUnique({
