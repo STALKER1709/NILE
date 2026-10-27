@@ -219,7 +219,7 @@ export function FormulaireNouveauProduit({
       <div className="space-y-2">
         {axesActifs && nbCombinaisons === 0 && <p className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">Sélectionnez au moins une valeur pour chaque axe, puis configurez le stock avant de créer le produit.</p>}
         {axesActifs && nbCombinaisons > 100 && <p className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">Trop de combinaisons : 100 maximum par produit.</p>}
-        <BoutonSoumettre enCours="Création du produit…" className={btn("primaire", "lg", "w-full")} >Créer le produit et ses variantes</BoutonSoumettre>
+        <BoutonSoumettre disabled={axesActifs && (nbCombinaisons === 0 || nbCombinaisons > 100 || etape !== 2)} enCours="Création du produit…" className={btn("primaire", "lg", "w-full")}>Créer le produit et ses variantes</BoutonSoumettre>
       </div>
     </form>
   );
