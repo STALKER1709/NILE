@@ -54,7 +54,6 @@ export default async function AdminVendeursPage({
                 </p>
               </div>
 
-              {/* Statut KYC avec selfie */}
               <div className="flex items-center gap-1.5">
                 <span className="text-[11px] text-slate-400">KYC :</span>
                 <Badge
@@ -72,23 +71,25 @@ export default async function AdminVendeursPage({
                 </Badge>
               </div>
 
-              {/* Statut Boutique */}
               <Badge ton={v.statutValidation === "VALIDE" ? "vert" : v.statutValidation === "EN_ATTENTE" ? "ambre" : "rouge"}>
                 {v.statutValidation}
               </Badge>
 
               <div className="flex items-center gap-2">
                 <Link href={`/admin/vendeurs/${v.id}`} className={btn("secondaire", "sm")}>
-                  Dossier KYC →
+                  {v.kyc?.statut === "EN_REVUE" ? "Examiner le KYC →" : "Dossier KYC →"}
                 </Link>
-                {v.statutValidation !== "VALIDE" && <BoutonStatut vendeurId={v.id} statut="VALIDE" libelle="Valider" variante="primaire" />}
-                {v.statutValidation === "EN_ATTENTE" && <BoutonStatut vendeurId={v.id} statut="REJETE" libelle="Rejeter" variante="danger" />}
-                {v.statutValidation === "VALIDE" && <BoutonStatut vendeurId={v.id} statut="SUSPENDU" libelle="Suspendre" variante="danger" />}
+                {v.statutValidation === "VALIDE" && (
+                  <BoutonStatut vendeurId={v.id} statut="SUSPENDU" libelle="Suspendre" variante="danger" />
+                )}
               </div>
             </Carte>
           ))}
         </div>
       )}
+      <p className="text-xs text-slate-500">
+        L’activation et le rejet d’une boutique se font depuis son dossier KYC afin de conserver des statuts cohérents.
+      </p>
     </div>
   );
 }
