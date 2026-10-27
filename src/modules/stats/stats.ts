@@ -65,7 +65,7 @@ export async function statsVendeur(vendeurId: string): Promise<{
           commande: {
             statutCommande: "LIVREE",
             statutPaiement: "PAYE",
-            dateCreation: { gte: debutDuMois() },
+            livraison: { is: { dateLivraison: { gte: debutDuMois() } } },
           },
         },
         _sum: { sousTotal: true },
