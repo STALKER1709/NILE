@@ -19,7 +19,7 @@ import {
 } from "@/modules/stockage/StorageProvider";
 
 const NOMBRE_MAX_IMAGES_PRODUIT = 3;
-const POIDS_MAX_TOTAL_IMAGES = 6 * 1024 * 1024;
+const POIDS_MAX_TOTAL_IMAGES = 3.5 * 1024 * 1024;
 
 /** Convertit un File de formulaire en fichier à enregistrer (null si vide). */
 async function fichierDepuisFile(
@@ -69,7 +69,7 @@ export async function creerProduitAction(formData: FormData): Promise<void> {
   }
   const poidsTotal = fichiers.reduce((total, fichier) => total + fichier.size, 0);
   if (poidsTotal > POIDS_MAX_TOTAL_IMAGES) {
-    redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Les images sélectionnées dépassent 6 Mo au total. Réduisez leur taille ou ajoutez-les en plusieurs fois après la création.")}`);
+    redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Les images sélectionnées dépassent 3,5 Mo au total. Réduisez leur taille ou ajoutez-les en plusieurs fois après la création.")}`);
   }
   const fichierInvalide = fichiers.find((f) =>
     !TYPES_IMAGE_ACCEPTES.includes(f.type as (typeof TYPES_IMAGE_ACCEPTES)[number]) ||
