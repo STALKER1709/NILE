@@ -556,3 +556,34 @@ export async function listerMarquesVendeur(vendeurId: string): Promise<string[]>
   });
   return regrouperMarques(lignes.map((l) => l.marque ?? ""));
 }
+
+
+/**
+ * Création atomique d'une fiche avec ses déclinaisons.
+ * Si une variante échoue en base, aucune fiche incomplète n'est laissée.
+ * Les produits sans axes conservent leur déclinaison unique historique.
+ */
+export async function creerProduitAvecVariantes(
+  vendeurId: string,
+  input: ProduitInput,
+  variantes: { valeur1: string; valeur2: string; stock: number }[],
+): Promise<Produit> {
+  const donneesVariantes = variantes.length > 0
+    ? variantes.map((v) => ({ valeur1: v.valeur1, valeur2: v.valeur2, stock: v.stock }))
+    : [{ valeur1: "", valeur2: "", stock: input.stock }];
+
+  return prisma.produit.create({
+    data: {
+      vendeurId,
+      categorieId: input.categorieId,
+      titre: input.titre,
+      slug: genererSlugProduit(input.titre),
+      description: input.description,
+      prix: input.prix,
+      stock: variantes.length > 0 ? 0 : input.stock,
+      marque: input.marque,
+      statut: "BROUILLON",
+      variantes: { create: donneesVariantes },
+    },
+  });
+}
