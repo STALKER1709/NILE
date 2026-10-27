@@ -4,7 +4,7 @@ import { favorisParmi } from "@/modules/catalogue/favoris";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
 import { CarteProduitVitrine } from "@/components/produit/CarteProduitVitrine";
 import { Pagination } from "@/components/ui/Pagination";
-import { bornesAffichage } from "@/modules/catalogue/pagination";
+import { bornesAffichage, normaliserPageDemandee } from "@/modules/catalogue/pagination";
 import { EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -17,7 +17,7 @@ export default async function PromotionsPage({
   searchParams: Promise<{ page?: string }>;
 }) {
   const sp = await searchParams;
-  const page = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
+  const page = normaliserPageDemandee(sp.page);
 
   const utilisateur = await getUtilisateurCourant();
   const [{ produits, total, pages }, quantites] = await Promise.all([

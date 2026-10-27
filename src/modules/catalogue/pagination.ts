@@ -6,6 +6,14 @@
  * largeur constante, quel que soit le nombre de pages.
  */
 
+/** Normalise une page issue d'un paramètre d'URL public. */
+export function normaliserPageDemandee(valeur: unknown): number {
+  if (typeof valeur !== "string" || !/^[0-9]+$/.test(valeur)) return 1;
+  const page = Number(valeur);
+  if (!Number.isSafeInteger(page) || page < 1 || page > 10000) return 1;
+  return page;
+}
+
 /** Une entrée de la barre : un numéro de page, ou une coupure. */
 export type EntreePagination = number | "ellipse";
 
