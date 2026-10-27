@@ -1,9 +1,28 @@
 import { prisma } from "@/lib/db";
+import type { StatutCommande } from "@prisma/client";
 
-export async function listerCommandesVendeur(vendeurId: string, page = 1, parPage = 20) {
+export interface FiltresCommandesVendeur {
+  q?: string;
+  statut?: StatutCommande;
+}
+
+function whereCommandes(vendeurId: string, filtres: FiltresCommandesVendeur = {}) {
+  return {
+    lignes: { some: { vendeurId } },
+    ...(filtres.statut ? { statutCommande: filtres.statut } : {}),
+    ...(filtres.q ? { numero: { contains: filtres.q, mode: "insensitive" as const } } : {}),
+  };
+}
+
+export async function listerCommandesVendeur(
+  vendeurId: string,
+  page = 1,
+  parPage = 20,
+  filtres: FiltresCommandesVendeur = {},
+) {
   const pageSecurisee = Number.isInteger(page) && page > 0 ? page : 1;
   const commandes = await prisma.commande.findMany({
-    where: { lignes: { some: { vendeurId } } },
+    where: whereCommandes(vendeurId, filtres),
     orderBy: { dateCreation: "desc" },
     skip: (pageSecurisee - 1) * parPage,
     take: parPage,
@@ -20,8 +39,11 @@ export async function listerCommandesVendeur(vendeurId: string, page = 1, parPag
   }));
 }
 
-export async function compterTotalCommandesVendeur(vendeurId: string): Promise<number> {
-  return prisma.commande.count({ where: { lignes: { some: { vendeurId } } } });
+export async function compterTotalCommandesVendeur(
+  vendeurId: string,
+  filtres: FiltresCommandesVendeur = {},
+): Promise<number> {
+  return prisma.commande.count({ where: whereCommandes(vendeurId, filtres) });
 }
 
 export async function vendeurGereCommande(vendeurId: string, commandeId: string): Promise<boolean> {
@@ -35,7 +57,9 @@ export async function vendeurGereCommande(vendeurId: string, commandeId: string)
 /** « À préparer » ne compte que les commandes que le vendeur peut piloter. */
 export async function compterCommandesVendeur(vendeurId: string) {
   const commandesVendeur = { lignes: { some: { vendeurId } } } as const;
-  const commandesEntierementVendeur = { lignes: { some: { vendeurId }, every: { vendeurId } } } as const;
+  const commandesEntierementVendeur = {
+    lignes: { some: { vendeurId }, every: { vendeurId } },
+  } as const;
   const [aPreparer, enCours, livrees] = await Promise.all([
     prisma.commande.count({
       where: { ...commandesEntierementVendeur, statutCommande: { in: ["CONFIRMEE", "EN_PREPARATION"] } },
