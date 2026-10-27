@@ -4,7 +4,6 @@ import { redirect } from "next/navigation";
 import { exigerVendeur } from "@/modules/auth/access";
 import { produitSchema, statutPubliableSchema } from "@/validators/produit";
 import {
-  creerProduit,
   mettreAJourProduit,
   changerStatutProduit,
   supprimerProduit,
