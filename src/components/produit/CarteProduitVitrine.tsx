@@ -125,6 +125,10 @@ export function CarteProduitVitrine({
               {produit.vendeur.nomBoutique}
             </p>
           )}
+          <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-700" title="Les produits publics proviennent de boutiques validées par NILE">
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5 fill-none stroke-current" strokeWidth="1.8"><path d="M8 1.5 10 2.7l2.3.2.8 2.2 1.4 1.9-1.1 2-0.1 2.3-2.2.8L8 13.5l-2-1.4-2.3-.2-.8-2.2-1.4-1.9 1.1-2 .1-2.3 2.2-.8L8 1.5Z" strokeLinejoin="round"/><path d="m5.2 7.8 1.8 1.8 3.8-4" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            Boutique validée
+          </span>
         </div>
       </div>
 

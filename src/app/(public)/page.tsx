@@ -88,10 +88,10 @@ export default async function AccueilPage() {
     </section>
 
     <section className="grid grid-cols-2 overflow-hidden rounded-[16px] border border-stone-200 bg-white sm:rounded-[18px] lg:grid-cols-4">
-      <TrustItem title="Des boutiques à découvrir" text="Explorez les univers des vendeurs présents." icon={<StoreIcon />} />
+      <TrustItem title="Des boutiques validées" text="Les boutiques visibles passent par une validation avant de vendre." icon={<StoreIcon />} />
       <TrustItem title="Des prix à comparer" text="Consultez les détails et les options par produit." icon={<TagIcon />} />
       <TrustItem title="Des options claires" text="Les moyens de règlement sont indiqués à la commande." icon={<WalletIcon />} />
-      <TrustItem title="Le suivi de vos achats" text="Retrouvez les étapes disponibles dans votre espace." icon={<PackageIcon />} />
+      <TrustItem title="Le suivi de vos achats" text="Consultez l’avancement de vos commandes depuis votre espace." icon={<PackageIcon />} />
     </section>
 
     {rayons.length > 0 && <section>
