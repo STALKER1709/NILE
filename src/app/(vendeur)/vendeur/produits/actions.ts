@@ -82,7 +82,48 @@ export async function creerProduitAction(formData: FormData): Promise<void> {
     redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent(raison)}`);
   }
 
-  const produit = await creerProduit(vendeur.id, parsed.data);
+  // Valider les variantes côté serveur : le navigateur ne fait que préparer
+  // la matrice, il ne décide jamais quelles combinaisons sont enregistrées.
+  let variantes: { valeur1: string; valeur2: string; stock: number }[] = [];
+  try {
+    const valeur = JSON.parse(String(formData.get("variantesJson") ?? "[]")) as unknown;
+    if (!Array.isArray(valeur) || valeur.length > 100) throw new Error("format");
+    variantes = valeur.map((item) => {
+      if (!item || typeof item !== "object") throw new Error("format");
+      const v = item as Record<string, unknown>;
+      if (typeof v.valeur1 !== "string" || typeof v.valeur2 !== "string") throw new Error("format");
+      const stock = Number(v.stock);
+      if (!Number.isInteger(stock) || stock < 0 || stock > 1_000_000) throw new Error("stock");
+      return { valeur1: v.valeur1.trim(), valeur2: v.valeur2.trim(), stock };
+    });
+  } catch {
+    redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Les variantes envoyées sont invalides. Vérifiez les choix et réessayez.")}`);
+  }
+
+  const { axesDeCategorie } = await import("@/modules/catalogue/axes");
+  const { verifierCombinaison } = await import("@/modules/catalogue/variante-core");
+  const axes = await axesDeCategorie(parsed.data.categorieId);
+  if (axes.length > 0) {
+    if (variantes.length === 0) {
+      redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Sélectionnez au moins une combinaison de variantes.")}`);
+    }
+    const cles = new Set<string>();
+    for (const v of variantes) {
+      if (verifierCombinaison(axes, v.valeur1, v.valeur2) !== "OK") {
+        redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Une variante ne correspond pas aux choix autorisés pour cette catégorie.")}`);
+      }
+      const cle = JSON.stringify([v.valeur1, v.valeur2]);
+      if (cles.has(cle)) {
+        redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Une même combinaison a été sélectionnée plusieurs fois.")}`);
+      }
+      cles.add(cle);
+    }
+  } else if (variantes.length > 0) {
+    redirect(`/vendeur/produits/nouveau?erreur=${encodeURIComponent("Cette catégorie ne permet pas de variantes.")}`);
+  }
+
+  const { creerProduitAvecVariantes } = await import("@/modules/catalogue/produits");
+  const produit = await creerProduitAvecVariantes(vendeur.id, parsed.data, variantes);
   for (const f of fichiers) {
     const fichier = await fichierDepuisFile(f);
     if (!fichier) continue;
