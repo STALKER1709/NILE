@@ -1,10 +1,12 @@
 import { prisma } from "@/lib/db";
 
-export async function listerCommandesVendeur(vendeurId: string) {
+export async function listerCommandesVendeur(vendeurId: string, page = 1, parPage = 20) {
+  const pageSecurisee = Number.isInteger(page) && page > 0 ? page : 1;
   const commandes = await prisma.commande.findMany({
     where: { lignes: { some: { vendeurId } } },
     orderBy: { dateCreation: "desc" },
-    take: 100,
+    skip: (pageSecurisee - 1) * parPage,
+    take: parPage,
     include: {
       lignes: { where: { vendeurId } },
       _count: { select: { lignes: true } },
@@ -16,6 +18,10 @@ export async function listerCommandesVendeur(vendeurId: string) {
     totalVendeur: c.lignes.reduce((s, l) => s + l.sousTotal, 0),
     gereeParVendeur: c._count.lignes === c.lignes.length,
   }));
+}
+
+export async function compterTotalCommandesVendeur(vendeurId: string): Promise<number> {
+  return prisma.commande.count({ where: { lignes: { some: { vendeurId } } } });
 }
 
 export async function vendeurGereCommande(vendeurId: string, commandeId: string): Promise<boolean> {
