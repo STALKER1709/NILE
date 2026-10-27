@@ -149,7 +149,11 @@ export async function changerStatutProduitAction(
         ? "Votre boutique doit être validée par un administrateur avant de publier."
         : res.code === "SUPPRIME"
           ? "Ce produit est dans la corbeille : restaurez-le avant de changer son statut."
-          : "Produit introuvable.";
+          : res.code === "IMAGE_REQUISE"
+            ? "Ajoutez au moins une image avant de publier ce produit."
+            : res.code === "STOCK_INDISPONIBLE"
+              ? "Ajoutez du stock à au moins une déclinaison active avant de publier."
+              : "Produit introuvable.";
     redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/vendeur/produits/${produitId}?ok=statut`);
