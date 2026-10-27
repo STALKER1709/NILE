@@ -1,10 +1,9 @@
 import { prisma } from "@/lib/db";
 
 /**
- * Vue VENDEUR de ses commandes : chaque commande contenant au moins une de
- * ses lignes, avec UNIQUEMENT ses lignes (une commande peut mêler plusieurs
- * vendeurs). Lecture seule : la logistique (transporteur, expédition,
- * livraison) reste pilotée par l'admin ; le vendeur prépare ses articles.
+ * Vue vendeur de ses commandes. Une commande peut contenir plusieurs boutiques :
+ * le vendeur ne voit que ses lignes et ne pilote la logistique que si toutes
+ * les lignes appartiennent à sa boutique.
  */
 export async function listerCommandesVendeur(vendeurId: string) {
   const commandes = await prisma.commande.findMany({
@@ -20,21 +19,11 @@ export async function listerCommandesVendeur(vendeurId: string) {
   return commandes.map((c) => ({
     ...c,
     totalVendeur: c.lignes.reduce((s, l) => s + l.sousTotal, 0),
-    // La boutique pilote le suivi seulement si TOUTES les lignes sont à elle
-    // (commande multi-boutiques : suivi coordonné par NILE).
     gereeParVendeur: c._count.lignes === c.lignes.length,
   }));
 }
 
-/**
- * Autorisation de suivi : une boutique ne peut piloter la livraison d'une
- * commande que si TOUTES ses lignes lui appartiennent. Vérifié côté serveur
- * avant chaque transition (jamais seulement dans l'interface).
- */
-export async function vendeurGereCommande(
-  vendeurId: string,
-  commandeId: string,
-): Promise<boolean> {
+export async function vendeurGereCommande(vendeurId: string, commandeId: string): Promise<boolean> {
   const [total, duVendeur] = await Promise.all([
     prisma.ligneCommande.count({ where: { commandeId } }),
     prisma.ligneCommande.count({ where: { commandeId, vendeurId } }),
@@ -43,20 +32,27 @@ export async function vendeurGereCommande(
 }
 
 /**
- * Compteurs du tableau de bord vendeur. « À préparer » = commandes confirmées
- * (COD) ou payées (Mobile Money) pas encore expédiées.
+ * « À préparer » ne compte que les commandes que le vendeur peut effectivement
+ * piloter. Les commandes multi-boutiques restent coordonnées par NILE.
  */
 export async function compterCommandesVendeur(vendeurId: string) {
-  const where = { lignes: { some: { vendeurId } } } as const;
+  const commandesVendeur = { lignes: { some: { vendeurId } } } as const;
+  const commandesEntierementVendeur = {
+    lignes: { some: { vendeurId }, every: { vendeurId } },
+  } as const;
+
   const [aPreparer, enCours, livrees] = await Promise.all([
     prisma.commande.count({
-      where: { ...where, statutCommande: { in: ["CONFIRMEE", "EN_PREPARATION"] } },
+      where: {
+        ...commandesEntierementVendeur,
+        statutCommande: { in: ["CONFIRMEE", "EN_PREPARATION"] },
+      },
     }),
     prisma.commande.count({
-      where: { ...where, statutCommande: "EXPEDIEE" },
+      where: { ...commandesVendeur, statutCommande: "EXPEDIEE" },
     }),
     prisma.commande.count({
-      where: { ...where, statutCommande: "LIVREE" },
+      where: { ...commandesVendeur, statutCommande: "LIVREE" },
     }),
   ]);
   return { aPreparer, enCours, livrees };
