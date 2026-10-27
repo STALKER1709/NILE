@@ -3,6 +3,7 @@ import { RafraichirSiChange } from "@/components/ui/RafraichirSiChange";
 import { signatureCommandesVendeur } from "@/modules/commande/signature";
 import { signatureCommandesVendeurAction } from "@/app/(vendeur)/vendeur/commandes/actions";
 import { exigerVendeur } from "@/modules/auth/access";
+import type { StatutCommande } from "@prisma/client";
 import {
   listerCommandesVendeur,
   compterCommandesVendeur,
@@ -32,17 +33,23 @@ const MESSAGES_OK: Record<string, string> = {
 export default async function CommandesVendeurPage({
   searchParams,
 }: {
-  searchParams: Promise<{ ok?: string; erreur?: string; page?: string }>;
+  searchParams: Promise<{ ok?: string; erreur?: string; page?: string; q?: string; statut?: string }>;
 }) {
-  const { ok, erreur, page: pageParam } = await searchParams;
+  const { ok, erreur, page: pageParam, q: qParam, statut: statutParam } = await searchParams;
+  const q = qParam?.trim().slice(0, 80) || undefined;
+  const statutsAutorises = ["EN_ATTENTE", "CONFIRMEE", "EN_PREPARATION", "EXPEDIEE", "LIVREE", "ANNULEE", "REFUSEE"] as const;
+  const statut = statutsAutorises.includes(statutParam as (typeof statutsAutorises)[number])
+    ? (statutParam as StatutCommande)
+    : undefined;
+  const filtres = { q, statut };
   const numeroDemande = Number.parseInt(pageParam ?? "1", 10);
   const pageDemandee = Number.isInteger(numeroDemande) && numeroDemande > 0 ? numeroDemande : 1;
   const { vendeur } = await exigerVendeur();
-  const totalCommandes = await compterTotalCommandesVendeur(vendeur.id);
+  const totalCommandes = await compterTotalCommandesVendeur(vendeur.id, filtres);
   const totalPages = Math.max(1, Math.ceil(totalCommandes / 20));
   const page = Math.min(pageDemandee, totalPages);
   const [commandes, compteurs, signature] = await Promise.all([
-    listerCommandesVendeur(vendeur.id, page, 20),
+    listerCommandesVendeur(vendeur.id, page, 20, filtres),
     compterCommandesVendeur(vendeur.id),
     signatureCommandesVendeur(vendeur.id),
   ]);
@@ -62,6 +69,28 @@ export default async function CommandesVendeurPage({
         <Compteur label="Expédiées" valeur={compteurs.enCours} />
         <Compteur label="Livrées" valeur={compteurs.livrees} />
       </div>
+
+      <form method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4">
+        <div className="min-w-[12rem] flex-1">
+          <label htmlFor="q" className="mb-1 block text-xs font-semibold text-slate-600">Référence de commande</label>
+          <input id="q" name="q" type="search" maxLength={80} defaultValue={q ?? ""} placeholder="Ex. NILE-…" className={champClass} />
+        </div>
+        <div className="min-w-[12rem] flex-1">
+          <label htmlFor="statut" className="mb-1 block text-xs font-semibold text-slate-600">Statut</label>
+          <select id="statut" name="statut" defaultValue={statut ?? ""} className={champClass}>
+            <option value="">Tous les statuts</option>
+            <option value="EN_ATTENTE">En attente</option>
+            <option value="CONFIRMEE">Confirmée</option>
+            <option value="EN_PREPARATION">En préparation</option>
+            <option value="EXPEDIEE">Expédiée</option>
+            <option value="LIVREE">Livrée</option>
+            <option value="ANNULEE">Annulée</option>
+            <option value="REFUSEE">Refusée</option>
+          </select>
+        </div>
+        <button type="submit" className={btn("primaire", "sm")}>Filtrer</button>
+        {(q || statut) && <Link href="/vendeur/commandes" className={btn("secondaire", "sm")}>Effacer</Link>}
+      </form>
 
       {ok && MESSAGES_OK[ok] && (
         <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
@@ -194,12 +223,12 @@ export default async function CommandesVendeurPage({
           <span className="text-xs text-slate-500">Page {page} sur {totalPages} · {totalCommandes} commandes</span>
           <div className="flex items-center gap-2">
             {page > 1 ? (
-              <Link href={`/vendeur/commandes?page=${page - 1}`} className={btn("secondaire", "sm")}>Précédent</Link>
+              <Link href={lienPage(page - 1, q, statut)} className={btn("secondaire", "sm")}>Précédent</Link>
             ) : (
               <span className={btn("secondaire", "sm") + " pointer-events-none opacity-40"}>Précédent</span>
             )}
             {page < totalPages ? (
-              <Link href={`/vendeur/commandes?page=${page + 1}`} className={btn("secondaire", "sm")}>Suivant</Link>
+              <Link href={lienPage(page + 1, q, statut)} className={btn("secondaire", "sm")}>Suivant</Link>
             ) : (
               <span className={btn("secondaire", "sm") + " pointer-events-none opacity-40"}>Suivant</span>
             )}
@@ -208,6 +237,13 @@ export default async function CommandesVendeurPage({
       )}
     </div>
   );
+}
+
+function lienPage(page: number, q?: string, statut?: StatutCommande): string {
+  const params = new URLSearchParams({ page: String(page) });
+  if (q) params.set("q", q);
+  if (statut) params.set("statut", statut);
+  return `/vendeur/commandes?${params.toString()}`;
 }
 
 function Compteur({
