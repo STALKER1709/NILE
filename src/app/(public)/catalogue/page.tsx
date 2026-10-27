@@ -251,6 +251,7 @@ export default async function CataloguePage({
             {sp.categorie && <input type="hidden" name="categorie" value={sp.categorie} />}
             {sp.prixMin && <input type="hidden" name="prixMin" value={sp.prixMin} />}
             {sp.prixMax && <input type="hidden" name="prixMax" value={sp.prixMax} />}
+            {marques.map((marque) => <input key={marque} type="hidden" name="marques" value={marque} />)}
             <label htmlFor="tri" className="whitespace-nowrap text-corps-sm text-slate-500">
               Trier par
             </label>
