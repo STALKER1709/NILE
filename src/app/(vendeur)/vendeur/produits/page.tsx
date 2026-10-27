@@ -11,7 +11,7 @@ import {
 import { BoutonConfirme } from "@/components/ui/BoutonConfirme";
 import { Vignette } from "@/components/ui/Vignette";
 import { Pagination } from "@/components/ui/Pagination";
-import { bornesAffichage } from "@/modules/catalogue/pagination";
+import { bornesAffichage, normaliserPageDemandee } from "@/modules/catalogue/pagination";
 import { Carte, Prix, btn, EtatVide, champClass } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
@@ -43,7 +43,7 @@ export default async function ListeProduitsVendeurPage({
 
   const enCorbeille = sp.corbeille === "1";
   const q = sp.q?.trim() || undefined;
-  const pageDemandee = Math.max(1, Number.parseInt(sp.page ?? "1", 10) || 1);
+  const pageDemandee = normaliserPageDemandee(sp.page);
 
   const [stats, { produits, total, page, pages }] = await Promise.all([
     statsInventaireVendeur(vendeur.id),
