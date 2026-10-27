@@ -187,7 +187,9 @@ export async function changerStatutProduitAction(
     const msg =
       res.code === "BOUTIQUE_NON_VALIDEE"
         ? "Votre boutique doit être validée par un administrateur avant de publier."
-        : res.code === "SUPPRIME"
+        : res.code === "KYC_NON_VALIDE"
+          ? "Votre identité doit être validée avant de publier des produits. Consultez la rubrique Mon KYC."
+          : res.code === "SUPPRIME"
           ? "Ce produit est dans la corbeille : restaurez-le avant de changer son statut."
           : res.code === "IMAGE_REQUISE"
             ? "Ajoutez au moins une image avant de publier ce produit."
