@@ -123,8 +123,10 @@ export async function mettreAJourProduitAction(
     const msg =
       res.code === "SUPPRIME"
         ? "Ce produit est dans la corbeille : restaurez-le avant de le modifier."
-        : "Produit introuvable.";
-    redirect(`/vendeur/produits?erreur=${encodeURIComponent(msg)}`);
+        : res.code === "DECLINAISONS_INCOMPATIBLES"
+          ? "Cette catégorie ne prend pas en charge les déclinaisons actuelles. Choisissez une catégorie compatible ou adaptez d'abord les déclinaisons."
+          : "Produit introuvable.";
+    redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/vendeur/produits/${produitId}?ok=maj`);
 }
