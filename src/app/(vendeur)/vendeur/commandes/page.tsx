@@ -36,15 +36,16 @@ export default async function CommandesVendeurPage({
 }) {
   const { ok, erreur, page: pageParam } = await searchParams;
   const numeroDemande = Number.parseInt(pageParam ?? "1", 10);
-  const page = Number.isInteger(numeroDemande) && numeroDemande > 0 ? numeroDemande : 1;
+  const pageDemandee = Number.isInteger(numeroDemande) && numeroDemande > 0 ? numeroDemande : 1;
   const { vendeur } = await exigerVendeur();
-  const [commandes, compteurs, signature, totalCommandes] = await Promise.all([
+  const totalCommandes = await compterTotalCommandesVendeur(vendeur.id);
+  const totalPages = Math.max(1, Math.ceil(totalCommandes / 20));
+  const page = Math.min(pageDemandee, totalPages);
+  const [commandes, compteurs, signature] = await Promise.all([
     listerCommandesVendeur(vendeur.id, page, 20),
     compterCommandesVendeur(vendeur.id),
     signatureCommandesVendeur(vendeur.id),
-    compterTotalCommandesVendeur(vendeur.id),
   ]);
-  const totalPages = Math.max(1, Math.ceil(totalCommandes / 20));
 
   return (
     <div className="space-y-5">
@@ -72,10 +73,7 @@ export default async function CommandesVendeurPage({
       )}
 
       <p className="text-sm text-slate-500">
-        <strong>Ta boutique pilote la livraison</strong> de ses commandes :
-        préparation, expédition, livraison · l&apos;acheteur est prévenu
-        automatiquement à chaque étape, et NILE supervise. Un colis refusé à la
-        livraison ou un souci d&apos;encaissement : contacte NILE (page{" "}
+        <strong>Pour les commandes composées uniquement de tes articles</strong>, ta boutique peut gérer la préparation et l&apos;expédition. Les commandes multi-boutiques sont coordonnées par NILE. En cas de colis refusé ou de souci d&apos;encaissement, contacte NILE (page{" "}
         <Link href="/contact" className="text-nile hover:underline">contact</Link>).
       </p>
 
