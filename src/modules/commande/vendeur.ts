@@ -1,16 +1,12 @@
 import { prisma } from "@/lib/db";
 
-/**
- * Vue VENDEUR de ses commandes : chaque commande contenant au moins une de
- * ses lignes, avec UNIQUEMENT ses lignes (une commande peut mêler plusieurs
- * vendeurs). Lecture seule : la logistique (transporteur, expédition,
- * livraison) reste pilotée par l'admin ; le vendeur prépare ses articles.
- */
-export async function listerCommandesVendeur(vendeurId: string) {
+export async function listerCommandesVendeur(vendeurId: string, page = 1, parPage = 20) {
+  const pageSecurisee = Number.isInteger(page) && page > 0 ? page : 1;
   const commandes = await prisma.commande.findMany({
     where: { lignes: { some: { vendeurId } } },
     orderBy: { dateCreation: "desc" },
-    take: 100,
+    skip: (pageSecurisee - 1) * parPage,
+    take: parPage,
     include: {
       lignes: { where: { vendeurId } },
       _count: { select: { lignes: true } },
@@ -20,21 +16,15 @@ export async function listerCommandesVendeur(vendeurId: string) {
   return commandes.map((c) => ({
     ...c,
     totalVendeur: c.lignes.reduce((s, l) => s + l.sousTotal, 0),
-    // La boutique pilote le suivi seulement si TOUTES les lignes sont à elle
-    // (commande multi-boutiques : suivi coordonné par NILE).
     gereeParVendeur: c._count.lignes === c.lignes.length,
   }));
 }
 
-/**
- * Autorisation de suivi : une boutique ne peut piloter la livraison d'une
- * commande que si TOUTES ses lignes lui appartiennent. Vérifié côté serveur
- * avant chaque transition (jamais seulement dans l'interface).
- */
-export async function vendeurGereCommande(
-  vendeurId: string,
-  commandeId: string,
-): Promise<boolean> {
+export async function compterTotalCommandesVendeur(vendeurId: string): Promise<number> {
+  return prisma.commande.count({ where: { lignes: { some: { vendeurId } } } });
+}
+
+export async function vendeurGereCommande(vendeurId: string, commandeId: string): Promise<boolean> {
   const [total, duVendeur] = await Promise.all([
     prisma.ligneCommande.count({ where: { commandeId } }),
     prisma.ligneCommande.count({ where: { commandeId, vendeurId } }),
@@ -42,22 +32,16 @@ export async function vendeurGereCommande(
   return total > 0 && total === duVendeur;
 }
 
-/**
- * Compteurs du tableau de bord vendeur. « À préparer » = commandes confirmées
- * (COD) ou payées (Mobile Money) pas encore expédiées.
- */
+/** « À préparer » ne compte que les commandes que le vendeur peut piloter. */
 export async function compterCommandesVendeur(vendeurId: string) {
-  const where = { lignes: { some: { vendeurId } } } as const;
+  const commandesVendeur = { lignes: { some: { vendeurId } } } as const;
+  const commandesEntierementVendeur = { lignes: { some: { vendeurId }, every: { vendeurId } } } as const;
   const [aPreparer, enCours, livrees] = await Promise.all([
     prisma.commande.count({
-      where: { ...where, statutCommande: { in: ["CONFIRMEE", "EN_PREPARATION"] } },
+      where: { ...commandesEntierementVendeur, statutCommande: { in: ["CONFIRMEE", "EN_PREPARATION"] } },
     }),
-    prisma.commande.count({
-      where: { ...where, statutCommande: "EXPEDIEE" },
-    }),
-    prisma.commande.count({
-      where: { ...where, statutCommande: "LIVREE" },
-    }),
+    prisma.commande.count({ where: { ...commandesVendeur, statutCommande: "EXPEDIEE" } }),
+    prisma.commande.count({ where: { ...commandesVendeur, statutCommande: "LIVREE" } }),
   ]);
   return { aPreparer, enCours, livrees };
 }

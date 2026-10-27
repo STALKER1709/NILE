@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { exigerVendeur } from "@/modules/auth/access";
 import { demanderReversement } from "@/modules/reversement/reversement";
 import { lireInfosPaiement, aDesInfosPaiement } from "@/modules/compte/profil";
+import { getKycVendeur } from "@/modules/kyc/kyc";
 
 const MESSAGES: Record<string, string> = {
   MONTANT_INVALIDE: "Montant invalide.",
@@ -19,6 +20,13 @@ const MESSAGES: Record<string, string> = {
  */
 export async function demanderVersementAction(formData: FormData): Promise<void> {
   const { vendeur } = await exigerVendeur();
+
+  const kyc = await getKycVendeur(vendeur.id);
+  if (vendeur.statutValidation !== "VALIDE" || kyc?.statut !== "VALIDE") {
+    redirect("/vendeur/finances?erreur=" + encodeURIComponent(
+      "Votre boutique et votre identité doivent être validées avant de demander un versement.",
+    ));
+  }
 
   // Sans coordonnées de reversement, NILE ne pourrait pas payer la demande.
   if (!aDesInfosPaiement(lireInfosPaiement(vendeur.infosPaiement))) {

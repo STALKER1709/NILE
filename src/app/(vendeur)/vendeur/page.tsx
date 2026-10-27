@@ -48,7 +48,7 @@ export default async function VendeurPage() {
         </div>
         <div className="flex items-center gap-2">
           <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
-            {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : "En attente de validation"}
+            {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : vendeur.statutValidation === "REJETE" ? "Boutique rejetée" : vendeur.statutValidation === "SUSPENDU" ? "Boutique suspendue" : "En attente de validation"}
           </Badge>
           <Link href="/vendeur/kyc" className={btn("ghost", "sm")}>
             Mon KYC
@@ -144,7 +144,7 @@ export default async function VendeurPage() {
 
       {/* Activité de la semaine */}
       <Carte className="p-5">
-        <GraphBarres points={stats.activite7Jours} titre="Tes ventes des 7 derniers jours" />
+        <GraphBarres points={stats.activite7Jours} titre="Activité commerciale des 7 derniers jours" />
       </Carte>
 
       {/* Commandes récentes */}
