@@ -249,7 +249,15 @@ export async function mettreAJourProduit(
 
 export type ResultatStatut =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "BOUTIQUE_NON_VALIDEE" | "SUPPRIME" };
+  | {
+      ok: false;
+      code:
+        | "INTROUVABLE"
+        | "BOUTIQUE_NON_VALIDEE"
+        | "SUPPRIME"
+        | "IMAGE_REQUISE"
+        | "STOCK_INDISPONIBLE";
+    };
 
 /**
  * Change le statut d'un produit. Garde-fou : publier (ACTIF) exige une boutique
@@ -263,7 +271,11 @@ export async function changerStatutProduit(
 ): Promise<ResultatStatut> {
   const produit = await prisma.produit.findUnique({
     where: { id: produitId },
-    include: { vendeur: true },
+    include: {
+      vendeur: true,
+      images: { select: { id: true }, take: 1 },
+      variantes: { select: { actif: true, stock: true } },
+    },
   });
   if (!produit || !estProprietaire(vendeurId, produit.vendeurId)) {
     return { ok: false, code: "INTROUVABLE" };
@@ -276,6 +288,14 @@ export async function changerStatutProduit(
     produit.vendeur.statutValidation !== "VALIDE"
   ) {
     return { ok: false, code: "BOUTIQUE_NON_VALIDEE" };
+  }
+  if (nouveauStatut === "ACTIF") {
+    if (produit.images.length === 0) {
+      return { ok: false, code: "IMAGE_REQUISE" };
+    }
+    if (!produit.variantes.some((v) => v.actif && v.stock > 0)) {
+      return { ok: false, code: "STOCK_INDISPONIBLE" };
+    }
   }
   await prisma.produit.update({
     where: { id: produitId },
