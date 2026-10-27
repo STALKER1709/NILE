@@ -254,6 +254,7 @@ export type ResultatStatut =
       code:
         | "INTROUVABLE"
         | "BOUTIQUE_NON_VALIDEE"
+        | "KYC_NON_VALIDE"
         | "SUPPRIME"
         | "IMAGE_REQUISE"
         | "STOCK_INDISPONIBLE";
@@ -272,7 +273,7 @@ export async function changerStatutProduit(
   const produit = await prisma.produit.findUnique({
     where: { id: produitId },
     include: {
-      vendeur: true,
+      vendeur: { include: { kyc: { select: { statut: true } } } },
       images: { select: { id: true }, take: 1 },
       variantes: { select: { actif: true, stock: true } },
     },
@@ -290,6 +291,9 @@ export async function changerStatutProduit(
     return { ok: false, code: "BOUTIQUE_NON_VALIDEE" };
   }
   if (nouveauStatut === "ACTIF") {
+    if (produit.vendeur.kyc?.statut !== "VALIDE") {
+      return { ok: false, code: "KYC_NON_VALIDE" };
+    }
     if (produit.images.length === 0) {
       return { ok: false, code: "IMAGE_REQUISE" };
     }
