@@ -131,9 +131,6 @@ main :where(input, select, textarea) {
   max-width: 100%;
 }
 @media (max-width: 639px) {
-  main {
-    padding-inline: 12px;
-  }
   main :where(.rounded-2xl, .rounded-3xl) {
     min-width: 0;
   }
@@ -150,9 +147,6 @@ main :where(input, select, textarea) {
   }
 }
 @media (max-width: 380px) {
-  main {
-    padding-inline: 10px;
-  }
   main :where(.gap-5, .gap-6) {
     column-gap: .75rem;
     row-gap: .75rem;
