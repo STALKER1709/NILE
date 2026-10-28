@@ -27,7 +27,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
     <div ref={conteneur} className="relative mx-auto max-w-[1284px] px-[14px] sm:px-[22px]">
       <nav aria-label="Navigation principale" className="no-scrollbar flex h-12 items-center gap-3 overflow-x-auto sm:gap-5">
         <button type="button" onClick={() => setOuvert((o) => !o)} aria-expanded={ouvert} aria-haspopup="true"
-          className="my-1 inline-flex min-h-9 shrink-0 items-center gap-2 rounded-[9px] bg-blue-900 px-3 text-xs font-extrabold text-white transition-colors hover:bg-blue-950 sm:text-sm">
+          className="my-0 inline-flex min-h-11 shrink-0 items-center gap-2 rounded-[9px] bg-blue-900 px-3 text-xs font-extrabold text-white transition-colors hover:bg-blue-950 sm:text-sm">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16" /></svg>
           Tous les rayons
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className={"transition-transform " + (ouvert ? "rotate-180" : "")} aria-hidden="true"><path d="m6 9 6 6 6-6" strokeLinecap="round" strokeLinejoin="round" /></svg>
