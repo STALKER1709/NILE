@@ -125,7 +125,8 @@ export async function soumettreKycVendeur(
     };
   }
 
-  // Enregistrement dans la base de données
+  // Enregistrement du dossier. Le statut KYC et celui de la boutique sont distincts :
+  // une soumission ne doit jamais lever une suspension administrative.
   await prisma.kycVendeur.upsert({
     where: { vendeurId },
     create: {
@@ -173,9 +174,8 @@ export async function soumettreKycVendeur(
     },
   });
 
-  // La boutique reste ou passe en EN_ATTENTE de validation admin
-  await prisma.vendeur.update({
-    where: { id: vendeurId },
+  await prisma.vendeur.updateMany({
+    where: { id: vendeurId, statutValidation: { not: "SUSPENDU" } },
     data: { statutValidation: "EN_ATTENTE" },
   });
 
@@ -184,7 +184,7 @@ export async function soumettreKycVendeur(
 
 /**
  * Validation administrative d'un dossier KYC.
- * Active simultanément la boutique du vendeur (VALIDE).
+ * Valide le dossier d'identité mais ne lève jamais une suspension de boutique.
  */
 export async function validerKycAdmin(vendeurId: string): Promise<ResultatKyc> {
   const kyc = await prisma.kycVendeur.findUnique({
@@ -213,11 +213,9 @@ export async function validerKycAdmin(vendeurId: string): Promise<ResultatKyc> {
         motifRejet: null,
       },
     }),
-    prisma.vendeur.update({
-      where: { id: vendeurId },
-      data: {
-        statutValidation: "VALIDE",
-      },
+    prisma.vendeur.updateMany({
+      where: { id: vendeurId, statutValidation: { not: "SUSPENDU" } },
+      data: { statutValidation: "VALIDE" },
     }),
   ]);
 
@@ -257,11 +255,9 @@ export async function rejeterKycAdmin(
         motifRejet: motif.trim(),
       },
     }),
-    prisma.vendeur.update({
-      where: { id: vendeurId },
-      data: {
-        statutValidation: "REJETE",
-      },
+    prisma.vendeur.updateMany({
+      where: { id: vendeurId, statutValidation: { not: "SUSPENDU" } },
+      data: { statutValidation: "REJETE" },
     }),
   ]);
 
