@@ -168,3 +168,100 @@ main :where(input, select, textarea) {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+
+/* Pass transversal mobile — les largeurs ci-dessous sont des seuils de confort,
+   pas des correspondances figées avec un modèle de téléphone. */
+:root {
+  --nile-touch-min: 44px;
+  --nile-safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+html {
+  scroll-padding-top: 7rem;
+  text-size-adjust: 100%;
+}
+
+@media (max-width: 639px) {
+  /* Les tables gardent leur sémantique ; leur conteneur défile si nécessaire. */
+  main :where(table) {
+    max-width: 100%;
+  }
+
+  main :where(.overflow-x-auto > table) {
+    width: max-content;
+    max-width: none;
+  }
+
+  /* Les formulaires restent lisibles et utilisables avec le clavier mobile. */
+  main :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  main :where(button, [role="button"], input[type="submit"], input[type="button"], a.inline-flex) {
+    min-height: var(--nile-touch-min);
+  }
+
+  main :where([role="dialog"], dialog) {
+    max-width: calc(100vw - 24px);
+    max-height: calc(100dvh - 24px - env(safe-area-inset-top, 0px) - var(--nile-safe-bottom));
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* Les éléments de gestion qui défilent horizontalement ne capturent pas
+     le geste vertical de la page et conservent un retour visuel au toucher. */
+  main :where(.overflow-x-auto, .nile-scroll-x, [aria-label="Navigation vendeur"], [aria-label="Navigation administration"]) {
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  main :where(.nile-page-title) {
+    font-size: clamp(1.5rem, 6vw, 1.875rem);
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  main :where(.nile-page-intro) {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+}
+
+@media (max-width: 359px) {
+  .nile-container {
+    padding-inline: 10px;
+  }
+
+  main :where(.rounded-2xl, .rounded-3xl) {
+    border-radius: 12px;
+  }
+
+  main :where(.p-4, .px-4) {
+    padding-inline: 12px;
+  }
+
+  main :where(.gap-4, .gap-5, .gap-6) {
+    column-gap: 10px;
+    row-gap: 10px;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) {
+  button,
+  [role="button"],
+  input[type="submit"],
+  input[type="button"] {
+    touch-action: manipulation;
+  }
+}
+
+@media (max-height: 560px) and (max-width: 900px) {
+  /* En paysage mobile, les panneaux fixes doivent laisser le contenu respirer. */
+  main :where([role="dialog"], dialog) {
+    max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - var(--nile-safe-bottom));
+  }
+}
