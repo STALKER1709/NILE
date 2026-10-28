@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/react";
 import "./globals.css";
 import { env } from "@/lib/env";
 
@@ -11,7 +12,10 @@ export const metadata: Metadata = {
 };
 export const viewport: Viewport = { width: "device-width", initialScale: 1, themeColor: "#1e3a8a", viewportFit: "cover" };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return <html lang="fr" suppressHydrationWarning >
-    <body id="top" suppressHydrationWarning className="min-h-screen overflow-x-clip">{children}</body>
+  return <html lang="fr" suppressHydrationWarning>
+    <body id="top" suppressHydrationWarning className="min-h-screen overflow-x-clip">
+      {children}
+      <Analytics />
+    </body>
   </html>;
 }
