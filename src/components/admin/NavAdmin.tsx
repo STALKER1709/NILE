@@ -18,12 +18,12 @@ const NAV = [
 
 export function NavAdmin() {
   const chemin = usePathname();
-  return <aside className="self-start rounded-[17px] border border-stone-200 bg-white p-2 lg:sticky lg:top-[88px]">
+  return <aside className="w-full min-w-0 self-start rounded-[17px] border border-stone-200 bg-white p-2 lg:sticky lg:top-[88px]">
     <div className="px-3 py-4">
       <p className="nile-eyebrow text-slate-500">Espace de travail</p>
       <p className="mt-1 text-sm font-extrabold text-slate-900">Opérations NILE</p>
     </div>
-    <nav aria-label="Navigation administration" className="no-scrollbar flex gap-1 overflow-x-auto pb-2 lg:flex-col">
+    <nav aria-label="Navigation administration" className="no-scrollbar flex min-w-0 gap-1 overflow-x-auto pb-2 lg:flex-col lg:overflow-visible">
       {NAV.map((item) => {
         const actif = chemin === item.href || (item.href !== "/admin" && chemin.startsWith(item.href + "/"));
         return <Link key={item.href} href={item.href} aria-current={actif ? "page" : undefined}
