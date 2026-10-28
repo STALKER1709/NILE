@@ -71,11 +71,11 @@ export default async function CommandesVendeurPage({
       </div>
 
       <form method="get" className="flex flex-wrap items-end gap-3 rounded-xl border border-slate-200 bg-white p-4">
-        <div className="min-w-[12rem] flex-1">
+        <div className="w-full min-w-0 flex-1 sm:min-w-[12rem]">
           <label htmlFor="q" className="mb-1 block text-xs font-semibold text-slate-600">Référence de commande</label>
           <input id="q" name="q" type="search" maxLength={80} defaultValue={q ?? ""} placeholder="Ex. NILE-…" className={champClass} />
         </div>
-        <div className="min-w-[12rem] flex-1">
+        <div className="w-full min-w-0 flex-1 sm:min-w-[12rem]">
           <label htmlFor="statut" className="mb-1 block text-xs font-semibold text-slate-600">Statut</label>
           <select id="statut" name="statut" defaultValue={statut ?? ""} className={champClass}>
             <option value="">Tous les statuts</option>
@@ -219,7 +219,7 @@ export default async function CommandesVendeurPage({
       )}
 
       {totalPages > 1 && (
-        <nav aria-label="Pagination des commandes" className="flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+        <nav aria-label="Pagination des commandes" className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 pt-4">
           <span className="text-xs text-slate-500">Page {page} sur {totalPages} · {totalCommandes} commandes</span>
           <div className="flex items-center gap-2">
             {page > 1 ? (
