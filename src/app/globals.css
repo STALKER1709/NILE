@@ -168,3 +168,25 @@ main :where(input, select, textarea) {
     -webkit-overflow-scrolling: touch;
   }
 }
+
+
+/* Finition tactile mobile : commandes de recherche, filtres et actions principales. */
+@media (max-width: 639px) {
+  header :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+    min-height: 44px;
+  }
+  header :where(button, [role="button"]) {
+    min-height: 44px;
+  }
+  main :where(button, [role="button"], a.inline-flex) {
+    min-height: 44px;
+  }
+  main :where(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), select, textarea) {
+    min-height: 44px;
+  }
+  footer nav a {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+  }
+}
