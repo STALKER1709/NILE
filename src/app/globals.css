@@ -95,3 +95,82 @@ h1,h2,h3,h4,h5,h6 { font-family: var(--police-titre),var(--repli); letter-spacin
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { animation-duration:.001ms!important; animation-iteration-count:1!important; transition-duration:.001ms!important; scroll-behavior:auto!important; }
 }
+
+
+/* Responsive hardening — mobile-first, sans masquer le contenu métier. */
+html, body {
+  width: 100%;
+  max-width: 100%;
+}
+body {
+  overflow-x: clip;
+}
+main, main > *, main :where(section, article, aside, form, fieldset) {
+  min-width: 0;
+}
+main :where(.grid > *, .flex > *) {
+  min-width: 0;
+}
+main :where(.overflow-x-auto, .nile-scroll-x) {
+  max-width: 100%;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
+}
+main :where(table) {
+  max-width: 100%;
+}
+main :where(img, video, canvas, iframe) {
+  height: auto;
+  max-width: 100%;
+}
+main :where(button, a) {
+  overflow-wrap: anywhere;
+}
+main :where(input, select, textarea) {
+  min-width: 0;
+  max-width: 100%;
+}
+@media (max-width: 639px) {
+  main {
+    padding-inline: 12px;
+  }
+  main :where(.rounded-2xl, .rounded-3xl) {
+    min-width: 0;
+  }
+  main :where(.flex.items-center.justify-between, .flex.items-end.justify-between, .flex.items-baseline.justify-between) {
+    flex-wrap: wrap;
+    row-gap: .65rem;
+  }
+  main :where(.overflow-x-auto) {
+    scrollbar-width: thin;
+  }
+  /* Les actions restent faciles à toucher sans forcer la largeur de la page. */
+  main :where(button, [role="button"], a.inline-flex) {
+    min-height: 40px;
+  }
+}
+@media (max-width: 380px) {
+  main {
+    padding-inline: 10px;
+  }
+  main :where(.gap-5, .gap-6) {
+    column-gap: .75rem;
+    row-gap: .75rem;
+  }
+  main :where(.p-5, .px-5) {
+    padding-inline: .875rem;
+  }
+  main :where(.text-3xl, .text-4xl) {
+    font-size: clamp(1.4rem, 7vw, 1.8rem);
+    line-height: 1.2;
+  }
+}
+/* Évite que les barres horizontales du studio vendeur élargissent le viewport. */
+@media (max-width: 1023px) {
+  [aria-label="Navigation vendeur"] {
+    max-width: calc(100vw - 24px);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
