@@ -27,7 +27,7 @@ export interface DonneesSoumissionKyc {
 
   pieceRectoUrl: string;
   pieceVersoUrl?: string | null;
-  selfieUrl: string; // OBLIGATOIRE pour tous les vendeurs
+  selfieUrl: string;
 }
 
 /** Indique si un vendeur dans ce statut peut soumettre (ou re-soumettre) son KYC. */
@@ -41,8 +41,8 @@ export function peutValiderKyc(statut: StatutKyc): boolean {
 }
 
 /**
- * Valide si un dossier peut être rejeté avec un motif clair.
- * Le motif doit faire au moins 5 caractères pour éviter les rejets inexpliqués.
+ * Valide le rejet administratif : seul un dossier en revue peut être rejeté
+ * et le motif doit expliquer la décision.
  */
 export function peutRejeterKyc(
   statut: StatutKyc,
@@ -64,10 +64,7 @@ export function peutRejeterKyc(
   return { valide: true };
 }
 
-/**
- * Vérifie l'intégrité et la complétude des pièces d'un dossier KYC.
- * Règle d'or : le selfie est TOUJOURS obligatoire pour certifier l'appartenance de la pièce.
- */
+/** Vérifie l'intégrité et la complétude des pièces d'un dossier KYC. */
 export function validerCompletudeKyc(donnees: DonneesSoumissionKyc): {
   valide: boolean;
   erreurs: string[];
@@ -88,19 +85,27 @@ export function validerCompletudeKyc(donnees: DonneesSoumissionKyc): {
     erreurs.push("La photo du recto de votre pièce d'identité est obligatoire.");
   }
 
-  // Le verso est requis pour la CNI et le récépissé (le passeport a toutes les infos en une page)
   if (donnees.typePiece === "CNI" || donnees.typePiece === "RECEPISSE") {
     if (!donnees.pieceVersoUrl || donnees.pieceVersoUrl.trim() === "") {
       erreurs.push("La photo du verso de votre pièce d'identité est obligatoire pour une CNI ou un récépissé.");
     }
   }
 
-  // SELFIE OBLIGATOIRE POUR TOUS LES VENDEURS
   if (!donnees.selfieUrl || donnees.selfieUrl.trim() === "") {
     erreurs.push("Le selfie de vérification est obligatoire pour confirmer l'appartenance de votre pièce d'identité.");
   }
 
-  // Si c'est une entreprise enregistrée
+  if (donnees.dateExpirationPiece != null) {
+    const expiration = donnees.dateExpirationPiece instanceof Date
+      ? donnees.dateExpirationPiece
+      : new Date(donnees.dateExpirationPiece);
+    const todayUtc = new Date();
+    todayUtc.setUTCHours(0, 0, 0, 0);
+    if (!Number.isFinite(expiration.getTime()) || expiration.getTime() < todayUtc.getTime()) {
+      erreurs.push("La date d'expiration de la pièce d'identité est invalide ou dépassée.");
+    }
+  }
+
   if (donnees.estEntreprise) {
     const entreprise = donnees.nomEntreprise?.trim() ?? "";
     if (entreprise.length < 2) {
@@ -116,41 +121,27 @@ export function validerCompletudeKyc(donnees: DonneesSoumissionKyc): {
     }
   }
 
-  return {
-    valide: erreurs.length === 0,
-    erreurs,
-  };
+  return { valide: erreurs.length === 0, erreurs };
 }
 
-/** Libellé convivial du statut KYC pour l'interface. */
 export function libelleStatutKyc(statut: StatutKyc): string {
   switch (statut) {
-    case "NON_SOUMIS":
-      return "Non soumis";
-    case "EN_REVUE":
-      return "En cours de vérification";
-    case "VALIDE":
-      return "Identité vérifiée";
-    case "REJETE":
-      return "Dossier refusé";
+    case "NON_SOUMIS": return "Non soumis";
+    case "EN_REVUE": return "En cours de vérification";
+    case "VALIDE": return "Identité vérifiée";
+    case "REJETE": return "Dossier refusé";
   }
 }
 
-/** Couleur du badge statut. */
 export function badgeTonKyc(statut: StatutKyc): "vert" | "ambre" | "rouge" | "neutre" {
   switch (statut) {
-    case "VALIDE":
-      return "vert";
-    case "EN_REVUE":
-      return "ambre";
-    case "REJETE":
-      return "rouge";
-    case "NON_SOUMIS":
-      return "neutre";
+    case "VALIDE": return "vert";
+    case "EN_REVUE": return "ambre";
+    case "REJETE": return "rouge";
+    case "NON_SOUMIS": return "neutre";
   }
 }
 
-/** État lisible de la boutique après validation de l'identité du vendeur. */
 export type StatutValidationBoutique = "EN_ATTENTE" | "VALIDE" | "REJETE" | "SUSPENDU";
 
 export function messageEtatBoutiqueApresKyc(statutBoutique: StatutValidationBoutique): string {

@@ -2,6 +2,28 @@ import { z } from "zod";
 
 export const typePieceIdentiteSchema = z.enum(["CNI", "PASSEPORT", "RECEPISSE"]);
 
+const dateExpirationSchema = z
+  .string()
+  .optional()
+  .transform((val) => {
+    const value = val?.trim();
+    if (!value) return null;
+    // Les formulaires date HTML transmettent YYYY-MM-DD. Vérifier le format
+    // et la date calendaire avant de construire une Date persistable.
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date(Number.NaN);
+    const parsed = new Date(`${value}T00:00:00.000Z`);
+    if (!Number.isFinite(parsed.getTime()) || parsed.toISOString().slice(0, 10) !== value) {
+      return new Date(Number.NaN);
+    }
+    return parsed;
+  })
+  .refine((date) => {
+    if (date === null) return true;
+    if (!Number.isFinite(date.getTime())) return false;
+    const todayUtc = new Date(`${new Date().toISOString().slice(0, 10)}T00:00:00.000Z`);
+    return date.getTime() >= todayUtc.getTime();
+  }, "La date d'expiration doit être une date valide et ne pas être dépassée.");
+
 export const soumissionKycFormSchema = z.object({
   nomComplet: z
     .string()
@@ -14,10 +36,7 @@ export const soumissionKycFormSchema = z.object({
     .trim()
     .min(4, "Le numéro de pièce d'identité doit comporter au moins 4 caractères.")
     .max(60, "Le numéro de pièce est trop long."),
-  dateExpirationPiece: z
-    .string()
-    .optional()
-    .transform((val) => (val && val.trim().length > 0 ? new Date(val) : null)),
+  dateExpirationPiece: dateExpirationSchema,
   estEntreprise: z
     .union([z.boolean(), z.string()])
     .optional()

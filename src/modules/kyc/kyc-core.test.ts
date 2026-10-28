@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { soumissionKycFormSchema } from "@/validators/kyc";
 import {
   peutSoumettreKyc,
   peutValiderKyc,
@@ -70,6 +71,39 @@ describe("KYC Vendeur — kyc-core", () => {
       const res = validerCompletudeKyc(baseValide);
       expect(res.valide).toBe(true);
       expect(res.erreurs).toHaveLength(0);
+    });
+
+
+    it("refuse une pièce d'identité expirée", () => {
+      const res = validerCompletudeKyc({
+        ...baseValide,
+        dateExpirationPiece: new Date("2000-01-01T00:00:00.000Z"),
+      });
+      expect(res.valide).toBe(false);
+      expect(res.erreurs).toContain(
+        "La date d'expiration de la pièce d'identité est invalide ou dépassée.",
+      );
+    });
+
+    it("refuse une date d'expiration invalide", () => {
+      const res = validerCompletudeKyc({
+        ...baseValide,
+        dateExpirationPiece: new Date(Number.NaN),
+      });
+      expect(res.valide).toBe(false);
+      expect(res.erreurs).toContain(
+        "La date d'expiration de la pièce d'identité est invalide ou dépassée.",
+      );
+    });
+
+    it("accepte une pièce dont l'expiration est aujourd'hui ou dans le futur", () => {
+      const future = new Date();
+      future.setUTCDate(future.getUTCDate() + 30);
+      const res = validerCompletudeKyc({
+        ...baseValide,
+        dateExpirationPiece: future,
+      });
+      expect(res.valide).toBe(true);
     });
 
     it("REFUSE catégoriquement si le selfie est absent (règle obligatoire)", () => {
@@ -156,5 +190,41 @@ describe("KYC Vendeur — kyc-core", () => {
       expect(messageEtatBoutiqueApresKyc("REJETE")).toContain("rejetée");
       expect(messageEtatBoutiqueApresKyc("SUSPENDU")).toContain("suspendue");
     });
+  });
+});
+
+
+describe("Validation de la date d'expiration dans le formulaire KYC", () => {
+  const baseForm = {
+    nomComplet: "Test Utilisateur",
+    typePiece: "CNI",
+    numeroPiece: "12345678",
+  };
+
+  it("accepte une date d'expiration future au format HTML date", () => {
+    const future = new Date();
+    future.setUTCDate(future.getUTCDate() + 30);
+    const date = future.toISOString().slice(0, 10);
+    const result = soumissionKycFormSchema.safeParse({
+      ...baseForm,
+      dateExpirationPiece: date,
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("refuse une date calendaire impossible", () => {
+    const result = soumissionKycFormSchema.safeParse({
+      ...baseForm,
+      dateExpirationPiece: "2026-02-31",
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("refuse une date d'expiration passée", () => {
+    const result = soumissionKycFormSchema.safeParse({
+      ...baseForm,
+      dateExpirationPiece: "2000-01-01",
+    });
+    expect(result.success).toBe(false);
   });
 });
