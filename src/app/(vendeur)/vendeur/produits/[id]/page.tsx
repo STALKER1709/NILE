@@ -272,7 +272,7 @@ export default async function GestionProduitPage({
                       {estDefaut ? "Version unique (sans déclinaison)" : libelleVariante(v, axes)}
                     </span>
 
-                    <form action={majStockVarianteAction} className="flex items-center gap-1">
+                    <form action={majStockVarianteAction} className="flex flex-wrap items-center gap-1.5">
                       <input type="hidden" name="produitId" value={produit.id} />
                       <input type="hidden" name="varianteId" value={v.id} />
                       <label htmlFor={`stock-${v.id}`} className="text-xs text-slate-500">
