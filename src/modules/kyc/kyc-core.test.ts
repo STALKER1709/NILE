@@ -72,6 +72,39 @@ describe("KYC Vendeur — kyc-core", () => {
       expect(res.erreurs).toHaveLength(0);
     });
 
+
+    it("refuse une pièce d'identité expirée", () => {
+      const res = validerCompletudeKyc({
+        ...baseValide,
+        dateExpirationPiece: new Date("2000-01-01T00:00:00.000Z"),
+      });
+      expect(res.valide).toBe(false);
+      expect(res.erreurs).toContain(
+        "La date d'expiration de la pièce d'identité est invalide ou dépassée.",
+      );
+    });
+
+    it("refuse une date d'expiration invalide", () => {
+      const res = validerCompletudeKyc({
+        ...baseValide,
+        dateExpirationPiece: new Date(Number.NaN),
+      });
+      expect(res.valide).toBe(false);
+      expect(res.erreurs).toContain(
+        "La date d'expiration de la pièce d'identité est invalide ou dépassée.",
+      );
+    });
+
+    it("accepte une pièce dont l'expiration est aujourd'hui ou dans le futur", () => {
+      const future = new Date();
+      future.setUTCDate(future.getUTCDate() + 30);
+      const res = validerCompletudeKyc({
+        ...baseValide,
+        dateExpirationPiece: future,
+      });
+      expect(res.valide).toBe(true);
+    });
+
     it("REFUSE catégoriquement si le selfie est absent (règle obligatoire)", () => {
       const sansSelfie = { ...baseValide, selfieUrl: "" };
       const res = validerCompletudeKyc(sansSelfie);
