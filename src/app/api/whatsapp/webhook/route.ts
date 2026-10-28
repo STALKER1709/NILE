@@ -24,17 +24,22 @@ export async function GET(req: Request): Promise<Response> {
  * (ouverture de la fenêtre de service gratuite) ; les accusés de statut
  * (delivered/read) sont ignorés — rien d'utile à en faire pour l'instant.
  *
- * La signature est vérifiée sur le corps BRUT avant tout parsing JSON.
+ * La signature est obligatoire et vérifiée sur le corps BRUT avant tout
+ * parsing JSON. Si le secret n'est pas configuré, le webhook reste fermé :
+ * accepter les événements non signés permettrait à un tiers d'ouvrir des
+ * fenêtres de service WhatsApp en usurpant des messages entrants.
  */
 export async function POST(req: Request): Promise<Response> {
-  const corpsBrut = await req.text();
+  if (!env.WHATSAPP_APP_SECRET) {
+    console.error("[whatsapp] webhook inactif : WHATSAPP_APP_SECRET manquant.");
+    return new Response("Webhook non configuré", { status: 503 });
+  }
 
-  if (env.WHATSAPP_APP_SECRET) {
-    const signature = req.headers.get("x-hub-signature-256");
-    if (!verifierSignatureWebhook(env.WHATSAPP_APP_SECRET, corpsBrut, signature)) {
-      console.error("[whatsapp] webhook: signature invalide.");
-      return new Response("Signature invalide", { status: 401 });
-    }
+  const corpsBrut = await req.text();
+  const signature = req.headers.get("x-hub-signature-256");
+  if (!verifierSignatureWebhook(env.WHATSAPP_APP_SECRET, corpsBrut, signature)) {
+    console.error("[whatsapp] webhook: signature invalide.");
+    return new Response("Signature invalide", { status: 401 });
   }
 
   let payload: unknown;
