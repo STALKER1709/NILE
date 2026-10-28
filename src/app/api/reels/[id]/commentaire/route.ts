@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getUtilisateurCourant } from "@/modules/auth/access";
+import { evaluerAcces, getUtilisateurCourant } from "@/modules/auth/access";
 import { consommerTentative } from "@/modules/securite/rate-limit";
 
 export async function POST(
@@ -9,9 +9,12 @@ export async function POST(
 ) {
   const { id } = await params;
   const utilisateur = await getUtilisateurCourant();
-  
+
   if (!utilisateur) {
     return NextResponse.json({ ok: false, error: "Non connecté" }, { status: 401 });
+  }
+  if (evaluerAcces(utilisateur, ["ACHETEUR", "VENDEUR", "ADMIN"]) !== "OK") {
+    return NextResponse.json({ ok: false, error: "Compte suspendu ou accès interdit" }, { status: 403 });
   }
 
   const limite = await consommerTentative(`reel-commentaire:${utilisateur.id}`, 10, 10);
@@ -24,7 +27,7 @@ export async function POST(
     if (!publication) return NextResponse.json({ ok: false, error: "Publication introuvable" }, { status: 404 });
     const body = await req.json();
     const contenu = typeof body?.contenu === "string" ? body.contenu.trim() : "";
-    
+
     if (!contenu || contenu.length === 0) {
       return NextResponse.json({ ok: false, error: "Commentaire vide" }, { status: 400 });
     }
@@ -44,7 +47,7 @@ export async function POST(
     });
 
     return NextResponse.json({ ok: true, commentaire });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ ok: false, error: "Erreur serveur" }, { status: 500 });
   }
 }

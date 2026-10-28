@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
-import { getUtilisateurCourant } from "@/modules/auth/access";
+import { evaluerAcces, getUtilisateurCourant } from "@/modules/auth/access";
 import { consommerTentative } from "@/modules/securite/rate-limit";
 
 export async function POST(
@@ -9,8 +9,12 @@ export async function POST(
 ) {
   const { id } = await params;
   const utilisateur = await getUtilisateurCourant();
-  
+
   if (!utilisateur) return NextResponse.json({ ok: false, error: "Non connecté" }, { status: 401 });
+  if (evaluerAcces(utilisateur, ["ACHETEUR", "VENDEUR", "ADMIN"]) !== "OK") {
+    return NextResponse.json({ ok: false, error: "Compte suspendu ou accès interdit" }, { status: 403 });
+  }
+
   const limite = await consommerTentative(`reel-partage:${utilisateur.id}`, 30, 10);
   if (!limite.autorise) return NextResponse.json({ ok: false, error: "Trop de partages. Réessaie plus tard." }, { status: 429 });
 
@@ -31,7 +35,7 @@ export async function POST(
     });
 
     return NextResponse.json({ ok: true });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ ok: false, error: "Erreur serveur" }, { status: 500 });
   }
 }
