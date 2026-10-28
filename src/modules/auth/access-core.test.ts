@@ -24,6 +24,21 @@ describe("evaluerAcces (autorisation par rôle)", () => {
     ).toBe("SUSPENDU");
   });
 
+  it("bloque un vendeur suspendu lors d'une action réservée aux vendeurs", () => {
+    expect(
+      evaluerAcces({ role: "VENDEUR", statut: "SUSPENDU" }, ["VENDEUR"]),
+    ).toBe("SUSPENDU");
+  });
+
+  it("bloque un acheteur suspendu lors d'une action de mutation générale", () => {
+    expect(
+      evaluerAcces(
+        { role: "ACHETEUR", statut: "SUSPENDU" },
+        ["ACHETEUR", "VENDEUR", "ADMIN"],
+      ),
+    ).toBe("SUSPENDU");
+  });
+
   it("autorise si le rôle figure parmi plusieurs rôles permis", () => {
     expect(
       evaluerAcces({ role: "ADMIN", statut: "ACTIF" }, [
