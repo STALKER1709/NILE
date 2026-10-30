@@ -22,6 +22,12 @@ export interface TransactionVendeur {
   /** Montant en FCFA, toujours positif : le signe découle du `type`. */
   montant: number;
   etat: EtatVente | "VERSE";
+  /** Détail vendeur : commission calculée sur le sous-total de la commande. */
+  commission?: number;
+  /** Mode de paiement d’origine ; null pour un reversement. */
+  modePaiement?: "MONETBIL" | "COD";
+  /** Net après commission lorsque NILE a encaissé le paiement (Mobile Money). */
+  netVendeur?: number | null;
 }
 
 /**
