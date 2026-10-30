@@ -177,6 +177,7 @@ model Vendeur {
   telephonePublic     String?
   whatsappPublic      String?
   emailPublic         String?
+  afficherCoordonnees Boolean       @default(false)
   statutValidation  StatutVendeur @default(EN_ATTENTE)
   // Infos de reversement (n° MoMo/Orange, etc.). JSON pour rester flexible.
   infosPaiement     Json?
