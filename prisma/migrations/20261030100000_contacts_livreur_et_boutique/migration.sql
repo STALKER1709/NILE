@@ -4,6 +4,8 @@ ALTER TABLE "Vendeur"
   ADD COLUMN "whatsappPublic" TEXT,
   ADD COLUMN "emailPublic" TEXT;
 
+ALTER TABLE "Produit" ADD COLUMN "caracteristiques" TEXT;
+
 ALTER TABLE "Livraison"
   ADD COLUMN "livreurNom" TEXT,
   ADD COLUMN "livreurTelephone" TEXT,
