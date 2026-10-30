@@ -47,6 +47,7 @@ export default async function VendeurPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Link href="/vendeur/boutique" className={btn("secondaire", "sm")}>Ma vitrine publique</Link>
           <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
             {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : vendeur.statutValidation === "REJETE" ? "Boutique rejetée" : vendeur.statutValidation === "SUSPENDU" ? "Boutique suspendue" : "En attente de validation"}
           </Badge>
