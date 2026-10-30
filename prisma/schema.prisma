@@ -252,6 +252,7 @@ model Produit {
   titre        String
   slug         String        @unique
   description  String
+  caracteristiques String? // Une caractéristique par ligne : libellé : valeur
   prix         Int // FCFA (XAF), entier
   // Marque, purement descriptive : elle sert à chercher et à filtrer, jamais à
   // séparer des stocks. Un vendeur ne tient pas un stock « par marque ».
