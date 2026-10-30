@@ -7,6 +7,9 @@ export const affectationSchema = z.object({
     .trim()
     .min(2, "Nom du transporteur requis.")
     .max(120),
+  livreurNom: z.string().trim().max(120).optional().or(z.literal("")),
+  livreurTelephone: z.string().trim().max(30).optional().or(z.literal("")),
+  livreurWhatsapp: z.string().trim().max(30).optional().or(z.literal("")),
 });
 
 export type AffectationInput = z.infer<typeof affectationSchema>;

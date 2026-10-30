@@ -174,6 +174,10 @@ export default async function GestionProduitPage({
             <label htmlFor="description" className={labelClass}>Description</label>
             <textarea id="description" name="description" required rows={4} defaultValue={produit.description} className={`${champClass} mt-1`} />
           </div>
+          <div>
+            <label htmlFor="caracteristiques" className={labelClass}>Caractéristiques techniques</label>
+            <textarea id="caracteristiques" name="caracteristiques" rows={4} maxLength={3000} defaultValue={produit.caracteristiques ?? ""} placeholder="Matière : coton&#10;Couleur : noir&#10;Garantie : 12 mois" className={`${champClass} mt-1`} />
+          </div>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label htmlFor="prix" className={labelClass}>Prix (FCFA)</label>

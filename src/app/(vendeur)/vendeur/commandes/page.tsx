@@ -181,6 +181,10 @@ export default async function CommandesVendeurPage({
                           className={`${champClass} mt-1`}
                         />
                       </div>
+                      <div className="grid flex-1 gap-2 sm:grid-cols-2">
+                        <input name="livreurTelephone" type="tel" placeholder="Téléphone du livreur (facultatif)" className={champClass} aria-label="Téléphone du livreur" />
+                        <input name="livreurWhatsapp" type="tel" placeholder="WhatsApp avec indicatif pays" className={champClass} aria-label="WhatsApp du livreur" />
+                      </div>
                       <BoutonSoumettre enCours="Un instant…" className={btn("primaire", "md", "sm:shrink-0")}>
                         Commencer la préparation
                       </BoutonSoumettre>

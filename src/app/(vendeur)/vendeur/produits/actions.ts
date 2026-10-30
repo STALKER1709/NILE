@@ -48,6 +48,7 @@ export async function creerProduitAction(formData: FormData): Promise<void> {
   const parsed = produitSchema.safeParse({
     titre: formData.get("titre"),
     description: formData.get("description"),
+    caracteristiques: formData.get("caracteristiques") ?? undefined,
     prix: formData.get("prix"),
     stock: formData.get("stock"),
     categorieId: formData.get("categorieId"),
@@ -146,6 +147,7 @@ export async function mettreAJourProduitAction(
   const parsed = produitSchema.safeParse({
     titre: formData.get("titre"),
     description: formData.get("description"),
+    caracteristiques: formData.get("caracteristiques") ?? undefined,
     prix: formData.get("prix"),
     stock: formData.get("stock"),
     categorieId: formData.get("categorieId"),

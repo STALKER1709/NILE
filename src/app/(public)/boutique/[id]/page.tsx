@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic";
 async function getBoutique(id: string) {
   return prisma.vendeur.findFirst({
     where: { id, statutValidation: "VALIDE" },
-    select: { id: true, nomBoutique: true, description: true, dateCreation: true },
+    select: { id: true, nomBoutique: true, description: true, dateCreation: true, localisationPublique: true, telephonePublic: true, whatsappPublic: true, emailPublic: true, afficherCoordonnees: true },
   });
 }
 
@@ -117,7 +117,15 @@ export default async function BoutiquePage({
           )}
         </div>
         {boutique.description && (
-          <p className="mt-3 text-sm text-slate-600">{boutique.description}</p>
+          <p className="mt-3 whitespace-pre-line text-sm leading-6 text-slate-600">{boutique.description}</p>
+        )}
+        {(boutique.localisationPublique || (boutique.afficherCoordonnees && (boutique.telephonePublic || boutique.whatsappPublic || boutique.emailPublic))) && (
+          <div className="mt-4 flex flex-wrap gap-2 border-t border-slate-100 pt-4 text-sm">
+            {boutique.localisationPublique && <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-50 px-3 py-2 text-slate-600">📍 {boutique.localisationPublique}</span>}
+            {boutique.afficherCoordonnees && boutique.telephonePublic && <a href={`tel:${boutique.telephonePublic}`} className="rounded-full border border-slate-200 px-3 py-2 font-semibold text-nile-700 hover:bg-nile-50">Appeler la boutique</a>}
+            {boutique.afficherCoordonnees && boutique.whatsappPublic && <a href={`https://wa.me/${boutique.whatsappPublic.replace(/\D/g, "")}`} target="_blank" rel="noopener noreferrer" className="rounded-full border border-slate-200 px-3 py-2 font-semibold text-nile-700 hover:bg-nile-50">WhatsApp</a>}
+            {boutique.afficherCoordonnees && boutique.emailPublic && <a href={`mailto:${boutique.emailPublic}`} className="rounded-full border border-slate-200 px-3 py-2 font-semibold text-nile-700 hover:bg-nile-50">E-mail</a>}
+          </div>
         )}
         </div>
       </div>

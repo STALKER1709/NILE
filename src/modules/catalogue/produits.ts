@@ -165,6 +165,7 @@ export async function creerProduit(
       titre: input.titre,
       slug: genererSlugProduit(input.titre),
       description: input.description,
+      caracteristiques: input.caracteristiques,
       prix: input.prix,
       stock: input.stock,
       marque: input.marque,
@@ -226,6 +227,7 @@ export async function mettreAJourProduit(
     data: {
       titre: input.titre,
       description: input.description,
+      caracteristiques: input.caracteristiques,
       prix: input.prix,
       stock: input.stock,
       marque: input.marque,
@@ -583,6 +585,7 @@ export async function creerProduitAvecVariantes(
       titre: input.titre,
       slug: genererSlugProduit(input.titre),
       description: input.description,
+      caracteristiques: input.caracteristiques,
       prix: input.prix,
       stock: variantes.length > 0 ? 0 : input.stock,
       marque: input.marque,
