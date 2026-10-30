@@ -10,6 +10,7 @@
 
 /** État d'une vente du point de vue du règlement au vendeur. */
 export type EtatVente = "REGLEE" | "EN_ATTENTE" | "ANNULEE";
+export type EtatReversement = "VERSE" | "EN_ATTENTE" | "REJETE";
 
 export interface TransactionVendeur {
   id: string;
@@ -21,7 +22,7 @@ export interface TransactionVendeur {
   reference: string;
   /** Montant en FCFA, toujours positif : le signe découle du `type`. */
   montant: number;
-  etat: EtatVente | "VERSE";
+  etat: EtatVente | EtatReversement;
   /** Détail vendeur : commission calculée sur le sous-total de la commande. */
   commission?: number;
   /** Mode de paiement d’origine ; null pour un reversement. */
