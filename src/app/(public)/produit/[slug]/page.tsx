@@ -298,6 +298,22 @@ export default async function FicheProduitPage({
             </p>
           </div>
 
+          {produit.caracteristiques && (
+            <section className="rounded-xl border border-contour-carte bg-white p-5">
+              <h2 className="mb-3 text-sm font-bold text-slate-900">Caractéristiques du produit</h2>
+              <dl className="grid gap-2 sm:grid-cols-2">
+                {produit.caracteristiques.split("\n").map((ligne, index) => {
+                  const [libelle, ...reste] = ligne.split(":");
+                  return ligne.trim() ? (
+                    <div key={index} className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
+                      <dt className="text-xs text-slate-500">{reste.length ? libelle.trim() : "Détail"}</dt>
+                      <dd className="mt-0.5 font-semibold text-slate-800">{reste.length ? reste.join(":").trim() : ligne.trim()}</dd>
+                    </div>
+                  ) : null;
+                })}
+              </dl>
+            </section>
+          )}
           {/* Repères produit */}
           <div className="grid grid-cols-2 gap-3">
             {/* La marque prend la place de la catégorie quand elle existe :
