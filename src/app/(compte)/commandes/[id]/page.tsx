@@ -433,6 +433,16 @@ export default async function DetailCommandePage({
               </span>
               {commande.livraison.transporteur ? ` · ${commande.livraison.transporteur}` : ""}
             </p>
+            {(commande.livraison.livreurTelephone || commande.livraison.livreurWhatsapp) && commande.livraison.statut !== "LIVREE" && (
+              <div className="mt-3 rounded-xl border border-nile-100 bg-nile-50 p-3">
+                <p className="font-semibold text-nile-900">Contacter votre livreur</p>
+                {commande.livraison.livreurNom && <p className="mt-0.5 text-xs text-slate-600">{commande.livraison.livreurNom}</p>}
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {commande.livraison.livreurTelephone && <a href={`tel:${commande.livraison.livreurTelephone}`} className={btn("secondaire", "sm")}>Appeler le livreur</a>}
+                  {commande.livraison.livreurWhatsapp && <a href={`https://wa.me/${commande.livraison.livreurWhatsapp.replace(/\\D/g, "")}?text=${encodeURIComponent(`Bonjour, je vous contacte au sujet de ma commande ${commande.numero}.`)}`} target="_blank" rel="noopener noreferrer" className={btn("secondaire", "sm")}>WhatsApp</a>}
+                </div>
+              </div>
+            )}
             {commande.livraison.preuveUrl && (
               <div className="mt-2">
                 <p className="text-etiquette-xs text-slate-500">Preuve de livraison</p>
