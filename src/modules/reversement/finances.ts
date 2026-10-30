@@ -108,10 +108,12 @@ export async function getFinancesVendeur(
           sousTotal: true,
           commande: {
             select: {
+              id: true,
               numero: true,
               dateCreation: true,
               statutCommande: true,
               statutPaiement: true,
+              modePaiement: true,
             },
           },
         },
@@ -124,18 +126,47 @@ export async function getFinancesVendeur(
       }),
     ]);
 
-  const ventes: TransactionVendeur[] = lignes.map((l) => ({
-    id: l.id,
-    date: l.commande.dateCreation,
-    type: "VENTE",
-    libelle:
-      l.quantite > 1
-        ? `Vente · ${l.titreProduit} × ${l.quantite}`
-        : `Vente · ${l.titreProduit}`,
-    reference: l.commande.numero,
-    montant: l.sousTotal,
-    etat: etatVente(l.commande.statutCommande, l.commande.statutPaiement),
-  }));
+  // Regrouper les lignes par commande avant de calculer la commission :
+  // l'arrondi se fait une fois sur le sous-total vendeur de la commande.
+  const lignesParCommande = new Map<string, typeof lignes>();
+  for (const ligne of lignes) {
+    const groupe = lignesParCommande.get(ligne.commande.id) ?? [];
+    groupe.push(ligne);
+    lignesParCommande.set(ligne.commande.id, groupe);
+  }
+
+  const ventes: TransactionVendeur[] = [...lignesParCommande.entries()].map(
+    ([commandeId, groupe]) => {
+      const premiere = groupe[0]!;
+      const montant = groupe.reduce((total, ligne) => total + ligne.sousTotal, 0);
+      // La boutique maison est exemptée. Pour les vendeurs tiers, appliquer
+      // le taux configuré et l'arrondi FCFA au sous-total de la commande.
+      const commission = solde.commission > 0
+        ? Math.round((montant * solde.tauxPourcent) / 100)
+        : 0;
+      const modePaiement = premiere.commande.modePaiement;
+      const produits = groupe.map((ligne) =>
+        ligne.quantite > 1
+          ? ligne.titreProduit + " × " + ligne.quantite
+          : ligne.titreProduit,
+      ).join(", ");
+
+      return {
+        id: commandeId,
+        date: premiere.commande.dateCreation,
+        type: "VENTE",
+        libelle: "Vente · " + produits,
+        reference: premiere.commande.numero,
+        montant,
+        etat: etatVente(premiere.commande.statutCommande, premiere.commande.statutPaiement),
+        commission,
+        modePaiement,
+        // En COD, le vendeur a déjà encaissé les espèces : la commission
+        // reste due et s'impute sur ses reversements Mobile Money futurs.
+        netVendeur: modePaiement === "MONETBIL" ? montant - commission : null,
+      };
+    },
+  );
 
   const versements: TransactionVendeur[] = reversements.map((r) => ({
     id: r.id,
