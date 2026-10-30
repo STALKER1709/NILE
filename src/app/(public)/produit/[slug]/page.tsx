@@ -303,11 +303,13 @@ export default async function FicheProduitPage({
               <h2 className="mb-3 text-sm font-bold text-slate-900">Caractéristiques du produit</h2>
               <dl className="grid gap-2 sm:grid-cols-2">
                 {produit.caracteristiques.split("\n").map((ligne, index) => {
-                  const [libelle, ...reste] = ligne.split(":");
+                  const morceaux = ligne.split(":");
+                  const libelle = morceaux[0]?.trim() || "Détail";
+                  const valeur = morceaux.length > 1 ? morceaux.slice(1).join(":").trim() : ligne.trim();
                   return ligne.trim() ? (
                     <div key={index} className="rounded-lg bg-slate-50 px-3 py-2 text-sm">
-                      <dt className="text-xs text-slate-500">{reste.length ? libelle.trim() : "Détail"}</dt>
-                      <dd className="mt-0.5 font-semibold text-slate-800">{reste.length ? reste.join(":").trim() : ligne.trim()}</dd>
+                      <dt className="text-xs text-slate-500">{morceaux.length > 1 ? libelle : "Détail"}</dt>
+                      <dd className="mt-0.5 font-semibold text-slate-800">{valeur}</dd>
                     </div>
                   ) : null;
                 })}
