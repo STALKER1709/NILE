@@ -172,6 +172,11 @@ model Vendeur {
   utilisateur       Utilisateur   @relation(fields: [utilisateurId], references: [id], onDelete: Cascade)
   nomBoutique       String
   description       String?
+  // Coordonnées commerciales volontairement distinctes du profil privé.
+  localisationPublique String?
+  telephonePublic     String?
+  whatsappPublic      String?
+  emailPublic         String?
   statutValidation  StatutVendeur @default(EN_ATTENTE)
   // Infos de reversement (n° MoMo/Orange, etc.). JSON pour rester flexible.
   infosPaiement     Json?
@@ -461,7 +466,10 @@ model Livraison {
   id                       String                     @id @default(uuid())
   commandeId               String                     @unique
   commande                 Commande                   @relation(fields: [commandeId], references: [id], onDelete: Cascade)
-  transporteur             String? // texte libre au MVP (suivi manuel)
+  transporteur             String? // nom du transporteur / livreur
+  livreurNom               String?
+  livreurTelephone         String?
+  livreurWhatsapp          String?
   statut                   StatutLivraison            @default(EN_ATTENTE)
   preuveUrl                String? // preuve de livraison (photo/signature)
   statutCash               StatutCashCOD              @default(NON_APPLICABLE)
