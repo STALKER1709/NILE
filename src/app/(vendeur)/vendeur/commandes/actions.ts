@@ -57,6 +57,9 @@ export async function affecterTransporteurVendeurAction(
   const parsed = affectationSchema.safeParse({
     commandeId: formData.get("commandeId"),
     transporteur: formData.get("transporteur"),
+    livreurNom: formData.get("livreurNom") || undefined,
+    livreurTelephone: formData.get("livreurTelephone") || undefined,
+    livreurWhatsapp: formData.get("livreurWhatsapp") || undefined,
   });
   if (!parsed.success) {
     redirect(
@@ -65,7 +68,11 @@ export async function affecterTransporteurVendeurAction(
   }
   await exigerProprietaireCommande(parsed.data.commandeId);
   retour(
-    await affecterTransporteur(parsed.data.commandeId, parsed.data.transporteur),
+    await affecterTransporteur(parsed.data.commandeId, parsed.data.transporteur, {
+      nom: parsed.data.livreurNom,
+      telephone: parsed.data.livreurTelephone,
+      whatsapp: parsed.data.livreurWhatsapp,
+    }),
     "preparation",
   );
 }
