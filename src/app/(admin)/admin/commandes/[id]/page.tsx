@@ -82,11 +82,15 @@ export default async function AdminDetailCommandePage({
         <h2 className="text-sm font-bold text-slate-900">Gestion de la livraison</h2>
 
         {peutAffecterTransporteur(st) && (
-          <form action={affecterTransporteurAction} className="flex items-end gap-2">
+          <form action={affecterTransporteurAction} className="flex flex-wrap items-end gap-2">
             <input type="hidden" name="commandeId" value={commande.id} />
             <div className="flex-1">
               <label htmlFor="transporteur" className="block text-xs text-slate-500">Transporteur</label>
               <input id="transporteur" name="transporteur" required placeholder="Nom du transporteur / livreur" className={`${champClass} mt-1`} />
+            </div>
+            <div className="grid flex-1 gap-2 sm:grid-cols-2">
+              <div><label htmlFor="livreurTelephone" className="block text-xs text-slate-500">Téléphone du livreur</label><input id="livreurTelephone" name="livreurTelephone" type="tel" placeholder="6XX XXX XXX" className={champClass} /></div>
+              <div><label htmlFor="livreurWhatsapp" className="block text-xs text-slate-500">WhatsApp (indicatif +237)</label><input id="livreurWhatsapp" name="livreurWhatsapp" type="tel" placeholder="2376XXXXXXXX" className={champClass} /></div>
             </div>
             <button type="submit" className={btn("primaire", "md")}>Affecter</button>
           </form>
