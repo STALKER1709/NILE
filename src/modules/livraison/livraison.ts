@@ -37,6 +37,7 @@ async function chargerCommande(commandeId: string) {
 export async function affecterTransporteur(
   commandeId: string,
   transporteur: string,
+  contact?: { nom?: string; telephone?: string; whatsapp?: string },
 ): Promise<ResultatLivraison> {
   const commande = await chargerCommande(commandeId);
   if (!commande || !commande.livraison) return { ok: false, code: "INTROUVABLE" };
@@ -50,7 +51,14 @@ export async function affecterTransporteur(
     }),
     prisma.livraison.update({
       where: { commandeId },
-      data: { transporteur, statut: "AFFECTEE", dateAffectation: new Date() },
+      data: {
+        transporteur,
+        livreurNom: contact?.nom?.trim() || transporteur,
+        livreurTelephone: contact?.telephone?.trim() || null,
+        livreurWhatsapp: contact?.whatsapp?.replace(/\\D/g, "") || null,
+        statut: "AFFECTEE",
+        dateAffectation: new Date(),
+      },
     }),
   ]);
   // Cette étape ne prévenait personne : l'acheteur voyait « Préparation »
