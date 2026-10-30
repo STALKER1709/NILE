@@ -11,6 +11,7 @@ export const produitSchema = z.object({
     .trim()
     .min(10, "La description est trop courte.")
     .max(5000),
+  caracteristiques: z.string().max(3000).optional().transform((v) => v?.trim() || null),
   prix: z.coerce
     .number({ invalid_type_error: "Prix invalide." })
     .int("Le prix doit être un entier (FCFA).")
