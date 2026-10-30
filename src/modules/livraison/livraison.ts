@@ -55,7 +55,7 @@ export async function affecterTransporteur(
         transporteur,
         livreurNom: contact?.nom?.trim() || transporteur,
         livreurTelephone: contact?.telephone?.trim() || null,
-        livreurWhatsapp: contact?.whatsapp?.replace(/\\D/g, "") || null,
+        livreurWhatsapp: contact?.whatsapp?.replace(/\D/g, "") || null,
         statut: "AFFECTEE",
         dateAffectation: new Date(),
       },
