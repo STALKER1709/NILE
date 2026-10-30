@@ -8,3 +8,5 @@ ALTER TABLE "Livraison"
   ADD COLUMN "livreurNom" TEXT,
   ADD COLUMN "livreurTelephone" TEXT,
   ADD COLUMN "livreurWhatsapp" TEXT;
+
+ALTER TABLE "Vendeur" ADD COLUMN "afficherCoordonnees" BOOLEAN NOT NULL DEFAULT false;
