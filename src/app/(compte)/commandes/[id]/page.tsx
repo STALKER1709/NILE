@@ -494,11 +494,15 @@ export default async function DetailCommandePage({
         </ul>
 
         <div className="mt-5 space-y-2 border-t border-contour-carte pt-4 text-corps-sm">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <span className="text-slate-600">Sous-total des articles</span>
+            <Prix montant={commande.total - commande.fraisLivraison - commande.fraisPaiement + commande.remise} className="text-slate-900" />
+          </div>
           {commande.remise > 0 && (
             <>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-slate-600">Sous-total</span>
-                <Prix montant={commande.total + commande.remise} className="text-slate-900" />
+                <Prix montant={commande.total - commande.fraisLivraison - commande.fraisPaiement + commande.remise} className="text-slate-900" />
               </div>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-slate-600">
@@ -510,12 +514,22 @@ export default async function DetailCommandePage({
               </div>
             </>
           )}
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <span className="text-slate-600">Livraison</span>
+            <Prix montant={commande.fraisLivraison} className="text-slate-900" />
+          </div>
+          {commande.fraisPaiement > 0 && (
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <span className="text-slate-600">Frais de paiement HR-Skills Pay</span>
+              <Prix montant={commande.fraisPaiement} className="text-slate-900" />
+            </div>
+          )}
           <div className="flex flex-wrap items-baseline justify-between gap-3 text-corps-lg font-bold">
             <span className="text-slate-900">Total</span>
             <Prix montant={commande.total} className="whitespace-nowrap text-nile-800" />
           </div>
           <p className="pt-1 text-etiquette-xs text-slate-500">
-            Livraison gratuite · paiement{" "}
+            Livraison : 1 500 FCFA · paiement{" "}
             {commande.modePaiement === "COD" ? "en espèces à la livraison" : "Mobile Money"}
           </p>
         </div>
