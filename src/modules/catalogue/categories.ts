@@ -166,34 +166,53 @@ export function navigationCategories(
   const parOrdre = <T extends { ordre: number; nom: string }>(a: T, b: T) =>
     a.ordre !== b.ordre ? a.ordre - b.ordre : a.nom.localeCompare(b.nom, "fr");
 
-  const active = slugActif
-    ? categories.find((c) => c.slug === slugActif)
-    : undefined;
-  // La branche à déplier : le rayon lui-même, ou celui de la sous-catégorie
-  // choisie.
-  const brancheOuverte = active
-    ? (active.parentId ?? active.id)
-    : null;
+  const parId = new Map(categories.map((c) => [c.id, c]));
+  const active = slugActif ? categories.find((c) => c.slug === slugActif) : undefined;
+  const ancetres = new Set<string>();
+  let courant = active;
+  const visites = new Set<string>();
+  while (courant && !visites.has(courant.id)) {
+    visites.add(courant.id);
+    ancetres.add(courant.id);
+    courant = courant.parentId ? parId.get(courant.parentId) : undefined;
+  }
 
+  const libellesPublics: Record<string, string> = {
+    "bien-etre-intime": "Bien-être personnel",
+    "accessoires-intimes-sextoys": "Accessoires personnels",
+  };
   const entree = (
     c: Pick<Categorie, "id" | "nom" | "slug">,
     niveau: number,
   ): EntreeNavigation => ({
     id: c.id,
-    nom: c.nom,
+    nom: libellesPublics[c.slug] ?? c.nom,
     slug: c.slug,
     niveau,
     actif: c.slug === slugActif,
   });
 
   const sortie: EntreeNavigation[] = [];
+  const enfantsDe = (parentId: string) =>
+    categories.filter((c) => c.parentId === parentId).sort(parOrdre);
+
+  const ajouterBranche = (
+    noeud: Pick<Categorie, "id" | "nom" | "slug">,
+    niveau: number,
+  ) => {
+    sortie.push(entree(noeud, niveau));
+    if (!ancetres.has(noeud.id)) return;
+    for (const enfant of enfantsDe(noeud.id)) {
+      ajouterBranche(enfant, niveau + 1);
+    }
+  };
+
   for (const racine of categories.filter((c) => !c.parentId).sort(parOrdre)) {
     sortie.push(entree(racine, 0));
-    if (racine.id !== brancheOuverte) continue;
-    for (const enfant of categories
-      .filter((c) => c.parentId === racine.id)
-      .sort(parOrdre)) {
-      sortie.push(entree(enfant, 1));
+    if (ancetres.has(racine.id)) {
+      for (const enfant of enfantsDe(racine.id)) {
+        ajouterBranche(enfant, 1);
+      }
     }
   }
   return sortie;
