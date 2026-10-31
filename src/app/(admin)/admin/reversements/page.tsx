@@ -26,7 +26,7 @@ export default async function ReversementsPage({
     listerSoldesVendeurs(),
     listerDemandesReversement(),
   ]);
-  const totalDu = soldes.reduce((s, v) => s + v.solde, 0);
+  const totalDu = soldes.filter((v) => v.eligibleReversement).reduce((s, v) => s + v.solde, 0);
   const taux = soldes[0]?.tauxPourcent;
 
   return (
@@ -66,7 +66,7 @@ export default async function ReversementsPage({
       )}
 
       <Carte className="p-4">
-        <p className="text-sm text-slate-500">Total disponible à demander</p>
+        <p className="text-sm text-slate-500">Total des soldes éligibles (boutique et KYC validés)</p>
         <Prix montant={totalDu} className="mt-1 block text-2xl font-bold text-nile" />
       </Carte>
 
