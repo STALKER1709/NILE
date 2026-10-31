@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { exigerVendeur } from "@/modules/auth/access";
-import { listerCategories, aplatirPourSelect } from "@/modules/catalogue/categories";
+import { listerCategories } from "@/modules/catalogue/categories";
 import { axesParCategorie } from "@/modules/catalogue/axes";
 import { listerMarquesVendeur } from "@/modules/catalogue/produits";
 import { creerProduitAction } from "@/app/(vendeur)/vendeur/produits/actions";
@@ -19,7 +19,7 @@ export default async function NouveauProduitPage({
     listerCategories(),
     listerMarquesVendeur(vendeur.id),
   ]);
-  const categories = aplatirPourSelect(categoriesBrutes);
+  const categories = categoriesBrutes.map(({ id, nom, parentId }) => ({ id, nom, parentId }));
   const axes = await axesParCategorie(categoriesBrutes.map((c) => c.id));
   const axesJSON = Object.fromEntries([...axes.entries()]);
 
