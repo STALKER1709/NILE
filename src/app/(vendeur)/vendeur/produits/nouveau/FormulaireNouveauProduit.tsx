@@ -4,8 +4,9 @@ import { useMemo, useState } from "react";
 import type { AxeDeclinaison } from "@/modules/catalogue/variante-core";
 import { Carte, champClass, labelClass, btn } from "@/components/ui/kit";
 import { BoutonSoumettre } from "@/components/ui/BoutonSoumettre";
+import { SelecteurCategorieCascade } from "@/components/categorie/SelecteurCategorieCascade";
 
-type CategorieOption = { id: string; label: string };
+type CategorieOption = { id: string; nom: string; parentId: string | null };
 type VarianteForm = { valeur1: string; valeur2: string; stock: number };
 
 export function FormulaireNouveauProduit({
@@ -110,13 +111,7 @@ export function FormulaireNouveauProduit({
               <datalist id="marques-connues">{marques.map((m) => <option key={m} value={m} />)}</datalist>
             </div>
           </div>
-          <div>
-            <label htmlFor="categorieId" className={labelClass}>Catégorie</label>
-            <select id="categorieId" name="categorieId" required value={categorieId} onChange={(e) => changerCategorie(e.target.value)} className={`${champClass} mt-1`}>
-              <option value="">Choisir une catégorie…</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{c.label}</option>)}
-            </select>
-          </div>
+          <SelecteurCategorieCascade categories={categories} value={categorieId} onChange={changerCategorie} />
           {axesActifs && (
             <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3 text-sm text-blue-950">
               <strong>La catégorie permet les déclinaisons.</strong>
