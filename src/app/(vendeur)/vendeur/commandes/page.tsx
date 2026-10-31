@@ -55,12 +55,12 @@ export default async function CommandesVendeurPage({
   ]);
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto w-full max-w-[1440px] space-y-6 pb-10">
       {/* Une nouvelle commande, un paiement confirmé, une réception attestée :
           l'écran se met à jour sans que le vendeur ait à recharger. */}
       <RafraichirSiChange signature={signature} lire={signatureCommandesVendeurAction} />
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mes commandes</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">Commandes de la boutique</h1>
         <Link href="/vendeur" className="text-sm text-nile hover:underline">← Espace vendeur</Link>
       </div>
 
@@ -130,6 +130,18 @@ export default async function CommandesVendeurPage({
                   <BadgeStatutPaiement statut={c.statutPaiement} />
                 </div>
               </div>
+
+              {c.gereeParVendeur && c.statutCommande !== "ANNULEE" && c.statutCommande !== "REFUSEE" && (
+                <div className="mt-3">
+                  <Link
+                    href={`/vendeur/commandes/${c.id}/etiquette`}
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-[#0B192C] transition hover:border-amber-400 hover:bg-amber-50"
+                  >
+                    <span aria-hidden="true">▦</span>
+                    Préparer / imprimer l'étiquette colis
+                  </Link>
+                </div>
+              )}
 
               <ul className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-sm">
                 {c.lignes.map((l) => (

@@ -35,10 +35,10 @@ export default async function VendeurPage() {
   const recentes = commandes.slice(0, 5);
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto w-full max-w-[1440px] space-y-6 pb-10">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">
             Tableau de bord
           </h1>
           <p className="mt-1 text-sm text-slate-500">

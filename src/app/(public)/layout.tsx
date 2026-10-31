@@ -22,7 +22,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
   const rayons = categories.filter((c) => !c.parentId).slice(0, 10).map((c) => ({ nom: c.nom, slug: c.slug }));
   return <>
     <Entete utilisateur={utilisateur ? { nom: utilisateur.nom, role: utilisateur.role } : null} nbArticles={nbArticles} nbFavoris={nbFavoris} categories={rayons} />
-    <main className="mx-auto w-full min-w-0 max-w-[1284px] px-3 py-4 sm:px-[22px] sm:py-7">{children}</main>
+    <main className="mx-auto w-full min-w-0 max-w-[1360px] px-4 py-5 sm:px-8 sm:py-8 lg:px-14">{children}</main>
     <PiedDePage />
     {env.CONTACT_WHATSAPP && <BulleWhatsApp numero={env.CONTACT_WHATSAPP} />}
     <RetourHaut />

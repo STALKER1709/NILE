@@ -108,7 +108,7 @@ export function NavVendeur({
     exact ? chemin === href : chemin === href || chemin.startsWith(`${href}/`);
 
   return (
-    <aside className="w-full min-w-0 self-start rounded-2xl border border-stone-200 bg-white p-2 lg:sticky lg:top-24 lg:w-[250px] lg:shrink-0">
+    <aside className="w-full min-w-0 self-start rounded-2xl border border-stone-200 bg-white p-2 lg:sticky lg:top-24 lg:w-[250px] lg:shrink-0 print:hidden">
       {/* En-tête boutique (grand écran) */}
       <div className="mb-5 hidden items-center gap-3 lg:flex">
         <span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-blue-100 text-lg font-bold text-blue-900">

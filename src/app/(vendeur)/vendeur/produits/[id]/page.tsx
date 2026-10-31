@@ -66,9 +66,9 @@ export default async function GestionProduitPage({
   // l'acheteur ni pour le catalogue vendeur actif.
   if (produit.statut === "SUPPRIME") {
     return (
-      <div className="mx-auto max-w-lg space-y-5">
+      <div className="mx-auto w-full max-w-5xl space-y-6 pb-10">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="min-w-0 break-words text-titre-sm text-nile-800 sm:text-titre-md">{produit.titre}</h1>
+          <h1 className="min-w-0 break-words text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">{produit.titre}</h1>
           <Link href="/vendeur/produits" className="shrink-0 text-xs text-slate-500 hover:underline sm:text-sm">← Mes produits</Link>
         </div>
 
@@ -79,7 +79,7 @@ export default async function GestionProduitPage({
           <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
         )}
 
-        <Carte className="p-4">
+        <Carte className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex items-center gap-3">
             <Vignette url={produit.images[0]?.url} alt="" sizes="64px" className="h-16 w-16 shrink-0 rounded border border-contour-carte" />
             <div className="min-w-0">
@@ -137,7 +137,7 @@ export default async function GestionProduitPage({
 
       {/* Images */}
       <Carte className="p-4">
-        <h2 className="text-sm font-bold text-slate-900">Images</h2>
+        <h2 className="text-base font-extrabold text-[#0B192C]">Images du produit</h2>
         {produit.images.length > 0 ? (
           <ul className="mt-3 flex flex-wrap gap-3">
             {produit.images.map((img) => (
@@ -163,7 +163,7 @@ export default async function GestionProduitPage({
 
       {/* Informations */}
       <Carte className="p-4">
-        <h2 className="mb-3 text-sm font-bold text-slate-900">Informations</h2>
+        <h2 className="mb-3 text-base font-extrabold text-[#0B192C]">Informations du produit</h2>
         <form action={mettreAJourProduitAction} className="space-y-4">
           <input type="hidden" name="produitId" value={produit.id} />
           <div>
@@ -242,7 +242,7 @@ export default async function GestionProduitPage({
 
       {/* Déclinaisons */}
       <Carte className="p-4">
-        <h2 className="text-sm font-bold text-slate-900">Déclinaisons</h2>
+        <h2 className="text-base font-extrabold text-[#0B192C]">Variantes et stocks</h2>
         {axes.length === 0 ? (
           <p className="mt-1 text-xs leading-relaxed text-slate-500">
             La catégorie de ce produit ne déclare aucun axe : il se vend en une
