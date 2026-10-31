@@ -226,14 +226,14 @@ export default async function CataloguePage({
   );
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[250px_minmax(0,1fr)] lg:gap-8">
+    <div className="mx-auto grid w-full max-w-[1360px] grid-cols-1 gap-6 px-4 pb-12 sm:px-6 lg:grid-cols-12 lg:gap-8 lg:px-8">
       {/* Colonne de filtres : latérale et collante sur grand écran, repliable
           sur mobile pour que le premier produit reste visible sans défiler. */}
-      <aside className="min-w-0">
-        <div className="hidden space-y-4 rounded-2xl border border-stone-200 bg-white p-5 lg:sticky lg:top-40 lg:block">
+      <aside className="min-w-0 lg:col-span-3">
+        <div className="hidden space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm lg:sticky lg:top-36 lg:block">
           {filtres}
         </div>
-        <details className="group rounded-2xl border border-stone-200 bg-white lg:hidden" open={filtreActif}>
+        <details className="group rounded-2xl border border-slate-200 bg-white shadow-sm lg:hidden" open={filtreActif}>
           <summary className="flex cursor-pointer list-none items-center justify-between p-4 font-semibold text-slate-900">
             Filtres
             <span className="text-slate-400 transition-transform group-open:rotate-180">▾</span>
@@ -242,13 +242,13 @@ export default async function CataloguePage({
         </details>
       </aside>
 
-      <div className="min-w-0 flex-1 space-y-5">
+      <div className="min-w-0 space-y-6 lg:col-span-9">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="nile-eyebrow mb-2 text-blue-700">{categorieChoisie ? "Rayon sélectionné" : "Le catalogue NILE"}</p>\n            <h1 className="font-titre text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
+            <p className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-amber-600">{categorieChoisie ? "Rayon sélectionné" : "Le catalogue NILE"}</p>\n            <h1 className="font-titre text-3xl font-extrabold tracking-tight text-[#0B192C] sm:text-4xl">
               {categorieChoisie ? nomCategoriePublic : "Tous les produits"}
             </h1>
-            <p className="mt-1 text-corps-sm text-slate-500">
+            <p className="mt-2 text-sm leading-6 text-slate-500">
               {q
                 ? `${total} résultat${total > 1 ? "s" : ""} pour « ${q} »`
                 : "Découvrez nos meilleures offres sélectionnées pour vous."}
@@ -314,7 +314,7 @@ export default async function CataloguePage({
         // 2 colonnes dès le plus petit écran : la maquette en prévoyait une
         // seule, mais 12 grandes cartes empilées font ~6 900 px de défilement.
         // La data mobile est chère au Cameroun, on privilégie la densité.
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-3">
           {produits.map((p, i) => (
             <CarteProduitVitrine
               key={p.id}
