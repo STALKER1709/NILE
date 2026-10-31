@@ -198,6 +198,7 @@ function ChronologieCommande({ commande }: { commande: Awaited<ReturnType<typeof
   const annulee = statut === "ANNULEE" || statut === "REFUSEE";
   const etapes = [
     { libelle: "Commande reçue", atteinte: true, date: commande.dateCreation },
+    { libelle: "Commande confirmée", atteinte: ["CONFIRMEE", "EN_PREPARATION", "EXPEDIEE", "LIVREE"].includes(statut), date: null },
     { libelle: "Préparation", atteinte: ["EN_PREPARATION", "EXPEDIEE", "LIVREE"].includes(statut), date: null },
     { libelle: "Expédition", atteinte: ["EXPEDIEE", "LIVREE"].includes(statut), date: commande.livraison?.dateAffectation ?? null },
     { libelle: "Livraison confirmée", atteinte: terminee, date: commande.livraison?.confirmationAcheteur ?? commande.livraison?.dateLivraison ?? null },
@@ -209,7 +210,7 @@ function ChronologieCommande({ commande }: { commande: Awaited<ReturnType<typeof
         {annulee && <span className="text-[11px] font-medium text-red-700">Parcours interrompu</span>}
         {terminee && <span className="text-[11px] font-medium text-emerald-700">Parcours terminé</span>}
       </div>
-      <ol className="grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-4">
+      <ol className="grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-5">
         {etapes.map((etape, index) => (
           <li key={etape.libelle} className="flex min-w-0 items-start gap-2">
             <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px] font-bold ${etape.atteinte ? "bg-nile-700 text-white" : "border border-slate-300 bg-white text-slate-400"}`}>
