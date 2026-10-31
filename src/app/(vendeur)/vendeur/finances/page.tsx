@@ -1,3 +1,4 @@
+import { POLITIQUE_VENDEUR } from "@/modules/vendeur/politique";
 import Link from "next/link";
 import { exigerVendeur } from "@/modules/auth/access";
 import { getFinancesVendeur } from "@/modules/reversement/finances";
@@ -185,10 +186,6 @@ export default async function FinancesVendeurPage({
               Renseigner mes coordonnées
             </Link>
           </>
-        ) : solde.solde < 10_000 ? (
-          <p className="mt-2 text-corps-sm text-slate-600">
-            Votre solde disponible doit atteindre 10 000 FCFA pour pouvoir demander un reversement.
-          </p>
         ) : solde.solde <= 0 ? (
           <p className="mt-2 text-corps-sm text-slate-600">
             {solde.enAttente > 0 ? (
@@ -199,6 +196,10 @@ export default async function FinancesVendeurPage({
             ) : (
               "Rien à demander pour l'instant : vos ventes doivent être livrées et payées pour alimenter votre solde."
             )}
+          </p>
+        ) : solde.solde < POLITIQUE_VENDEUR.reversement.minimumXaf ? (
+          <p className="mt-2 text-corps-sm text-slate-600">
+            Votre solde disponible doit atteindre {POLITIQUE_VENDEUR.reversement.minimumXaf.toLocaleString("fr-FR")} FCFA pour pouvoir demander un reversement.
           </p>
         ) : (
           <>
@@ -216,7 +217,7 @@ export default async function FinancesVendeurPage({
                   name="montant"
                   type="number"
                   required
-                  min={10_000}
+                  min={POLITIQUE_VENDEUR.reversement.minimumXaf}
                   max={solde.solde}
                   step={1}
                   placeholder={String(solde.solde)}
