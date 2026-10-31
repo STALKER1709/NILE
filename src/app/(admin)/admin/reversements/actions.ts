@@ -87,7 +87,9 @@ export async function traiterDemandeAction(formData: FormData): Promise<void> {
         ? "Cette demande a déjà été traitée."
         : res.code === "VENDEUR_NON_VALIDE"
           ? "Le vendeur ou son KYC n’est plus validé : le paiement est bloqué."
-          : "Demande introuvable.";
+          : res.code === "MONTANT_MINIMUM"
+            ? "Cette demande est inférieure au seuil de 10 000 FCFA et ne peut pas être payée."
+            : "Demande introuvable.";
     redirect(`/admin/reversements?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(
