@@ -54,7 +54,6 @@ export async function traiterDemandeAction(formData: FormData): Promise<void> {
   }
   const res = await traiterDemandeReversement(
     parsed.data.reversementId,
-    "REJETE",
     parsed.data.commentaire,
   );
   if (!res.ok) {
