@@ -231,6 +231,35 @@ export class HrSkillsPayProvider implements PaymentProvider {
     }
   }
 
+  /** Statut Cash-Out : l'API documente GET /v1/payments/:reference avec la Clé A. */
+  async lireStatutDecaissement(referenceFournisseur: string): Promise<{ ok: true; statut: string } | { ok: false }> {
+    try {
+      const reponse = await fetch(
+        `${this.racine()}/v1/payments/${encodeURIComponent(referenceFournisseur)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.cleA()}`,
+            "X-Transaction-Token": await this.transactionToken(),
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+        },
+      );
+      const texte = await reponse.text();
+      if (!reponse.ok) {
+        console.error("[hrskills] lecture du statut Cash-Out:", reponse.status, texte.slice(0, 200));
+        return { ok: false };
+      }
+      const enveloppe = JSON.parse(texte) as { data?: { status?: string }; status?: string };
+      const statut = enveloppe.data?.status ?? enveloppe.status;
+      return statut ? { ok: true, statut } : { ok: false };
+    } catch (erreur) {
+      console.error("[hrskills] lecture du statut Cash-Out échouée:", erreur);
+      return { ok: false };
+    }
+  }
+
   /**
    * Décaissement Mobile Money vers le portefeuille du vendeur.
    * La référence interne (UUID du reversement) sert de clé d'idempotence :
