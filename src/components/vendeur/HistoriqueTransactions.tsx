@@ -91,7 +91,7 @@ export function HistoriqueTransactions({
                       </span>
                     </td>
                     <td className="px-5 py-4 text-right text-corps-sm font-semibold text-slate-900">
-                      {credit && !neutre ? "+" : !credit ? "−" : ""}
+                      {credit && !neutre ? "+" : !credit && t.etat === "VERSE" ? "−" : ""}
                       <Prix montant={t.montant} />
                       {credit && t.modePaiement && (
                         <span className="mt-1 block text-[10px] font-medium text-slate-400">
@@ -100,14 +100,12 @@ export function HistoriqueTransactions({
                       )}
                     </td>
                     <td className="px-5 py-4 text-right text-corps-sm">
-                      {credit ? (
-                        neutre ? <span className="text-slate-400">—</span> : (
-                          <span className="font-medium text-slate-700"><Prix montant={t.commission ?? 0} /></span>
-                        )
+                      {credit && t.etat === "REGLEE" ? (
+                        <span className="font-medium text-slate-700"><Prix montant={t.commission ?? 0} /></span>
                       ) : <span className="text-slate-400">—</span>}
                     </td>
                     <td className="px-5 py-4 text-right text-corps-sm">
-                      {credit && !neutre ? (
+                      {credit && t.etat === "REGLEE" ? (
                         t.netVendeur === null ? (
                           <span className="text-xs text-slate-500">Déjà encaissé</span>
                         ) : (
