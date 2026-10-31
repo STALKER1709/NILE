@@ -72,7 +72,7 @@ export function SelecteurCategorieCascade({
               value={selected}
               onChange={(event) => choisir(index, event.target.value)}
               className={champClass}
-              required={index === 0}
+              required
             >
               <option value="">Choisir…</option>
               {options.map((option) => <option key={option.id} value={option.id}>{option.nom}</option>)}
