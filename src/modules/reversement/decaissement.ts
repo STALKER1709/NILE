@@ -114,7 +114,7 @@ export async function executerDemandeReversement(
         telephone: demande.telephoneDestination ?? telephone,
         operateur,
         montant: demande.montant,
-        description: `Reversement NILE · ${demande.vendeur.nomBoutique}`,
+        description: `Reversement NILE ${demande.id}`,
       });
       statut = resultat.statut;
       referenceFournisseur = resultat.reference;
