@@ -31,6 +31,24 @@ export interface TransactionVendeur {
   netVendeur?: number | null;
 }
 
+/** Détail d’une commande vendeur, avec l’arrondi appliqué une seule fois par commande. */
+export function calculerDetailVente(params: {
+  montant: number;
+  tauxPourcent: number;
+  exempteCommission: boolean;
+  modePaiement: "MONETBIL" | "COD";
+}): { commission: number; netVendeur: number | null } {
+  const commission = params.exempteCommission || params.montant <= 0
+    ? 0
+    : Math.round((params.montant * params.tauxPourcent) / 100);
+  return {
+    commission,
+    // En COD, le vendeur a déjà encaissé les espèces : aucun net ne lui est
+    // reversé par NILE, même si la commission reste due.
+    netVendeur: params.modePaiement === "MONETBIL" ? params.montant - commission : null,
+  };
+}
+
 /**
  * Détermine si une vente est déjà due au vendeur, encore en attente, ou
  * annulée. Reflète exactement la règle de calcul du solde : une vente ne
