@@ -100,7 +100,7 @@ export default async function DetailCommandePage({
   const nbArticles = commande.lignes.reduce((s, l) => s + l.quantite, 0);
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <nav aria-label="Fil d'Ariane" className="flex items-center gap-2 text-corps-sm text-slate-500">
@@ -108,7 +108,7 @@ export default async function DetailCommandePage({
             <span className="text-slate-300">›</span>
             <span className="font-semibold text-slate-900">{commande.numero}</span>
           </nav>
-          <h1 className="mt-1 text-titre-sm text-nile-800 sm:text-titre-md">Suivi de votre commande</h1>
+          <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">Suivi de votre commande</h1>
           <p className="mt-1 text-corps-sm text-slate-500">
             Passée le{" "}
             <span className="font-semibold text-slate-700">
@@ -532,7 +532,7 @@ export default async function DetailCommandePage({
       </Carte>
 
       {/* Aide */}
-      <div className="relative overflow-hidden rounded border border-contour-carte bg-nile-dark p-5 text-white sm:p-6">
+      <div className="relative overflow-hidden rounded-2xl border border-slate-700 bg-[#0B192C] p-5 text-white shadow-sm sm:p-6">
         <div className="relative z-10">
           <h2 className="text-titre-sm">Besoin d&apos;aide ?</h2>
           <p className="mt-2 text-corps-sm text-nile-surConteneur">
