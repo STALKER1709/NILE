@@ -10,6 +10,8 @@ const MESSAGES: Record<string, string> = {
   SOLDE_INSUFFISANT:
     "Ce montant dépasse ce que vous pouvez demander pour l'instant.",
   INTROUVABLE: "Boutique introuvable.",
+  SEUIL_MINIMUM: "Le montant minimum d’une demande de reversement est de 10 000 FCFA.",
+  VENDEUR_NON_VALIDE: "Votre boutique doit être validée avant de demander un reversement.",
 };
 
 /**
