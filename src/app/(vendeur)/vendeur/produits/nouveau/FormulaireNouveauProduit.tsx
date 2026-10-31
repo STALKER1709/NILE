@@ -82,7 +82,7 @@ export function FormulaireNouveauProduit({
         <div className="mb-4 flex items-start gap-3">
           <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0B192C] text-sm font-bold text-white">1</span>
           <div>
-            <h2 className="font-semibold text-slate-900">Informations du produit</h2>
+            <h2 className="font-extrabold text-[#0B192C]">Informations du produit</h2>
             <p className="mt-1 text-sm text-slate-500">Une seule fiche pour toutes les couleurs, tailles ou capacités.</p>
           </div>
         </div>
@@ -130,11 +130,11 @@ export function FormulaireNouveauProduit({
       </Carte>
 
       {axesActifs && (
-        <Carte className="p-4 sm:p-5">
+        <Carte className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex items-start gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-nile-800 text-sm font-bold text-white">2</span>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0B192C] text-sm font-bold text-white">2</span>
             <div>
-              <h2 className="font-semibold text-slate-900">Choix des variantes</h2>
+              <h2 className="font-extrabold text-[#0B192C]">Choix des variantes</h2>
               <p className="mt-1 text-sm text-slate-500">Sélection multiple : NILE génère automatiquement les combinaisons.</p>
             </div>
           </div>
@@ -179,11 +179,11 @@ export function FormulaireNouveauProduit({
       )}
 
       {axesActifs && etape === 2 && nbCombinaisons > 0 && nbCombinaisons <= 100 && (
-        <Carte className="p-4 sm:p-5">
+        <Carte className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="mb-4 flex items-start gap-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-nile-800 text-sm font-bold text-white">3</span>
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0B192C] text-sm font-bold text-white">3</span>
             <div>
-              <h2 className="font-semibold text-slate-900">Stock par combinaison</h2>
+              <h2 className="font-extrabold text-[#0B192C]">Stock par combinaison</h2>
               <p className="mt-1 text-sm text-slate-500">Chaque taille/couleur ou capacité/couleur garde son propre stock.</p>
             </div>
           </div>
@@ -202,11 +202,11 @@ export function FormulaireNouveauProduit({
         </Carte>
       )}
 
-      <Carte className="p-4 sm:p-5">
+      <Carte className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="mb-4 flex items-start gap-3">
-          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-nile-800 text-sm font-bold text-white">{axesActifs ? "4" : "2"}</span>
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#0B192C] text-sm font-bold text-white">{axesActifs ? "4" : "2"}</span>
           <div>
-            <h2 className="font-semibold text-slate-900">Photos du produit</h2>
+            <h2 className="font-extrabold text-[#0B192C]">Photos du produit</h2>
             <p className="mt-1 text-sm text-slate-500">Ajoutez jusqu’à 3 photos communes à la fiche. Vous pourrez compléter la galerie ensuite.</p>
           </div>
         </div>
