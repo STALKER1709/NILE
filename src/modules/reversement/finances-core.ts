@@ -10,6 +10,7 @@
 
 /** État d'une vente du point de vue du règlement au vendeur. */
 export type EtatVente = "REGLEE" | "EN_ATTENTE" | "ANNULEE";
+export type EtatReversement = "VERSE" | "EN_ATTENTE" | "REJETE";
 
 export interface TransactionVendeur {
   id: string;
@@ -21,7 +22,31 @@ export interface TransactionVendeur {
   reference: string;
   /** Montant en FCFA, toujours positif : le signe découle du `type`. */
   montant: number;
-  etat: EtatVente | "VERSE";
+  etat: EtatVente | EtatReversement;
+  /** Détail vendeur : commission calculée sur le sous-total de la commande. */
+  commission?: number;
+  /** Mode de paiement d’origine ; null pour un reversement. */
+  modePaiement?: "MONETBIL" | "COD";
+  /** Net après commission lorsque NILE a encaissé le paiement (Mobile Money). */
+  netVendeur?: number | null;
+}
+
+/** Détail d’une commande vendeur, avec l’arrondi appliqué une seule fois par commande. */
+export function calculerDetailVente(params: {
+  montant: number;
+  tauxPourcent: number;
+  exempteCommission: boolean;
+  modePaiement: "MONETBIL" | "COD";
+}): { commission: number; netVendeur: number | null } {
+  const commission = params.exempteCommission || params.montant <= 0
+    ? 0
+    : Math.round((params.montant * params.tauxPourcent) / 100);
+  return {
+    commission,
+    // En COD, le vendeur a déjà encaissé les espèces : aucun net ne lui est
+    // reversé par NILE, même si la commission reste due.
+    netVendeur: params.modePaiement === "MONETBIL" ? params.montant - commission : null,
+  };
 }
 
 /**

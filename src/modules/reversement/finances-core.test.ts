@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   etatVente,
+  calculerDetailVente,
   fusionnerTransactions,
   hauteursRelatives,
   type TransactionVendeur,
@@ -29,6 +30,35 @@ const reversement = (id: string, iso: string): TransactionVendeur => ({
   reference: id,
   montant: 500,
   etat: "VERSE",
+});
+
+describe("calculerDetailVente", () => {
+  it("détaille une vente Mobile Money après commission", () => {
+    expect(calculerDetailVente({
+      montant: 100000,
+      tauxPourcent: 12,
+      exempteCommission: false,
+      modePaiement: "MONETBIL",
+    })).toEqual({ commission: 12000, netVendeur: 88000 });
+  });
+
+  it("ne présente pas de net à reverser pour une vente COD", () => {
+    expect(calculerDetailVente({
+      montant: 100000,
+      tauxPourcent: 12,
+      exempteCommission: false,
+      modePaiement: "COD",
+    })).toEqual({ commission: 12000, netVendeur: null });
+  });
+
+  it("exempte la boutique maison de commission", () => {
+    expect(calculerDetailVente({
+      montant: 100000,
+      tauxPourcent: 12,
+      exempteCommission: true,
+      modePaiement: "MONETBIL",
+    })).toEqual({ commission: 0, netVendeur: 100000 });
+  });
 });
 
 describe("etatVente", () => {

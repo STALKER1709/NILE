@@ -52,12 +52,14 @@ export async function statsAcheteur(utilisateurId: string) {
 export async function statsVendeur(vendeurId: string): Promise<{
   ventesMois: number;
   produitsActifs: number;
+  consultationsProduits: number;
+  produitsPopulaires: { id: string; titre: string; nombreVues: number }[];
   produitsEnAlerte: { id: string; titre: string; stock: number }[];
   noteMoyenne: number | null;
   nbAvis: number;
   activite7Jours: PointJour[];
 }> {
-  const [ventesMois, produitsActifs, alerte, avis, lignesRecentes] =
+  const [ventesMois, produitsActifs, vues, populaires, alerte, avis, lignesRecentes] =
     await Promise.all([
       prisma.ligneCommande.aggregate({
         where: {
@@ -71,6 +73,13 @@ export async function statsVendeur(vendeurId: string): Promise<{
         _sum: { sousTotal: true },
       }),
       prisma.produit.count({ where: { vendeurId, statut: "ACTIF" } }),
+      prisma.produit.aggregate({ where: { vendeurId, statut: "ACTIF" }, _sum: { nombreVues: true } }),
+      prisma.produit.findMany({
+        where: { vendeurId, statut: "ACTIF" },
+        orderBy: [{ nombreVues: "desc" }, { dateMaj: "desc" }],
+        take: 5,
+        select: { id: true, titre: true, nombreVues: true },
+      }),
       // Le seuil ne peut plus être posé en SQL sur `Produit.stock` : ce champ
       // n'est plus décrémenté à la vente, l'alerte ne se déclencherait jamais.
       // Le stock réel étant réparti sur les déclinaisons, il se totalise ici.
@@ -102,6 +111,8 @@ export async function statsVendeur(vendeurId: string): Promise<{
   return {
     ventesMois: ventesMois._sum.sousTotal ?? 0,
     produitsActifs,
+    consultationsProduits: vues._sum.nombreVues ?? 0,
+    produitsPopulaires: populaires,
     produitsEnAlerte: alerte
       .map((p) => ({
         id: p.id,

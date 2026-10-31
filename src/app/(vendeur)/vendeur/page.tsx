@@ -46,15 +46,24 @@ export default async function VendeurPage() {
             <span className="font-semibold text-slate-700">{vendeur.nomBoutique}</span>.
           </p>
         </div>
-        <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
-          {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : "En attente de validation"}
+        <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : vendeur.statutValidation === "REJETE" ? "rouge" : vendeur.statutValidation === "SUSPENDU" ? "neutre" : "ambre"}>
+          {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : vendeur.statutValidation === "REJETE" ? "Validation refusée" : vendeur.statutValidation === "SUSPENDU" ? "Boutique suspendue" : "En attente de validation"}
         </Badge>
       </div>
 
       {vendeur.statutValidation === "EN_ATTENTE" && (
         <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
-          Votre boutique est en attente de validation. Vous pouvez préparer vos
-          produits ; la publication sera possible une fois validée.
+          Votre dossier de validation boutique est en attente. Vous pouvez préparer vos produits ; leur publication sera possible une fois la boutique validée.
+        </p>
+      )}
+      {vendeur.statutValidation === "REJETE" && (
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          La validation de votre boutique a été refusée. Contactez l’équipe NILE pour connaître les éléments à corriger avant une nouvelle vérification.
+        </p>
+      )}
+      {vendeur.statutValidation === "SUSPENDU" && (
+        <p className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+          Votre boutique est actuellement suspendue. Contactez l’équipe NILE pour connaître la situation et les démarches de réactivation.
         </p>
       )}
 
@@ -112,6 +121,32 @@ export default async function VendeurPage() {
       {/* Activité de la semaine */}
       <Carte className="p-5">
         <GraphBarres points={stats.activite7Jours} titre="Tes ventes des 7 derniers jours" />
+      </Carte>
+
+      {/* Audience des fiches : compteur agrégé, sans suivi individuel des visiteurs. */}
+      <Carte className="p-5">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="font-bold text-slate-900">Audience de mes produits</h2>
+            <p className="mt-1 text-xs text-slate-500">Consultations enregistrées depuis l’activation du compteur.</p>
+          </div>
+          <p className="text-xl font-bold text-nile-800">{stats.consultationsProduits.toLocaleString("fr-FR")}</p>
+        </div>
+        {stats.produitsPopulaires.length === 0 ? (
+          <p className="mt-4 rounded border border-dashed border-slate-200 px-3 py-5 text-center text-sm text-slate-500">Aucun produit actif à afficher pour le moment.</p>
+        ) : (
+          <ol className="mt-3 divide-y divide-slate-100">
+            {stats.produitsPopulaires.map((produit, index) => (
+              <li key={produit.id} className="flex items-center justify-between gap-3 py-2.5">
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-nile-50 text-xs font-bold text-nile-700">{index + 1}</span>
+                  <Link href={`/vendeur/produits/${produit.id}`} className="min-w-0 truncate text-sm font-medium text-slate-700 hover:text-nile-700 hover:underline">{produit.titre}</Link>
+                </span>
+                <span className="shrink-0 text-xs font-semibold text-slate-500">{produit.nombreVues.toLocaleString("fr-FR")} vue{produit.nombreVues > 1 ? "s" : ""}</span>
+              </li>
+            ))}
+          </ol>
+        )}
       </Carte>
 
       {/* Commandes récentes */}

@@ -7,6 +7,7 @@ const ETATS: Record<TransactionVendeur["etat"], { texte: string; classe: string 
   EN_ATTENTE: { texte: "En attente", classe: "bg-accent-fixe text-accent-sur" },
   ANNULEE: { texte: "Annulée", classe: "bg-surface-haute text-slate-600" },
   VERSE: { texte: "Versé", classe: "bg-nile-200 text-nile-900" },
+  REJETE: { texte: "Rejeté", classe: "bg-red-100 text-red-800" },
 };
 
 /**
@@ -33,14 +34,16 @@ export function HistoriqueTransactions({
         </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[46rem] text-left">
+          <table className="w-full min-w-[64rem] text-left">
             <thead>
               <tr className="bg-surface-basse text-etiquette-xs uppercase tracking-wider text-slate-500">
                 <th className="px-5 py-4 font-semibold">Date</th>
                 <th className="px-5 py-4 font-semibold">Description</th>
                 <th className="px-5 py-4 font-semibold">Référence</th>
                 <th className="px-5 py-4 font-semibold">Statut</th>
-                <th className="px-5 py-4 text-right font-semibold">Montant</th>
+                <th className="px-5 py-4 text-right font-semibold">Vente brute</th>
+                <th className="px-5 py-4 text-right font-semibold">Commission</th>
+                <th className="px-5 py-4 text-right font-semibold">Net vendeur</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -87,13 +90,28 @@ export function HistoriqueTransactions({
                         {etat.texte}
                       </span>
                     </td>
-                    <td
-                      className={`px-5 py-4 text-right text-corps-sm font-bold ${
-                        neutre ? "text-slate-400 line-through" : credit ? "text-slate-900" : "text-promo"
-                      }`}
-                    >
-                      {!neutre && (credit ? "+ " : "− ")}
+                    <td className="px-5 py-4 text-right text-corps-sm font-semibold text-slate-900">
+                      {credit && !neutre ? "+" : !credit && t.etat === "VERSE" ? "−" : ""}
                       <Prix montant={t.montant} />
+                      {credit && t.modePaiement && (
+                        <span className="mt-1 block text-[10px] font-medium text-slate-400">
+                          {t.modePaiement === "COD" ? "Paiement à la livraison" : "Mobile Money"}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-5 py-4 text-right text-corps-sm">
+                      {credit && t.etat === "REGLEE" ? (
+                        <span className="font-medium text-slate-700"><Prix montant={t.commission ?? 0} /></span>
+                      ) : <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="px-5 py-4 text-right text-corps-sm">
+                      {credit && t.etat === "REGLEE" ? (
+                        t.netVendeur === null ? (
+                          <span className="text-xs text-slate-500">Déjà encaissé</span>
+                        ) : (
+                          <span className="font-bold text-nile-800"><Prix montant={t.netVendeur ?? t.montant} /></span>
+                        )
+                      ) : <span className="text-slate-400">—</span>}
                     </td>
                   </tr>
                 );

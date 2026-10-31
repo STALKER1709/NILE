@@ -9,6 +9,7 @@ import {
 } from "@/modules/stats/stats-core";
 import {
   etatVente,
+  calculerDetailVente,
   fusionnerTransactions,
   type TransactionVendeur,
 } from "@/modules/reversement/finances-core";
@@ -97,22 +98,20 @@ export async function getFinancesVendeur(
         },
         select: { sousTotal: true, commande: { select: { dateCreation: true } } },
       }),
-      prisma.ligneCommande.findMany({
-        where: { vendeurId },
-        orderBy: { commande: { dateCreation: "desc" } },
+      prisma.commande.findMany({
+        where: { lignes: { some: { vendeurId } } },
+        orderBy: { dateCreation: "desc" },
         take: NB_TRANSACTIONS,
         select: {
           id: true,
-          titreProduit: true,
-          quantite: true,
-          sousTotal: true,
-          commande: {
-            select: {
-              numero: true,
-              dateCreation: true,
-              statutCommande: true,
-              statutPaiement: true,
-            },
+          numero: true,
+          dateCreation: true,
+          statutCommande: true,
+          statutPaiement: true,
+          modePaiement: true,
+          lignes: {
+            where: { vendeurId },
+            select: { titreProduit: true, quantite: true, sousTotal: true },
           },
         },
       }),
@@ -120,22 +119,43 @@ export async function getFinancesVendeur(
         where: { vendeurId },
         orderBy: { dateCreation: "desc" },
         take: NB_TRANSACTIONS,
-        select: { id: true, montant: true, commentaire: true, dateCreation: true },
+        select: { id: true, montant: true, commentaire: true, statut: true, dateCreation: true, dateTraitement: true },
       }),
     ]);
 
-  const ventes: TransactionVendeur[] = lignes.map((l) => ({
-    id: l.id,
-    date: l.commande.dateCreation,
-    type: "VENTE",
-    libelle:
-      l.quantite > 1
-        ? `Vente · ${l.titreProduit} × ${l.quantite}`
-        : `Vente · ${l.titreProduit}`,
-    reference: l.commande.numero,
-    montant: l.sousTotal,
-    etat: etatVente(l.commande.statutCommande, l.commande.statutPaiement),
-  }));
+  // Chaque commande est chargée avec toutes les lignes de cette boutique :
+  // le sous-total et la commission ne sont donc jamais calculés sur une page
+  // tronquée au milieu d’une commande multi-articles.
+  const ventes: TransactionVendeur[] = lignes.map((commande) => {
+    const montant = commande.lignes.reduce((total, ligne) => total + ligne.sousTotal, 0);
+    // La boutique maison est exemptée ; le calcul est fait commande par commande.
+    const detail = calculerDetailVente({
+      montant,
+      tauxPourcent: solde.tauxPourcent,
+      exempteCommission: solde.commission === 0,
+      modePaiement: commande.modePaiement,
+    });
+    const produits = commande.lignes.map((ligne) =>
+      ligne.quantite > 1
+        ? ligne.titreProduit + " × " + ligne.quantite
+        : ligne.titreProduit,
+    ).join(", ");
+
+    return {
+      id: commande.id,
+      date: commande.dateCreation,
+      type: "VENTE",
+      libelle: "Vente · " + produits,
+      reference: commande.numero,
+      montant,
+      etat: etatVente(commande.statutCommande, commande.statutPaiement),
+      commission: detail.commission,
+      modePaiement: commande.modePaiement,
+      // En COD, le vendeur a déjà encaissé les espèces : la commission
+      // reste due et s’impute sur ses reversements Mobile Money futurs.
+      netVendeur: detail.netVendeur,
+    };
+  });
 
   const versements: TransactionVendeur[] = reversements.map((r) => ({
     id: r.id,
@@ -147,7 +167,7 @@ export async function getFinancesVendeur(
     // Pas de numéro lisible sur un reversement : on montre un préfixe d'id.
     reference: r.id.slice(0, 8).toUpperCase(),
     montant: r.montant,
-    etat: "VERSE",
+    etat: r.statut === "PAYE" ? "VERSE" : r.statut === "REJETE" ? "REJETE" : "EN_ATTENTE",
   }));
 
   const ventesMois = moisCourant._sum.sousTotal ?? 0;

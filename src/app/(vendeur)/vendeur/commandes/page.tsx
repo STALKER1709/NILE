@@ -99,6 +99,8 @@ export default async function CommandesVendeurPage({
                 </div>
               </div>
 
+              <ChronologieCommande commande={c} />
+
               <ul className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-sm">
                 {c.lignes.map((l) => (
                   <li key={l.id} className="flex justify-between gap-2">
@@ -185,6 +187,43 @@ export default async function CommandesVendeurPage({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Chronologie vendeur : seules les dates réellement enregistrées sont affichées. */
+function ChronologieCommande({ commande }: { commande: Awaited<ReturnType<typeof listerCommandesVendeur>>[number] }) {
+  const statut = commande.statutCommande;
+  const terminee = statut === "LIVREE";
+  const annulee = statut === "ANNULEE" || statut === "REFUSEE";
+  const etapes = [
+    { libelle: "Commande reçue", atteinte: true, date: commande.dateCreation },
+    { libelle: "Commande confirmée", atteinte: ["CONFIRMEE", "EN_PREPARATION", "EXPEDIEE", "LIVREE"].includes(statut), date: null },
+    { libelle: "Préparation", atteinte: ["EN_PREPARATION", "EXPEDIEE", "LIVREE"].includes(statut), date: null },
+    { libelle: "Expédition", atteinte: ["EXPEDIEE", "LIVREE"].includes(statut), date: commande.livraison?.dateAffectation ?? null },
+    { libelle: "Livraison confirmée", atteinte: terminee, date: commande.livraison?.confirmationAcheteur ?? commande.livraison?.dateLivraison ?? null },
+  ];
+  return (
+    <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-slate-700">Suivi de la commande</p>
+        {annulee && <span className="text-[11px] font-medium text-red-700">Parcours interrompu</span>}
+        {terminee && <span className="text-[11px] font-medium text-emerald-700">Parcours terminé</span>}
+      </div>
+      <ol className="grid grid-cols-2 gap-x-3 gap-y-3 sm:grid-cols-5">
+        {etapes.map((etape, index) => (
+          <li key={etape.libelle} className="flex min-w-0 items-start gap-2">
+            <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full text-[10px] font-bold ${etape.atteinte ? "bg-nile-700 text-white" : "border border-slate-300 bg-white text-slate-400"}`}>
+              {etape.atteinte ? "✓" : index + 1}
+            </span>
+            <span className="min-w-0">
+              <span className={`block text-xs font-medium ${etape.atteinte ? "text-slate-800" : "text-slate-400"}`}>{etape.libelle}</span>
+              {etape.date && <time className="mt-0.5 block text-[10px] text-slate-500">{new Date(etape.date).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })} · {new Date(etape.date).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}</time>}
+            </span>
+          </li>
+        ))}
+      </ol>
+      {annulee && <p className="mt-2 text-xs text-red-700">Cette commande a été annulée ou refusée. Les étapes suivantes ne sont plus attendues.</p>}
     </div>
   );
 }

@@ -44,9 +44,12 @@ export function ActiverNotifications({
 }) {
   const [etat, setEtat] = useState<Etat>("chargement");
   const [enCours, setEnCours] = useState(false);
+  const [plateforme, setPlateforme] = useState<"android" | "ios" | "autre">("autre");
 
   useEffect(() => {
     (async () => {
+      const agent = navigator.userAgent;
+      setPlateforme(/iPhone|iPad|iPod/i.test(agent) ? "ios" : /Android/i.test(agent) ? "android" : "autre");
       if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
         setEtat("non-supporte");
         return;
@@ -109,18 +112,30 @@ export function ActiverNotifications({
   if (etat === "chargement") return null;
   if (etat === "non-supporte") {
     return (
-      <p className="text-xs text-slate-400">
-        Notifications non prises en charge par ce navigateur. Sur iPhone :
-        ajoute d&apos;abord NILE à l&apos;écran d&apos;accueil.
-      </p>
+      <div className="space-y-2 text-xs text-slate-500">
+        <p>Les notifications ne sont pas disponibles dans ce navigateur ou dans son mode actuel.</p>
+        {plateforme === "ios" ? (
+          <p>Sur iPhone/iPad : ouvre NILE depuis son icône sur l’écran d’accueil. Si nécessaire, ajoute d’abord le site à l’écran d’accueil depuis Safari.</p>
+        ) : plateforme === "android" ? (
+          <p>Sur Android : utilise Chrome ou un navigateur compatible, puis vérifie que les notifications du site sont autorisées dans les paramètres du navigateur.</p>
+        ) : (
+          <p>Essaie avec un navigateur récent prenant en charge les notifications Web Push.</p>
+        )}
+      </div>
     );
   }
   if (etat === "refuse") {
     return (
-      <p className="text-xs text-slate-500">
-        Notifications bloquées par le navigateur · autorise-les dans les
-        réglages du site pour être prévenu {promesse}.
-      </p>
+      <div className="space-y-2 text-xs text-slate-600">
+        <p>Les notifications sont bloquées par les réglages de cet appareil. Pour recevoir {promesse}, réactive l’autorisation :</p>
+        {plateforme === "android" ? (
+          <p className="rounded bg-slate-50 p-3">Android · Chrome : menu ⋮ → Paramètres → Paramètres des sites → Notifications → NILE → Autoriser. Vérifie aussi que Chrome peut envoyer des notifications dans les réglages Android.</p>
+        ) : plateforme === "ios" ? (
+          <p className="rounded bg-slate-50 p-3">iPhone/iPad : ouvre NILE depuis l’écran d’accueil, puis vérifie Réglages → Notifications → NILE. Si NILE n’apparaît pas, ajoute le site à l’écran d’accueil depuis Safari et réessaie.</p>
+        ) : (
+          <p className="rounded bg-slate-50 p-3">Ouvre les paramètres du navigateur → Confidentialité et sécurité / Paramètres des sites → Notifications, puis autorise NILE.</p>
+        )}
+      </div>
     );
   }
 

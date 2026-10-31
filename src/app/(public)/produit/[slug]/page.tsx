@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BoutonFavori } from "@/components/produit/BoutonFavori";
+import { EnregistrerVueProduit } from "@/components/produit/EnregistrerVueProduit";
 import { estEnFavori, favorisParmi } from "@/modules/catalogue/favoris";
 import { notFound } from "next/navigation";
 import {
@@ -179,6 +180,7 @@ export default async function FicheProduitPage({
 
   return (
     <div className="space-y-6">
+      <EnregistrerVueProduit produitId={produit.id} />
       {/* Fil d'Ariane */}
       <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-sm text-slate-500">
         <Link href="/" className="transition-colors hover:text-nile-700">Accueil</Link>
