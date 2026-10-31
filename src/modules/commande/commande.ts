@@ -4,6 +4,8 @@ import { prisma } from "@/lib/db";
 import { env } from "@/lib/env";
 import {
   calculerTotal,
+  calculerFraisHrSkills,
+  FRAIS_LIVRAISON_FCFA,
   evaluerCommandeCOD,
   codBloqueParDette,
 } from "@/modules/commande/commande-core";
@@ -107,7 +109,7 @@ export async function passerCommande(
 
   const totalPrevu = calculerTotal(
     panier.lignes.map((l) => ({ prix: l.produit.prix, quantite: l.quantite })),
-  );
+  ) + FRAIS_LIVRAISON_FCFA;
 
   // Garde-fous propres au paiement à la livraison uniquement.
   let plafond = Number.MAX_SAFE_INTEGER;
@@ -347,7 +349,7 @@ async function creerCommandeTransaction(
       });
     }
 
-    if (total > plafond) throw new ErreurCommande("PLAFOND_DEPASSE");
+    if (total + FRAIS_LIVRAISON_FCFA > plafond) throw new ErreurCommande("PLAFOND_DEPASSE");
 
     // Code promo évalué et consommé SOUS LA MÊME TRANSACTION, sur le total
     // recalculé ici — jamais sur celui affiché au panier, qui a pu changer
@@ -362,7 +364,15 @@ async function creerCommandeTransaction(
     // Le total payé est net de remise ; les `sousTotal` des lignes restent au
     // prix plein. C'est ce qui fait porter la remise à NILE et non au vendeur :
     // reversement et commission se calculent sur les lignes.
-    const totalPaye = total - remise;
+    // La commission de paiement HR-Skills (2 %) est refacturée à l'acheteur
+    // uniquement lorsque Mobile Money passe par HR-Skills. Elle est calculée
+    // sur le sous-total des articles avant remise promo, affiché au checkout.
+    const fraisPaiement =
+      mode === "MONETBIL" && env.PAYMENT_PROVIDER === "hrskills"
+        ? calculerFraisHrSkills(total)
+        : 0;
+    const fraisLivraison = FRAIS_LIVRAISON_FCFA;
+    const totalPaye = total - remise + fraisLivraison + fraisPaiement;
 
     const statutCash = mode === "COD" ? "NON_COLLECTE" : "NON_APPLICABLE";
     const commande = await tx.commande.create({
@@ -374,6 +384,8 @@ async function creerCommandeTransaction(
         modePaiement: mode,
         total: totalPaye,
         remise,
+        fraisLivraison,
+        fraisPaiement,
         codePromo: promo?.code ?? null,
         destNom: adresse.destNom,
         destTelephone: adresse.destTelephone,
@@ -401,9 +413,8 @@ async function creerCommandeTransaction(
     }
 
     const paiement = await tx.paiement.create({
-      // Le montant du paiement est ce que l'acheteur règle RÉELLEMENT : c'est
-      // lui qui part chez l'agrégateur. Y laisser le total brut ferait payer
-      // la remise à l'acheteur.
+      // Le montant du paiement est ce que l'acheteur règle réellement,
+      // livraison et frais HR-Skills inclus, remise déduite.
       data: { commandeId: commande.id, mode, montant: totalPaye, statut: "EN_ATTENTE" },
     });
 
