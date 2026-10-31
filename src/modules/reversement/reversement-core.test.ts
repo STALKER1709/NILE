@@ -114,7 +114,7 @@ describe("verifierReversement", () => {
     expect(verifierReversement(9999, 20000)).toEqual({ ok: false, code: "MONTANT_MINIMUM" });
   });
   it("refuse un montant supérieur au solde", () => {
-    const r = verifierReversement(6000, 5000);
+    const r = verifierReversement(11000, 10000);
     expect(r).toEqual({ ok: false, code: "SOLDE_INSUFFISANT" });
   });
 });
