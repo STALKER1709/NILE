@@ -21,6 +21,7 @@ import {
   type FichierAEnregistrer,
 } from "@/modules/stockage/StorageProvider";
 import type { ProduitInput } from "@/validators/produit";
+import { aConfirmeMajorite, idsCategoriesReservees18 } from "@/modules/catalogue/acces-18";
 
 /** Propriété : un vendeur ne peut agir que sur SES produits. Fonction PURE. */
 export function estProprietaire(
@@ -424,6 +425,13 @@ export interface OptionsCatalogue extends FiltresRecherche {
 
 export async function rechercherProduitsCatalogue(options: OptionsCatalogue) {
   const where = construireWhereProduits(options);
+  if (!(await aConfirmeMajorite())) {
+    const ids18 = await idsCategoriesReservees18();
+    if (ids18.length > 0) {
+      const conditions = Array.isArray(where.AND) ? where.AND : where.AND ? [where.AND] : [];
+      where.AND = [...conditions, { categorieId: { notIn: ids18 } }];
+    }
+  }
   const orderBy = construireOrderBy(options.tri);
   const page = Math.max(1, options.page);
   const parPage = options.parPage;
@@ -462,6 +470,10 @@ export const getProduitPublicParSlug = cache(async (slug: string) => {
     statut: "ACTIF",
     vendeur: { is: { statutValidation: "VALIDE" } },
   };
+  if (!(await aConfirmeMajorite())) {
+    const ids18 = await idsCategoriesReservees18();
+    if (ids18.length > 0) where.categorieId = { notIn: ids18 };
+  }
   return prisma.produit.findFirst({
     where,
     include: {
@@ -485,9 +497,11 @@ export async function getProduitsSimilaires(
   produitIdExclu: string,
   limite = 6,
 ) {
+  const ids18 = (await aConfirmeMajorite()) ? [] : await idsCategoriesReservees18();
   const produits = await prisma.produit.findMany({
     where: {
       categorieId,
+      ...(ids18.length > 0 ? { categorieId: { notIn: ids18 } } : {}),
       id: { not: produitIdExclu },
       statut: "ACTIF",
       vendeur: { is: { statutValidation: "VALIDE" } },
@@ -509,8 +523,10 @@ export async function getProduitsSimilaires(
 export async function suggererProduits(terme: string, limite = 6) {
   const t = terme.trim();
   if (t.length < 2) return [];
+  const ids18 = (await aConfirmeMajorite()) ? [] : await idsCategoriesReservees18();
   return prisma.produit.findMany({
     where: {
+      ...(ids18.length > 0 ? { categorieId: { notIn: ids18 } } : {}),
       titre: { contains: t, mode: "insensitive" },
       statut: "ACTIF",
       vendeur: { is: { statutValidation: "VALIDE" } },
@@ -540,8 +556,10 @@ export async function suggererProduits(terme: string, limite = 6) {
 export async function listerMarquesCatalogue(
   categorieIds?: string[],
 ): Promise<string[]> {
+  const ids18 = (await aConfirmeMajorite()) ? [] : await idsCategoriesReservees18();
   const lignes = await prisma.produit.findMany({
     where: {
+      ...(ids18.length > 0 ? { categorieId: { notIn: ids18 } } : {}),
       statut: "ACTIF",
       vendeur: { is: { statutValidation: "VALIDE" } },
       marque: { not: null },
