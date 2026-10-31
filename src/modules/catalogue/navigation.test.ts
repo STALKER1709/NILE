@@ -75,4 +75,24 @@ describe("navigationCategories", () => {
       "Electronique",
     ]);
   });
+
+  it("déplie les niveaux imbriqués en conservant le chemin actif", () => {
+    const imbriquees = [
+      cat("beaute", "Beauté", null, 1),
+      cat("bienetre", "Bien-être personnel", "beaute", 1),
+      cat("accessoires", "Accessoires personnels", "bienetre", 1),
+      cat("soins", "Soins du visage", "beaute", 2),
+      cat("mode", "Mode", null, 2),
+    ];
+    const nav = navigationCategories(imbriquees, "accessoires");
+    expect(nav.map((e) => e.nom)).toEqual([
+      "Beauté",
+      "Bien-être personnel",
+      "Accessoires personnels",
+      "Soins du visage",
+      "Mode",
+    ]);
+    expect(nav.map((e) => e.niveau)).toEqual([0, 1, 2, 1, 0]);
+    expect(nav.filter((e) => e.actif).map((e) => e.slug)).toEqual(["accessoires"]);
+  });
 });
