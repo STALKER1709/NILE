@@ -34,7 +34,7 @@ export default async function NouveauProduitPage({
       </div>
       {erreur && <p role="alert" className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>}
       {categories.length === 0 ? (
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-950">
           Aucune catégorie n’est disponible. Un administrateur doit en créer avant que vous puissiez ajouter un produit.
         </div>
       ) : (
