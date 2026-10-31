@@ -95,7 +95,7 @@ export async function listerSoldesVendeurs(): Promise<SoldeVendeur[]> {
   const versePar = new Map<string, number>();
   const attentePar = new Map<string, number>();
   for (const r of reversements) {
-    const cible = r.statut === "PAYE" ? versePar : r.statut === "DEMANDE" ? attentePar : null;
+    const cible = r.statut === "PAYE" ? versePar : (r.statut === "DEMANDE" || r.statut === "EN_COURS") ? attentePar : null;
     if (cible) cible.set(r.vendeurId, (cible.get(r.vendeurId) ?? 0) + (r._sum.montant ?? 0));
   }
 
@@ -146,7 +146,7 @@ export async function getSoldeVendeur(
       _sum: { montant: true },
     }),
     prisma.reversement.aggregate({
-      where: { vendeurId, statut: "DEMANDE" },
+      where: { vendeurId, statut: { in: ["DEMANDE", "EN_COURS"] } },
       _sum: { montant: true },
     }),
   ]);
@@ -336,7 +336,7 @@ export async function listerDemandesReversement() {
 /** Demandes du vendeur lui-même (les plus récentes d'abord). */
 export async function listerDemandesDuVendeur(vendeurId: string) {
   return prisma.reversement.findMany({
-    where: { vendeurId, statut: "DEMANDE" },
+    where: { vendeurId, statut: { in: ["DEMANDE", "EN_COURS"] } },
     orderBy: { dateCreation: "desc" },
     take: 10,
   });
