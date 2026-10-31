@@ -78,9 +78,14 @@ export default async function AdminCategoriesPage({
           {options.map((opt) => {
             const axes = axesParCat.get(opt.id) ?? [];
             return (
-              <div key={opt.id} className="rounded border border-contour-carte p-3">
-                <p className="text-sm font-semibold text-slate-900">{opt.label}</p>
-                <div className="mt-2 grid gap-3 sm:grid-cols-2">
+              <details key={opt.id} className="rounded border border-contour-carte p-3">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-slate-900">
+                  <span>{opt.label}</span>
+                  <span className="shrink-0 text-xs font-normal text-slate-500">
+                    {axes.length > 0 ? `${axes.length} axe(s) configuré(s)` : "Configurer les variantes"} · Ouvrir
+                  </span>
+                </summary>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
                   {[1, 2].map((rang) => (
                     <FormAxe
                       key={rang}
@@ -90,7 +95,7 @@ export default async function AdminCategoriesPage({
                     />
                   ))}
                 </div>
-              </div>
+              </details>
             );
           })}
         </div>
