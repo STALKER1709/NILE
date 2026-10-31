@@ -108,8 +108,10 @@ export default function AidePage() {
       reponse: (
         <>
           La livraison coûte <strong>1 500 FCFA par commande</strong>, quel
-          que soit le nombre d&apos;articles. Les éventuels frais de paiement
-          Mobile Money HR-Skills sont affichés séparément avant la validation.
+          que soit le nombre d&apos;articles. Ce montant est à remettre en espèces
+          directement au livreur à la réception ; il n&apos;est pas prélevé avec
+          le paiement Mobile Money. Les éventuels frais HR-Skills sont affichés
+          séparément avant la validation.
         </>
       ),
     },
