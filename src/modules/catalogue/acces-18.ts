@@ -58,6 +58,17 @@ export async function produitEstReserve18(slug: string): Promise<boolean> {
   return ids.includes(produit.categorieId);
 }
 
+
+export async function varianteEstReservee18(varianteId: string): Promise<boolean> {
+  const variante = await prisma.varianteProduit.findUnique({
+    where: { id: varianteId },
+    select: { produit: { select: { categorieId: true } } },
+  });
+  if (!variante) return false;
+  const ids = await idsCategoriesReservees18();
+  return ids.includes(variante.produit.categorieId);
+}
+
 export const categorieEstReservee18 = cache(async (categorieId: string): Promise<boolean> => {
   const ids = await idsCategoriesReservees18();
   return ids.includes(categorieId);
