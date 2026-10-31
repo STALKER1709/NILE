@@ -55,12 +55,12 @@ export default async function CommandesVendeurPage({
   ]);
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto w-full max-w-[1440px] space-y-6 pb-10">
       {/* Une nouvelle commande, un paiement confirmé, une réception attestée :
           l'écran se met à jour sans que le vendeur ait à recharger. */}
       <RafraichirSiChange signature={signature} lire={signatureCommandesVendeurAction} />
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mes commandes</h1>
+        <h1 className="text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">Commandes de la boutique</h1>
         <Link href="/vendeur" className="text-sm text-nile hover:underline">← Espace vendeur</Link>
       </div>
 
