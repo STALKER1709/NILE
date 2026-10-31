@@ -296,10 +296,6 @@ export async function changerStatutProduit(
   ) {
     return { ok: false, code: "BOUTIQUE_NON_VALIDEE" };
   }
-  if (nouveauStatut === "ACTIF" && await categorieEstReservee18(produit.categorieId)) {
-    await prisma.produit.update({ where: { id: produitId }, data: { statut: "EN_MODERATION" } });
-    return { ok: false, code: "MODERATION_REQUISE" };
-  }
   if (nouveauStatut === "ACTIF") {
     if (produit.vendeur.kyc?.statut !== "VALIDE") {
       return { ok: false, code: "KYC_NON_VALIDE" };
@@ -310,6 +306,10 @@ export async function changerStatutProduit(
     if (!produit.variantes.some((v) => v.actif && v.stock > 0)) {
       return { ok: false, code: "STOCK_INDISPONIBLE" };
     }
+  }
+  if (nouveauStatut === "ACTIF" && await categorieEstReservee18(produit.categorieId)) {
+    await prisma.produit.update({ where: { id: produitId }, data: { statut: "EN_MODERATION" } });
+    return { ok: false, code: "MODERATION_REQUISE" };
   }
   await prisma.produit.update({
     where: { id: produitId },
