@@ -256,7 +256,12 @@ export class HrSkillsPayProvider implements PaymentProvider {
     const chemin = `${this.racine()}/api/v1/payout/mobile-money`;
     const reponse = await fetch(chemin, {
       method: "POST",
-      headers: await this.enTetes(cleIdempotence(ctx.reference)),
+      headers: {
+        ...(await this.enTetes(cleIdempotence(ctx.reference))),
+        // Le contrat Cash-Out (§4) montre explicitement la Clé A comme Bearer.
+        // On conserve le comportement Cash-In existant, hors de ce chantier.
+        Authorization: `Bearer ${this.cleA()}`,
+      },
       body: JSON.stringify({
         operator: operateur.toUpperCase(),
         country: "CM",
