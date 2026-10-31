@@ -100,7 +100,9 @@ export async function executerDemandeReversement(
       code: code === "DEJA_TRAITE" ? "DEJA_TRAITE" : code === "VENDEUR_NON_VALIDE" ? "VENDEUR_NON_VALIDE" : "OPERATEUR_INVALIDE",
       message: code === "OPERATEUR_VERROUILLE"
         ? "L'opérateur est déjà fixé pour cette demande. Ne change pas le bénéficiaire d'un transfert en cours."
-        : "La demande a changé d'état. Recharge la page avant de réessayer.",
+        : code === "VENDEUR_NON_VALIDE"
+          ? "La boutique ou le KYC n’est plus validé : le transfert est bloqué."
+          : "La demande a changé d'état. Recharge la page avant de réessayer.",
     };
   }
 
@@ -159,7 +161,7 @@ export async function executerDemandeReversement(
     return { ok: true, statut: "EN_COURS", referenceFournisseur: referenceFournisseur ?? undefined, frais };
   } catch (erreur) {
     const diagnostic = erreur instanceof Error ? erreur.message : "";
-    const refusDefinitif = diagnostic.match(/HTTP (400|401|403|422)\\b/);
+    const refusDefinitif = diagnostic.match(/HTTP (400|401|403|422)\b/);
     console.error("[reversement] HR-Skills payout à réconcilier:", erreur);
     if (refusDefinitif) {
       // Ces réponses 4xx signifient que l'ordre a été refusé avant exécution.
