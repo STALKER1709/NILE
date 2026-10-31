@@ -174,6 +174,7 @@ export default async function FinancesVendeurPage({
       {/* Demande de versement */}
       <Carte className="p-5 sm:p-6">
         <h2 className="text-titre-sm text-nile-800">Demander un versement</h2>
+        <p className="mt-2 text-corps-sm text-slate-500">Les demandes sont regroupées et traitées une fois par semaine. Minimum : 10 000 FCFA. Aucun frais de reversement supplémentaire n’est appliqué par NILE.</p>
         {!coordonneesPretes ? (
           <>
             <p className="mt-2 text-corps-sm text-slate-600">
@@ -184,6 +185,10 @@ export default async function FinancesVendeurPage({
               Renseigner mes coordonnées
             </Link>
           </>
+        ) : solde.solde < 10_000 ? (
+          <p className="mt-2 text-corps-sm text-slate-600">
+            Votre solde disponible doit atteindre 10 000 FCFA pour pouvoir demander un reversement.
+          </p>
         ) : solde.solde <= 0 ? (
           <p className="mt-2 text-corps-sm text-slate-600">
             {solde.enAttente > 0 ? (
@@ -211,7 +216,7 @@ export default async function FinancesVendeurPage({
                   name="montant"
                   type="number"
                   required
-                  min={1}
+                  min={10_000}
                   max={solde.solde}
                   step={1}
                   placeholder={String(solde.solde)}
