@@ -366,10 +366,10 @@ async function creerCommandeTransaction(
     // reversement et commission se calculent sur les lignes.
     // La commission de paiement HR-Skills (2 %) est refacturée à l'acheteur
     // uniquement lorsque Mobile Money passe par HR-Skills. Elle est calculée
-    // sur le sous-total des articles avant remise promo, affiché au checkout.
+    // sur le montant articles + livraison avant remise promo, affiché au checkout.
     const fraisPaiement =
       mode === "MONETBIL" && env.PAYMENT_PROVIDER === "hrskills"
-        ? calculerFraisHrSkills(total)
+        ? calculerFraisHrSkills(total + FRAIS_LIVRAISON_FCFA)
         : 0;
     const fraisLivraison = FRAIS_LIVRAISON_FCFA;
     const totalPaye = total - remise + fraisLivraison + fraisPaiement;
