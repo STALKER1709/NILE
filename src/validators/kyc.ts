@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const typePieceIdentiteSchema = z.enum(["CNI", "PASSEPORT", "RECEPISSE"]);
+export const typePieceIdentiteSchema = z.enum(["CNI", "PASSEPORT"]);
 
 const dateExpirationSchema = z
   .string()
