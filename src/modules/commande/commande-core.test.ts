@@ -1,6 +1,9 @@
 import { describe, it, expect } from "vitest";
 import {
   calculerTotal,
+  FRAIS_LIVRAISON_FCFA,
+  TAUX_FRAIS_HRSKILLS_POURCENT,
+  calculerFraisHrSkills,
   stockSuffisant,
   evaluerCommandeCOD,
   codBloqueParDette,
@@ -17,6 +20,18 @@ describe("calculerTotal", () => {
   });
   it("panier vide -> 0", () => {
     expect(calculerTotal([])).toBe(0);
+  });
+});
+
+describe("frais acheteur", () => {
+  it("fixe la livraison à 1 500 FCFA par commande", () => {
+    expect(FRAIS_LIVRAISON_FCFA).toBe(1500);
+  });
+  it("applique 2 % de frais HR-Skills, arrondis au FCFA supérieur", () => {
+    expect(TAUX_FRAIS_HRSKILLS_POURCENT).toBe(2);
+    expect(calculerFraisHrSkills(10000)).toBe(200);
+    expect(calculerFraisHrSkills(10001)).toBe(201);
+    expect(calculerFraisHrSkills(0)).toBe(0);
   });
 });
 
