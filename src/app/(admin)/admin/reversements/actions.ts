@@ -3,96 +3,65 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { exigerRole } from "@/modules/auth/access";
-import {
-  enregistrerReversement,
-  traiterDemandeReversement,
-} from "@/modules/reversement/reversement";
+import { traiterDemandeReversement } from "@/modules/reversement/reversement";
+import { executerDemandeReversement } from "@/modules/reversement/decaissement";
 
-const reversementSchema = z.object({
-  vendeurId: z.string().min(1),
-  montant: z.coerce
-    .number({ invalid_type_error: "Montant invalide." })
-    .int("Montant invalide (FCFA entiers).")
-    .positive("Le montant doit être positif."),
-  commentaire: z.string().trim().max(200, "Commentaire trop long.").optional(),
+const executionSchema = z.object({
+  reversementId: z.string().min(1),
+  operateur: z.enum(["MTN", "ORANGE"]),
 });
 
-export async function enregistrerReversementAction(
-  formData: FormData,
-): Promise<void> {
+/** Lance le Cash-Out ou relit le statut d'un transfert déjà envoyé. */
+export async function executerDemandeAction(formData: FormData): Promise<void> {
   await exigerRole("ADMIN");
-
-  const parsed = reversementSchema.safeParse({
-    vendeurId: formData.get("vendeurId"),
-    montant: formData.get("montant"),
-    commentaire: formData.get("commentaire") || undefined,
+  const parsed = executionSchema.safeParse({
+    reversementId: formData.get("reversementId"),
+    operateur: formData.get("operateur"),
   });
   if (!parsed.success) {
-    const msg = parsed.error.issues[0]?.message ?? "Données invalides.";
-    redirect(`/admin/reversements?erreur=${encodeURIComponent(msg)}`);
+    redirect("/admin/reversements?erreur=" + encodeURIComponent("Choisis un opérateur Mobile Money valide."));
   }
-
-  const res = await enregistrerReversement(
-    parsed.data.vendeurId,
-    parsed.data.montant,
-    parsed.data.commentaire,
+  const resultat = await executerDemandeReversement(
+    parsed.data.reversementId,
+    parsed.data.operateur,
   );
-  if (!res.ok) {
-    const msg =
-      res.code === "SOLDE_INSUFFISANT"
-        ? "Montant supérieur au solde dû à ce vendeur."
-        : res.code === "MONTANT_MINIMUM"
-          ? "Le montant minimum d’un reversement est de 10 000 FCFA."
-          : res.code === "VENDEUR_NON_VALIDE"
-            ? "Le vendeur et son identité doivent être validés avant tout reversement."
-            : res.code === "MONTANT_INVALIDE"
-              ? "Montant invalide."
-          : "Vendeur introuvable.";
-    redirect(`/admin/reversements?erreur=${encodeURIComponent(msg)}`);
+  if (!resultat.ok) {
+    redirect("/admin/reversements?erreur=" + encodeURIComponent(resultat.message));
   }
-  redirect("/admin/reversements?ok=enregistre");
+  redirect(
+    resultat.statut === "PAYE"
+      ? "/admin/reversements?ok=paye"
+      : "/admin/reversements?ok=en-cours",
+  );
 }
 
-const traitementSchema = z.object({
+const rejetSchema = z.object({
   reversementId: z.string().min(1),
-  decision: z.enum(["PAYE", "REJETE"]),
-  commentaire: z.string().trim().max(200, "Commentaire trop long.").optional(),
+  decision: z.literal("REJETE"),
+  commentaire: z.string().trim().max(200, "Motif trop long.").optional(),
 });
 
-/**
- * Traite une demande de versement émise par un vendeur : marque payée, ou
- * refuse en indiquant un motif.
- */
+/** Refuse une demande AVANT tout ordre de décaissement. */
 export async function traiterDemandeAction(formData: FormData): Promise<void> {
   await exigerRole("ADMIN");
-
-  const parsed = traitementSchema.safeParse({
+  const parsed = rejetSchema.safeParse({
     reversementId: formData.get("reversementId"),
     decision: formData.get("decision"),
     commentaire: formData.get("commentaire") || undefined,
   });
   if (!parsed.success) {
-    const msg = parsed.error.issues[0]?.message ?? "Données invalides.";
-    redirect(`/admin/reversements?erreur=${encodeURIComponent(msg)}`);
+    redirect("/admin/reversements?erreur=" + encodeURIComponent("Données invalides."));
   }
-
   const res = await traiterDemandeReversement(
     parsed.data.reversementId,
-    parsed.data.decision,
+    "REJETE",
     parsed.data.commentaire,
   );
   if (!res.ok) {
-    const msg =
-      res.code === "DEJA_TRAITE"
-        ? "Cette demande a déjà été traitée."
-        : res.code === "VENDEUR_NON_VALIDE"
-          ? "Le vendeur ou son KYC n’est plus validé : le paiement est bloqué."
-          : res.code === "MONTANT_MINIMUM"
-            ? "Cette demande est inférieure au seuil de 10 000 FCFA et ne peut pas être payée."
-            : "Demande introuvable.";
-    redirect(`/admin/reversements?erreur=${encodeURIComponent(msg)}`);
+    const msg = res.code === "DEJA_TRAITE"
+      ? "Cette demande a déjà été prise en charge."
+      : "Demande introuvable ou non modifiable.";
+    redirect("/admin/reversements?erreur=" + encodeURIComponent(msg));
   }
-  redirect(
-    `/admin/reversements?ok=${parsed.data.decision === "PAYE" ? "paye" : "rejete"}`,
-  );
+  redirect("/admin/reversements?ok=rejete");
 }
