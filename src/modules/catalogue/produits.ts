@@ -450,7 +450,7 @@ export async function rechercherProduitsCatalogue(options: OptionsCatalogue) {
       include: {
         images: { orderBy: { ordre: "asc" }, take: 1 },
         vendeur: { select: { id: true, nomBoutique: true } },
-        categorie: { select: { nom: true } },
+        categorie: { select: { nom: true, slug: true } },
       },
     }),
     prisma.produit.count({ where }),
