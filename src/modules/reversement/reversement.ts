@@ -46,6 +46,9 @@ export interface SoldeVendeur extends CalculSolde {
   emailVendeur: string;
   estBoutiqueMaison: boolean;
   tauxPourcent: number;
+  statutValidation: string;
+  statutKyc: string | null;
+  eligibleReversement: boolean;
 }
 
 /**
@@ -61,6 +64,8 @@ export async function listerSoldesVendeurs(): Promise<SoldeVendeur[]> {
         id: true,
         nomBoutique: true,
         estBoutiqueMaison: true,
+        statutValidation: true,
+        kyc: { select: { statut: true } },
         utilisateur: { select: { email: true } },
       },
     }),
@@ -100,6 +105,9 @@ export async function listerSoldesVendeurs(): Promise<SoldeVendeur[]> {
       emailVendeur: v.utilisateur.email,
       estBoutiqueMaison: v.estBoutiqueMaison,
       tauxPourcent: taux,
+      statutValidation: v.statutValidation,
+      statutKyc: v.kyc?.statut ?? null,
+      eligibleReversement: v.statutValidation === "VALIDE" && v.kyc?.statut === "VALIDE",
       ...calculerSolde({
         brut: brutPar.get(v.id) ?? 0,
         brutCOD: brutCODPar.get(v.id) ?? 0,
