@@ -2,7 +2,11 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { exigerConnexion } from "@/modules/auth/access";
 import { getPanierAvecLignes } from "@/modules/commande/panier";
-import { calculerTotal } from "@/modules/commande/commande-core";
+import {
+  calculerTotal,
+  calculerFraisHrSkills,
+  FRAIS_LIVRAISON_FCFA,
+} from "@/modules/commande/commande-core";
 import { chargerAffichagePrixPourProduits } from "@/modules/promotion/promotion";
 import { env } from "@/lib/env";
 import { getPlafondCOD, getPlafondDetteCOD } from "@/modules/commande/config";
@@ -55,7 +59,7 @@ export default async function CommanderPage({
     // XL — seraient indiscernables sur l'écran où l'acheteur valide.
     axesParCategorie(panier.lignes.map((l) => l.produit.categorieId)),
   ]);
-  const depassePlafond = total > plafond;
+  const depassePlafond = total + FRAIS_LIVRAISON_FCFA > plafond;
   // Articles dont le vendeur doit trop de commission pour continuer à vendre
   // en espèces. Affiché ici pour que l'acheteur puisse arbitrer avant de
   // valider ; le refus reste prononcé côté serveur, cet écran ne fait
@@ -67,6 +71,11 @@ export default async function CommanderPage({
   // Le fournisseur actif débite-t-il le téléphone du client sans page de
   // paiement ? Si oui, il faut lui demander son opérateur ici même.
   const sansRedirection = paiementSansRedirection();
+  const fraisHrSkills = sansRedirection
+    ? calculerFraisHrSkills(total + FRAIS_LIVRAISON_FCFA)
+    : 0;
+  const totalAvecLivraison = total + FRAIS_LIVRAISON_FCFA;
+  const totalMobileMoney = totalAvecLivraison + fraisHrSkills;
   // Unités commandées, pas lignes : 2 exemplaires comptent pour 2 articles.
   const nbArticles = panier.lignes.reduce((s, l) => s + l.quantite, 0);
 
@@ -234,7 +243,7 @@ export default async function CommanderPage({
 
             {depassePlafond && (
               <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-xs text-amber-800">
-                Le total dépasse le plafond du paiement à la livraison (<Prix montant={plafond} />).
+                Le total, frais de livraison inclus, dépasse le plafond du paiement à la livraison (<Prix montant={plafond} />).
                 Choisissez Mobile Money ou réduisez le panier.
               </p>
             )}
@@ -311,12 +320,39 @@ export default async function CommanderPage({
               })}
             </ul>
             <div className="space-y-2 bg-surface-basse px-5 py-4">
-              <div className="flex flex-wrap items-baseline justify-between gap-2 text-titre-sm text-slate-900">
-                <span>Total</span>
-                <Prix montant={total} className="text-nile-700" />
+              <div className="flex flex-wrap items-baseline justify-between gap-2 text-corps-sm">
+                <span className="text-slate-600">Sous-total des articles</span>
+                <Prix montant={total} className="font-semibold text-slate-900" />
               </div>
+              <div className="flex flex-wrap items-baseline justify-between gap-2 text-corps-sm">
+                <span className="text-slate-600">Livraison</span>
+                <Prix montant={FRAIS_LIVRAISON_FCFA} className="font-semibold text-slate-900" />
+              </div>
+              {sansRedirection && (
+                <div className="flex flex-wrap items-baseline justify-between gap-2 text-corps-sm">
+                  <span className="text-slate-600">Frais HR-Skills Pay (2 % du montant avant frais)</span>
+                  <Prix montant={fraisHrSkills} className="font-semibold text-slate-900" />
+                </div>
+              )}
+              {sansRedirection ? (
+                <>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-200 pt-2 text-corps-sm">
+                    <span className="text-slate-700">Total si paiement à la livraison</span>
+                    <Prix montant={totalAvecLivraison} className="font-semibold text-slate-900" />
+                  </div>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 text-titre-sm text-slate-900">
+                    <span>Total si Mobile Money</span>
+                    <Prix montant={totalMobileMoney} className="text-nile-700" />
+                  </div>
+                </>
+              ) : (
+                <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-200 pt-2 text-titre-sm text-slate-900">
+                  <span>Total à régler</span>
+                  <Prix montant={totalAvecLivraison} className="text-nile-700" />
+                </div>
+              )}
               <p className="text-etiquette-xs text-slate-500">
-                Livraison gratuite · prix TTC
+                Livraison facturée 1 500 FCFA · prix TTC
                 {env.DELAI_LIVRAISON_TEXTE
                   ? ` · délai estimé : ${env.DELAI_LIVRAISON_TEXTE}`
                   : ""}

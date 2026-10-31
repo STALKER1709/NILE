@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Vignette } from "@/components/ui/Vignette";
 import { Prix } from "@/components/ui/kit";
+import { FRAIS_LIVRAISON_FCFA } from "@/modules/commande/commande-core";
 import { BoutonPanier } from "@/components/panier/BoutonPanier";
 import { retirerArticleAction } from "@/app/(compte)/panier/actions";
 
@@ -130,8 +131,7 @@ export function CarteArticlePanier({ article }: { article: ArticlePanier }) {
 }
 
 /**
- * Rappel des conditions de livraison. Contenu volontairement factuel : la
- * livraison est gratuite et l'adresse est saisie à l'étape suivante — aucune
+ * Rappel des conditions de livraison. Le tarif est fixe par commande ; aucune
  * date de livraison n'est annoncée, la plateforme n'en calcule pas.
  */
 export function BlocLivraison() {
@@ -145,10 +145,10 @@ export function BlocLivraison() {
         </svg>
       </span>
       <div className="min-w-0">
-        <p className="text-etiquette-md text-nile-800">Livraison gratuite</p>
+        <p className="text-etiquette-md text-nile-800">Livraison · 1 500 FCFA</p>
         <p className="text-corps-sm text-slate-600">
-          Partout au Cameroun. Vous indiquerez votre adresse à l&apos;étape
-          suivante.
+          Tarif fixe par commande, partout au Cameroun. Vous indiquerez
+          votre adresse à l&apos;étape suivante.
         </p>
       </div>
     </div>
@@ -159,7 +159,7 @@ export function BlocLivraison() {
  * Récapitulatif de commande (colonne collante).
  *
  * Pas de ligne de TVA : les prix affichés sont toutes taxes comprises, en
- * FCFA entiers. Pas de frais de port : la livraison est gratuite.
+ * FCFA entiers. Les frais de livraison sont ajoutés une fois par commande.
  */
 export function RecapitulatifPanier({
   total,
@@ -180,13 +180,13 @@ export function RecapitulatifPanier({
         </div>
         <div className="flex justify-between text-corps-md">
           <span className="text-slate-600">Livraison</span>
-          <span className="font-bold text-accent-deep">GRATUITE</span>
+          <Prix montant={FRAIS_LIVRAISON_FCFA} className="font-bold text-slate-900" />
         </div>
       </div>
 
       <div className="flex items-center justify-between py-6">
         <span className="text-titre-sm text-nile-800">Total</span>
-        <Prix montant={total} className="text-titre-sm font-bold text-nile-800" />
+        <Prix montant={total + FRAIS_LIVRAISON_FCFA} className="text-titre-sm font-bold text-nile-800" />
       </div>
 
       <p className="text-etiquette-xs uppercase tracking-wider text-slate-500">

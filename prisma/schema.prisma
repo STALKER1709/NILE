@@ -396,6 +396,10 @@ model Commande {
   // « codes valables en Mobile Money uniquement » — NILE ne remise que l'argent
   // qui transite par elle.
   remise         Int            @default(0)
+  // Frais de livraison facturés à l'acheteur, figés à la création.
+  fraisLivraison Int            @default(0)
+  // Frais de paiement HR-Skills Pay facturés à l'acheteur, figés à la création.
+  fraisPaiement  Int            @default(0)
   // Code saisi, figé au moment de la commande. Comme le prix unitaire : si le
   // code est modifié ou supprimé plus tard, l'historique comptable ne bouge pas.
   codePromo      String?

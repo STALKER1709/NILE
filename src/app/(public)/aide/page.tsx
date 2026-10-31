@@ -104,12 +104,12 @@ export default function AidePage() {
     {
       rubrique: "livraison",
       question: "Combien coûte la livraison ?",
-      texte: "livraison gratuite frais prix coût partout cameroun",
+      texte: "livraison frais prix coût 1500 FCFA partout cameroun",
       reponse: (
         <>
-          La livraison est <strong>gratuite partout au Cameroun</strong>, sur
-          toutes les commandes, sans montant minimum. Le prix affiché sur la
-          fiche produit est celui que vous payez.
+          La livraison coûte <strong>1 500 FCFA par commande</strong>, quel
+          que soit le nombre d&apos;articles. Les éventuels frais de paiement
+          Mobile Money HR-Skills sont affichés séparément avant la validation.
         </>
       ),
     },
