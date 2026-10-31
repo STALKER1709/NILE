@@ -111,7 +111,6 @@ export const TAILLE_PDF_MAX_OCTETS = 5 * 1024 * 1024; // 5 Mo pour les justifica
 /** Poids maximum d'un fichier, selon son type. */
 export function tailleMaxPourType(typeMime: string): number {
   if ((TYPES_VIDEO_ACCEPTES as readonly string[]).includes(typeMime)) return TAILLE_VIDEO_MAX_OCTETS;
-  if (typeMime === "application/pdf") return TAILLE_PDF_MAX_OCTETS;
   return TAILLE_IMAGE_MAX_OCTETS;
 }
 
@@ -125,8 +124,6 @@ export function extensionDepuisMime(typeMime: string): string {
       return "webp";
     case "video/mp4":
       return "mp4";
-    case "application/pdf":
-      return "pdf";
     default:
       return "bin";
   }
@@ -147,8 +144,6 @@ export function typeMimeDepuisExtension(ext: string): string | null {
       return "image/webp";
     case "mp4":
       return "video/mp4";
-    case "pdf":
-      return "application/pdf";
     default:
       return null;
   }
