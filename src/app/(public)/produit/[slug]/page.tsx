@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { BoutonFavori } from "@/components/produit/BoutonFavori";
+import { aConfirmeMajorite, produitEstReserve18 } from "@/modules/catalogue/acces-18";
 import { estEnFavori, favorisParmi } from "@/modules/catalogue/favoris";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import {
   getProduitPublicParSlug,
   getProduitsSimilaires,
@@ -47,7 +48,10 @@ export async function generateMetadata({
 }) {
   const { slug } = await params;
   const produit = await getProduitPublicParSlug(slug);
-  if (!produit) return { title: "Produit introuvable" };
+  if (!produit) {
+    if (!(await aConfirmeMajorite()) && await produitEstReserve18(slug)) return { title: "Contenu réservé aux adultes", robots: { index: false, follow: false } };
+    return { title: "Produit introuvable" };
+  }
 
   const description = `${formaterXAF(produit.prix)} · ${produit.description.slice(0, 140)}`;
   return {
@@ -128,7 +132,12 @@ export default async function FicheProduitPage({
   const { slug } = await params;
   const { erreur, ok } = await searchParams;
   const produit = await getProduitPublicParSlug(slug);
-  if (!produit) notFound();
+  if (!produit) {
+    if (!(await aConfirmeMajorite()) && await produitEstReserve18(slug)) {
+      redirect(`/acces-18?retour=${encodeURIComponent(`/produit/${slug}`)}`);
+    }
+    notFound();
+  }
 
   const utilisateur = await getUtilisateurCourant();
   const [
