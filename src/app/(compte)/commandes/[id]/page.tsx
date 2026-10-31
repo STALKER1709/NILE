@@ -525,7 +525,7 @@ export default async function DetailCommandePage({
             <Prix montant={commande.total} className="whitespace-nowrap text-nile-800" />
           </div>
           <p className="pt-1 text-etiquette-xs text-slate-500">
-            Livraison : <Prix montant={commande.fraisLivraison} /> · paiement{" "}
+            Livraison : {commande.fraisLivraison.toLocaleString("fr-FR")} FCFA · paiement{" "}
             {commande.modePaiement === "COD" ? "en espèces à la livraison" : "Mobile Money"}
           </p>
         </div>
