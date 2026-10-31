@@ -4,6 +4,7 @@ import { compterArticlesAffiches } from "@/modules/commande/panier-invite";
 import { compterFavoris } from "@/modules/catalogue/favoris";
 import { listerCategories } from "@/modules/catalogue/categories";
 import { Entete } from "@/components/layout/Entete";
+import { NavMobile } from "@/components/layout/NavMobile";
 import { PiedDePage } from "@/components/layout/PiedDePage";
 import { BulleWhatsApp } from "@/components/layout/BulleWhatsApp";
 import { RetourHaut } from "@/components/layout/RetourHaut";
@@ -25,5 +26,6 @@ export default async function PublicLayout({ children }: { children: ReactNode }
     <PiedDePage />
     {env.CONTACT_WHATSAPP && <BulleWhatsApp numero={env.CONTACT_WHATSAPP} />}
     <RetourHaut />
+    <NavMobile connecte={Boolean(utilisateur)} nbArticles={nbArticles} nbFavoris={nbFavoris} />
   </>;
 }
