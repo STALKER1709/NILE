@@ -187,7 +187,7 @@ export default async function FicheProduitPage({
   const prixEffectif = affichagePrix.prixPromo ?? produit.prix;
 
   return (
-    <div className="space-y-6 pb-16 sm:pb-0">
+    <div className="mx-auto w-full max-w-[1360px] space-y-7 px-4 pb-16 sm:px-6 lg:px-8">
       {/* Fil d'Ariane */}
       <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-sm text-slate-500">
         <Link href="/" className="transition-colors hover:text-nile-700">Accueil</Link>
@@ -197,15 +197,17 @@ export default async function FicheProduitPage({
         <span className="font-semibold text-slate-900">{produit.categorie.nom}</span>
       </nav>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+      <div className="grid grid-cols-1 items-start gap-8 lg:grid-cols-12">
         {/* Galerie interactive */}
-        <GaleriePhotos
-          images={produit.images.map((img) => ({ id: img.id, url: img.url }))}
-          titre={produit.titre}
-        />
+        <div className="min-w-0 lg:col-span-7">
+          <GaleriePhotos
+            images={produit.images.map((img) => ({ id: img.id, url: img.url }))}
+            titre={produit.titre}
+          />
+        </div>
 
         {/* Infos + achat */}
-        <div className="space-y-5">
+        <div className="min-w-0 space-y-5 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6 lg:col-span-5">
           <div>
             {produit.nbAvis > 0 ? (
               <p className="flex items-center gap-2 text-sm text-slate-500">
@@ -216,7 +218,7 @@ export default async function FicheProduitPage({
               <p className="text-sm text-slate-400">Pas encore d'avis</p>
             )}
 
-            <h1 className="mt-1.5 text-titre-md leading-tight text-nile-800 sm:text-display-mobile">
+            <h1 className="mt-2 text-2xl font-extrabold leading-tight tracking-tight text-[#0B192C] sm:text-3xl">
               {produit.titre}
             </h1>
 
@@ -301,7 +303,7 @@ export default async function FicheProduitPage({
           )}
 
           {/* Description mise en avant */}
-          <div className="rounded-xl border border-contour-carte bg-slate-50 p-5">
+          <div className="rounded-xl border border-slate-200 bg-slate-50 p-5">
             <p className="whitespace-pre-line text-[15px] leading-relaxed text-slate-700">
               {produit.description}
             </p>
