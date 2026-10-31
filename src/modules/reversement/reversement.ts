@@ -168,7 +168,7 @@ export type ResultatReversement =
   | { ok: true }
   | {
       ok: false;
-      code: "INTROUVABLE" | "MONTANT_INVALIDE" | "SOLDE_INSUFFISANT";
+      code: "INTROUVABLE" | "MONTANT_INVALIDE" | "SOLDE_INSUFFISANT" | "SEUIL_MINIMUM" | "VENDEUR_NON_VALIDE";
     };
 
 /**
@@ -203,10 +203,16 @@ export async function demanderReversement(
 ): Promise<ResultatReversement> {
   const vendeur = await prisma.vendeur.findUnique({
     where: { id: vendeurId },
-    select: { estBoutiqueMaison: true },
+    select: { estBoutiqueMaison: true, statutValidation: true },
   });
   if (!vendeur || vendeur.estBoutiqueMaison) {
     return { ok: false, code: "INTROUVABLE" };
+  }
+  if (vendeur.statutValidation !== "VALIDE") {
+    return { ok: false, code: "VENDEUR_NON_VALIDE" };
+  }
+  if (!Number.isInteger(montant) || montant < 10_000) {
+    return { ok: false, code: "SEUIL_MINIMUM" };
   }
   const taux = await getTauxCommissionPourcent();
   return creerLigneReversement(vendeurId, montant, "DEMANDE", taux);
