@@ -90,7 +90,7 @@ export async function executerDemandeReversement(
 
   demande = await prisma.reversement.findUnique({
     where: { id: reversementId },
-    include: { vendeur: { select: { nomBoutique: true } } },
+    include: { vendeur: { select: { statutValidation: true, kyc: { select: { statut: true } }, infosPaiement: true, nomBoutique: true } } },
   });
   if (!demande || demande.statut !== "EN_COURS") {
     return { ok: false, code: "DEJA_TRAITE", message: "La demande n'est plus en cours." };
