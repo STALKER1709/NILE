@@ -64,6 +64,10 @@ export class ErreurStockage extends Error {
 
 export interface StorageProvider {
   enregistrer(fichier: FichierAEnregistrer): Promise<FichierEnregistre>;
+  /** Stockage privé réservé aux justificatifs d'identité KYC. */
+  enregistrerKyc(fichier: FichierAEnregistrer): Promise<FichierEnregistre>;
+  /** URL de consultation protégée, à résoudre uniquement après autorisation ADMIN. */
+  urlSigneeKyc(chemin: string): Promise<string>;
   supprimer(chemin: string): Promise<void>;
 
   /* ---- Envoi direct depuis le navigateur (fichiers lourds) ---- */
@@ -120,6 +124,8 @@ export function extensionDepuisMime(typeMime: string): string {
       return "webp";
     case "video/mp4":
       return "mp4";
+    case "application/pdf":
+      return "pdf";
     default:
       return "bin";
   }
@@ -140,6 +146,8 @@ export function typeMimeDepuisExtension(ext: string): string | null {
       return "image/webp";
     case "mp4":
       return "video/mp4";
+    case "pdf":
+      return "application/pdf";
     default:
       return null;
   }
