@@ -72,7 +72,7 @@ export default async function EtiquetteCommandePage({
         <BoutonImprimer libelle="Imprimer l'étiquette" />
       </div>
 
-      <article className="mx-auto w-full max-w-[700px] overflow-hidden rounded-2xl border-2 border-[#0B192C] bg-white shadow-sm print:max-w-none print:rounded-none print:shadow-none">
+      <article className="mx-auto w-full max-w-[700px] overflow-hidden rounded-2xl border-2 border-[#0B192C] bg-white shadow-sm print:mx-auto print:w-[92mm] print:max-w-none print:rounded-none print:shadow-none">
         <header className="flex items-center justify-between gap-4 bg-[#0B192C] px-5 py-4 text-white">
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-amber-300">NILE · Logistique</p>
@@ -85,7 +85,7 @@ export default async function EtiquetteCommandePage({
           </div>
         </header>
 
-        <section className="grid gap-5 p-5 sm:grid-cols-[1fr_180px]">
+        <section className="grid gap-5 p-5 sm:grid-cols-[1fr_180px] print:grid-cols-1 print:gap-3 print:p-3">
           <div className="space-y-4">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">Destinataire</p>
@@ -145,7 +145,7 @@ export default async function EtiquetteCommandePage({
       </p>
 
       <style>{`
-        @page { size: A6 portrait; margin: 6mm; }
+        @page { size: 100mm 150mm; margin: 4mm; }
         @media print {
           html, body { background: #fff !important; }
           body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
