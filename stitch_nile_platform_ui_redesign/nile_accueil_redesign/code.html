@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {outline: "#75777d", "surface-bright": "#f7f9fb", "surface-dim": "#d8dadc", "error-container": "#ffdad6", "primary-fixed-dim": "#bac7e1", "on-secondary-container": "#684000", "secondary-fixed-dim": "#ffb95f", "on-tertiary-fixed-variant": "#005236", "terracotta-accent": "#E07A5F", "surface-container-lowest": "#ffffff", "tertiary-fixed": "#6ffbbe", primary: "#000000", "on-secondary-fixed-variant": "#653e00", "surface-container-highest": "#e0e3e5", "inverse-on-surface": "#eff1f3", "on-tertiary-fixed": "#002113", tertiary: "#000000", error: "#ba1a1a", "secondary-fixed": "#ffddb8", "outline-variant": "#c5c6cd", "on-tertiary-container": "#009668", "surface-variant": "#e0e3e5", "on-tertiary": "#ffffff", "amber-deep": "#D97706", "emerald-soft": "#ECFDF5", surface: "#f7f9fb", "primary-fixed": "#d6e3fe", "on-error-container": "#93000a", "amber-soft": "#FFFBEB", "on-secondary-fixed": "#2a1700", "on-primary": "#ffffff", "tertiary-container": "#002113", "emerald-text": "#047857", "surface-container-high": "#e6e8ea", "orange-money": "#FF6600", "tertiary-fixed-dim": "#4edea3", "on-secondary": "#ffffff", "inverse-primary": "#bac7e1", "midnight-slate": "#0F172A", background: "#f7f9fb", "border-subtle": "#E2E8F0", "on-primary-fixed": "#0e1c2f", "on-background": "#191c1e", "inverse-surface": "#2d3133", "on-surface-variant": "#44474c", secondary: "#855300", "on-primary-container": "#77849c", "surface-container": "#eceef0", "surface-cream": "#FAFAF9", "on-primary-fixed-variant": "#3a475c", "on-error": "#ffffff", "surface-container-low": "#f2f4f6", "surface-tint": "#525f75", "secondary-container": "#fea619", "momo-yellow": "#FFCC00", "primary-container": "#0e1c2f", "on-surface": "#191c1e"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {margin: "1rem", "space-xl": "2.5rem", "margin-desktop": "3.5rem", "space-2xl": "4rem", "space-lg": "1.5rem", gutter: "1.25rem", "space-xs": "0.25rem", "gutter-desktop": "1.75rem", "space-sm": "0.5rem", "space-md": "1rem", "margin-tablet": "2rem"}, fontFamily: {"body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-price-lg": ["Plus Jakarta Sans"], "label-button": ["Plus Jakarta Sans"], "display-hero-mobile": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-price-sm": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "label-badge": ["Plus Jakarta Sans"], headline: ["Plus Jakarta Sans"], display: ["Plus Jakarta Sans"], body: ["Plus Jakarta Sans"], label: ["Plus Jakarta Sans"]}, fontSize: {"body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "headline-md": ["20px", {lineHeight: "26px", letterSpacing: "-0.015em", fontWeight: "600"}], "headline-sm": ["16px", {lineHeight: "22px", letterSpacing: "-0.01em", fontWeight: "600"}], "headline-xl": ["36px", {lineHeight: "44px", letterSpacing: "-0.025em", fontWeight: "700"}], "label-price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.02em", fontWeight: "800"}], "label-button": ["14px", {lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "600"}], "display-hero-mobile": ["34px", {lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "800"}], "body-md": ["15px", {lineHeight: "24px", fontWeight: "400"}], "label-price-sm": ["15px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "display-hero": ["52px", {lineHeight: "60px", letterSpacing: "-0.03em", fontWeight: "800"}], "headline-lg": ["24px", {lineHeight: "30px", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-xl-mobile": ["26px", {lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "700"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "700"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-44 flex flex-col justify-between"><div class="bg-primary-container text-on-primary-fixed-dim px-margin lg:px-margin-desktop py-space-xs"><div class="max-w-[1360px] mx-auto flex items-center justify-between text-body-sm font-body-sm"><div class="flex items-center gap-space-md"><span class="flex items-center gap-space-xs text-on-tertiary"><span class="material-symbols-outlined text-[16px] text-tertiary-fixed">verified</span><span>Le commerce local, connecté • Cameroun</span></span><span class="hidden md:inline-block text-outline">|</span><div class="hidden sm:flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-secondary-container">location_on</span><span class="text-on-primary-container font-headline-sm text-headline-sm text-[12px]">Livraison :</span><select class="bg-transparent text-on-tertiary text-body-sm font-body-sm focus:outline-none cursor-pointer"><option class="bg-midnight-slate text-on-tertiary" value="douala">Douala (Littoral)</option><option class="bg-midnight-slate text-on-tertiary" value="yaounde">Yaoundé (Centre)</option><option class="bg-midnight-slate text-on-tertiary" value="bafoussam">Bafoussam (Ouest)</option></select></div></div><div class="flex items-center gap-space-md"><a class="hover:text-on-tertiary text-on-primary-container transition-colors" data-path="aide" href="#">Besoin d’aide ?</a><span class="text-outline">|</span><a class="flex items-center gap-space-xs text-tertiary-fixed hover:text-tertiary-fixed-dim transition-colors" href="https://wa.me/237681380483" target="_blank"><span class="material-symbols-outlined text-[16px]">chat</span><span class="font-label-button text-label-button text-[12px]">WhatsApp</span></a><span class="hidden md:inline-block text-outline">|</span><a class="hidden md:flex items-center gap-space-xs hover:text-on-tertiary text-on-primary-container transition-colors" href="tel:+237681380483"><span class="material-symbols-outlined text-[16px]">call</span><span class="font-label-button text-label-button text-[12px]">+237 681 380 483</span></a></div></div></div><div class="px-margin lg:px-margin-desktop py-space-sm bg-surface-container-lowest"><div class="max-w-[1360px] mx-auto flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-md shrink-0"><img alt="NILE Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARQnaGqE7gtdbo0dFl6-whL41vaAqMnSIh-HMg4TyF1ohmzYWfB9I-2WBmJkORHHGyoUFMVVulRJxAjSETwr10pYIAij78hgta5pkxbTQbdh4_TVUPQYimAdPSzz35PpsBmYN2_29gAmJ2bLfmUmEK3OVyt-phPqCxDx4-vc-hy8YXe_tDxiRejPUPL9ts4773-cJmtP6kMAx3riNBnNml-KugenYNQH-uqj-hZX8d"/><div class="hidden sm:flex flex-col"><span class="font-headline-lg text-headline-lg tracking-tight leading-none text-primary">NILE</span><span class="font-label-badge text-label-badge text-amber-deep tracking-wider uppercase">Le marché sans frontières</span></div></div><div class="hidden md:flex flex-1 max-w-2xl items-center bg-surface-container-low rounded-full p-1 pl-space-md shadow-inner"><select class="bg-transparent text-body-sm font-headline-sm text-on-surface-variant pr-space-sm focus:outline-none cursor-pointer border-r border-outline-variant"><option value="all">Toutes catégories</option><option value="agro">Agroalimentaire &amp; Épices</option><option value="mode">Mode &amp; Pagnes Africains</option><option value="tech">Électronique &amp; Téléphonie</option><option value="beaute">Cosmétique Naturelle</option><option value="maison">Artisanat &amp; Décoration</option></select><div class="flex flex-1 items-center px-space-sm"><span class="material-symbols-outlined text-outline text-[20px] mr-space-xs">search</span><input class="w-full bg-transparent text-body-md font-body-md text-on-surface placeholder:text-outline focus:outline-none" placeholder="Que recherchez-vous aujourd'hui au Cameroun ?" type="text"/></div><button class="bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm px-space-lg py-space-xs rounded-full flex items-center gap-space-xs transition-colors shadow-sm" type="button"><span class="font-label-button text-label-button">Rechercher</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button></div><div class="flex items-center gap-space-md shrink-0"><a class="hidden xl:flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-emerald-soft text-emerald-text hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="espace-vendeur" href="#"><span class="material-symbols-outlined text-[18px]">store</span><span>Vendre sur NILE (＋)</span></a><a class="hidden lg:flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="boutiques-verifiees" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span class="font-label-button text-label-button text-[13px]">Boutiques</span></a><a class="flex items-center text-on-surface-variant hover:text-on-surface transition-colors relative" data-path="favoris" href="#"><span class="material-symbols-outlined text-[22px]">favorite</span></a><a class="flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container hover:bg-surface-container-high transition-colors text-on-surface" data-path="panier" href="#"><div class="relative flex items-center"><span class="material-symbols-outlined text-[22px]">shopping_bag</span><span class="absolute -top-2 -right-2 bg-secondary-container text-on-primary font-headline-sm text-[10px] w-4 h-4 rounded-full flex items-center justify-center">2</span></div><span class="hidden sm:inline-block font-headline-sm text-headline-sm text-[13px]">Mon Panier</span></a><a class="flex items-center gap-space-xs text-on-surface hover:text-secondary transition-colors pl-space-xs" data-path="connexion" href="#"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden 2xl:flex flex-col text-left"><span class="font-label-badge text-label-badge text-outline">Bonjour</span><span class="font-headline-sm text-headline-sm text-[12px] leading-tight">Connexion / S'inscrire</span></div></a></div></div></div><div class="bg-surface-cream px-margin lg:px-margin-desktop py-space-xs shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><div class="max-w-[1360px] mx-auto flex items-center justify-between overflow-x-auto"><nav class="flex items-center gap-space-sm whitespace-nowrap" data-active-classes="bg-primary-container text-on-primary font-headline-sm rounded-full"><a class="flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-secondary-container text-on-primary font-headline-sm text-headline-sm text-[13px]" data-path="rayons" href="#"><span class="material-symbols-outlined text-[18px]">menu</span><span>Tous les rayons</span></a><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-primary-container text-on-primary font-headline-sm rounded-full" data-path="accueil" href="#">Accueil</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="catalogue" href="#">Catalogue</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="boutiques-verifiees" href="#">Boutiques vérifiées</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="promotions-eclair" href="#">Promotions éclair</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="nouveautes" href="#">Nouveautés</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="reels-shopping" href="#">Reels shopping</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="aide" href="#">Aide</a></nav><div class="hidden xl:flex items-center gap-space-sm text-body-sm font-body-sm text-emerald-text pl-space-md"><span class="material-symbols-outlined text-[16px]">lock</span><span>Transactions sécurisées MoMo &amp; OM</span></div></div></div></div></header><main class="w-full pt-44 bg-surface"><div class="max-w-[1360px] mx-auto px-margin lg:px-margin-desktop py-space-md"><div class="flex flex-col w-full space-y-space-2xl">
+<!-- ==================== 1. HERO SECTION ==================== -->
+<section class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-surface-cream via-amber-soft/40 to-surface-container-low p-space-lg lg:p-space-2xl shadow-sm">
+<div class="absolute -right-16 -top-16 w-96 h-96 rounded-full bg-secondary-container/10 blur-3xl pointer-events-none"></div>
+<div class="absolute left-1/3 -bottom-20 w-80 h-80 rounded-full bg-tertiary-fixed/20 blur-3xl pointer-events-none"></div>
+<div class="relative grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+<!-- Left Content Column -->
+<div class="lg:col-span-7 flex flex-col space-y-space-md">
+<!-- Badge -->
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-lowest shadow-sm w-fit">
+<span class="w-2.5 h-2.5 rounded-full bg-emerald-text animate-pulse"></span>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant">LA MARKETPLACE QUI VOUS COMPREND</span>
+</div>
+<!-- Main Title -->
+<h1 class="font-display-hero text-display-hero text-midnight-slate tracking-tight leading-tight">
+          Vos envies. Vos marques.<br/>
+<span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-deep via-secondary-container to-secondary">
+            Tout près de vous.
+          </span>
+</h1>
+<!-- Subtext verbatim -->
+<p class="font-body-lg text-body-lg text-on-surface-variant max-w-xl leading-relaxed">
+          Découvrez des produits qui vous ressemblent, comparez les articles et explorez les boutiques locales. Les détails de commande vous accompagnent jusqu’à la livraison.
+        </p>
+<!-- CTA Buttons -->
+<div class="flex flex-wrap items-center gap-space-sm pt-space-xs">
+<a class="inline-flex items-center gap-space-xs px-space-xl py-space-sm rounded-full bg-midnight-slate hover:bg-primary-container text-surface-container-lowest font-headline-sm text-headline-sm transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5" data-path="catalogue" href="#">
+<span>Explorer le catalogue</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-lg py-space-sm rounded-full bg-surface-container-lowest hover:bg-surface text-midnight-slate font-headline-sm text-headline-sm transition-all shadow-sm" data-path="ouvrir-une-boutique" href="#">
+<span class="material-symbols-outlined text-[18px] text-amber-deep">store</span>
+<span>Ouvrir ma boutique ＋</span>
+</a>
+</div>
+<!-- Micro-Assurances verbatim -->
+<div class="flex flex-wrap items-center gap-x-space-lg gap-y-space-xs pt-space-sm text-body-sm font-body-sm text-on-surface-variant">
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-emerald-text text-[18px]">verified</span>
+<span>Une expérience pensée pour le Cameroun</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-emerald-text text-[18px]">check_circle</span>
+<span>Des options affichées avant validation</span>
+</div>
+</div>
+</div>
+<!-- Right Visual Display (Showcase Card Stack) -->
+<div class="lg:col-span-5 relative flex justify-center items-center py-space-md">
+<!-- Floating Backdrop Frame -->
+<div class="relative w-full max-w-md bg-surface-container-lowest rounded-2xl p-space-md shadow-xl">
+<div class="flex items-center justify-between pb-space-sm mb-space-sm border-b border-surface-container">
+<div class="flex flex-col">
+<span class="font-label-badge text-label-badge text-outline uppercase tracking-wider">À DÉCOUVRIR</span>
+<span class="font-headline-md text-headline-md text-midnight-slate">La sélection <span class="text-amber-deep">NILE.</span></span>
+</div>
+<span class="px-2 py-0.5 rounded-full bg-amber-soft text-amber-deep font-label-badge text-label-badge">Tendance Douala</span>
+</div>
+<!-- Hero Main Showcase Card (TV UHD) -->
+<div class="relative rounded-xl overflow-hidden bg-surface-container-low aspect-[16/10] mb-space-sm">
+<img class="w-full h-full object-cover" data-alt="A modern slim ultra-high-definition Smart TV sitting on a warm wooden credenza against an elegant African contemporary living room interior with earthy tones and warm subtle lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDJoPxpFqbY-ADfabFfBNG9bvkC89WPZhMbK8oYtubA7XuCFaNFPWcjtMV-t-fp28L6pzMQJQmaLe8KJXsmFcW86i40BNaFqy8NVAx_Y2maiCrzdDX2zTezQ03AWY51YgOtPd9W4i7TaHsew_truboEZlTJOtVkafhLggwqx-jFbim0rwCmivUOPTTG5k-JQ1nDqFS5007rujuwkLjZasrxM8XH5-KeEmh7P4Fn5kf"/>
+<div class="absolute bottom-2 left-2 bg-midnight-slate/85 backdrop-blur text-surface-container-lowest px-2.5 py-1 rounded-md text-body-sm font-headline-sm">
+              Smart TV UHD 4K
+            </div>
+<div class="absolute top-2 right-2 bg-secondary-container text-on-primary font-label-price-sm text-label-price-sm px-2 py-0.5 rounded shadow">
+              100 FCFA
+            </div>
+</div>
+<!-- Overlapping Mini-Card (Ventilateur & Badge) -->
+<div class="grid grid-cols-2 gap-space-sm">
+<div class="flex items-center gap-space-xs p-space-xs rounded-xl bg-surface-cream shadow-sm">
+<div class="w-12 h-12 rounded-lg bg-surface-container-lowest shrink-0 overflow-hidden flex items-center justify-center p-1">
+<img class="w-full h-full object-contain" data-alt="Compact white oscillating electric standing fan with silent blades isolated clean product photography with soft studio light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLErZyhqi9CG1brG7jEuYiZm5NVA04Q7BHFnWr0-hp6ZpRKMd2yzcTctf6rtWr1axWHYBYbTlXk0D1uy0U-b0eQCXxY3DuZCMIQl03yLKstE522kYwTkAamKzaMJZ8vhUbjWyg2ujSW_8TgPwznzEqfOVV9WuZijWbOMeX7ojzPvhOYLybrNzVdjl27vXrH8ZtwekfPNUo7yKc6fVjQJO4ZeutbD08Ns_YUDTvNILQ"/>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-badge text-label-badge text-outline truncate uppercase">Ventilateur</span>
+<span class="font-headline-sm text-[12px] text-midnight-slate truncate leading-tight">À découvrir sur NILE</span>
+</div>
+</div>
+<!-- Certified Round Seal Badge -->
+<div class="flex items-center justify-center p-space-xs rounded-xl bg-gradient-to-r from-primary-container to-midnight-slate text-surface-container-lowest">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-tertiary-fixed text-[24px]">verified_user</span>
+<div class="flex flex-col leading-tight">
+<span class="font-headline-sm text-[11px] font-bold tracking-tight">NILE CONFIANCE</span>
+<span class="text-[10px] text-tertiary-fixed-dim">Achetez serein</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- ==================== 2. TRUST / VALUE PROPOSITIONS ==================== -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Value 1 -->
+<div class="flex items-start gap-space-md p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all">
+<div class="w-12 h-12 rounded-xl bg-emerald-soft flex items-center justify-center shrink-0 text-emerald-text">
+<span class="material-symbols-outlined text-[26px]">storefront</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-midnight-slate">Des boutiques validées</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+          Les boutiques visibles passent par une validation avant de vendre.
+        </p>
+</div>
+</div>
+<!-- Value 2 -->
+<div class="flex items-start gap-space-md p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all">
+<div class="w-12 h-12 rounded-xl bg-amber-soft flex items-center justify-center shrink-0 text-amber-deep">
+<span class="material-symbols-outlined text-[26px]">sell</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-midnight-slate">Des prix à comparer</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+          Consultez les détails et les options par produit.
+        </p>
+</div>
+</div>
+<!-- Value 3 -->
+<div class="flex items-start gap-space-md p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center shrink-0 text-on-primary-fixed">
+<span class="material-symbols-outlined text-[26px]">credit_card</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-midnight-slate">Des options claires</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+          Les moyens de règlement sont indiqués à la commande.
+        </p>
+</div>
+</div>
+<!-- Value 4 -->
+<div class="flex items-start gap-space-md p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all">
+<div class="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center shrink-0 text-midnight-slate">
+<span class="material-symbols-outlined text-[26px]">inventory_2</span>
+</div>
+<div class="flex flex-col">
+<h2 class="font-headline-sm text-headline-sm text-midnight-slate">Le suivi de vos achats</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-1 leading-snug">
+          Consultez l’avancement de vos commandes depuis votre espace.
+        </p>
+</div>
+</div>
+</section>
+<!-- ==================== 3. EXPLORER PAR ENVIE (CATEGORIES) ==================== -->
+<section class="flex flex-col space-y-space-md">
+<div class="flex items-end justify-between">
+<div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-amber-deep">EXPLORER PAR ENVIE</span>
+<h2 class="font-headline-xl text-headline-xl text-midnight-slate mt-0.5">Qu’est-ce qui vous ferait plaisir ?</h2>
+</div>
+<a class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-amber-deep hover:text-midnight-slate transition-colors" data-path="catalogue" href="#">
+<span>Tous les rayons</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Categories Grid (Visual cards with explorer buttons) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<!-- Cat 1: Electroménager -->
+<a class="group relative rounded-2xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-path="catalogue?categorie=electromenager" href="#">
+<div class="w-full h-44 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-sm mb-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Modern sleek flat-screen smart television on a minimalist stand against clean light studio background commercial high resolution product shot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBH7kDWGnyyqjzUAhyfbPgJKgJeFCfH2gZMWxkwYRaBBEd2lHZfAmNBIGGzRhRk8UANNaJdIbV4RA91S75JxHi08w2Z7XhwTNwXPG4U5H1hiklPVLaf3vJchn6xFcZsm95URfKHpw037w1HNmxJt7fhrr6NBm7GtKQ48eL2kOm1B4kSGXq72OYN825DYJiQ8Q5oYzRul-KYTeT2iyC8XQbH50XgWFFwLXwAlJYsK0Re"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-midnight-slate">Electroménager</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Téléviseurs, Ventilateurs, Climatiseurs</p>
+</div>
+<div class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate group-hover:text-amber-deep mt-space-sm pt-space-xs border-t border-surface-container transition-colors">
+<span>Explorer</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- Cat 2: Lingerie -->
+<a class="group relative rounded-2xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-path="catalogue?categorie=lingerie" href="#">
+<div class="w-full h-44 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-sm mb-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Classic black seamless comfort wire-free bra displayed on clean white studio pedestal elegant lingerie product photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNE-xLL7geBi4BSHCWadQ5gA0cKwm8XXgO2Tga5lcAE8KCetdHWYSXcnI8YZEK93sO32eAdVv8_5KST91jlb6_84aukkUDqzcEiOwrf7KveS9hZW-5R3O8_tqAI0cz51R7GsqD0QCSAHZAf3w3fTx7n9Q0mqE4HrpQBDQbkjvyfyo6RHPlSa4PcRQtb7ZKyR9NjDp26gygaLZzAfYA8g8SeoBmXArsC0_E3r98SnsT"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-midnight-slate">Lingerie</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Soutiens-gorge, Bras confort, Prêt-à-porter</p>
+</div>
+<div class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate group-hover:text-amber-deep mt-space-sm pt-space-xs border-t border-surface-container transition-colors">
+<span>Explorer</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- Cat 3: Smartphones & Tech -->
+<a class="group relative rounded-2xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-path="catalogue?categorie=tech" href="#">
+<div class="w-full h-44 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-sm mb-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Modern dual-sim smartphone with bright edge-to-edge screen floating at an angle with wireless earbuds clean tech product shot" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJGOX0_3wEBn-kykm7G6nAxgGjjLdw2FI0rdDQtREsUM_1shURK3HBZNIPhzPZJTQ5u4HV6V-3AOmeL2qo44WI1S6-lFlujMvwqdksg4SSEwsG5IRMJFRxD4EgRpMLfl5QTxBmtGsktX0Bw2fmG7cf436eu_mjRsDhFLed2aeto2vA6jQyFtrDbmmBs2JRrijTcOT2WeVqsRa7YqU7CmjJjSTSEkTfRVMgyaiPIQWS"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-midnight-slate">High-Tech &amp; Mobile</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Smartphones 4G, Accessoires, Écouteurs</p>
+</div>
+<div class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate group-hover:text-amber-deep mt-space-sm pt-space-xs border-t border-surface-container transition-colors">
+<span>Explorer</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+<!-- Cat 4: Agroalimentaire & Épicerie -->
+<a class="group relative rounded-2xl bg-surface-container-lowest p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between" data-path="catalogue?categorie=agro" href="#">
+<div class="w-full h-44 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-sm mb-space-sm">
+<img class="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300" data-alt="Assortment of authentic Cameroonian spices in glass jars Penja white pepper artisanal honey and rich local tea packets warm organic studio lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDm1ZWWvQ25IgIH9g0M5zhIRWmEQ1zTySx8sLbKJV1hLom88YtAzerAgvy1sw365o1Pn_VwIYvdeYL0JaEMmtwoARBwBjjQtsNcv9H-sODrEUw8Ffj0466NRzL_kt7gxt5NuCmIjsCdjLQEsyex2Er1RA_dzdUWTVtVEiwuWQ6q7iRm6-hc7j_jp2w_WgJ8FsUawv7bPjCwDpHNS3kMEwvLpJdGi0eY8mks42tW3CUF"/>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-midnight-slate">Épicerie &amp; Terroir</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-0.5">Poivre de Penja, Miel, Produits du pays</p>
+</div>
+<div class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate group-hover:text-amber-deep mt-space-sm pt-space-xs border-t border-surface-container transition-colors">
+<span>Explorer</span>
+<span class="material-symbols-outlined text-[16px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</div>
+</a>
+</div>
+</section>
+<!-- ==================== 4. LES COUPS DE CŒUR DU MOMENT ==================== -->
+<section class="flex flex-col space-y-space-md">
+<div class="flex items-end justify-between">
+<div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-amber-deep">À DÉCOUVRIR</span>
+<h2 class="font-headline-xl text-headline-xl text-midnight-slate mt-0.5">Les coups de cœur du moment</h2>
+</div>
+<a class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate hover:text-amber-deep transition-colors" data-path="catalogue" href="#">
+<span>Voir le catalogue</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Product Cards Grid (Matching verbatim: Téléviseur, Ventilateur, Soutien-gorge) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+<!-- Product 1: Téléviseur -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<!-- Visual section -->
+<div class="relative w-full h-56 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-md mb-space-sm">
+<img class="w-full h-full object-contain" data-alt="High quality smart television screen showing vivid landscape scene, slim bezel minimalist product shot on neutral studio background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB1ApL7sZeOFi-Ds5Tm525nkMKaqYvLqybuCeMmv1hGL_Kb3QctmGcN-du4E-F503p2SXv-pn6Ub_AA9L7BJahMb_nYy2YqsGu2dnqvdEg3aO3tCjhMkpfxPILb0FXZLxqI6tbtfF2XLlh-UXfQKVGpIaUW27-K8n8ZzYcHiQtOQsNEQh4tmZ4bq9MbbvIDx0b4I2EqRvwic8Kbuxe1-QqiBLDR89ZjROyke5E2Leve"/>
+<button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur flex items-center justify-center text-outline hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+<!-- Metadata -->
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant">Electroménager</span>
+<h3 class="font-headline-md text-headline-md text-midnight-slate mt-0.5">
+<a class="hover:text-amber-deep transition-colors" data-path="produit/televiseur-b2fed1" href="#">Téléviseur</a>
+</h3>
+<!-- Rating -->
+<div class="flex items-center gap-1 mt-1 text-amber-deep">
+<div class="flex items-center text-[14px]">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant">(1)</span>
+</div>
+<!-- Price verbatim -->
+<div class="mt-space-sm">
+<span class="font-label-price-lg text-label-price-lg text-midnight-slate">100 FCFA</span>
+</div>
+<!-- Merchant Tag -->
+<div class="flex items-center justify-between mt-space-xs pt-space-xs border-t border-surface-container">
+<a class="font-headline-sm text-headline-sm text-[13px] text-midnight-slate hover:underline" data-path="boutique/739896e3-9175-456d-bb72-d330051c5a34" href="#">
+              Dr SCHMELL
+            </a>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+              Boutique validée
+            </span>
+</div>
+</div>
+<!-- Buttons Split -->
+<div class="grid grid-cols-5 gap-2 mt-space-md">
+<button class="col-span-3 py-space-xs px-space-sm bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm rounded-xl flex items-center justify-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Ajouter</span>
+</button>
+<a class="col-span-2 py-space-xs px-space-sm bg-surface-container hover:bg-surface-container-high text-midnight-slate font-headline-sm text-headline-sm rounded-xl flex items-center justify-center transition-colors" data-path="produit/televiseur-b2fed1" href="#">
+            Fiche
+          </a>
+</div>
+</div>
+<!-- Product 2: Ventilateur -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<!-- Visual section -->
+<div class="relative w-full h-56 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-md mb-space-sm">
+<img class="w-full h-full object-contain" data-alt="Modern white standing pedestal fan clean aesthetic home ventilation equipment high detail product studio photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1CVxiZhiXgfyAdoAo-6EHA4_tLyclW6by5qJ3IJGbDck5raFlt7LmqlLohMdV-l6wSfvmwVPkQjIrakWFpWQgBYGaWRHJqy7Pvrty7Ft3OLDON-hL1JGYVvUVhNtNqnr1o-CWVB3R2sskoV9wp_PXY4xPelpuh0AmkgUOcVu4ytwdft1DcS2qmG21hzPDcWXLtmYoXhyY97pupO9ru1ohBUTDJGYos9u1ka-iJd21"/>
+<button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur flex items-center justify-center text-outline hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+<!-- Metadata -->
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant">Electroménager</span>
+<h3 class="font-headline-md text-headline-md text-midnight-slate mt-0.5">
+<a class="hover:text-amber-deep transition-colors" data-path="produit/ventilateur-d5f6fd" href="#">ventilateur</a>
+</h3>
+<!-- Rating -->
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant text-body-sm font-body-sm">
+<span>Pas encore noté</span>
+</div>
+<!-- Price verbatim -->
+<div class="mt-space-sm">
+<span class="font-label-price-lg text-label-price-lg text-midnight-slate">15 000 FCFA</span>
+</div>
+<!-- Merchant Tag -->
+<div class="flex items-center justify-between mt-space-xs pt-space-xs border-t border-surface-container">
+<a class="font-headline-sm text-headline-sm text-[13px] text-midnight-slate hover:underline" data-path="boutique/739896e3-9175-456d-bb72-d330051c5a34" href="#">
+              Dr SCHMELL
+            </a>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+              Boutique validée
+            </span>
+</div>
+</div>
+<!-- Buttons Split -->
+<div class="grid grid-cols-5 gap-2 mt-space-md">
+<button class="col-span-3 py-space-xs px-space-sm bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm rounded-xl flex items-center justify-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Ajouter</span>
+</button>
+<a class="col-span-2 py-space-xs px-space-sm bg-surface-container hover:bg-surface-container-high text-midnight-slate font-headline-sm text-headline-sm rounded-xl flex items-center justify-center transition-colors" data-path="produit/ventilateur-d5f6fd" href="#">
+            Fiche
+          </a>
+</div>
+</div>
+<!-- Product 3: Soutien-gorge -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<!-- Visual section -->
+<div class="relative w-full h-56 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-md mb-space-sm">
+<img class="w-full h-full object-contain" data-alt="Black elegant comfortable wirefree bra isolated on neutral studio setting soft lighting clean feminine apparel design" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCzmh0Qh6Ao4-Y8AWRK53ek0AMZs4XYq-xZ-DV2HK_7Dy_Ex0bXttlUlNcx61yp7CoR0lvOYTkXjUQLhREije4rHUlKyb2l1jZ9gLLzmBpkZrxLPp4bm5iFYfA3pJKS-LkFmFtVcN__GhqIs38qR-ZkGGrZkjQEipPnuiHkhdzIi8-h-bvvdo3KeVchHIAGmdp2Uz1YtB-rRELQbtvrD26oSJKcOClcotk7s5UI9ZgA"/>
+<button class="absolute top-3 right-3 w-8 h-8 rounded-full bg-surface-container-lowest/80 backdrop-blur flex items-center justify-center text-outline hover:text-error transition-colors">
+<span class="material-symbols-outlined text-[18px]">favorite</span>
+</button>
+</div>
+<!-- Metadata -->
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant">Soutiens-gorge (Bras)</span>
+<h3 class="font-headline-md text-headline-md text-midnight-slate mt-0.5">
+<a class="hover:text-amber-deep transition-colors" data-path="produit/soutien-gorge-0437de" href="#">Soutien-gorge</a>
+</h3>
+<!-- Rating -->
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant text-body-sm font-body-sm">
+<span>Pas encore noté</span>
+</div>
+<!-- Price verbatim -->
+<div class="mt-space-sm">
+<span class="font-label-price-lg text-label-price-lg text-midnight-slate">3 000 FCFA</span>
+</div>
+<!-- Merchant Tag -->
+<div class="flex items-center justify-between mt-space-xs pt-space-xs border-t border-surface-container">
+<a class="font-headline-sm text-headline-sm text-[13px] text-midnight-slate hover:underline" data-path="boutique/739896e3-9175-456d-bb72-d330051c5a34" href="#">
+              Dr SCHMELL
+            </a>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+              Boutique validée
+            </span>
+</div>
+</div>
+<!-- Buttons Split -->
+<div class="grid grid-cols-5 gap-2 mt-space-md">
+<button class="col-span-3 py-space-xs px-space-sm bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm rounded-xl flex items-center justify-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Ajouter</span>
+</button>
+<a class="col-span-2 py-space-xs px-space-sm bg-surface-container hover:bg-surface-container-high text-midnight-slate font-headline-sm text-headline-sm rounded-xl flex items-center justify-center transition-colors" data-path="produit/soutien-gorge-0437de" href="#">
+            Fiche
+          </a>
+</div>
+</div>
+</div>
+</section>
+<!-- ==================== 5. NILE POUR LES ENTREPRENEURS ==================== -->
+<section class="relative overflow-hidden rounded-3xl bg-amber-soft p-space-lg lg:p-space-2xl shadow-sm">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-center">
+<!-- Text details verbatim -->
+<div class="lg:col-span-7 flex flex-col space-y-space-md">
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-amber-deep">NILE POUR LES ENTREPRENEURS</span>
+<h2 class="font-headline-xl text-headline-xl text-midnight-slate">Votre boutique mérite de grandir.</h2>
+<p class="font-body-lg text-body-lg text-on-surface leading-relaxed max-w-xl">
+          Présentez vos produits, donnez de la visibilité à votre activité et retrouvez vos commandes dans un espace dédié.
+        </p>
+<!-- CTA Buttons verbatim -->
+<div class="flex flex-wrap items-center gap-space-sm pt-space-xs">
+<a class="inline-flex items-center gap-space-xs px-space-xl py-space-sm rounded-full bg-midnight-slate hover:bg-primary-container text-surface-container-lowest font-headline-sm text-headline-sm transition-all shadow-md" data-path="inscription" href="#">
+<span>Devenir vendeur</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+<a class="inline-flex items-center gap-space-xs px-space-lg py-space-sm rounded-full bg-surface-container-lowest hover:bg-surface text-midnight-slate font-headline-sm text-headline-sm transition-all shadow-sm" data-path="aide" href="#">
+<span>Comment ça marche ?</span>
+</a>
+</div>
+<!-- 3 Feature Pillars verbatim -->
+<div class="grid grid-cols-3 gap-space-sm pt-space-md border-t border-secondary-container/20">
+<div>
+<span class="font-headline-sm text-headline-sm text-midnight-slate block">Votre vitrine</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">en ligne</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-midnight-slate block">Vos produits</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">à votre rythme</span>
+</div>
+<div>
+<span class="font-headline-sm text-headline-sm text-midnight-slate block">Votre ambition</span>
+<span class="text-body-sm font-body-sm text-on-surface-variant">à développer</span>
+</div>
+</div>
+</div>
+<!-- Merchant Photography Collage -->
+<div class="lg:col-span-5 flex items-center justify-center gap-space-md">
+<div class="w-1/2 rounded-2xl overflow-hidden shadow-lg transform -rotate-2 hover:rotate-0 transition-transform duration-300">
+<img class="w-full h-64 object-cover" data-alt="Smiling Cameroonian female retail shop owner standing proudly inside her vibrant organized local boutique in Douala warm natural sunlight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBq6NGX1uEONScV9OcO0FSheEHKpXMiTs_fK6rNOzhjlkgFARSQEB1OahJR_deuI51Yoz_3BC9BmiRqow3LOafmeX83Ff1PlwF14c8AZfMdVQAi2LYrIwfLvSXIlsaqtkuWoZW__pEaQOSg9O92Ewis3MNXcQWPMksDLZ6szsCHCBW4tDO1YE7L-qkU2z0hNTt5YGMpkcrozCEiZLMk0rK6dh5EZbYX-c-EQaRyTlsW"/>
+</div>
+<div class="w-1/2 rounded-2xl overflow-hidden shadow-lg transform rotate-2 hover:rotate-0 transition-transform duration-300 -mt-6">
+<img class="w-full h-64 object-cover" data-alt="Urban local motorcycle delivery courier with branded insulated backpack navigating city streets safely fast delivery in Yaounde Cameroon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAWTQquwue4Owk_fcvwx8-3B714Fq45VS86rorJBFIM-kg6mCviCgINEJ73V1CxqqHIcWJihsdFcS2U6M0OXtTl79bYM7l1GqKUuruzyoYnjNVqDn-zFW89CNSK4BBPqBfHpviCbAkAGkpQChfpHhllwXEpZlAN2fGFiWAyE9GzQWXS2pS-j9gcrxLLBz4P08ctZLgqphBla9vCYTNBRLKxqMWJ1Qfd39F1xHdT8j1X"/>
+</div>
+</div>
+</div>
+</section>
+<!-- ==================== 6. COMMERÇANTS À DÉCOUVRIR (SPOTLIGHT BOUTIQUE) ==================== -->
+<section class="flex flex-col space-y-space-md">
+<div class="flex items-end justify-between">
+<div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-amber-deep">COMMERÇANTS À DÉCOUVRIR</span>
+<h2 class="font-headline-xl text-headline-xl text-midnight-slate mt-0.5">Des boutiques qui ont leur histoire</h2>
+</div>
+<a class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate hover:text-amber-deep transition-colors" data-path="boutiques" href="#">
+<span>Toutes les boutiques</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Verified Boutique Card (Dr SCHMELL verbatim) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<a class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all flex items-center gap-space-md col-span-1" data-path="boutique/739896e3-9175-456d-bb72-d330051c5a34" href="#">
+<div class="w-14 h-14 rounded-2xl bg-midnight-slate text-surface-container-lowest font-headline-lg text-headline-lg flex items-center justify-center shrink-0 shadow-inner">
+          D
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h3 class="font-headline-md text-headline-md text-midnight-slate truncate">Dr SCHMELL</h3>
+<span class="material-symbols-outlined text-emerald-text text-[18px]">verified</span>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge w-fit mt-0.5">
+            Boutique locale
+          </span>
+<span class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+            3 produits • Depuis juil. 2026
+          </span>
+</div>
+</a>
+<!-- Secondary Community Merchant 1 -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex items-center gap-space-md col-span-1">
+<div class="w-14 h-14 rounded-2xl bg-amber-deep text-surface-container-lowest font-headline-lg text-headline-lg flex items-center justify-center shrink-0 shadow-inner">
+          K
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h3 class="font-headline-md text-headline-md text-midnight-slate truncate">Kamer Mode &amp; Wax</h3>
+<span class="material-symbols-outlined text-emerald-text text-[18px]">verified</span>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge w-fit mt-0.5">
+            Artisan certifié
+          </span>
+<span class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+            18 produits • Douala Akwa
+          </span>
+</div>
+</div>
+<!-- Secondary Community Merchant 2 -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex items-center gap-space-md col-span-1">
+<div class="w-14 h-14 rounded-2xl bg-tertiary-container text-tertiary-fixed font-headline-lg text-headline-lg flex items-center justify-center shrink-0 shadow-inner">
+          S
+        </div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h3 class="font-headline-md text-headline-md text-midnight-slate truncate">Saveurs de l’Ouest</h3>
+<span class="material-symbols-outlined text-emerald-text text-[18px]">verified</span>
+</div>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge w-fit mt-0.5">
+            Producteur local
+          </span>
+<span class="text-body-sm font-body-sm text-on-surface-variant mt-1">
+            12 produits • Bafoussam
+          </span>
+</div>
+</div>
+</div>
+</section>
+<!-- ==================== 7. COMMENT ÇA MARCHE ? ==================== -->
+<section class="flex flex-col space-y-space-lg">
+<div class="flex items-end justify-between">
+<div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-amber-deep">COMMENT ÇA MARCHE ?</span>
+<h2 class="font-headline-xl text-headline-xl text-midnight-slate mt-0.5">Acheter en ligne, en toute sérénité.</h2>
+</div>
+<a class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate hover:text-amber-deep transition-colors" data-path="aide" href="#">
+<span>Centre d’aide</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- 3 Steps verbatim -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
+<!-- Step 01 -->
+<div class="p-space-xl rounded-2xl bg-surface-container-lowest shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div>
+<span class="font-display-hero text-[38px] text-primary-fixed-dim/70 leading-none">01</span>
+<h3 class="font-headline-lg text-headline-lg text-midnight-slate mt-space-sm">Trouvez votre bonheur</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs leading-relaxed">
+            Explorez le catalogue, comparez les détails et découvrez les boutiques présentes sur NILE.
+          </p>
+</div>
+<div class="mt-space-lg pt-space-sm border-t border-surface-container flex items-center gap-2 text-emerald-text font-headline-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px]">search_check</span>
+<span>Articles vérifiés</span>
+</div>
+</div>
+<!-- Step 02 -->
+<div class="p-space-xl rounded-2xl bg-surface-container-lowest shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div>
+<span class="font-display-hero text-[38px] text-secondary-fixed-dim/80 leading-none">02</span>
+<h3 class="font-headline-lg text-headline-lg text-midnight-slate mt-space-sm">Choisissez comment payer</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs leading-relaxed">
+            Sélectionnez l’une des options effectivement proposées au moment de la commande.
+          </p>
+</div>
+<div class="mt-space-lg pt-space-sm border-t border-surface-container flex items-center gap-2 text-amber-deep font-headline-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+<span>MoMo, OM ou Cash</span>
+</div>
+</div>
+<!-- Step 03 -->
+<div class="p-space-xl rounded-2xl bg-surface-container-lowest shadow-sm relative overflow-hidden flex flex-col justify-between">
+<div>
+<span class="font-display-hero text-[38px] text-tertiary-fixed-dim/80 leading-none">03</span>
+<h3 class="font-headline-lg text-headline-lg text-midnight-slate mt-space-sm">Suivez votre commande</h3>
+<p class="font-body-md text-body-md text-on-surface-variant mt-space-xs leading-relaxed">
+            Retrouvez les informations et les étapes de suivi disponibles pour votre achat.
+          </p>
+</div>
+<div class="mt-space-lg pt-space-sm border-t border-surface-container flex items-center gap-2 text-midnight-slate font-headline-sm text-body-sm">
+<span class="material-symbols-outlined text-[18px]">local_shipping</span>
+<span>Livraison suivie</span>
+</div>
+</div>
+</div>
+<!-- Assistance Callout Strip verbatim -->
+<div class="p-space-lg rounded-2xl bg-surface-container-lowest shadow-sm flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-xl bg-amber-soft text-amber-deep flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[24px]">contact_support</span>
+</div>
+<div>
+<h4 class="font-headline-md text-headline-md text-midnight-slate">Besoin d’un renseignement ?</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Consultez le centre d’aide pour comprendre le parcours d’achat, les options de règlement et le suivi.</p>
+</div>
+</div>
+<a class="shrink-0 px-space-lg py-space-xs rounded-full bg-surface-container hover:bg-surface-container-high text-midnight-slate font-headline-sm text-headline-sm transition-colors flex items-center gap-1" data-path="aide" href="#">
+<span>Consulter l’aide</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+</section>
+<!-- ==================== 8. LES DERNIÈRES NOUVEAUTÉS ==================== -->
+<section class="flex flex-col space-y-space-md">
+<div class="flex items-end justify-between">
+<div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-amber-deep">TOUT JUSTE AJOUTÉS</span>
+<h2 class="font-headline-xl text-headline-xl text-midnight-slate mt-0.5">Les dernières nouveautés</h2>
+</div>
+<a class="inline-flex items-center gap-1 font-headline-sm text-headline-sm text-midnight-slate hover:text-amber-deep transition-colors" data-path="catalogue" href="#">
+<span>Voir le catalogue</span>
+<span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+</a>
+</div>
+<!-- Grid verbatim 3 products repeated with clean styling -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">
+<!-- Item 1: Téléviseur -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="relative w-full h-52 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-md mb-space-sm">
+<img class="w-full h-full object-contain" data-alt="Compact flat screen television mounted neatly in minimalist living space high quality catalog product visual" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAEtYRAh0GFC3mKHFzY_mYSmat6cN8srZNaAT5tow-L9BQj1Nx-kxY4yupE7JxhnB12WVFkpFs-mtBs7FT7rz_KxmAYtFPX6OQeb_pCZ1ww5t073ZTVldehhc3utD8rjNb49EZODxiccCgvHmMW7y182IwzelRR-f_mPOsa1Z6nKc1XnMvYYpgsPMQuQWl38lJLX5HXzSbpfb-IHxxvF2pPbfe5Fnsd9JjkNaF8ubTv"/>
+<span class="absolute top-3 left-3 bg-midnight-slate text-surface-container-lowest font-label-badge text-label-badge px-2 py-0.5 rounded">Nouveau</span>
+</div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant">Electroménager</span>
+<h3 class="font-headline-md text-headline-md text-midnight-slate mt-0.5">
+<a class="hover:text-amber-deep transition-colors" data-path="produit/televiseur-b2fed1" href="#">Téléviseur</a>
+</h3>
+<div class="flex items-center gap-1 mt-1 text-amber-deep">
+<div class="flex items-center text-[14px]">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<span class="text-body-sm font-body-sm text-on-surface-variant">(1)</span>
+</div>
+<div class="mt-space-sm">
+<span class="font-label-price-lg text-label-price-lg text-midnight-slate">100 FCFA</span>
+</div>
+<div class="flex items-center justify-between mt-space-xs pt-space-xs border-t border-surface-container">
+<a class="font-headline-sm text-headline-sm text-[13px] text-midnight-slate hover:underline" data-path="boutique/739896e3-9175-456d-bb72-d330051c5a34" href="#">
+              Dr SCHMELL
+            </a>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+              Boutique validée
+            </span>
+</div>
+</div>
+<div class="grid grid-cols-5 gap-2 mt-space-md">
+<button class="col-span-3 py-space-xs px-space-sm bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm rounded-xl flex items-center justify-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Ajouter</span>
+</button>
+<a class="col-span-2 py-space-xs px-space-sm bg-surface-container hover:bg-surface-container-high text-midnight-slate font-headline-sm text-headline-sm rounded-xl flex items-center justify-center transition-colors" data-path="produit/televiseur-b2fed1" href="#">
+            Fiche
+          </a>
+</div>
+</div>
+<!-- Item 2: Ventilateur -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="relative w-full h-52 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-md mb-space-sm">
+<img class="w-full h-full object-contain" data-alt="White modern silent oscillating fan with speed control buttons studio product photography isolated on white" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkzQf2ZDldLCKm2py9jUfsIiubCMs9ln9NX8gJsqFjUr2GBh3DY5VMGrx8ezF_S6nI4OAWU7rCnDopmCbLsGzYj02Q-XkW-5NWsK8oKinvIk1DZioaly3CoyGzm04BoSc8kbGsBmA7yhgM1qkP8LilO7aZnbgfiajkWiD_nQCechICnxYSZQE1O3TGN2-RQNJGEST4UWK7HlFhM7gVPdBw5auSBULZfo1iV1J1Kkca"/>
+<span class="absolute top-3 left-3 bg-midnight-slate text-surface-container-lowest font-label-badge text-label-badge px-2 py-0.5 rounded">Nouveau</span>
+</div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant">Electroménager</span>
+<h3 class="font-headline-md text-headline-md text-midnight-slate mt-0.5">
+<a class="hover:text-amber-deep transition-colors" data-path="produit/ventilateur-d5f6fd" href="#">ventilateur</a>
+</h3>
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant text-body-sm font-body-sm">
+<span>Pas encore noté</span>
+</div>
+<div class="mt-space-sm">
+<span class="font-label-price-lg text-label-price-lg text-midnight-slate">15 000 FCFA</span>
+</div>
+<div class="flex items-center justify-between mt-space-xs pt-space-xs border-t border-surface-container">
+<a class="font-headline-sm text-headline-sm text-[13px] text-midnight-slate hover:underline" data-path="boutique/739896e3-9175-456d-bb72-d330051c5a34" href="#">
+              Dr SCHMELL
+            </a>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+              Boutique validée
+            </span>
+</div>
+</div>
+<div class="grid grid-cols-5 gap-2 mt-space-md">
+<button class="col-span-3 py-space-xs px-space-sm bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm rounded-xl flex items-center justify-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Ajouter</span>
+</button>
+<a class="col-span-2 py-space-xs px-space-sm bg-surface-container hover:bg-surface-container-high text-midnight-slate font-headline-sm text-headline-sm rounded-xl flex items-center justify-center transition-colors" data-path="produit/ventilateur-d5f6fd" href="#">
+            Fiche
+          </a>
+</div>
+</div>
+<!-- Item 3: Soutien-gorge -->
+<div class="bg-surface-container-lowest rounded-2xl p-space-md shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+<div>
+<div class="relative w-full h-52 rounded-xl bg-surface-cream overflow-hidden flex items-center justify-center p-space-md mb-space-sm">
+<img class="w-full h-full object-contain" data-alt="Sophisticated black bra for women soft cotton lining front studio display shot neutral soft background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAk4RbdANko2UqJxTLUQuedvVprVVP9FNAPiYHbMiZf4vvStTal35HZlB5QpU9dvntrSdPVYqzLkcqC5gW22zM4787vUbXRxhdZBgbvs84nBlodJSIRNVim-H5TorcSUC6rZscKg_ZrXcEBgvr1AcZ4vrTaSR6DzOS4P-Uh0OPtalvEpRI4QgE05atGX6Sbb1dZiYHHQlzRa6aAMcJMkPybAQ95xz9q-m--AVreDu_O"/>
+<span class="absolute top-3 left-3 bg-midnight-slate text-surface-container-lowest font-label-badge text-label-badge px-2 py-0.5 rounded">Nouveau</span>
+</div>
+<span class="font-label-badge text-label-badge uppercase tracking-wider text-on-surface-variant">Soutiens-gorge (Bras)</span>
+<h3 class="font-headline-md text-headline-md text-midnight-slate mt-0.5">
+<a class="hover:text-amber-deep transition-colors" data-path="produit/soutien-gorge-0437de" href="#">Soutien-gorge</a>
+</h3>
+<div class="flex items-center gap-1 mt-1 text-on-surface-variant text-body-sm font-body-sm">
+<span>Pas encore noté</span>
+</div>
+<div class="mt-space-sm">
+<span class="font-label-price-lg text-label-price-lg text-midnight-slate">3 000 FCFA</span>
+</div>
+<div class="flex items-center justify-between mt-space-xs pt-space-xs border-t border-surface-container">
+<a class="font-headline-sm text-headline-sm text-[13px] text-midnight-slate hover:underline" data-path="boutique/739896e3-9175-456d-bb72-d330051c5a34" href="#">
+              Dr SCHMELL
+            </a>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-soft text-emerald-text font-label-badge text-label-badge">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+              Boutique validée
+            </span>
+</div>
+</div>
+<div class="grid grid-cols-5 gap-2 mt-space-md">
+<button class="col-span-3 py-space-xs px-space-sm bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm rounded-xl flex items-center justify-center gap-1 transition-colors shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add_shopping_cart</span>
+<span>Ajouter</span>
+</button>
+<a class="col-span-2 py-space-xs px-space-sm bg-surface-container hover:bg-surface-container-high text-midnight-slate font-headline-sm text-headline-sm rounded-xl flex items-center justify-center transition-colors" data-path="produit/soutien-gorge-0437de" href="#">
+            Fiche
+          </a>
+</div>
+</div>
+</div>
+</section>
+</div>
+<script>
+  // Micro-interaction for Add-to-Cart buttons
+  document.querySelectorAll('button:has(.material-symbols-outlined:contains("add_shopping_cart")), button:has(span)').forEach(button => {
+    if (button.textContent.includes('Ajouter')) {
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        const originalText = button.innerHTML;
+        button.innerHTML = '<span class="material-symbols-outlined text-[18px]">check</span><span>Ajouté !</span>';
+        button.classList.add('bg-emerald-text');
+        button.classList.remove('bg-secondary-container');
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.classList.remove('bg-emerald-text');
+          button.classList.add('bg-secondary-container');
+        }, 1500);
+      });
+    }
+  });
+</script></div></main><footer class="w-full bg-midnight-slate text-inverse-on-surface mt-space-2xl pt-space-2xl pb-space-xl"><div class="max-w-[1360px] mx-auto px-margin lg:px-margin-desktop"><div class="bg-surface-container-lowest/5 rounded-xl p-space-xl mb-space-2xl flex flex-col lg:flex-row items-center justify-between gap-space-lg"><div class="max-w-xl text-center lg:text-left"><h3 class="font-headline-xl text-headline-xl text-on-primary mb-space-xs">Restez informé des meilleures offres du Cameroun</h3><p class="font-body-md text-body-md text-on-primary-fixed-dim">Recevez chaque semaine les réductions exclusives de vos artisans et commerçants de proximité.</p></div><div class="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-space-sm"><input class="w-full sm:w-80 px-space-md py-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary-container" placeholder="Votre adresse email (ex: nom@domaine.cm)" type="email"/><button class="w-full sm:w-auto px-space-lg py-space-sm rounded-lg bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm transition-colors" type="button">S'abonner</button></div></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-xl pb-space-2xl"><div class="lg:col-span-2 pr-space-lg"><div class="flex items-center gap-space-sm mb-space-md"><span class="font-headline-xl text-headline-xl text-on-primary tracking-tight">NILE</span><span class="px-space-xs py-0.5 rounded text-[11px] font-label-badge text-emerald-text bg-emerald-soft">Marketplace Officielle</span></div><p class="font-body-md text-body-md text-on-primary-fixed-dim mb-space-lg leading-relaxed">La plateforme de commerce digital panafricaine qui connecte directement les producteurs, commerçants locaux et acheteurs à travers tout le Cameroun, en toute transparence.</p><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-on-primary-fixed-dim"><span class="material-symbols-outlined text-[18px] text-tertiary-fixed">public</span><span class="font-body-sm text-body-sm">Douala • Yaoundé • Grand Nord • Ouest</span></div></div></div><div><h4 class="font-headline-sm text-headline-sm text-on-primary mb-space-md uppercase tracking-wider text-[13px]">Acheter</h4><ul class="space-y-space-xs font-body-md text-body-md text-on-primary-fixed-dim"><li><a class="hover:text-on-primary transition-colors" data-path="catalogue" href="#">Parcourir le catalogue</a></li><li><a class="hover:text-on-primary transition-colors" data-path="boutiques-verifiees" href="#">Boutiques certifiées</a></li><li><a class="hover:text-on-primary transition-colors" data-path="promotions-eclair" href="#">Promotions éclair</a></li><li><a class="hover:text-on-primary transition-colors" data-path="reels-shopping" href="#">Reels shopping vidéo</a></li><li><a class="hover:text-on-primary transition-colors" data-path="villes-desservies" href="#">Villes desservies &amp; Délais</a></li></ul></div><div><h4 class="font-headline-sm text-headline-sm text-on-primary mb-space-md uppercase tracking-wider text-[13px]">Vendre</h4><ul class="space-y-space-xs font-body-md text-body-md text-on-primary-fixed-dim"><li><a class="hover:text-on-primary transition-colors" data-path="ouvrir-une-boutique" href="#">Ouvrir une boutique</a></li><li><a class="hover:text-on-primary transition-colors" data-path="espace-vendeur" href="#">Espace vendeur</a></li><li><a class="hover:text-on-primary transition-colors" data-path="kyc" href="#">Vérification KYC &amp; Conformité</a></li><li><a class="hover:text-on-primary transition-colors" data-path="tarifs-commissions" href="#">Frais &amp; Commissions</a></li><li><a class="hover:text-on-primary transition-colors" data-path="guide-vendeur" href="#">Guide du commerçant digital</a></li></ul></div><div><h4 class="font-headline-sm text-headline-sm text-on-primary mb-space-md uppercase tracking-wider text-[13px]">Accompagnement</h4><ul class="space-y-space-xs font-body-md text-body-md text-on-primary-fixed-dim"><li><a class="hover:text-on-primary transition-colors" data-path="centre-d-aide" href="#">Centre d'aide &amp; FAQ</a></li><li><a class="hover:text-on-primary transition-colors" data-path="contact" href="#">Contact &amp; Support client</a></li><li><a class="hover:text-on-primary transition-colors" data-path="politique-retours" href="#">Politique de retours</a></li><li><a class="hover:text-on-primary transition-colors" data-path="signalement-fraude" href="#">Signaler une fraude</a></li><li><a class="hover:text-on-primary transition-colors" data-path="conditions-utilisation" href="#">Conditions Générales</a></li></ul></div></div><div class="pt-space-xl border-t border-surface-container-highest/10 flex flex-col md:flex-row items-center justify-between gap-space-lg"><div class="flex flex-col sm:flex-row items-center gap-space-md"><span class="font-headline-sm text-headline-sm text-on-primary text-[13px]">Moyens de paiement sécurisés :</span><div class="flex items-center flex-wrap gap-space-xs"><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-momo-yellow"></span>MTN MoMo</span><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-money"></span>Orange Money</span><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">credit_card</span>Carte Bancaire</span><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">local_shipping</span>Paiement à la livraison</span></div></div><div class="text-center md:text-right font-body-sm text-body-sm text-on-primary-fixed-dim"><p>© 2026 NILE Marketplace. Le marché sans frontières. Tous droits réservés.</p></div></div></div></footer></body></html>

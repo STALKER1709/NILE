@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+
+<html lang="fr"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = {darkMode: "class", theme: {extend: {colors: {outline: "#75777d", "surface-bright": "#f7f9fb", "surface-dim": "#d8dadc", "error-container": "#ffdad6", "primary-fixed-dim": "#bac7e1", "on-secondary-container": "#684000", "secondary-fixed-dim": "#ffb95f", "on-tertiary-fixed-variant": "#005236", "terracotta-accent": "#E07A5F", "surface-container-lowest": "#ffffff", "tertiary-fixed": "#6ffbbe", primary: "#000000", "on-secondary-fixed-variant": "#653e00", "surface-container-highest": "#e0e3e5", "inverse-on-surface": "#eff1f3", "on-tertiary-fixed": "#002113", tertiary: "#000000", error: "#ba1a1a", "secondary-fixed": "#ffddb8", "outline-variant": "#c5c6cd", "on-tertiary-container": "#009668", "surface-variant": "#e0e3e5", "on-tertiary": "#ffffff", "amber-deep": "#D97706", "emerald-soft": "#ECFDF5", surface: "#f7f9fb", "primary-fixed": "#d6e3fe", "on-error-container": "#93000a", "amber-soft": "#FFFBEB", "on-secondary-fixed": "#2a1700", "on-primary": "#ffffff", "tertiary-container": "#002113", "emerald-text": "#047857", "surface-container-high": "#e6e8ea", "orange-money": "#FF6600", "tertiary-fixed-dim": "#4edea3", "on-secondary": "#ffffff", "inverse-primary": "#bac7e1", "midnight-slate": "#0F172A", background: "#f7f9fb", "border-subtle": "#E2E8F0", "on-primary-fixed": "#0e1c2f", "on-background": "#191c1e", "inverse-surface": "#2d3133", "on-surface-variant": "#44474c", secondary: "#855300", "on-primary-container": "#77849c", "surface-container": "#eceef0", "surface-cream": "#FAFAF9", "on-primary-fixed-variant": "#3a475c", "on-error": "#ffffff", "surface-container-low": "#f2f4f6", "surface-tint": "#525f75", "secondary-container": "#fea619", "momo-yellow": "#FFCC00", "primary-container": "#0e1c2f", "on-surface": "#191c1e"}, borderRadius: {DEFAULT: "0.25rem", lg: "0.5rem", xl: "0.75rem", full: "9999px"}, spacing: {margin: "1rem", "space-xl": "2.5rem", "margin-desktop": "3.5rem", "space-2xl": "4rem", "space-lg": "1.5rem", gutter: "1.25rem", "space-xs": "0.25rem", "gutter-desktop": "1.75rem", "space-sm": "0.5rem", "space-md": "1rem", "margin-tablet": "2rem"}, fontFamily: {"body-sm": ["Plus Jakarta Sans"], "body-lg": ["Plus Jakarta Sans"], "headline-md": ["Plus Jakarta Sans"], "headline-sm": ["Plus Jakarta Sans"], "headline-xl": ["Plus Jakarta Sans"], "label-price-lg": ["Plus Jakarta Sans"], "label-button": ["Plus Jakarta Sans"], "display-hero-mobile": ["Plus Jakarta Sans"], "body-md": ["Plus Jakarta Sans"], "label-price-sm": ["Plus Jakarta Sans"], "display-hero": ["Plus Jakarta Sans"], "headline-lg": ["Plus Jakarta Sans"], "headline-xl-mobile": ["Plus Jakarta Sans"], "label-badge": ["Plus Jakarta Sans"], headline: ["Plus Jakarta Sans"], display: ["Plus Jakarta Sans"], body: ["Plus Jakarta Sans"], label: ["Plus Jakarta Sans"]}, fontSize: {"body-sm": ["13px", {lineHeight: "18px", fontWeight: "400"}], "body-lg": ["18px", {lineHeight: "28px", fontWeight: "400"}], "headline-md": ["20px", {lineHeight: "26px", letterSpacing: "-0.015em", fontWeight: "600"}], "headline-sm": ["16px", {lineHeight: "22px", letterSpacing: "-0.01em", fontWeight: "600"}], "headline-xl": ["36px", {lineHeight: "44px", letterSpacing: "-0.025em", fontWeight: "700"}], "label-price-lg": ["20px", {lineHeight: "24px", letterSpacing: "-0.02em", fontWeight: "800"}], "label-button": ["14px", {lineHeight: "18px", letterSpacing: "0.01em", fontWeight: "600"}], "display-hero-mobile": ["34px", {lineHeight: "40px", letterSpacing: "-0.02em", fontWeight: "800"}], "body-md": ["15px", {lineHeight: "24px", fontWeight: "400"}], "label-price-sm": ["15px", {lineHeight: "20px", letterSpacing: "-0.01em", fontWeight: "700"}], "display-hero": ["52px", {lineHeight: "60px", letterSpacing: "-0.03em", fontWeight: "800"}], "headline-lg": ["24px", {lineHeight: "30px", letterSpacing: "-0.02em", fontWeight: "700"}], "headline-xl-mobile": ["26px", {lineHeight: "32px", letterSpacing: "-0.02em", fontWeight: "700"}], "label-badge": ["11px", {lineHeight: "14px", letterSpacing: "0.04em", fontWeight: "700"}]}}}}</script></head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 z-50 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-44 flex flex-col justify-between"><div class="bg-primary-container text-on-primary-fixed-dim px-margin lg:px-margin-desktop py-space-xs"><div class="max-w-[1360px] mx-auto flex items-center justify-between text-body-sm font-body-sm"><div class="flex items-center gap-space-md"><span class="flex items-center gap-space-xs text-on-tertiary"><span class="material-symbols-outlined text-[16px] text-tertiary-fixed">verified</span><span>Le commerce local, connecté • Cameroun</span></span><span class="hidden md:inline-block text-outline">|</span><div class="hidden sm:flex items-center gap-space-xs"><span class="material-symbols-outlined text-[16px] text-secondary-container">location_on</span><span class="text-on-primary-container font-headline-sm text-headline-sm text-[12px]">Livraison :</span><select class="bg-transparent text-on-tertiary text-body-sm font-body-sm focus:outline-none cursor-pointer"><option class="bg-midnight-slate text-on-tertiary" value="douala">Douala (Littoral)</option><option class="bg-midnight-slate text-on-tertiary" value="yaounde">Yaoundé (Centre)</option><option class="bg-midnight-slate text-on-tertiary" value="bafoussam">Bafoussam (Ouest)</option></select></div></div><div class="flex items-center gap-space-md"><a class="hover:text-on-tertiary text-on-primary-container transition-colors" data-path="aide" href="#">Besoin d’aide ?</a><span class="text-outline">|</span><a class="flex items-center gap-space-xs text-tertiary-fixed hover:text-tertiary-fixed-dim transition-colors" href="https://wa.me/237681380483" target="_blank"><span class="material-symbols-outlined text-[16px]">chat</span><span class="font-label-button text-label-button text-[12px]">WhatsApp</span></a><span class="hidden md:inline-block text-outline">|</span><a class="hidden md:flex items-center gap-space-xs hover:text-on-tertiary text-on-primary-container transition-colors" href="tel:+237681380483"><span class="material-symbols-outlined text-[16px]">call</span><span class="font-label-button text-label-button text-[12px]">+237 681 380 483</span></a></div></div></div><div class="px-margin lg:px-margin-desktop py-space-sm bg-surface-container-lowest"><div class="max-w-[1360px] mx-auto flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-md shrink-0"><img alt="NILE Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuARQnaGqE7gtdbo0dFl6-whL41vaAqMnSIh-HMg4TyF1ohmzYWfB9I-2WBmJkORHHGyoUFMVVulRJxAjSETwr10pYIAij78hgta5pkxbTQbdh4_TVUPQYimAdPSzz35PpsBmYN2_29gAmJ2bLfmUmEK3OVyt-phPqCxDx4-vc-hy8YXe_tDxiRejPUPL9ts4773-cJmtP6kMAx3riNBnNml-KugenYNQH-uqj-hZX8d"/><div class="hidden sm:flex flex-col"><span class="font-headline-lg text-headline-lg tracking-tight leading-none text-primary">NILE</span><span class="font-label-badge text-label-badge text-amber-deep tracking-wider uppercase">Le marché sans frontières</span></div></div><div class="hidden md:flex flex-1 max-w-2xl items-center bg-surface-container-low rounded-full p-1 pl-space-md shadow-inner"><select class="bg-transparent text-body-sm font-headline-sm text-on-surface-variant pr-space-sm focus:outline-none cursor-pointer border-r border-outline-variant"><option value="all">Toutes catégories</option><option value="agro">Agroalimentaire &amp; Épices</option><option value="mode">Mode &amp; Pagnes Africains</option><option value="tech">Électronique &amp; Téléphonie</option><option value="beaute">Cosmétique Naturelle</option><option value="maison">Artisanat &amp; Décoration</option></select><div class="flex flex-1 items-center px-space-sm"><span class="material-symbols-outlined text-outline text-[20px] mr-space-xs">search</span><input class="w-full bg-transparent text-body-md font-body-md text-on-surface placeholder:text-outline focus:outline-none" placeholder="Que recherchez-vous aujourd'hui au Cameroun ?" type="text"/></div><button class="bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm px-space-lg py-space-xs rounded-full flex items-center gap-space-xs transition-colors shadow-sm" type="button"><span class="font-label-button text-label-button">Rechercher</span><span class="material-symbols-outlined text-[18px]">arrow_forward</span></button></div><div class="flex items-center gap-space-md shrink-0"><a class="hidden xl:flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-emerald-soft text-emerald-text hover:bg-tertiary-fixed hover:text-on-tertiary-fixed transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="espace-vendeur" href="#"><span class="material-symbols-outlined text-[18px]">store</span><span>Vendre sur NILE (＋)</span></a><a class="hidden lg:flex items-center gap-space-xs text-on-surface-variant hover:text-on-surface transition-colors" data-path="boutiques-verifiees" href="#"><span class="material-symbols-outlined text-[20px]">verified</span><span class="font-label-button text-label-button text-[13px]">Boutiques</span></a><a class="flex items-center text-on-surface-variant hover:text-on-surface transition-colors relative" data-path="favoris" href="#"><span class="material-symbols-outlined text-[22px]">favorite</span></a><a class="flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-amber-soft ring-1 ring-secondary-container/40 hover:bg-secondary-container hover:text-on-primary transition-all text-on-surface shadow-sm" data-path="panier-commande" href="#"><div class="relative flex items-center"><span class="material-symbols-outlined text-[22px] text-amber-deep">shopping_bag</span><span class="absolute -top-2 -right-2 bg-secondary-container text-on-primary font-headline-sm text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold ring-2 ring-surface-container-lowest">2</span></div><span class="hidden sm:inline-block font-headline-sm text-headline-sm text-[13px]">Panier (2)</span></a><a class="flex items-center gap-space-xs text-on-surface hover:text-secondary transition-colors pl-space-xs" data-path="connexion" href="#"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden 2xl:flex flex-col text-left"><span class="font-label-badge text-label-badge text-outline">Bonjour</span><span class="font-headline-sm text-headline-sm text-[12px] leading-tight">Connexion / S'inscrire</span></div></a></div></div></div><div class="bg-surface-cream px-margin lg:px-margin-desktop py-space-xs shadow-[0_1px_4px_rgba(0,0,0,0.03)]"><div class="max-w-[1360px] mx-auto flex items-center justify-between overflow-x-auto"><nav class="flex items-center gap-space-sm whitespace-nowrap" data-active-classes="bg-primary-container text-on-primary font-headline-sm rounded-full"><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="rayons" href="#">Tous les rayons</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="accueil" href="#">Accueil</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="catalogue" href="#">Catalogue</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="boutiques-verifiees" href="#">Boutiques vérifiées</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="panier-commande" href="#">Panier &amp; Commande</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="promotions-eclair" href="#">Promotions éclair</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="nouveautes" href="#">Nouveautés</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="reels-shopping" href="#">Reels shopping</a><a class="px-space-md py-space-xs rounded-full text-on-surface-variant hover:text-on-surface transition-colors font-headline-sm text-headline-sm text-[13px]" data-path="aide" href="#">Aide</a></nav><div class="hidden xl:flex items-center gap-space-sm text-body-sm font-body-sm text-emerald-text pl-space-md"><span class="material-symbols-outlined text-[16px]">lock</span><span>Transactions sécurisées MoMo &amp; OM</span></div></div></div></div></header><main class="w-full pt-44 bg-surface"><div class="flex flex-col w-full">
+<!-- Top Stepper Header -->
+<div class="w-full bg-surface-container-lowest shadow-sm mb-space-lg">
+<div class="max-w-[1360px] mx-auto px-margin lg:px-margin-desktop py-space-md">
+<!-- Breadcrumb -->
+<nav class="flex items-center gap-space-xs text-body-sm font-body-sm text-outline mb-space-md">
+<a class="hover:text-primary transition-colors flex items-center gap-1" href="#">
+<span class="material-symbols-outlined text-[16px]">storefront</span> Accueil
+        </a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<a class="hover:text-primary transition-colors" href="#">Panier</a>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+<span class="text-primary font-headline-sm text-headline-sm text-[13px]">Règlement sécurisé</span>
+</nav>
+<!-- Stepper progress bar -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-space-sm items-center">
+<!-- Step 1 -->
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-emerald-soft text-emerald-text flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[18px]">done</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-badge text-label-badge text-emerald-text uppercase">Étape 1</span>
+<span class="font-headline-sm text-headline-sm text-[13px] text-midnight-slate truncate">Panier vérifié</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="flex items-center gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0 shadow-sm">
+<span class="font-label-badge text-label-badge font-bold">2</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-badge text-label-badge text-amber-deep uppercase">En cours</span>
+<span class="font-headline-sm text-headline-sm text-[13px] text-primary truncate">Livraison &amp; Contact</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="flex items-center gap-space-sm opacity-80">
+<div class="w-8 h-8 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center shrink-0 font-headline-sm text-[12px] font-bold">
+            3
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-badge text-label-badge text-outline uppercase">Étape 3</span>
+<span class="font-headline-sm text-headline-sm text-[13px] text-on-surface truncate">MoMo / Orange Money</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="flex items-center gap-space-sm opacity-50">
+<div class="w-8 h-8 rounded-full bg-surface-container-high text-outline flex items-center justify-center shrink-0 font-headline-sm text-[12px]">
+            4
+          </div>
+<div class="flex flex-col min-w-0">
+<span class="font-label-badge text-label-badge text-outline uppercase">Étape 4</span>
+<span class="font-headline-sm text-headline-sm text-[13px] text-outline truncate">Confirmation &amp; Suivi</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Checkout Workspace -->
+<div class="max-w-[1360px] mx-auto w-full px-margin lg:px-margin-desktop pb-space-2xl">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter-desktop items-start">
+<!-- LEFT COLUMN : Items, Delivery & Payment Method (8 cols) -->
+<div class="lg:col-span-8 flex flex-col gap-space-xl">
+<!-- SECTION 1: Cart Items Review -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-space-lg flex flex-col sm:flex-row sm:items-center justify-between gap-space-sm bg-surface-container-low/50">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-amber-deep text-[24px]">shopping_cart</span>
+<h2 class="font-headline-lg text-headline-lg text-primary">Articles commandés (2)</h2>
+</div>
+<div class="flex items-center gap-space-xs text-emerald-text font-body-sm text-body-sm bg-emerald-soft px-space-sm py-1 rounded-full">
+<span class="material-symbols-outlined text-[16px]">verified</span>
+<span>Expédition groupée • Entrepôt Akwa Douala</span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col gap-space-lg">
+<!-- Item 1: Smart TV 55 -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md p-space-md rounded-lg bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-24 h-24 sm:w-28 sm:h-28 rounded-lg bg-surface-container-low shrink-0 overflow-hidden relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="Side angle profile shot of an ultra-slim modern flat-screen 55 inch smart TV with metallic brushed bezel and curved desktop stand, placed on a contemporary African wood console table with neutral light background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-isOgvkf0-lC3QBLSFYlqDEEap_MtMa_HNr-GPnnvf5x53Qar8vGra4ZxFjEhkT7XeyIUr0Q4_KsfYlfnfmXSPIeD24JDIkJiu289gxBkBZDvfJDWsNB0LVYlULqKeWJMPxJV874ImA0Rnw_wHUpa6YxFZ-1MmoJOXEdVi3CsqzsSqw4Z5onkITIQXRObNLtyg7RiaQ0nTmh_cNebh9w7aObwJcixW6N5HIT86x65"/>
+<span class="absolute top-1 left-1 bg-midnight-slate text-on-primary font-label-badge text-label-badge px-1.5 py-0.5 rounded">4K UHD</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 text-outline text-body-sm font-body-sm">
+<span class="material-symbols-outlined text-[14px] text-emerald-text">store</span>
+<span class="text-primary font-headline-sm text-headline-sm text-[12px]">Boutique Dr SCHMELL</span>
+<span class="text-outline-variant">•</span>
+<span class="text-[12px]">Akwa, Douala</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary truncate mt-0.5">
+                    Téléviseur Smart TV 55" UHD 4K Crystal View
+                  </h3>
+<div class="flex items-center gap-space-xs mt-1 text-emerald-text font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[14px]">local_shipping</span>
+<span class="text-[12px]">En stock à Douala • Expédition immédiate sous 24h</span>
+</div>
+<span class="font-label-price-lg text-label-price-lg text-primary mt-2">285 000 FCFA</span>
+</div>
+</div>
+<!-- Quantity and Remove action -->
+<div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-space-sm pt-space-xs sm:pt-0">
+<div class="flex items-center bg-surface-container-low rounded-full px-2 py-1 shadow-inner">
+<button aria-label="Diminuer la quantité" class="w-7 h-7 flex items-center justify-center rounded-full text-primary hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-8 text-center font-headline-sm text-headline-sm text-primary">1</span>
+<button aria-label="Augmenter la quantité" class="w-7 h-7 flex items-center justify-center rounded-full text-primary hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+<button class="text-outline hover:text-error flex items-center gap-1 text-body-sm font-body-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+<span>Supprimer</span>
+</button>
+</div>
+</div>
+<!-- Item 2: Régulateur de Tension -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-space-md p-space-md rounded-lg bg-surface-container-lowest shadow-sm hover:shadow-md transition-shadow">
+<div class="flex items-center gap-space-md min-w-0">
+<div class="w-24 h-24 sm:w-28 sm:h-28 rounded-lg bg-surface-container-low shrink-0 overflow-hidden relative flex items-center justify-center">
+<img class="w-full h-full object-cover" data-alt="High quality heavy duty automatic voltage regulator 1000VA black metallic chassis with digital LED voltmeter display and protective cooling vents, tropicalized for electronics protection on studio background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzIk087jZrj-Y862ItYvnyDeGbeEx23bhCk-OTuoScVRotGmvtdw3rAfrGjWrDVoFz_ICMvW8pJSvY0m_nwtKqQ-xeQnUvGsuYljPI2uVR8T7sxZeL9JaCjpTuGjtPXntGb1PAos3QW6eyk8hdpzNQIdwrtl2cK64y9Z7C3v0mHx7ki2Zc_6Lvlba-O136t8uSfO7Svv2x97SvHkd2BQ1LU37vnYZSgmr_21hPCfBg"/>
+<span class="absolute top-1 left-1 bg-amber-deep text-on-primary font-label-badge text-label-badge px-1.5 py-0.5 rounded">1000VA</span>
+</div>
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-1.5 text-outline text-body-sm font-body-sm">
+<span class="material-symbols-outlined text-[14px] text-emerald-text">store</span>
+<span class="text-primary font-headline-sm text-headline-sm text-[12px]">Boutique Dr SCHMELL</span>
+<span class="text-outline-variant">•</span>
+<span class="text-[12px]">Accessoires Certifiés</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary truncate mt-0.5">
+                    Régulateur Automatique de Tension 1000VA Spécial Tropicalisé
+                  </h3>
+<div class="flex items-center gap-space-xs mt-1 text-on-surface-variant font-body-sm text-body-sm">
+<span class="material-symbols-outlined text-[14px] text-amber-deep">shield</span>
+<span class="text-[12px]">Protection recommandée pour le réseau camerounais</span>
+</div>
+<span class="font-label-price-lg text-label-price-lg text-primary mt-2">18 500 FCFA</span>
+</div>
+</div>
+<!-- Quantity and Remove action -->
+<div class="flex sm:flex-col items-center sm:items-end justify-between w-full sm:w-auto gap-space-sm pt-space-xs sm:pt-0">
+<div class="flex items-center bg-surface-container-low rounded-full px-2 py-1 shadow-inner">
+<button aria-label="Diminuer la quantité" class="w-7 h-7 flex items-center justify-center rounded-full text-primary hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">remove</span>
+</button>
+<span class="w-8 text-center font-headline-sm text-headline-sm text-primary">1</span>
+<button aria-label="Augmenter la quantité" class="w-7 h-7 flex items-center justify-center rounded-full text-primary hover:bg-surface-container-highest transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">add</span>
+</button>
+</div>
+<button class="text-outline hover:text-error flex items-center gap-1 text-body-sm font-body-sm transition-colors" type="button">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+<span>Supprimer</span>
+</button>
+</div>
+</div>
+<!-- Promo code input block -->
+<div class="p-space-md rounded-lg bg-surface-container-low/40 flex flex-col sm:flex-row items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-sm w-full sm:w-auto">
+<span class="material-symbols-outlined text-secondary text-[22px]">confirmation_number</span>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-[13px] text-primary">Code promo ou Bon d'achat</span>
+<span class="text-body-sm font-body-sm text-outline">Code valide appliqué : <strong class="text-emerald-text">NILELIVRAISON (-5 000 FCFA)</strong></span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs w-full sm:w-auto">
+<input class="bg-surface-container-lowest px-space-md py-2 rounded-lg font-headline-sm text-headline-sm text-[13px] text-primary uppercase w-full sm:w-44 focus:outline-none shadow-sm" placeholder="Ex: WELCOME237" type="text" value="NILELIVRAISON"/>
+<button class="bg-primary-container text-on-primary px-space-md py-2 rounded-lg font-headline-sm text-headline-sm text-[13px] hover:bg-midnight-slate transition-colors shrink-0" type="button">
+                  Appliquer
+                </button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 2: Cameroon Delivery & Shipping -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-space-lg flex items-center gap-space-sm bg-surface-container-low/50">
+<span class="material-symbols-outlined text-secondary text-[24px]">local_shipping</span>
+<div class="flex flex-col">
+<h2 class="font-headline-lg text-headline-lg text-primary">Coordonnées &amp; Livraison au Cameroun</h2>
+<span class="font-body-sm text-body-sm text-outline">Précisez vos points de repère pour faciliter la tâche du coursier</span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col gap-space-lg">
+<!-- Form Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Nom complet -->
+<div class="flex flex-col gap-1.5">
+<label class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Nom et prénom du destinataire *</label>
+<input class="h-11 px-space-md rounded-lg bg-surface-container-lowest text-body-md font-body-md text-primary shadow-sm focus:outline-none" placeholder="Ex: Jean Paul Ndongo" type="text" value="Alain TCHOUA"/>
+</div>
+<!-- Téléphone principal -->
+<div class="flex flex-col gap-1.5">
+<label class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Numéro de téléphone mobile (+237) *</label>
+<div class="flex items-center bg-surface-container-lowest rounded-lg shadow-sm px-space-md h-11">
+<span class="font-headline-sm text-headline-sm text-[13px] text-outline mr-2">+237</span>
+<input class="w-full bg-transparent text-body-md font-body-md text-primary focus:outline-none" placeholder="6XX XX XX XX" type="tel" value="681 380 483"/>
+<span class="material-symbols-outlined text-emerald-text text-[18px]">verified</span>
+</div>
+</div>
+<!-- Ville -->
+<div class="flex flex-col gap-1.5">
+<label class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Ville de destination *</label>
+<select class="h-11 px-space-md rounded-lg bg-surface-container-lowest text-body-md font-body-md text-primary shadow-sm focus:outline-none cursor-pointer">
+<option selected="" value="douala">Douala (Littoral)</option>
+<option value="yaounde">Yaoundé (Centre)</option>
+<option value="bafoussam">Bafoussam (Ouest)</option>
+<option value="kribi">Kribi (Sud)</option>
+<option value="garoua">Garoua (Nord)</option>
+<option value="bamenda">Bamenda (Nord-Ouest)</option>
+</select>
+</div>
+<!-- Quartier -->
+<div class="flex flex-col gap-1.5">
+<label class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Quartier de livraison *</label>
+<select class="h-11 px-space-md rounded-lg bg-surface-container-lowest text-body-md font-body-md text-primary shadow-sm focus:outline-none cursor-pointer">
+<option selected="" value="akwa">Akwa</option>
+<option value="bonapriso">Bonapriso</option>
+<option value="bonanjo">Bonanjo</option>
+<option value="deido">Deïdo</option>
+<option value="makepe">Makèpè</option>
+<option value="bonamoussadi">Bonamoussadi</option>
+<option value="logpom">Logpom</option>
+<option value="bassa">Zone Industrielle Bassa</option>
+</select>
+</div>
+</div>
+<!-- Adresse exacte / Repère local -->
+<div class="flex flex-col gap-1.5">
+<label class="font-headline-sm text-headline-sm text-[13px] text-on-surface">Adresse détaillée &amp; Point de repère (Recommandé au Cameroun) *</label>
+<textarea class="p-space-md rounded-lg bg-surface-container-lowest text-body-md font-body-md text-primary shadow-sm focus:outline-none resize-none" placeholder="Ex: Akwa, Rue Pau, 2ème carrefour après l'immeuble Pharmacie des Nations, barrière blanche avec portail noir." rows="2"></textarea>
+</div>
+<!-- Choix du Mode de livraison (Cartes interactives) -->
+<div class="flex flex-col gap-space-sm pt-space-xs">
+<span class="font-headline-sm text-headline-sm text-[14px] text-primary">Sélectionnez le mode d'acheminement :</span>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+<!-- Option 1: Express NILE (Sélectionné) -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface-cream shadow-md cursor-pointer transition-all hover:bg-surface-container-lowest">
+<input checked="" class="absolute top-4 right-4 text-primary accent-primary" name="shipping_mode" type="radio"/>
+<div class="flex items-center gap-space-xs mb-2">
+<span class="material-symbols-outlined text-amber-deep text-[22px]">bolt</span>
+<span class="font-headline-sm text-headline-sm text-[13px] text-primary">Coursier Express NILE</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline mb-3 leading-snug">Livraison directe à votre domicile ou bureau sous 24h ouvrées.</span>
+<div class="mt-auto flex items-baseline justify-between pt-2">
+<span class="font-label-price-sm text-label-price-sm text-primary">2 500 FCFA</span>
+<span class="font-label-badge text-label-badge text-emerald-text bg-emerald-soft px-1.5 py-0.5 rounded">Douala 24h</span>
+</div>
+</label>
+<!-- Option 2: Point Relais / Agence Akwa (Gratuit) -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-sm cursor-pointer transition-all hover:bg-surface-container-low">
+<input class="absolute top-4 right-4 text-primary accent-primary" name="shipping_mode" type="radio"/>
+<div class="flex items-center gap-space-xs mb-2">
+<span class="material-symbols-outlined text-emerald-text text-[22px]">storefront</span>
+<span class="font-headline-sm text-headline-sm text-[13px] text-primary">Point Relais Akwa</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline mb-3 leading-snug">Retrait gratuit en comptoir partenaire Boulevard de la Liberté.</span>
+<div class="mt-auto flex items-baseline justify-between pt-2">
+<span class="font-label-price-sm text-label-price-sm text-emerald-text">Gratuit</span>
+<span class="font-label-badge text-label-badge text-outline bg-surface-container px-1.5 py-0.5 rounded">0 FCFA</span>
+</div>
+</label>
+<!-- Option 3: Expédition Interurbaine (Agences de voyage) -->
+<label class="relative flex flex-col p-space-md rounded-xl bg-surface-container-lowest shadow-sm cursor-pointer transition-all hover:bg-surface-container-low">
+<input class="absolute top-4 right-4 text-primary accent-primary" name="shipping_mode" type="radio"/>
+<div class="flex items-center gap-space-xs mb-2">
+<span class="material-symbols-outlined text-outline text-[22px]">departure_board</span>
+<span class="font-headline-sm text-headline-sm text-[13px] text-primary">Agences Régionales</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline mb-3 leading-snug">Colis expédié via Finexs, Touristique ou Danay Express.</span>
+<div class="mt-auto flex items-baseline justify-between pt-2">
+<span class="font-label-price-sm text-label-price-sm text-primary">3 500 FCFA</span>
+<span class="font-label-badge text-label-badge text-outline bg-surface-container px-1.5 py-0.5 rounded">48h-72h</span>
+</div>
+</label>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: Mobile Money & Payment Methods -->
+<section class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden">
+<div class="p-space-lg flex items-center justify-between bg-surface-container-low/50">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-amber-deep text-[24px]">payments</span>
+<div class="flex flex-col">
+<h2 class="font-headline-lg text-headline-lg text-primary">Mode de règlement sécurisé</h2>
+<span class="font-body-sm text-body-sm text-outline">Validation instantanée par Mobile Money ou paiement à la livraison</span>
+</div>
+</div>
+<div class="hidden sm:flex items-center gap-1.5 text-body-sm font-body-sm text-emerald-text">
+<span class="material-symbols-outlined text-[16px]">lock</span>
+<span>Chiffrement TLS 256-bit</span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col gap-space-md">
+<!-- TAB 1: MTN MoMo (Actif par défaut) -->
+<div class="p-space-md rounded-xl bg-surface-cream shadow-md transition-all">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-momo-yellow flex items-center justify-center font-headline-lg font-extrabold text-midnight-slate shadow-sm shrink-0">
+                    MoMo
+                  </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-primary">MTN Mobile Money</span>
+<span class="bg-momo-yellow/40 text-midnight-slate font-label-badge text-label-badge px-2 py-0.5 rounded-full uppercase">Recommandé</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Débit automatique sécurisé via code PIN *126#</span>
+</div>
+</div>
+<input checked="" class="w-5 h-5 accent-primary" name="payment_method" type="radio"/>
+</div>
+<!-- MoMo details input -->
+<div class="mt-space-md pt-space-md bg-surface-container-lowest p-space-md rounded-lg shadow-inner">
+<label class="block font-headline-sm text-headline-sm text-[13px] text-primary mb-1">
+                  Numéro de compte MTN Mobile Money Cameroun (+237)
+                </label>
+<div class="flex flex-col sm:flex-row items-center gap-space-sm">
+<div class="flex items-center bg-surface-container-low rounded-lg px-space-md h-11 w-full sm:flex-1">
+<span class="font-headline-sm text-headline-sm text-[13px] text-outline mr-2">+237</span>
+<input class="w-full bg-transparent text-body-md font-body-md text-primary focus:outline-none" placeholder="67X XX XX XX / 65X..." type="tel" value="677 12 34 56"/>
+</div>
+<span class="text-body-sm font-body-sm text-emerald-text flex items-center gap-1 shrink-0">
+<span class="material-symbols-outlined text-[16px]">check_circle</span> Solde vérifiable
+                  </span>
+</div>
+<p class="font-body-sm text-body-sm text-outline mt-2 flex items-start gap-1.5">
+<span class="material-symbols-outlined text-[16px] text-amber-deep shrink-0 mt-0.5">info</span>
+<span>Après avoir cliqué sur <strong>"Payer la commande"</strong>, vous recevrez une invite USSD sur votre écran pour valider la transaction de <strong>301 000 FCFA</strong> sans frais de retrait supplémentaires.</span>
+</p>
+</div>
+</div>
+<!-- TAB 2: Orange Money -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-orange-money flex items-center justify-center font-headline-lg font-extrabold text-on-primary shadow-sm shrink-0">
+                    OM
+                  </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-primary">Orange Money Cameroun</span>
+<span class="bg-orange-money/20 text-orange-money font-label-badge text-label-badge px-2 py-0.5 rounded-full uppercase">Rapide</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Notification de paiement via syntaxe #150#</span>
+</div>
+</div>
+<input class="w-5 h-5 accent-primary" name="payment_method" type="radio"/>
+</div>
+</div>
+<!-- TAB 3: Paiement Cash à la livraison -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-surface-container-high flex items-center justify-center text-midnight-slate shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[26px]">local_atm</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-primary">Paiement Cash à la livraison</span>
+<span class="bg-surface-container text-outline font-label-badge text-label-badge px-2 py-0.5 rounded-full uppercase">Contre-remboursement</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Règlement en espèces au coursier après inspection du colis (Douala &amp; Yaoundé)</span>
+</div>
+</div>
+<input class="w-5 h-5 accent-primary" name="payment_method" type="radio"/>
+</div>
+</div>
+<!-- TAB 4: Carte Bancaire -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm hover:shadow-md transition-all cursor-pointer">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-md">
+<div class="w-12 h-12 rounded-lg bg-primary-container text-on-primary flex items-center justify-center shadow-sm shrink-0">
+<span class="material-symbols-outlined text-[24px]">credit_card</span>
+</div>
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="font-headline-md text-headline-md text-primary">Carte Bancaire (Visa / Mastercard)</span>
+<span class="bg-surface-container text-outline font-label-badge text-label-badge px-2 py-0.5 rounded-full uppercase">3D Secure</span>
+</div>
+<span class="font-body-sm text-body-sm text-outline">Paiement sécurisé national et international UBA, Afriland, Société Générale...</span>
+</div>
+</div>
+<input class="w-5 h-5 accent-primary" name="payment_method" type="radio"/>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- RIGHT COLUMN : Sticky Checkout Summary (4 cols) -->
+<div class="lg:col-span-4 lg:sticky lg:top-48 flex flex-col gap-space-lg">
+<!-- Summary Card -->
+<div class="bg-surface-container-lowest rounded-xl shadow-lg p-space-lg">
+<h2 class="font-headline-lg text-headline-lg text-primary pb-space-sm">Récapitulatif de caisse</h2>
+<div class="py-space-md flex flex-col gap-space-sm text-body-md font-body-md text-on-surface-variant">
+<div class="flex justify-between items-center">
+<span>Articles (2 unités)</span>
+<span class="font-headline-sm text-headline-sm text-primary">303 500 FCFA</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="flex items-center gap-1">
+                Livraison express
+                <span class="material-symbols-outlined text-[16px] text-outline" title="Coursier Douala 24h">help_outline</span>
+</span>
+<span class="font-headline-sm text-headline-sm text-primary">2 500 FCFA</span>
+</div>
+<div class="flex justify-between items-center text-emerald-text">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]">loyalty</span>
+                Remise promo NILE
+              </span>
+<span class="font-headline-sm text-headline-sm text-emerald-text">- 5 000 FCFA</span>
+</div>
+</div>
+<div class="py-space-md bg-surface-cream -mx-space-lg px-space-lg my-space-xs">
+<div class="flex justify-between items-baseline">
+<div class="flex flex-col">
+<span class="font-headline-lg text-headline-lg text-primary">Net à payer</span>
+<span class="text-body-sm font-body-sm text-outline">TVA et frais de plateforme inclus</span>
+</div>
+<span class="font-display-hero-mobile text-display-hero-mobile text-amber-deep">301 000 <span class="text-headline-md font-headline-md">FCFA</span></span>
+</div>
+</div>
+<!-- Main Checkout Action Button -->
+<div class="pt-space-md flex flex-col gap-space-sm">
+<button class="w-full bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-md text-headline-md py-3.5 px-space-lg rounded-xl shadow-md flex items-center justify-center gap-space-sm transition-all transform hover:-translate-y-0.5" type="button">
+<span class="material-symbols-outlined text-[22px]">lock</span>
+<span>Payer 301 000 FCFA en sécurité</span>
+</button>
+<!-- WhatsApp Direct Assist -->
+<a class="w-full bg-emerald-soft hover:bg-tertiary-fixed text-emerald-text hover:text-on-tertiary-fixed font-headline-sm text-headline-sm text-[13px] py-3 px-space-md rounded-xl transition-colors flex items-center justify-center gap-space-xs shadow-sm" href="https://wa.me/237681380483?text=Bonjour%20NILE,%20je%20souhaite%20finaliser%20ma%20commande%20de%20la%20Smart%20TV%2055%20pouces%20(301%20000%20FCFA)" target="_blank">
+<span class="material-symbols-outlined text-[20px]">chat</span>
+<span>Commander via WhatsApp (+237 681 380 483)</span>
+</a>
+</div>
+<!-- Micro Payment Badge Strip -->
+<div class="pt-space-md mt-space-md flex flex-col gap-space-xs">
+<span class="font-label-badge text-label-badge uppercase text-outline text-center">Paiements agréés BEAC</span>
+<div class="flex items-center justify-center gap-space-xs">
+<span class="px-2 py-1 bg-surface-container rounded font-label-badge text-[10px] text-midnight-slate flex items-center gap-1 font-bold">
+<span class="w-2 h-2 rounded-full bg-momo-yellow"></span>MTN MoMo
+              </span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-badge text-[10px] text-midnight-slate flex items-center gap-1 font-bold">
+<span class="w-2 h-2 rounded-full bg-orange-money"></span>Orange Money
+              </span>
+<span class="px-2 py-1 bg-surface-container rounded font-label-badge text-[10px] text-midnight-slate flex items-center gap-1 font-bold">
+<span class="material-symbols-outlined text-[12px]">security</span>Escrow NILE
+              </span>
+</div>
+</div>
+</div>
+<!-- Trust & Reassurance Block -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm p-space-lg flex flex-col gap-space-md">
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-emerald-soft text-emerald-text flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-[14px] text-primary">Protection Acheteur NILE</span>
+<p class="font-body-sm text-body-sm text-outline">Vos fonds restent sous séquestre sécurisé. Le vendeur n'est rémunéré qu'après confirmation de votre entière satisfaction.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-amber-soft text-amber-deep flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">restart_alt</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-[14px] text-primary">Garantie 7 Jours Satisfait ou Remboursé</span>
+<p class="font-body-sm text-body-sm text-outline">Retour gratuit et remboursement intégral si le produit ne correspond pas ou présente une anomalie technique.</p>
+</div>
+</div>
+<div class="flex items-start gap-space-sm">
+<div class="w-8 h-8 rounded-full bg-primary-container text-on-primary flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[20px]">support_agent</span>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-sm text-headline-sm text-[14px] text-primary">Support Client Dédié Cameroun</span>
+<p class="font-body-sm text-body-sm text-outline">Assistance téléphonique directe 7j/7 de 08h à 20h au <strong>+237 681 380 483</strong>.</p>
+</div>
+</div>
+</div>
+<!-- Interactive Quick Map View for Douala Pickup/Hub -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden p-space-md flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-headline-sm text-headline-sm text-[13px] text-primary flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px] text-secondary-container">pin_drop</span> Hub logistique Akwa
+            </span>
+<span class="font-label-badge text-label-badge text-emerald-text">Ouvert jusqu'à 19h</span>
+</div>
+<div class="w-full h-36 rounded-lg bg-cover bg-center mt-1 relative flex items-end p-2" data-location="Akwa Douala Cameroun" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuBccLdrk8AkoEMqdGj04kLLuDWPicq91H2_gP2Mn5X9HelTTz2UBHG-MHVWVGEAijATnI5vx438ASGKTOp7q0Cwo6gSv07HQYVduP7sockTJbVTNJN62i89v23NW1Vc6T53Lr5kCB8lsxOrae0hBQ7YHh8FstGcj41ycXTzleK35Bg5zG2-zMsuUBL2KHe4M5o0s_G1JGezVZECCms5z1JCSihO-OmhF1j_cNUCaD8R')">
+<div class="bg-midnight-slate/85 backdrop-blur-sm text-on-primary px-2 py-1 rounded text-body-sm font-body-sm text-[11px] flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px] text-momo-yellow">near_me</span>
+<span>Boulevard de la Liberté, face Direction Orange</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></main><footer class="w-full bg-midnight-slate text-inverse-on-surface mt-space-2xl pt-space-2xl pb-space-xl"><div class="max-w-[1360px] mx-auto px-margin lg:px-margin-desktop"><div class="bg-surface-container-lowest/5 rounded-xl p-space-xl mb-space-2xl flex flex-col lg:flex-row items-center justify-between gap-space-lg"><div class="max-w-xl text-center lg:text-left"><h3 class="font-headline-xl text-headline-xl text-on-primary mb-space-xs">Restez informé des meilleures offres du Cameroun</h3><p class="font-body-md text-body-md text-on-primary-fixed-dim">Recevez chaque semaine les réductions exclusives de vos artisans et commerçants de proximité.</p></div><div class="w-full lg:w-auto flex flex-col sm:flex-row items-center gap-space-sm"><input class="w-full sm:w-80 px-space-md py-space-sm rounded-lg bg-surface-container-lowest text-on-surface font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary-container" placeholder="Votre adresse email (ex: nom@domaine.cm)" type="email"/><button class="w-full sm:w-auto px-space-lg py-space-sm rounded-lg bg-secondary-container hover:bg-amber-deep text-on-primary font-headline-sm text-headline-sm transition-colors" type="button">S'abonner</button></div></div><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-space-xl pb-space-2xl"><div class="lg:col-span-2 pr-space-lg"><div class="flex items-center gap-space-sm mb-space-md"><span class="font-headline-xl text-headline-xl text-on-primary tracking-tight">NILE</span><span class="px-space-xs py-0.5 rounded text-[11px] font-label-badge text-emerald-text bg-emerald-soft">Marketplace Officielle</span></div><p class="font-body-md text-body-md text-on-primary-fixed-dim mb-space-lg leading-relaxed">La plateforme de commerce digital panafricaine qui connecte directement les producteurs, commerçants locaux et acheteurs à travers tout le Cameroun, en toute transparence.</p><div class="flex items-center gap-space-md"><div class="flex items-center gap-space-xs text-on-primary-fixed-dim"><span class="material-symbols-outlined text-[18px] text-tertiary-fixed">public</span><span class="font-body-sm text-body-sm">Douala • Yaoundé • Grand Nord • Ouest</span></div></div></div><div><h4 class="font-headline-sm text-headline-sm text-on-primary mb-space-md uppercase tracking-wider text-[13px]">Acheter</h4><ul class="space-y-space-xs font-body-md text-body-md text-on-primary-fixed-dim"><li><a class="hover:text-on-primary transition-colors" data-path="catalogue" href="#">Parcourir le catalogue</a></li><li><a class="hover:text-on-primary transition-colors" data-path="panier-commande" href="#">Mon Panier &amp; Commande</a></li><li><a class="hover:text-on-primary transition-colors" data-path="boutiques-verifiees" href="#">Boutiques certifiées</a></li><li><a class="hover:text-on-primary transition-colors" data-path="promotions-eclair" href="#">Promotions éclair</a></li><li><a class="hover:text-on-primary transition-colors" data-path="reels-shopping" href="#">Reels shopping vidéo</a></li><li><a class="hover:text-on-primary transition-colors" data-path="villes-desservies" href="#">Villes desservies &amp; Délais</a></li></ul></div><div><h4 class="font-headline-sm text-headline-sm text-on-primary mb-space-md uppercase tracking-wider text-[13px]">Vendre</h4><ul class="space-y-space-xs font-body-md text-body-md text-on-primary-fixed-dim"><li><a class="hover:text-on-primary transition-colors" data-path="ouvrir-une-boutique" href="#">Ouvrir une boutique</a></li><li><a class="hover:text-on-primary transition-colors" data-path="espace-vendeur" href="#">Espace vendeur</a></li><li><a class="hover:text-on-primary transition-colors" data-path="kyc" href="#">Vérification KYC &amp; Conformité</a></li><li><a class="hover:text-on-primary transition-colors" data-path="tarifs-commissions" href="#">Frais &amp; Commissions</a></li><li><a class="hover:text-on-primary transition-colors" data-path="guide-vendeur" href="#">Guide du commerçant digital</a></li></ul></div><div><h4 class="font-headline-sm text-headline-sm text-on-primary mb-space-md uppercase tracking-wider text-[13px]">Accompagnement</h4><ul class="space-y-space-xs font-body-md text-body-md text-on-primary-fixed-dim"><li><a class="hover:text-on-primary transition-colors" data-path="centre-d-aide" href="#">Centre d'aide &amp; FAQ</a></li><li><a class="hover:text-on-primary transition-colors" data-path="contact" href="#">Contact &amp; Support client</a></li><li><a class="hover:text-on-primary transition-colors" data-path="politique-retours" href="#">Politique de retours</a></li><li><a class="hover:text-on-primary transition-colors" data-path="signalement-fraude" href="#">Signaler une fraude</a></li><li><a class="hover:text-on-primary transition-colors" data-path="conditions-utilisation" href="#">Conditions Générales</a></li></ul></div></div><div class="pt-space-xl border-t border-surface-container-highest/10 flex flex-col md:flex-row items-center justify-between gap-space-lg"><div class="flex flex-col sm:flex-row items-center gap-space-md"><span class="font-headline-sm text-headline-sm text-on-primary text-[13px]">Moyens de paiement sécurisés :</span><div class="flex items-center flex-wrap gap-space-xs"><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-momo-yellow"></span>MTN MoMo</span><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-orange-money"></span>Orange Money</span><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">credit_card</span>Carte Bancaire</span><span class="px-space-sm py-1 bg-surface-container-lowest text-on-surface rounded font-headline-sm text-[11px] shadow-sm flex items-center gap-1"><span class="material-symbols-outlined text-[14px]">local_shipping</span>Paiement à la livraison</span></div></div><div class="text-center md:text-right font-body-sm text-body-sm text-on-primary-fixed-dim"><p>© 2026 NILE Marketplace. Le marché sans frontières. Tous droits réservés.</p></div></div></div></footer></body></html>
