@@ -56,7 +56,7 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
     const [urlCashin, optionsCashin] = fetchMock.mock.calls[1] as [string, RequestInit];
     expect(urlCashin).toBe("https://api.hrskills-pay.com/sandbox/api/v1/payin/mobile-money");
     const headers = new Headers(optionsCashin.headers);
-    expect(headers.get("authorization")).toBe("Bearer hrsk_sk_test_secret");
+    expect(headers.get("authorization")).toBe("Bearer hrsk_pk_test_public");
     expect(headers.get("x-transaction-token")).toBe("transaction-test-token");
     expect(headers.get("idempotency-key")).toBe(contexte.reference);
     expect(headers.has("x-api-secret")).toBe(false);
