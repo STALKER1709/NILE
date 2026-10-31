@@ -131,6 +131,18 @@ export default async function CommandesVendeurPage({
                 </div>
               </div>
 
+              {c.gereeParVendeur && c.statutCommande !== "ANNULEE" && c.statutCommande !== "REFUSEE" && (
+                <div className="mt-3">
+                  <Link
+                    href={`/vendeur/commandes/${c.id}/etiquette`}
+                    className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-bold text-[#0B192C] transition hover:border-amber-400 hover:bg-amber-50"
+                  >
+                    <span aria-hidden="true">▦</span>
+                    Préparer / imprimer l'étiquette colis
+                  </Link>
+                </div>
+              )}
+
               <ul className="mt-3 space-y-1 border-t border-slate-100 pt-3 text-sm">
                 {c.lignes.map((l) => (
                   <li key={l.id} className="flex justify-between gap-2">
