@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { aConfirmeMajorite, idsCategoriesReservees18 } from "@/modules/catalogue/acces-18";
 import type { Prisma } from "@prisma/client";
 import {
   validerPromotion,
@@ -298,7 +299,9 @@ export async function listerProduitsEnPromotion(options: { page: number; parPage
     return { produits: [], total: 0, page, pages: 1 };
   }
 
+  const ids18 = (await aConfirmeMajorite()) ? [] : await idsCategoriesReservees18();
   const where: Prisma.ProduitWhereInput = {
+    ...(ids18.length > 0 ? { categorieId: { notIn: ids18 } } : {}),
     statut: "ACTIF",
     vendeur: { is: { statutValidation: "VALIDE" } },
     OR: [
