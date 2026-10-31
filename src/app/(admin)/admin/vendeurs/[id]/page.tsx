@@ -105,7 +105,7 @@ export default async function AdminVendeurDetailPage({
             </Badge>
             {kyc?.dateSoumission && (
               <span className="text-xs text-slate-400">
-                Soumis le {new Date(kyc.dateSoumission).toLocaleDateString("fr-FR")}
+                Soumis le {new Date(kyc.dateSoumission).toLocaleDateString("fr-FR")} · délai cible : 48 h ouvrées
               </span>
             )}
           </div>
