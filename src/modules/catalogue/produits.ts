@@ -502,6 +502,7 @@ export const getProduitPublicParSlug = cache(async (slug: string) => {
       variantes: { orderBy: [{ valeur1: "asc" }, { valeur2: "asc" }] },
     },
   });
+  return produit;
 });
 
 /**
