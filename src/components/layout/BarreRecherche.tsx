@@ -121,10 +121,10 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
       <form
         method="get"
         action="/catalogue"
-        className="flex h-14 w-full items-center overflow-hidden rounded-[14px] border border-stone-200 bg-[#f8f9fc] p-[5px] transition-colors focus-within:border-blue-300 focus-within:bg-white focus-within:ring-4 focus-within:ring-blue-900/5"
+        className="flex h-12 w-full items-center overflow-hidden rounded-full border border-[#E2E8F0] bg-[#F8FAFC] p-1 transition-colors focus-within:border-[#F59E0B] focus-within:bg-white focus-within:ring-[3px] focus-within:ring-[#F59E0B]/20"
         autoComplete="off"
       >
-        <span className="ml-2.5 grid shrink-0 place-items-center text-slate-400" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" strokeLinecap="round" /></svg></span>
+        <span className="ml-3 grid shrink-0 place-items-center text-[#75777d]" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="11" cy="11" r="7" /><path d="m21 21-4.3-4.3" strokeLinecap="round" /></svg></span>
         <input
           type="search"
           name="q"
@@ -140,12 +140,12 @@ export function BarreRecherche({ className = "" }: { className?: string }) {
           aria-expanded={afficherListe}
           aria-autocomplete="list"
           role="combobox"
-          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none"
+          className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-[#191c1e] placeholder:text-[#75777d] focus:outline-none"
         />
         <button
           type="submit"
           aria-label="Lancer la recherche"
-          className="grid h-11 w-11 shrink-0 place-items-center rounded-[10px] bg-accent font-extrabold text-blue-950 transition-colors hover:bg-accent-dark active:scale-95"
+          className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[#F59E0B] font-extrabold text-[#0B192C] transition-colors hover:bg-[#D97706] active:scale-95"
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
             <circle cx="11" cy="11" r="7" />
