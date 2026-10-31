@@ -51,7 +51,11 @@ export default async function ReversementsPage({
           Reversement enregistré.
         </p>
       )}
-      {ok === "en-cours" && (\n        <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">Transfert envoyé au fournisseur ou en cours de vérification. Le montant reste réservé jusqu’au statut définitif.</p>\n      )}\n      {ok === "paye" && (
+      {ok === "en-cours" && (
+        <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Transfert envoyé au fournisseur ou en cours de vérification. Le montant reste réservé jusqu’au statut définitif.
+        </p>
+      )}\n      {ok === "paye" && (
         <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Demande marquée payée.
         </p>
