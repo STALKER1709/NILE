@@ -24,10 +24,10 @@ export default async function NouveauProduitPage({
   const axesJSON = Object.fromEntries([...axes.entries()]);
 
   return (
-    <div className="mx-auto max-w-2xl space-y-4 pb-8">
+    <div className="mx-auto w-full max-w-5xl space-y-6 pb-10">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Nouveau produit</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">Ajouter un produit</h1>
           <p className="mt-1 text-sm text-slate-500">Créez une fiche et gérez toutes ses variantes au même endroit.</p>
         </div>
         <Link href="/vendeur/produits" className="shrink-0 text-sm text-slate-500 hover:underline">← Retour</Link>
