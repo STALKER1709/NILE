@@ -125,9 +125,10 @@ const schema = z
     // soit 10 % nets pour 12 % affichés. Le ramener à 10 % ferait retomber la
     // marge réelle à 8 %.
     //
-    // Surchargeable en base (clé `commission_pourcent` de la table
-    // Configuration), qui l'emporte alors sur cette variable — voir
-    // `modules/commande/config.ts`.
+    // Paramètre historique conservé pour compatibilité avec les environnements
+    // existants. Le taux appliqué est désormais fixé à 12 % dans
+    // modules/commande/config.ts ; cette variable et l'ancienne clé DB
+    // commission_pourcent ne peuvent plus modifier le taux métier.
     COMMISSION_POURCENT: z.coerce.number().min(0).max(100).default(12),
     // Dette de commission (FCFA) au-delà de laquelle un vendeur ne peut plus
     // vendre en paiement à la livraison — ses produits restent en vente, mais
