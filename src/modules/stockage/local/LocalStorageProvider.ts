@@ -108,7 +108,7 @@ export async function supprimerUploadDirect(chemin: string): Promise<void> {
 
 
 function cheminKycPrive(chemin: string): string {
-  if (!/^[0-9a-f-]{36}\\.(?:jpg|png|webp|pdf)$/i.test(chemin)) {
+  if (!/^[0-9a-f-]{36}\.(?:jpg|png|webp|pdf)$/i.test(chemin)) {
     throw new ErreurStockage("INACCESSIBLE", "Référence de document KYC invalide.");
   }
   const abs = path.resolve(DOSSIER_KYC_PRIVE, chemin);
