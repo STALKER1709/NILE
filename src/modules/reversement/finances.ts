@@ -100,7 +100,7 @@ export async function getFinancesVendeur(
       prisma.ligneCommande.findMany({
         where: { vendeurId },
         orderBy: { commande: { dateCreation: "desc" } },
-        take: NB_TRANSACTIONS,
+        take: NB_TRANSACTIONS * 5,
         select: {
           id: true,
           titreProduit: true,
@@ -122,7 +122,7 @@ export async function getFinancesVendeur(
         where: { vendeurId },
         orderBy: { dateCreation: "desc" },
         take: NB_TRANSACTIONS,
-        select: { id: true, montant: true, commentaire: true, dateCreation: true },
+        select: { id: true, montant: true, commentaire: true, statut: true, dateCreation: true, dateTraitement: true },
       }),
     ]);
 
@@ -178,7 +178,7 @@ export async function getFinancesVendeur(
     // Pas de numéro lisible sur un reversement : on montre un préfixe d'id.
     reference: r.id.slice(0, 8).toUpperCase(),
     montant: r.montant,
-    etat: "VERSE",
+    etat: r.statut === "PAYE" ? "VERSE" : r.statut === "REJETE" ? "REJETE" : "EN_ATTENTE",
   }));
 
   const ventesMois = moisCourant._sum.sousTotal ?? 0;
