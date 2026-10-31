@@ -312,6 +312,8 @@ export async function listerDemandesReversement() {
         select: {
           id: true,
           nomBoutique: true,
+          statutValidation: true,
+          kyc: { select: { statut: true } },
           infosPaiement: true,
           utilisateur: { select: { email: true, telephone: true } },
         },
