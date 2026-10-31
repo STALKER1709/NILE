@@ -9,6 +9,7 @@ import {
 } from "@/modules/stats/stats-core";
 import {
   etatVente,
+  calculerDetailVente,
   fusionnerTransactions,
   type TransactionVendeur,
 } from "@/modules/reversement/finances-core";
@@ -127,11 +128,13 @@ export async function getFinancesVendeur(
   // tronquée au milieu d’une commande multi-articles.
   const ventes: TransactionVendeur[] = lignes.map((commande) => {
     const montant = commande.lignes.reduce((total, ligne) => total + ligne.sousTotal, 0);
-    // La boutique maison est exemptée. Pour les vendeurs tiers, appliquer
-    // le taux configuré et l’arrondi FCFA au sous-total vendeur de la commande.
-    const commission = solde.commission > 0
-      ? Math.round((montant * solde.tauxPourcent) / 100)
-      : 0;
+    // La boutique maison est exemptée ; le calcul est fait commande par commande.
+    const detail = calculerDetailVente({
+      montant,
+      tauxPourcent: solde.tauxPourcent,
+      exempteCommission: solde.commission === 0,
+      modePaiement: commande.modePaiement,
+    });
     const produits = commande.lignes.map((ligne) =>
       ligne.quantite > 1
         ? ligne.titreProduit + " × " + ligne.quantite
@@ -146,11 +149,11 @@ export async function getFinancesVendeur(
       reference: commande.numero,
       montant,
       etat: etatVente(commande.statutCommande, commande.statutPaiement),
-      commission,
+      commission: detail.commission,
       modePaiement: commande.modePaiement,
       // En COD, le vendeur a déjà encaissé les espèces : la commission
       // reste due et s’impute sur ses reversements Mobile Money futurs.
-      netVendeur: commande.modePaiement === "MONETBIL" ? montant - commission : null,
+      netVendeur: detail.netVendeur,
     };
   });
 
