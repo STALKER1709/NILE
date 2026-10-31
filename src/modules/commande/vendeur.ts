@@ -14,7 +14,7 @@ export async function listerCommandesVendeur(vendeurId: string) {
     include: {
       lignes: { where: { vendeurId } },
       _count: { select: { lignes: true } },
-      livraison: { select: { statut: true, transporteur: true } },
+      livraison: { select: { statut: true, transporteur: true, dateAffectation: true, dateLivraison: true, confirmationAcheteur: true } },
     },
   });
   return commandes.map((c) => ({
