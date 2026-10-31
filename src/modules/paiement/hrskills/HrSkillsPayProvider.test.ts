@@ -139,4 +139,18 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
     });
   });
 
+  it("relit le statut d'un Cash-Out sur l'endpoint documenté avec la Clé A", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ transaction_token: "transaction-test-token", expires_in: 2700 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { status: "SUCCESS" } }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const provider = new HrSkillsPayProvider();
+    await expect(provider.lireStatutDecaissement("payout_ref_123")).resolves.toEqual({ ok: true, statut: "SUCCESS" });
+    const [url, options] = fetchMock.mock.calls[1] as [string, RequestInit];
+    expect(url).toBe("https://api.hrskills-pay.com/sandbox/v1/payments/payout_ref_123");
+    const headers = new Headers(options.headers);
+    expect(headers.get("authorization")).toBe("Bearer hrsk_pk_test_public");
+    expect(headers.get("x-transaction-token")).toBe("transaction-test-token");
+  });
+
 });
