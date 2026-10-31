@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   listerCategories,
   navigationCategories,
@@ -17,6 +18,7 @@ import { SelectTri } from "@/components/catalogue/SelectTri";
 import { Pagination } from "@/components/ui/Pagination";
 import { bornesAffichage, normaliserPageDemandee } from "@/modules/catalogue/pagination";
 import { champClass, btn, EtatVide } from "@/components/ui/kit";
+import { aConfirmeMajorite, categorieEstReservee18 } from "@/modules/catalogue/acces-18";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Catalogue" };
@@ -48,6 +50,11 @@ export default async function CataloguePage({
     ? categories.find((c) => c.slug === sp.categorie)
     : undefined;
   if (categorieChoisie) {
+    if (await categorieEstReservee18(categorieChoisie.id)) {
+      if (!(await aConfirmeMajorite())) {
+        redirect(`/acces-18?retour=${encodeURIComponent(`/catalogue?categorie=${categorieChoisie.slug}`)}`);
+      }
+    }
     categorieIds = collecterIdsCategorieEtDescendants(categorieChoisie.id, categories);
   }
 
