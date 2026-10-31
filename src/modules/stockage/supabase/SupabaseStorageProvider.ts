@@ -61,7 +61,9 @@ export class SupabaseStorageProvider implements StorageProvider {
   /** Stocke un justificatif KYC dans un bucket séparé, qui doit rester privé. */
   async enregistrerKyc(fichier: FichierAEnregistrer): Promise<FichierEnregistre> {
     const client = creerClientAdmin();
-    const chemin = `${randomUUID()}.${extensionDepuisMime(fichier.typeMime)}`;
+    if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(fichier.typeMime)) throw new ErreurStockage("TYPE_INVALIDE");
+    const extension = fichier.typeMime === "application/pdf" ? "pdf" : extensionDepuisMime(fichier.typeMime);
+    const chemin = `${randomUUID()}.${extension}`;
     const { error } = await client.storage.from(env.SUPABASE_KYC_BUCKET).upload(chemin, fichier.contenu, {
       contentType: fichier.typeMime,
       upsert: false,
