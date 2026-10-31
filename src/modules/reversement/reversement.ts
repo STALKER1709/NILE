@@ -4,7 +4,6 @@ import {
   calculerSolde,
   verifierReversement,
   type CalculSolde,
-  SEUIL_MINIMUM_REVERSEMENT,
 } from "@/modules/reversement/reversement-core";
 
 /**
@@ -327,7 +326,6 @@ export type ResultatTraitement =
  */
 export async function traiterDemandeReversement(
   reversementId: string,
-  decision: "REJETE",
   commentaire?: string,
 ): Promise<ResultatTraitement> {
   return prisma.$transaction(async (tx) => {
