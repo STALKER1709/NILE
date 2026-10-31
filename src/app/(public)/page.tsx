@@ -197,7 +197,7 @@ function ProductSection({ title, eyebrow, products, quantities, favorites, empty
 }
 
 function TrustItem({ title, text, icon }: { title: string; text: string; icon: ReactNode }) {
-  return <div className="flex min-w-0 flex-col items-start gap-2 p-3 sm:flex-row sm:gap-3 sm:px-5 sm:py-5"><span className="grid h-8 w-8 shrink-0 place-items-center rounded-[11px] bg-blue-50 text-blue-900 sm:h-[42px] sm:w-[42px] sm:rounded-[13px]">{icon}</span><div className="min-w-0"><h3 className="font-titre text-xs font-extrabold text-slate-950">{title}</h3><p className="mt-1 text-[11px] leading-[1.45] text-slate-500 sm:text-[11px] sm:leading-5">{text}</p></div></div>;
+  return <div className="flex min-w-0 items-start gap-3 rounded-2xl border border-[#E2E8F0] bg-white p-4 shadow-[0_1px_3px_rgba(11,25,44,0.04),0_4px_12px_rgba(11,25,44,0.03)] transition-shadow hover:shadow-md sm:p-5"><span className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-[#ECFDF5] text-[#047857]">{icon}</span><div className="min-w-0"><h3 className="font-titre text-sm font-bold text-[#0B192C]">{title}</h3><p className="mt-1 text-xs leading-5 text-[#44474c]">{text}</p></div></div>;
 }
 function StepCard({ title, text, number }: { title: string; text: string; number: string }) {
   return <article className="rounded-[17px] border border-stone-200 bg-white p-4 sm:p-5"><p className="mb-3 grid h-10 w-10 place-items-center rounded-[12px] bg-blue-50 font-titre text-sm font-extrabold text-blue-900">{number}</p><h3 className="font-titre text-sm font-extrabold text-slate-950">{title}</h3><p className="mt-2 text-xs leading-6 text-slate-600">{text}</p></article>;
