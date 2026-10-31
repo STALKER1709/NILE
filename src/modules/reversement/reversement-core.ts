@@ -113,9 +113,11 @@ export function calculerSolde(params: {
   };
 }
 
+export const SEUIL_MINIMUM_REVERSEMENT = 10_000;
+
 export type DecisionReversement =
   | { ok: true }
-  | { ok: false; code: "MONTANT_INVALIDE" | "SOLDE_INSUFFISANT" };
+  | { ok: false; code: "MONTANT_INVALIDE" | "MONTANT_MINIMUM" | "SOLDE_INSUFFISANT" };
 
 /** Un reversement doit être positif et ne jamais dépasser le solde dû. */
 export function verifierReversement(
@@ -124,6 +126,9 @@ export function verifierReversement(
 ): DecisionReversement {
   if (!Number.isInteger(montant) || montant <= 0) {
     return { ok: false, code: "MONTANT_INVALIDE" };
+  }
+  if (montant < SEUIL_MINIMUM_REVERSEMENT) {
+    return { ok: false, code: "MONTANT_MINIMUM" };
   }
   if (montant > solde) return { ok: false, code: "SOLDE_INSUFFISANT" };
   return { ok: true };
