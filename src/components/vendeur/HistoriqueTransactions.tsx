@@ -7,6 +7,7 @@ const ETATS: Record<TransactionVendeur["etat"], { texte: string; classe: string 
   EN_ATTENTE: { texte: "En attente", classe: "bg-accent-fixe text-accent-sur" },
   ANNULEE: { texte: "Annulée", classe: "bg-surface-haute text-slate-600" },
   VERSE: { texte: "Versé", classe: "bg-nile-200 text-nile-900" },
+  REJETE: { texte: "Rejeté", classe: "bg-red-100 text-red-800" },
 };
 
 /**
