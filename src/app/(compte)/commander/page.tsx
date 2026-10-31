@@ -89,7 +89,7 @@ export default async function CommanderPage({
   const modeCOD = brouillon.mode ? brouillon.mode === "COD" && codPossible : codPossible;
 
   return (
-    <div className="space-y-5">
+    <div className="mx-auto w-full max-w-[1360px] space-y-6 px-4 pb-12 sm:px-6 lg:px-8">
       <nav aria-label="Étapes" className="flex items-center gap-2 text-corps-sm">
         <Link href="/panier" className="text-slate-500 transition-colors hover:text-nile-700">Panier</Link>
         <span className="text-slate-300">›</span>
@@ -98,13 +98,13 @@ export default async function CommanderPage({
         <span className="text-slate-400">Confirmation</span>
       </nav>
 
-      <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Passer la commande</h1>
+      <h1 className="text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">Finaliser votre commande</h1>
 
       {erreur && (
         <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{erreur}</p>
       )}
 
-      <div className="grid gap-5 lg:grid-cols-3">
+      <div className="grid items-start gap-6 lg:grid-cols-12">
         <form action={passerCommandeAction} className="space-y-5 lg:col-span-2">
           <Carte className="space-y-4 p-5">
             <h2 className="flex items-center gap-2.5 text-titre-sm text-slate-900">
@@ -269,7 +269,7 @@ export default async function CommanderPage({
             demande pas de confirmer une commande avant d'avoir montré ce
             qu'elle contient. Sur grand écran il retrouve sa colonne de droite,
             où il reste visible pendant la saisie. */}
-        <div className="order-first lg:order-none lg:col-span-1">
+        <div className="order-first lg:order-none lg:col-span-4">
           <Carte className="overflow-hidden lg:sticky lg:top-24">
             <h2 className="border-b border-contour-carte px-5 py-4 text-titre-sm text-slate-900">
               Votre commande{" "}
