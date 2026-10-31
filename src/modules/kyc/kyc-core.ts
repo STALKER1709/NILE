@@ -11,7 +11,7 @@
 
 export type StatutKyc = "NON_SOUMIS" | "EN_REVUE" | "VALIDE" | "REJETE";
 
-export type TypePieceIdentite = "CNI" | "PASSEPORT" | "RECEPISSE";
+export type TypePieceIdentite = "CNI" | "PASSEPORT";
 
 export interface DonneesSoumissionKyc {
   estEntreprise: boolean;
@@ -85,9 +85,9 @@ export function validerCompletudeKyc(donnees: DonneesSoumissionKyc): {
     erreurs.push("La photo du recto de votre pièce d'identité est obligatoire.");
   }
 
-  if (donnees.typePiece === "CNI" || donnees.typePiece === "RECEPISSE") {
+  if (donnees.typePiece === "CNI") {
     if (!donnees.pieceVersoUrl || donnees.pieceVersoUrl.trim() === "") {
-      erreurs.push("La photo du verso de votre pièce d'identité est obligatoire pour une CNI ou un récépissé.");
+      erreurs.push("La photo du verso de votre pièce d'identité est obligatoire pour une CNI.");
     }
   }
 
