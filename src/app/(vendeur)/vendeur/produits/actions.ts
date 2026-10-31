@@ -197,7 +197,9 @@ export async function changerStatutProduitAction(
             ? "Ajoutez au moins une image avant de publier ce produit."
             : res.code === "STOCK_INDISPONIBLE"
               ? "Ajoutez du stock à au moins une déclinaison active avant de publier."
-              : "Produit introuvable.";
+              : res.code === "MODERATION_REQUISE"
+                ? "Cette catégorie nécessite une validation supplémentaire par NILE avant publication."
+                : "Produit introuvable.";
     redirect(`/vendeur/produits/${produitId}?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(`/vendeur/produits/${produitId}?ok=statut`);
