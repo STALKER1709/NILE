@@ -6,7 +6,7 @@ import { normaliserNumeroHrSkills } from "@/modules/paiement/hrskills/hrskills-c
 
 export type ResultatDecaissement =
   | { ok: true; statut: "EN_COURS" | "PAYE"; referenceFournisseur?: string; frais?: number | null }
-  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" | "VENDEUR_NON_VALIDE" | "FOURNISSEUR_INACTIF" | "NUMERO_ABSENT" | "OPERATEUR_INVALIDE" | "ERREUR_FOURNISSEUR"; message: string };
+  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" | "VENDEUR_NON_VALIDE" | "FOURNISSEUR_INACTIF" | "NUMERO_ABSENT" | "OPERATEUR_INVALIDE" | "MONTANT_MINIMUM" | "ERREUR_FOURNISSEUR"; message: string };
 
 /**
  * Exécute ou réconcilie un reversement réservé.
@@ -44,12 +44,15 @@ export async function executerDemandeReversement(
   if (demande.statut !== "DEMANDE" && demande.statut !== "EN_COURS") {
     return { ok: false, code: "DEJA_TRAITE", message: "Cette demande a déjà été traitée." };
   }
-  if (demande.vendeur.statutValidation !== "VALIDE" || demande.vendeur.kyc?.statut !== "VALIDE") {
+  if (demande.statut === "DEMANDE" && (demande.vendeur.statutValidation !== "VALIDE" || demande.vendeur.kyc?.statut !== "VALIDE")) {
     return { ok: false, code: "VENDEUR_NON_VALIDE", message: "La boutique et le KYC doivent être validés." };
   }
 
   if (demande.operateur && demande.operateur !== operateur) {
     return { ok: false, code: "OPERATEUR_INVALIDE", message: "L'opérateur de cette demande est déjà verrouillé." };
+  }
+  if (demande.montant < 10000) {
+    return { ok: false, code: "MONTANT_MINIMUM", message: "Le reversement doit atteindre 10 000 FCFA minimum." };
   }
   const infos = lireInfosPaiement(demande.vendeur.infosPaiement);
   const telephoneChoisi = operateur === "MTN" ? infos.momoMtn : infos.momoOrange;
@@ -64,12 +67,19 @@ export async function executerDemandeReversement(
   try {
     await prisma.$transaction(async (tx) => {
       await tx.$queryRaw`SELECT id FROM "Reversement" WHERE id = ${reversementId} FOR UPDATE`;
-      const courant = await tx.reversement.findUnique({ where: { id: reversementId } });
+      const courant = await tx.reversement.findUnique({
+        where: { id: reversementId },
+        include: { vendeur: { select: { statutValidation: true, kyc: { select: { statut: true } } } } },
+      });
       if (!courant || (courant.statut !== "DEMANDE" && courant.statut !== "EN_COURS")) {
         throw new Error("DEJA_TRAITE");
       }
       if (courant.operateur && courant.operateur !== operateur) {
         throw new Error("OPERATEUR_VERROUILLE");
+      }
+      if (courant.statut === "DEMANDE" &&
+        (courant.vendeur.statutValidation !== "VALIDE" || courant.vendeur.kyc?.statut !== "VALIDE")) {
+        throw new Error("VENDEUR_NON_VALIDE");
       }
       if (courant.statut === "DEMANDE") {
         await tx.reversement.update({
@@ -87,7 +97,7 @@ export async function executerDemandeReversement(
     const code = erreur instanceof Error ? erreur.message : "";
     return {
       ok: false,
-      code: code === "DEJA_TRAITE" ? "DEJA_TRAITE" : "OPERATEUR_INVALIDE",
+      code: code === "DEJA_TRAITE" ? "DEJA_TRAITE" : code === "VENDEUR_NON_VALIDE" ? "VENDEUR_NON_VALIDE" : "OPERATEUR_INVALIDE",
       message: code === "OPERATEUR_VERROUILLE"
         ? "L'opérateur est déjà fixé pour cette demande. Ne change pas le bénéficiaire d'un transfert en cours."
         : "La demande a changé d'état. Recharge la page avant de réessayer.",
