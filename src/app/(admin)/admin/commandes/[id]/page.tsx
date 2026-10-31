@@ -76,10 +76,10 @@ export default async function AdminDetailCommandePage({
           ))}
         </ul>
         <div className="mt-2 space-y-1 border-t border-slate-100 pt-2 text-sm">
-          <p className="flex justify-between gap-2"><span>Livraison</span><Prix montant={commande.fraisLivraison} /></p>
+          <p className="flex justify-between gap-2"><span>Livraison · encaissée par le livreur</span><Prix montant={commande.fraisLivraison} /></p>
           {commande.fraisPaiement > 0 && <p className="flex justify-between gap-2"><span>Frais HR-Skills Pay</span><Prix montant={commande.fraisPaiement} /></p>}
           {commande.remise > 0 && <p className="flex justify-between gap-2"><span>Remise</span><Prix montant={-commande.remise} /></p>}
-          <p className="flex justify-between gap-2 border-t border-slate-100 pt-2 font-bold"><span>Total payé par le client</span><Prix montant={commande.total} className="text-nile" /></p>
+          <p className="flex justify-between gap-2 border-t border-slate-100 pt-2 font-bold"><span>Coût total de la commande</span><Prix montant={commande.total} className="text-nile" /></p>
         </div>
       </Carte>
 
