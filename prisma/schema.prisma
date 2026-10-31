@@ -240,6 +240,8 @@ model Produit {
   statut       StatutProduit @default(BROUILLON)
   noteMoyenne  Float         @default(0) // dénormalisé (mis à jour depuis les avis)
   nbAvis       Int           @default(0)
+  // Compteur agrégé de consultations de la fiche publique (sans donnée personnelle).
+  nombreVues   Int           @default(0)
   dateCreation DateTime      @default(now())
   dateMaj      DateTime      @updatedAt
 
