@@ -231,6 +231,97 @@ export class HrSkillsPayProvider implements PaymentProvider {
     }
   }
 
+  /** Statut Cash-Out : l'API documente GET /v1/payments/:reference avec la Clé A. */
+  async lireStatutDecaissement(referenceFournisseur: string): Promise<{ ok: true; statut: string } | { ok: false }> {
+    try {
+      const reponse = await fetch(
+        `${this.racine()}/v1/payments/${encodeURIComponent(referenceFournisseur)}`,
+        {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${this.cleA()}`,
+            "X-Transaction-Token": await this.transactionToken(),
+            "Content-Type": "application/json",
+          },
+          cache: "no-store",
+        },
+      );
+      const texte = await reponse.text();
+      if (!reponse.ok) {
+        console.error("[hrskills] lecture du statut Cash-Out:", reponse.status, texte.slice(0, 200));
+        return { ok: false };
+      }
+      const enveloppe = JSON.parse(texte) as { data?: { status?: string }; status?: string };
+      const statut = enveloppe.data?.status ?? enveloppe.status;
+      return statut ? { ok: true, statut } : { ok: false };
+    } catch (erreur) {
+      console.error("[hrskills] lecture du statut Cash-Out échouée:", erreur);
+      return { ok: false };
+    }
+  }
+
+  /**
+   * Décaissement Mobile Money vers le portefeuille du vendeur.
+   * La référence interne (UUID du reversement) sert de clé d'idempotence :
+   * une relance après timeout ne peut pas créer un second transfert.
+   */
+  async decaisser(ctx: {
+    reference: string;
+    telephone: string;
+    operateur: string;
+    montant: number;
+    description: string;
+  }): Promise<{ reference: string; statut: string; frais: number | null }> {
+    const operateur = normaliserOperateur(ctx.operateur);
+    if (operateur !== "mtn" && operateur !== "orange") {
+      throw new Error("Opérateur de reversement invalide pour le Cameroun.");
+    }
+    const numero = normaliserNumeroHrSkills(ctx.telephone);
+    if (!numero) throw new Error("Numéro Mobile Money du vendeur inexploitable.");
+    if (!Number.isSafeInteger(ctx.montant) || ctx.montant < 10000) {
+      throw new Error("Montant de reversement invalide.");
+    }
+
+    const chemin = `${this.racine()}/api/v1/payout/mobile-money`;
+    const reponse = await fetch(chemin, {
+      method: "POST",
+      headers: {
+        ...(await this.enTetes(cleIdempotence(ctx.reference))),
+        // Le contrat Cash-Out (§4) montre explicitement la Clé A comme Bearer.
+        // On conserve le comportement Cash-In existant, hors de ce chantier.
+        Authorization: `Bearer ${this.cleA()}`,
+      },
+      body: JSON.stringify({
+        operator: operateur.toUpperCase(),
+        country: "CM",
+        phone_number: numero,
+        amount: ctx.montant,
+        currency: "XAF",
+        description: ctx.description,
+      }),
+      cache: "no-store",
+    });
+    const texte = await reponse.text();
+    if (!reponse.ok) {
+      throw new Error(`HR-Skills payout: HTTP ${reponse.status} · ${texte.slice(0, 300)}`);
+    }
+    let enveloppe: { data?: { reference?: string; status?: string; fee?: number }; reference?: string; status?: string; fee?: number };
+    try {
+      enveloppe = JSON.parse(texte) as typeof enveloppe;
+    } catch {
+      throw new Error(`HR-Skills payout: réponse non-JSON · ${texte.slice(0, 200)}`);
+    }
+    const data = enveloppe.data ?? enveloppe;
+    if (!data.reference || !data.status) {
+      throw new Error(`HR-Skills payout: référence ou statut absent · ${texte.slice(0, 200)}`);
+    }
+    return {
+      reference: data.reference,
+      statut: data.status,
+      frais: typeof data.fee === "number" ? data.fee : null,
+    };
+  }
+
   async verifierNotification(
     _corps: Record<string, string>,
     contexte?: ContexteNotification,

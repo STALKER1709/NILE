@@ -74,7 +74,8 @@ enum StatutCommande {
 
 // Cycle de vie d'un versement au vendeur.
 enum StatutReversement {
-  DEMANDE // demandé par le vendeur, pas encore payé
+  DEMANDE // demandé par le vendeur, pas encore envoyé
+  EN_COURS // ordre transmis au fournisseur, résultat non encore définitif
   PAYE
   REJETE
 }
@@ -558,18 +559,19 @@ model AbonnementPush {
 // par l'admin, enregistré ici). Le solde dû = ventes livrées ET payées,
 // moins la commission NILE, moins la somme des reversements.
 model Reversement {
-  id             String            @id @default(uuid())
-  vendeurId      String
-  vendeur        Vendeur           @relation(fields: [vendeurId], references: [id])
-  montant        Int // FCFA versés au vendeur
-  // DEMANDE réserve le montant sur le solde du vendeur sans être un paiement :
-  // sans cette réservation, il pourrait demander deux fois la même somme.
-  // Le défaut PAYE sert la migration : les lignes existantes sont des
-  // transferts réellement effectués. Le code passe toujours le statut.
-  statut         StatutReversement @default(PAYE)
-  commentaire    String? // référence du transfert, ou motif du refus
-  dateCreation   DateTime          @default(now())
-  dateTraitement DateTime? // date du paiement ou du refus par l'admin
+  id                    String            @id @default(uuid())
+  vendeurId             String
+  vendeur               Vendeur           @relation(fields: [vendeurId], references: [id])
+  montant               Int // FCFA envoyés au vendeur, hors frais fournisseur
+  // DEMANDE réserve le montant ; EN_COURS le garde réservé pendant la confirmation.
+  statut                StatutReversement @default(PAYE)
+  commentaire           String? // motif de refus ou diagnostic non sensible
+  referenceFournisseur  String? @unique
+  operateur             String? // MTN ou ORANGE
+  telephoneDestination  String? // numéro utilisé pour le cash-out
+  frais                 Int? // frais HR-Skills, débités en plus du montant
+  dateCreation          DateTime          @default(now())
+  dateTraitement        DateTime?
 
   @@index([vendeurId])
   @@index([statut])

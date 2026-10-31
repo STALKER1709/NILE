@@ -5,7 +5,7 @@ import {
   listerDemandesReversement,
 } from "@/modules/reversement/reversement";
 import {
-  enregistrerReversementAction,
+  executerDemandeAction,
   traiterDemandeAction,
 } from "@/app/(admin)/admin/reversements/actions";
 import { lireInfosPaiement } from "@/modules/compte/profil";
@@ -37,7 +37,7 @@ export default async function ReversementsPage({
       </div>
 
       <p className="text-sm text-slate-500">
-        Traitement hebdomadaire manuel : effectuez le transfert Mobile Money hors de NILE, puis confirmez son exécution ici. Cette action ne déclenche aucun paiement réel. Seuil minimum : 10 000 FCFA.
+        Traitement via HR-Skills Pay : l’administrateur déclenche le transfert MTN ou Orange depuis le wallet NILE. Les demandes restent réservées jusqu’à confirmation du fournisseur. Seuil minimum : 10 000 FCFA ; frais Cash-Out HR-Skills débités en plus du montant envoyé.
       </p>
 
       <p className="text-sm text-slate-500">
@@ -49,6 +49,11 @@ export default async function ReversementsPage({
       {ok === "enregistre" && (
         <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
           Reversement enregistré.
+        </p>
+      )}
+      {ok === "en-cours" && (
+        <p className="rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          Transfert envoyé au fournisseur ou en cours de vérification. Le montant reste réservé jusqu’au statut définitif.
         </p>
       )}
       {ok === "paye" && (
@@ -125,34 +130,50 @@ export default async function ReversementsPage({
                   </div>
 
                   <div className="mt-3 flex flex-wrap items-end gap-3">
-                    <form action={traiterDemandeAction} className="flex flex-wrap items-end gap-2">
+                    <form action={executerDemandeAction} className="flex flex-wrap items-end gap-2">
                       <input type="hidden" name="reversementId" value={d.id} />
-                      <input type="hidden" name="decision" value="PAYE" />
                       <div>
-                        <label htmlFor={`ref-${d.id}`} className="block text-etiquette-xs text-slate-500">
-                          Référence du transfert (facultatif)
+                        <label htmlFor={`operateur-${d.id}`} className="block text-etiquette-xs text-slate-500">
+                          Portefeuille destinataire
                         </label>
-                        <input id={`ref-${d.id}`} name="commentaire" maxLength={200} placeholder="Ex : MoMo #123456" className={`${champClass} mt-1 w-56`} />
+                        <select id={`operateur-${d.id}`} name="operateur" required defaultValue={d.operateur ?? (infos.momoMtn ? "MTN" : "ORANGE")} className={`${champClass} mt-1`}>
+                          {d.statut === "EN_COURS" && d.operateur && d.telephoneDestination ? (
+                            <option value={d.operateur}>{d.operateur} · {d.telephoneDestination}</option>
+                          ) : (
+                            <>
+                              {infos.momoMtn && <option value="MTN">MTN · {infos.momoMtn}</option>}
+                              {infos.momoOrange && <option value="ORANGE">Orange · {infos.momoOrange}</option>}
+                            </>
+                          )}
+                        </select>
                       </div>
-                      <BoutonSoumettre enCours="…" className={btn("primaire", "md")}>
-                        Marquer payée
+                      <BoutonSoumettre enCours="Traitement…" className={btn("primaire", "md")}>
+                        {d.statut === "EN_COURS" ? "Vérifier le transfert" : "Envoyer le reversement"}
                       </BoutonSoumettre>
                     </form>
-                    <form action={traiterDemandeAction} className="flex flex-wrap items-end gap-2">
-                      <input type="hidden" name="reversementId" value={d.id} />
-                      <input type="hidden" name="decision" value="REJETE" />
-                      <div>
-                        <label htmlFor={`motif-${d.id}`} className="block text-etiquette-xs text-slate-500">
-                          Motif du refus
-                        </label>
-                        <input id={`motif-${d.id}`} name="commentaire" maxLength={200} placeholder="Ex : numéro incorrect" className={`${champClass} mt-1 w-56`} />
-                      </div>
-                      <BoutonSoumettre enCours="…" className={btn("danger", "md")}>
-                        Refuser
-                      </BoutonSoumettre>
-                    </form>
+                    {d.statut === "DEMANDE" && (
+                      <form action={traiterDemandeAction} className="flex flex-wrap items-end gap-2">
+                        <input type="hidden" name="reversementId" value={d.id} />
+                        <input type="hidden" name="decision" value="REJETE" />
+                        <div>
+                          <label htmlFor={`motif-${d.id}`} className="block text-etiquette-xs text-slate-500">
+                            Motif du refus
+                          </label>
+                          <input id={`motif-${d.id}`} name="commentaire" maxLength={200} placeholder="Ex : coordonnées incorrectes" className={`${champClass} mt-1 w-56`} />
+                        </div>
+                        <BoutonSoumettre enCours="…" className={btn("danger", "md")}>
+                          Refuser
+                        </BoutonSoumettre>
+                      </form>
+                    )}
+                    {d.referenceFournisseur && (
+                      <p className="w-full text-xs text-slate-500">
+                        Référence HR-Skills : {d.referenceFournisseur}
+                        {d.frais !== null && d.frais !== undefined ? ` · Frais : ${d.frais.toLocaleString("fr-FR")} FCFA` : ""}
+                      </p>
+                    )}
                   </div>
-                </Carte>
+                  </Carte>
               );
             })}
           </div>
@@ -209,41 +230,7 @@ export default async function ReversementsPage({
               )}
 
               {v.eligibleReversement && v.solde >= 10000 && (
-                <form
-                  action={enregistrerReversementAction}
-                  className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-end"
-                >
-                  <input type="hidden" name="vendeurId" value={v.vendeurId} />
-                  <div className="sm:w-44">
-                    <label htmlFor={`montant-${v.vendeurId}`} className="block text-xs text-slate-500">
-                      Montant reversé (FCFA)
-                    </label>
-                    <input
-                      id={`montant-${v.vendeurId}`}
-                      name="montant"
-                      type="number"
-                      min={10000}
-                      max={v.solde}
-                      defaultValue={v.solde}
-                      required
-                      className={`${champClass} mt-1`}
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <label htmlFor={`commentaire-${v.vendeurId}`} className="block text-xs text-slate-500">
-                      Référence (facultatif · ex. n° transfert MoMo)
-                    </label>
-                    <input
-                      id={`commentaire-${v.vendeurId}`}
-                      name="commentaire"
-                      maxLength={200}
-                      className={`${champClass} mt-1`}
-                    />
-                  </div>
-                  <BoutonSoumettre enCours="Enregistrement…" className={btn("primaire", "md", "sm:shrink-0")}>
-                    Marquer reversé
-                  </BoutonSoumettre>
-                </form>
+                <p className="mt-3 border-t border-slate-100 pt-3 text-xs text-slate-500">Les reversements sont désormais initiés depuis les demandes vendeur ci-dessus ; aucun paiement manuel ne peut être marqué comme exécuté dans NILE.</p>
               )}
             </Carte>
           ))}
