@@ -114,6 +114,32 @@ export default async function VendeurPage() {
         <GraphBarres points={stats.activite7Jours} titre="Tes ventes des 7 derniers jours" />
       </Carte>
 
+      {/* Audience des fiches : compteur agrégé, sans suivi individuel des visiteurs. */}
+      <Carte className="p-5">
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <div>
+            <h2 className="font-bold text-slate-900">Audience de mes produits</h2>
+            <p className="mt-1 text-xs text-slate-500">Consultations enregistrées depuis l’activation du compteur.</p>
+          </div>
+          <p className="text-xl font-bold text-nile-800">{stats.consultationsProduits.toLocaleString("fr-FR")}</p>
+        </div>
+        {stats.produitsPopulaires.length === 0 ? (
+          <p className="mt-4 rounded border border-dashed border-slate-200 px-3 py-5 text-center text-sm text-slate-500">Aucun produit actif à afficher pour le moment.</p>
+        ) : (
+          <ol className="mt-3 divide-y divide-slate-100">
+            {stats.produitsPopulaires.map((produit, index) => (
+              <li key={produit.id} className="flex items-center justify-between gap-3 py-2.5">
+                <span className="flex min-w-0 items-center gap-3">
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-nile-50 text-xs font-bold text-nile-700">{index + 1}</span>
+                  <Link href={`/vendeur/produits/${produit.id}`} className="min-w-0 truncate text-sm font-medium text-slate-700 hover:text-nile-700 hover:underline">{produit.titre}</Link>
+                </span>
+                <span className="shrink-0 text-xs font-semibold text-slate-500">{produit.nombreVues.toLocaleString("fr-FR")} vue{produit.nombreVues > 1 ? "s" : ""}</span>
+              </li>
+            ))}
+          </ol>
+        )}
+      </Carte>
+
       {/* Commandes récentes */}
       <Carte className="overflow-hidden">
         <div className="flex items-center justify-between border-b border-contour-carte px-5 py-4">
