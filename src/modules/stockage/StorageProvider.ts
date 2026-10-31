@@ -106,12 +106,13 @@ export const TAILLE_IMAGE_MAX_OCTETS = 2 * 1024 * 1024; // 2 Mo
 export const TYPES_VIDEO_ACCEPTES = ["video/mp4"] as const;
 
 export const TAILLE_VIDEO_MAX_OCTETS = 15 * 1024 * 1024; // 15 Mo
+export const TAILLE_PDF_MAX_OCTETS = 5 * 1024 * 1024; // 5 Mo pour les justificatifs KYC
 
 /** Poids maximum d'un fichier, selon son type. */
 export function tailleMaxPourType(typeMime: string): number {
-  return (TYPES_VIDEO_ACCEPTES as readonly string[]).includes(typeMime)
-    ? TAILLE_VIDEO_MAX_OCTETS
-    : TAILLE_IMAGE_MAX_OCTETS;
+  if ((TYPES_VIDEO_ACCEPTES as readonly string[]).includes(typeMime)) return TAILLE_VIDEO_MAX_OCTETS;
+  if (typeMime === "application/pdf") return TAILLE_PDF_MAX_OCTETS;
+  return TAILLE_IMAGE_MAX_OCTETS;
 }
 
 export function extensionDepuisMime(typeMime: string): string {
