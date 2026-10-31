@@ -72,10 +72,10 @@ export default async function CommanderPage({
   // paiement ? Si oui, il faut lui demander son opérateur ici même.
   const sansRedirection = paiementSansRedirection();
   const fraisHrSkills = sansRedirection
-    ? calculerFraisHrSkills(total + FRAIS_LIVRAISON_FCFA)
+    ? calculerFraisHrSkills(total)
     : 0;
   const totalAvecLivraison = total + FRAIS_LIVRAISON_FCFA;
-  const totalMobileMoney = totalAvecLivraison + fraisHrSkills;
+  const totalMobileMoney = total + fraisHrSkills;
   // Unités commandées, pas lignes : 2 exemplaires comptent pour 2 articles.
   const nbArticles = panier.lignes.reduce((s, l) => s + l.quantite, 0);
 
@@ -325,12 +325,12 @@ export default async function CommanderPage({
                 <Prix montant={total} className="font-semibold text-slate-900" />
               </div>
               <div className="flex flex-wrap items-baseline justify-between gap-2 text-corps-sm">
-                <span className="text-slate-600">Livraison</span>
+                <span className="text-slate-600">Livraison (à remettre au livreur)</span>
                 <Prix montant={FRAIS_LIVRAISON_FCFA} className="font-semibold text-slate-900" />
               </div>
               {sansRedirection && (
                 <div className="flex flex-wrap items-baseline justify-between gap-2 text-corps-sm">
-                  <span className="text-slate-600">Frais HR-Skills Pay (2 % du montant avant frais)</span>
+                  <span className="text-slate-600">Frais HR-Skills Pay (2 % des articles)</span>
                   <Prix montant={fraisHrSkills} className="font-semibold text-slate-900" />
                 </div>
               )}
@@ -341,18 +341,18 @@ export default async function CommanderPage({
                     <Prix montant={totalAvecLivraison} className="font-semibold text-slate-900" />
                   </div>
                   <div className="flex flex-wrap items-baseline justify-between gap-2 text-titre-sm text-slate-900">
-                    <span>Total si Mobile Money</span>
+                    <span>À payer en ligne (Mobile Money)</span>
                     <Prix montant={totalMobileMoney} className="text-nile-700" />
                   </div>
                 </>
               ) : (
                 <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-200 pt-2 text-titre-sm text-slate-900">
-                  <span>Total à régler</span>
-                  <Prix montant={totalAvecLivraison} className="text-nile-700" />
+                  <span>À payer en ligne (Mobile Money)</span>
+                  <Prix montant={totalMobileMoney} className="text-nile-700" />
                 </div>
               )}
               <p className="text-etiquette-xs text-slate-500">
-                Livraison facturée 1 500 FCFA · prix TTC
+                Les 1 500 FCFA de livraison sont à remettre directement au livreur à la réception.
                 {env.DELAI_LIVRAISON_TEXTE
                   ? ` · délai estimé : ${env.DELAI_LIVRAISON_TEXTE}`
                   : ""}
