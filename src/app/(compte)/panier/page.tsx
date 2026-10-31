@@ -100,10 +100,10 @@ export default async function PanierPage({
   );
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto w-full max-w-[1360px] space-y-7 px-4 pb-12 sm:px-6 lg:px-8">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Mon panier</h1>
+          <h1 className="text-2xl font-extrabold tracking-tight text-[#0B192C] sm:text-3xl">Mon panier</h1>
           <p className="mt-2 text-corps-md text-slate-600">
             Vérifiez vos articles avant de passer commande.
           </p>
