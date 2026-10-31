@@ -4,6 +4,7 @@ import {
   calculerSolde,
   verifierReversement,
   type CalculSolde,
+  SEUIL_MINIMUM_REVERSEMENT,
 } from "@/modules/reversement/reversement-core";
 
 /**
@@ -243,6 +244,13 @@ async function creerLigneReversement(
       // réservé dépasserait alors le dû. Le verrou sérialise les écritures
       // de reversement par vendeur.
       await tx.$queryRaw`SELECT id FROM "Vendeur" WHERE id = ${vendeurId} FOR UPDATE`;
+      const vendeurVerifie = await tx.vendeur.findUnique({
+        where: { id: vendeurId },
+        select: { statutValidation: true, kyc: { select: { statut: true } } },
+      });
+      if (!vendeurVerifie || vendeurVerifie.statutValidation !== "VALIDE" || vendeurVerifie.kyc?.statut !== "VALIDE") {
+        throw new Error("VENDEUR_NON_VALIDE");
+      }
 
       const [ventes, ventesCOD, verse, attente] = await Promise.all([
         tx.ligneCommande.aggregate({
@@ -293,6 +301,9 @@ async function creerLigneReversement(
       if (erreur.message === "MONTANT_MINIMUM") {
         return { ok: false, code: "MONTANT_MINIMUM" };
       }
+      if (erreur.message === "VENDEUR_NON_VALIDE") {
+        return { ok: false, code: "VENDEUR_NON_VALIDE" };
+      }
       if (erreur.message === "SOLDE_INSUFFISANT") {
         return { ok: false, code: "SOLDE_INSUFFISANT" };
       }
@@ -333,7 +344,7 @@ export async function listerDemandesDuVendeur(vendeurId: string) {
 
 export type ResultatTraitement =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" | "VENDEUR_NON_VALIDE" };
+  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" | "VENDEUR_NON_VALIDE" | "MONTANT_MINIMUM" };
 
 /**
  * Confirme le règlement manuel d'une demande ou la rejette.
@@ -353,6 +364,9 @@ export async function traiterDemandeReversement(
     if (!demande) return { ok: false, code: "INTROUVABLE" };
     if (demande.statut !== "DEMANDE") return { ok: false, code: "DEJA_TRAITE" };
 
+    if (decision === "PAYE" && demande.montant < SEUIL_MINIMUM_REVERSEMENT) {
+      return { ok: false, code: "MONTANT_MINIMUM" };
+    }
     if (decision === "PAYE" &&
       (demande.vendeur.statutValidation !== "VALIDE" || demande.vendeur.kyc?.statut !== "VALIDE")) {
       return { ok: false, code: "VENDEUR_NON_VALIDE" };
