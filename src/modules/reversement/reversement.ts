@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { getTauxCommissionPourcent } from "@/modules/commande/config";
+import { POLITIQUE_VENDEUR } from "@/modules/vendeur/politique";
 import {
   calculerSolde,
   verifierReversement,
@@ -211,7 +212,7 @@ export async function demanderReversement(
   if (vendeur.statutValidation !== "VALIDE") {
     return { ok: false, code: "VENDEUR_NON_VALIDE" };
   }
-  if (!Number.isInteger(montant) || montant < 10_000) {
+  if (!Number.isInteger(montant) || montant < POLITIQUE_VENDEUR.reversement.minimumXaf) {
     return { ok: false, code: "SEUIL_MINIMUM" };
   }
   const taux = await getTauxCommissionPourcent();
