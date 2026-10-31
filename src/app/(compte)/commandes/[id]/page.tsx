@@ -501,10 +501,6 @@ export default async function DetailCommandePage({
           {commande.remise > 0 && (
             <>
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <span className="text-slate-600">Sous-total</span>
-                <Prix montant={commande.total - commande.fraisLivraison - commande.fraisPaiement + commande.remise} className="text-slate-900" />
-              </div>
-              <div className="flex flex-wrap items-baseline justify-between gap-2">
                 <span className="text-slate-600">
                   Remise{commande.codePromo ? ` · ${commande.codePromo}` : ""}
                 </span>
@@ -529,7 +525,7 @@ export default async function DetailCommandePage({
             <Prix montant={commande.total} className="whitespace-nowrap text-nile-800" />
           </div>
           <p className="pt-1 text-etiquette-xs text-slate-500">
-            Livraison : 1 500 FCFA · paiement{" "}
+            Livraison : <Prix montant={commande.fraisLivraison} /> · paiement{" "}
             {commande.modePaiement === "COD" ? "en espèces à la livraison" : "Mobile Money"}
           </p>
         </div>
