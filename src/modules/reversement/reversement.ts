@@ -316,7 +316,7 @@ async function creerLigneReversement(
 /** Demandes de versement en attente, pour l'écran d'administration. */
 export async function listerDemandesReversement() {
   return prisma.reversement.findMany({
-    where: { statut: "DEMANDE" },
+    where: { statut: { in: ["DEMANDE", "EN_COURS"] } },
     orderBy: { dateCreation: "asc" }, // les plus anciennes d'abord
     include: {
       vendeur: {
