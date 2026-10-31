@@ -26,9 +26,18 @@ export type ResultatKyc =
 
 /** Récupère le dossier KYC d'un vendeur. */
 export async function getKycVendeur(vendeurId: string) {
-  return prisma.kycVendeur.findUnique({
-    where: { vendeurId },
-  });
+  const dossier = await prisma.kycVendeur.findUnique({ where: { vendeurId } });
+  if (!dossier) return null;
+  // Une ancienne URL publique ne compte plus comme pièce KYC exploitable :
+  // le vendeur doit téléverser à nouveau ses justificatifs dans le stockage privé.
+  const privee = (url: string | null) => url?.startsWith("kyc://") ? url : null;
+  return {
+    ...dossier,
+    pieceRectoUrl: privee(dossier.pieceRectoUrl),
+    pieceVersoUrl: privee(dossier.pieceVersoUrl),
+    selfieUrl: privee(dossier.selfieUrl),
+    registreCommerceUrl: privee(dossier.registreCommerceUrl),
+  };
 }
 
 /**
