@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { aConfirmeMajorite, idsCategoriesReservees18 } from "@/modules/catalogue/acces-18";
 import { prisma } from "@/lib/db";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { favorisParmi } from "@/modules/catalogue/favoris";
@@ -45,9 +46,10 @@ export default async function BoutiquePage({
   if (!boutique) notFound();
 
   const utilisateur = await getUtilisateurCourant();
+  const ids18 = (await aConfirmeMajorite()) ? [] : await idsCategoriesReservees18();
   const [produitsBruts, quantites, publications] = await Promise.all([
     prisma.produit.findMany({
-      where: { vendeurId: boutique.id, statut: "ACTIF" },
+      where: { vendeurId: boutique.id, statut: "ACTIF", ...(ids18.length > 0 ? { categorieId: { notIn: ids18 } } : {}) },
       orderBy: { dateMaj: "desc" },
       include: {
         images: { orderBy: { ordre: "asc" }, take: 1 },
