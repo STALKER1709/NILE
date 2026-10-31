@@ -6,7 +6,8 @@ const cat = (
   nom: string,
   parentId: string | null = null,
   ordre = 0,
-) => ({ id, nom, slug: nom.toLowerCase(), parentId, ordre });
+  slug = nom.toLowerCase(),
+) => ({ id, nom, slug, parentId, ordre });
 
 const CATEGORIES = [
   cat("mode", "Mode", null, 1),
@@ -80,7 +81,7 @@ describe("navigationCategories", () => {
     const imbriquees = [
       cat("beaute", "Beauté", null, 1),
       cat("bienetre", "Bien-être personnel", "beaute", 1),
-      cat("accessoires", "Accessoires personnels", "bienetre", 1),
+      cat("accessoires", "Accessoires personnels", "bienetre", 1, "accessoires"),
       cat("soins", "Soins du visage", "beaute", 2),
       cat("mode", "Mode", null, 2),
     ];
