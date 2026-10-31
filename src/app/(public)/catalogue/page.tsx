@@ -148,9 +148,10 @@ export default async function CataloguePage({
           {navigation.map((c) => (
             <Link
               key={c.id}
+              style={c.niveau > 0 ? { marginLeft: `${c.niveau * 14}px` } : undefined}
               href={lienFiltre("categorie", c.slug)}
               className={`flex items-center gap-2.5 truncate rounded px-3 py-2 text-corps-sm transition-colors ${
-                c.niveau > 0 ? "ml-4 border-l border-contour-carte" : ""
+                c.niveau > 0 ? "border-l border-contour-carte" : ""
               } ${
                 c.actif
                   ? "bg-nile-50 font-semibold text-nile-700"
