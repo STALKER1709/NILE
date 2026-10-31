@@ -41,8 +41,12 @@ export async function enregistrerReversementAction(
     const msg =
       res.code === "SOLDE_INSUFFISANT"
         ? "Montant supérieur au solde dû à ce vendeur."
-        : res.code === "MONTANT_INVALIDE"
-          ? "Montant invalide."
+        : res.code === "MONTANT_MINIMUM"
+          ? "Le montant minimum d’un reversement est de 10 000 FCFA."
+          : res.code === "VENDEUR_NON_VALIDE"
+            ? "Le vendeur et son identité doivent être validés avant tout reversement."
+            : res.code === "MONTANT_INVALIDE"
+              ? "Montant invalide."
           : "Vendeur introuvable.";
     redirect(`/admin/reversements?erreur=${encodeURIComponent(msg)}`);
   }
@@ -81,7 +85,11 @@ export async function traiterDemandeAction(formData: FormData): Promise<void> {
     const msg =
       res.code === "DEJA_TRAITE"
         ? "Cette demande a déjà été traitée."
-        : "Demande introuvable.";
+        : res.code === "VENDEUR_NON_VALIDE"
+          ? "Le vendeur ou son KYC n’est plus validé : le paiement est bloqué."
+          : res.code === "MONTANT_MINIMUM"
+            ? "Cette demande est inférieure au seuil de 10 000 FCFA et ne peut pas être payée."
+            : "Demande introuvable.";
     redirect(`/admin/reversements?erreur=${encodeURIComponent(msg)}`);
   }
   redirect(

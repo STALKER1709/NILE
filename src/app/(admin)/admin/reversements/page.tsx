@@ -26,7 +26,7 @@ export default async function ReversementsPage({
     listerSoldesVendeurs(),
     listerDemandesReversement(),
   ]);
-  const totalDu = soldes.reduce((s, v) => s + v.solde, 0);
+  const totalDu = soldes.filter((v) => v.eligibleReversement).reduce((s, v) => s + v.solde, 0);
   const taux = soldes[0]?.tauxPourcent;
 
   return (
@@ -37,8 +37,12 @@ export default async function ReversementsPage({
       </div>
 
       <p className="text-sm text-slate-500">
+        Traitement hebdomadaire manuel : effectuez le transfert Mobile Money hors de NILE, puis confirmez son exécution ici. Cette action ne déclenche aucun paiement réel. Seuil minimum : 10 000 FCFA.
+      </p>
+
+      <p className="text-sm text-slate-500">
         Une vente devient due au vendeur quand la commande est <strong>livrée et payée</strong>.
-        {taux !== undefined && <> Commission NILE : <strong>{taux} %</strong> (clé <code>commission_pourcent</code> en configuration).</>}{" "}
+        Commission NILE : <strong>{taux ?? 12} %</strong> (taux fixé par décision métier).{" "}
         La boutique maison n&apos;apparaît pas ici (son chiffre revient à la plateforme).
       </p>
 
@@ -62,7 +66,7 @@ export default async function ReversementsPage({
       )}
 
       <Carte className="p-4">
-        <p className="text-sm text-slate-500">Total disponible à demander</p>
+        <p className="text-sm text-slate-500">Total des soldes éligibles (boutique et KYC validés)</p>
         <Prix montant={totalDu} className="mt-1 block text-2xl font-bold text-nile" />
       </Carte>
 
@@ -87,7 +91,7 @@ export default async function ReversementsPage({
                     <div className="min-w-0">
                       <p className="font-semibold text-slate-900">{d.vendeur.nomBoutique}</p>
                       <p className="truncate text-xs text-slate-500">
-                        {d.vendeur.utilisateur.email} · demandé le{" "}
+                        {d.vendeur.utilisateur.email} · boutique {d.vendeur.statutValidation} · KYC {d.vendeur.kyc?.statut ?? "NON_SOUMIS"} · demandé le{" "}
                         {d.dateCreation.toLocaleDateString("fr-FR", {
                           day: "numeric", month: "long", year: "numeric",
                         })}
@@ -171,6 +175,10 @@ export default async function ReversementsPage({
                 </p>
               </div>
 
+              <div className="mt-2 flex flex-wrap gap-2 text-xs">
+                <span className="rounded bg-slate-100 px-2 py-1">Boutique : {v.statutValidation}</span>
+                <span className="rounded bg-slate-100 px-2 py-1">KYC : {v.statutKyc ?? "NON_SOUMIS"}</span>
+              </div>
               <dl className="mt-3 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
                 <Info label="Ventes Mobile Money" montant={v.brut} />
                 <Info label="Ventes à la livraison" montant={v.brutCOD} />
@@ -179,6 +187,16 @@ export default async function ReversementsPage({
                 <Info label="Déjà reversé" montant={v.dejaReverse} />
               </dl>
 
+              {!v.eligibleReversement && (
+                <p className="mt-3 rounded border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800">
+                  Reversement bloqué : la boutique et le dossier KYC doivent être validés.
+                </p>
+              )}
+              {v.eligibleReversement && v.solde > 0 && v.solde < 10000 && (
+                <p className="mt-3 rounded border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                  Solde inférieur au seuil minimum de 10 000 FCFA.
+                </p>
+              )}
               {v.dette > 0 && (
                 /* La commission de ses ventes en espèces dépasse ce que NILE
                    détient pour lui : c'est une créance, qui s'épongera sur ses
@@ -190,7 +208,7 @@ export default async function ReversementsPage({
                 </p>
               )}
 
-              {v.solde > 0 && (
+              {v.eligibleReversement && v.solde >= 10000 && (
                 <form
                   action={enregistrerReversementAction}
                   className="mt-3 flex flex-col gap-2 border-t border-slate-100 pt-3 sm:flex-row sm:items-end"
@@ -204,7 +222,7 @@ export default async function ReversementsPage({
                       id={`montant-${v.vendeurId}`}
                       name="montant"
                       type="number"
-                      min={1}
+                      min={10000}
                       max={v.solde}
                       defaultValue={v.solde}
                       required

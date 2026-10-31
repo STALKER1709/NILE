@@ -34,6 +34,7 @@ export function getPlafondDetteCOD(): Promise<number> {
  * Commission NILE (en %) prélevée sur les ventes des vendeurs tiers, déduite
  * de leur reversement. La boutique maison n'est pas concernée.
  */
+/** Commission NILE validée : 12 %. Toute modification exige une nouvelle validation métier. */
 export function getTauxCommissionPourcent(): Promise<number> {
-  return lireConfigNombre("commission_pourcent", env.COMMISSION_POURCENT);
+  return Promise.resolve(12);
 }

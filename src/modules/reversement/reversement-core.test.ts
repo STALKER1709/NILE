@@ -103,15 +103,18 @@ describe("calculerSolde", () => {
 
 describe("verifierReversement", () => {
   it("accepte un montant entier positif dans la limite du solde", () => {
-    expect(verifierReversement(5000, 5000)).toEqual({ ok: true });
+    expect(verifierReversement(10000, 10000)).toEqual({ ok: true });
   });
   it("refuse zéro, négatif ou non entier", () => {
     expect(verifierReversement(0, 5000).ok).toBe(false);
     expect(verifierReversement(-100, 5000).ok).toBe(false);
     expect(verifierReversement(10.5, 5000).ok).toBe(false);
   });
+  it("refuse un montant inférieur au seuil de 10 000 FCFA", () => {
+    expect(verifierReversement(9999, 20000)).toEqual({ ok: false, code: "MONTANT_MINIMUM" });
+  });
   it("refuse un montant supérieur au solde", () => {
-    const r = verifierReversement(6000, 5000);
+    const r = verifierReversement(11000, 10000);
     expect(r).toEqual({ ok: false, code: "SOLDE_INSUFFISANT" });
   });
 });

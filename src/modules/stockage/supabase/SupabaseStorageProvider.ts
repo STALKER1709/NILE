@@ -61,7 +61,13 @@ export class SupabaseStorageProvider implements StorageProvider {
   /** Stocke un justificatif KYC dans un bucket séparé, qui doit rester privé. */
   async enregistrerKyc(fichier: FichierAEnregistrer): Promise<FichierEnregistre> {
     const client = creerClientAdmin();
-    const chemin = `${randomUUID()}.${extensionDepuisMime(fichier.typeMime)}`;
+    const { data: bucket, error: bucketError } = await client.storage.getBucket(env.SUPABASE_KYC_BUCKET);
+    if (bucketError || !bucket || bucket.public) {
+      throw new Error("Le bucket SUPABASE_KYC_BUCKET doit exister et être configuré en privé.");
+    }
+    if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(fichier.typeMime)) throw new ErreurStockage("TYPE_INVALIDE");
+    const extension = fichier.typeMime === "application/pdf" ? "pdf" : extensionDepuisMime(fichier.typeMime);
+    const chemin = `${randomUUID()}.${extension}`;
     const { error } = await client.storage.from(env.SUPABASE_KYC_BUCKET).upload(chemin, fichier.contenu, {
       contentType: fichier.typeMime,
       upsert: false,
@@ -74,6 +80,10 @@ export class SupabaseStorageProvider implements StorageProvider {
   /** URL signée à courte durée de vie, appelée uniquement après contrôle ADMIN. */
   async urlSigneeKyc(chemin: string): Promise<string> {
     const client = creerClientAdmin();
+    const { data: bucket, error: bucketError } = await client.storage.getBucket(env.SUPABASE_KYC_BUCKET);
+    if (bucketError || !bucket || bucket.public) {
+      throw new Error("Consultation KYC bloquée : le bucket dédié doit être privé.");
+    }
     const { data, error } = await client.storage.from(env.SUPABASE_KYC_BUCKET).createSignedUrl(chemin, 300);
     if (error || !data?.signedUrl) throw new Error(`Impossible de signer le document KYC : ${error?.message ?? "URL absente"}`);
     return data.signedUrl;

@@ -8,6 +8,8 @@ import { getKycVendeur } from "@/modules/kyc/kyc";
 
 const MESSAGES: Record<string, string> = {
   MONTANT_INVALIDE: "Montant invalide.",
+  MONTANT_MINIMUM: "Le montant minimum d’un reversement est de 10 000 FCFA.",
+  VENDEUR_NON_VALIDE: "Votre boutique et votre identité doivent rester validées pour recevoir un reversement.",
   SOLDE_INSUFFISANT:
     "Ce montant dépasse ce que vous pouvez demander pour l'instant.",
   INTROUVABLE: "Boutique introuvable.",

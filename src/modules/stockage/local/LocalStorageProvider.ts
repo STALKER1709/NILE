@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, stat, unlink, writeFile, readFile } from "node:fs/promises";
 import { createWriteStream } from "node:fs";
 import path from "node:path";
 import { Readable, Transform } from "node:stream";
@@ -28,6 +28,8 @@ import {
  * via `ecrireUploadDirect` — même vérification de poids que le signé Supabase.
  */
 const DOSSIER_UPLOADS = path.join(process.cwd(), "public", "uploads");
+// Les justificatifs KYC ne sont JAMAIS écrits sous public/ ni servis comme média public.
+const DOSSIER_KYC_PRIVE = path.join(process.cwd(), ".private", "kyc");
 
 /** Résout une clé relative dans le dossier uploads, sans traversée possible. */
 function cheminAbsolut(chemin: string): string {
@@ -104,7 +106,47 @@ export async function supprimerUploadDirect(chemin: string): Promise<void> {
   }
 }
 
+
+function cheminKycPrive(chemin: string): string {
+  if (!/^[0-9a-f-]{36}\.(?:jpg|png|webp|pdf)$/i.test(chemin)) {
+    throw new ErreurStockage("INACCESSIBLE", "Référence de document KYC invalide.");
+  }
+  const abs = path.resolve(DOSSIER_KYC_PRIVE, chemin);
+  if (!abs.startsWith(DOSSIER_KYC_PRIVE + path.sep)) {
+    throw new ErreurStockage("INACCESSIBLE");
+  }
+  return abs;
+}
+
+/** Lecture du stockage KYC local exclusivement depuis une route ADMIN protégée. */
+export async function lireFichierKycLocal(chemin: string): Promise<{ contenu: Buffer; typeMime: string }> {
+  const abs = cheminKycPrive(chemin);
+  const contenu = await readFile(abs);
+  const extension = path.extname(chemin).slice(1).toLowerCase();
+  const typeMime = extension === "pdf" ? "application/pdf" : typeMimeDepuisExtension(extension);
+  if (!typeMime || !["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(typeMime)) {
+    throw new ErreurStockage("TYPE_INVALIDE");
+  }
+  return { contenu, typeMime };
+}
+
 export class LocalStorageProvider implements StorageProvider {
+  async enregistrerKyc(fichier: FichierAEnregistrer): Promise<FichierEnregistre> {
+    await mkdir(DOSSIER_KYC_PRIVE, { recursive: true });
+    if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(fichier.typeMime)) throw new ErreurStockage("TYPE_INVALIDE");
+    if (fichier.contenu.length > (fichier.typeMime === "application/pdf" ? 5 * 1024 * 1024 : 2 * 1024 * 1024)) throw new ErreurStockage("TROP_LOURDE");
+    const extension = fichier.typeMime === "application/pdf" ? "pdf" : extensionDepuisMime(fichier.typeMime);
+    const nom = `${randomUUID()}.${extension}`;
+    await writeFile(cheminKycPrive(nom), fichier.contenu, { flag: "wx", mode: 0o600 });
+    return { url: `kyc://${nom}`, chemin: nom };
+  }
+
+  async urlSigneeKyc(chemin: string): Promise<string> {
+    // Route same-origin protégée par exigerRole("ADMIN"); le chemin seul ne donne aucun accès.
+    cheminKycPrive(chemin);
+    return `/api/admin/kyc?chemin=${encodeURIComponent(chemin)}`;
+  }
+
   async enregistrer(
     fichier: FichierAEnregistrer,
   ): Promise<FichierEnregistre> {

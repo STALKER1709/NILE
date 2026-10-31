@@ -56,7 +56,7 @@ export default async function FinancesVendeurPage({
 
       {ok === "demande" && (
         <p className="rounded border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-          Demande envoyée. NILE la traite et vous verse le montant par Mobile Money.
+          Demande enregistrée. Elle sera traitée lors du cycle hebdomadaire après vérification du dossier. Aucun transfert automatique n’est déclenché.
         </p>
       )}
       {erreur && (
@@ -80,7 +80,7 @@ export default async function FinancesVendeurPage({
                 traitement par NILE.
               </>
             ) : (
-              "Demandez un versement quand vous le souhaitez : NILE le règle par Mobile Money."
+              "Les demandes éligibles sont traitées lors du cycle hebdomadaire de reversement."
             )}
           </p>
           <svg
@@ -184,22 +184,24 @@ export default async function FinancesVendeurPage({
               Renseigner mes coordonnées
             </Link>
           </>
-        ) : solde.solde <= 0 ? (
+        ) : solde.solde < 10000 ? (
           <p className="mt-2 text-corps-sm text-slate-600">
-            {solde.enAttente > 0 ? (
+            {solde.solde === 0 && solde.enAttente > 0 ? (
               <>
-                Votre dû est déjà entièrement demandé (
-                <Prix montant={solde.enAttente} /> en attente).
+                Votre solde disponible est entièrement réservé : <Prix montant={solde.enAttente} /> en attente de traitement.
               </>
             ) : (
-              "Rien à demander pour l'instant : vos ventes doivent être livrées et payées pour alimenter votre solde."
+              <>
+                Le seuil minimum est de 10 000 FCFA. Votre solde disponible est de <Prix montant={solde.solde} /> ; il doit atteindre ce seuil et provenir de commandes livrées et payées.
+                {solde.enAttente > 0 && <> <Prix montant={solde.enAttente} /> reste déjà réservé dans une demande en attente.</>}
+              </>
             )}
           </p>
         ) : (
           <>
             <p className="mt-2 text-corps-sm text-slate-600">
-              Jusqu&apos;à <Prix montant={solde.solde} className="font-semibold text-nile-800" />{" "}
-              disponible. NILE règle par Mobile Money sur le numéro de votre profil.
+              Seuil minimum : 10 000 FCFA. Jusqu&apos;à <Prix montant={solde.solde} className="font-semibold text-nile-800" />{" "}
+              disponible. Les demandes sont traitées chaque semaine après contrôle.
             </p>
             <form action={demanderVersementAction} className="mt-4 flex flex-wrap items-end gap-3">
               <div>
@@ -211,7 +213,7 @@ export default async function FinancesVendeurPage({
                   name="montant"
                   type="number"
                   required
-                  min={1}
+                  min={10000}
                   max={solde.solde}
                   step={1}
                   placeholder={String(solde.solde)}

@@ -115,12 +115,12 @@ describe("KYC Vendeur — kyc-core", () => {
       );
     });
 
-    it("exige le verso pour une CNI ou un récépissé", () => {
+    it("exige le verso pour une CNI", () => {
       const cniSansVerso = { ...baseValide, typePiece: "CNI" as const, pieceVersoUrl: "" };
       const res = validerCompletudeKyc(cniSansVerso);
       expect(res.valide).toBe(false);
       expect(res.erreurs).toContain(
-        "La photo du verso de votre pièce d'identité est obligatoire pour une CNI ou un récépissé.",
+        "La photo du verso de votre pièce d'identité est obligatoire pour une CNI.",
       );
     });
 
@@ -200,6 +200,11 @@ describe("Validation de la date d'expiration dans le formulaire KYC", () => {
     typePiece: "CNI",
     numeroPiece: "12345678",
   };
+
+  it("refuse le récépissé : seules la CNI et le passeport sont acceptés", () => {
+    const result = soumissionKycFormSchema.safeParse({ ...baseForm, typePiece: "RECEPISSE" });
+    expect(result.success).toBe(false);
+  });
 
   it("accepte une date d'expiration future au format HTML date", () => {
     const future = new Date();

@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { env } from "@/lib/env";
 import { getStorageProvider } from "@/modules/stockage";
 import { SupabaseStorageProvider } from "@/modules/stockage/supabase/SupabaseStorageProvider";
 import type { FichierAEnregistrer } from "@/modules/stockage/StorageProvider";
@@ -25,9 +26,18 @@ export type ResultatKyc =
 
 /** Récupère le dossier KYC d'un vendeur. */
 export async function getKycVendeur(vendeurId: string) {
-  return prisma.kycVendeur.findUnique({
-    where: { vendeurId },
-  });
+  const dossier = await prisma.kycVendeur.findUnique({ where: { vendeurId } });
+  if (!dossier) return null;
+  // Une ancienne URL publique ne compte plus comme pièce KYC exploitable :
+  // le vendeur doit téléverser à nouveau ses justificatifs dans le stockage privé.
+  const privee = (url: string | null) => url?.startsWith("kyc://") ? url : null;
+  return {
+    ...dossier,
+    pieceRectoUrl: privee(dossier.pieceRectoUrl),
+    pieceVersoUrl: privee(dossier.pieceVersoUrl),
+    selfieUrl: privee(dossier.selfieUrl),
+    registreCommerceUrl: privee(dossier.registreCommerceUrl),
+  };
 }
 
 /**
@@ -60,40 +70,46 @@ export async function soumettreKycVendeur(
   }
 
   const storage = getStorageProvider();
-  // Les justificatifs KYC ne doivent jamais rejoindre le bucket public des médias.
-  // Le stockage local n’est possible qu’en développement (production fail-closed).
-  const enregistrerKyc = (fichier: FichierAEnregistrer) =>
-    storage instanceof SupabaseStorageProvider
-      ? storage.enregistrerKyc(fichier)
-      : storage.enregistrer(fichier);
+  // En production, le stockage local est interdit : les pièces doivent rester
+  // dans le bucket Supabase privé dédié au KYC.
+  if (env.NODE_ENV === "production" && !(storage instanceof SupabaseStorageProvider)) {
+    return {
+      ok: false,
+      code: "STOCKAGE_KYC_INDISPONIBLE",
+      message: "Le stockage privé des justificatifs n'est pas configuré. Veuillez réessayer ultérieurement.",
+    };
+  }
+  const enregistrerKyc = (fichier: FichierAEnregistrer) => storage.enregistrerKyc(fichier);
+  // Une ancienne URL publique ne peut jamais être réutilisée comme preuve privée.
+  const referencePrivee = (url: string | null | undefined) => url?.startsWith("kyc://") ? url : "";
 
   // Téléversement sécurisé des fichiers fournis
-  let pieceRectoUrl = vendeur.kyc?.pieceRectoUrl ?? "";
-  let pieceRectoChemin = vendeur.kyc?.pieceRectoChemin ?? null;
+  let pieceRectoUrl = referencePrivee(vendeur.kyc?.pieceRectoUrl);
+  let pieceRectoChemin = pieceRectoUrl ? vendeur.kyc?.pieceRectoChemin ?? null : null;
   if (fichiers.pieceRecto) {
     const res = await enregistrerKyc(fichiers.pieceRecto);
     pieceRectoUrl = res.url;
     pieceRectoChemin = res.chemin;
   }
 
-  let pieceVersoUrl = vendeur.kyc?.pieceVersoUrl ?? "";
-  let pieceVersoChemin = vendeur.kyc?.pieceVersoChemin ?? null;
+  let pieceVersoUrl = referencePrivee(vendeur.kyc?.pieceVersoUrl);
+  let pieceVersoChemin = pieceVersoUrl ? vendeur.kyc?.pieceVersoChemin ?? null : null;
   if (fichiers.pieceVerso) {
     const res = await enregistrerKyc(fichiers.pieceVerso);
     pieceVersoUrl = res.url;
     pieceVersoChemin = res.chemin;
   }
 
-  let selfieUrl = vendeur.kyc?.selfieUrl ?? "";
-  let selfieChemin = vendeur.kyc?.selfieChemin ?? null;
+  let selfieUrl = referencePrivee(vendeur.kyc?.selfieUrl);
+  let selfieChemin = selfieUrl ? vendeur.kyc?.selfieChemin ?? null : null;
   if (fichiers.selfie) {
     const res = await enregistrerKyc(fichiers.selfie);
     selfieUrl = res.url;
     selfieChemin = res.chemin;
   }
 
-  let registreCommerceUrl = vendeur.kyc?.registreCommerceUrl ?? null;
-  let registreCommerceChemin = vendeur.kyc?.registreCommerceChemin ?? null;
+  let registreCommerceUrl = referencePrivee(vendeur.kyc?.registreCommerceUrl) || null;
+  let registreCommerceChemin = registreCommerceUrl ? vendeur.kyc?.registreCommerceChemin ?? null : null;
   if (fichiers.registreCommerce) {
     const res = await enregistrerKyc(fichiers.registreCommerce);
     registreCommerceUrl = res.url;
