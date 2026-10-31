@@ -31,6 +31,7 @@ import {
 import { axesParCategorie } from "@/modules/catalogue/axes";
 import { restituerStockTx } from "@/modules/commande/stock";
 import type { AdresseLivraisonInput } from "@/validators/commande";
+import { aConfirmeMajorite, idsCategoriesReservees18 } from "@/modules/catalogue/acces-18";
 
 type CodeErreurCommande =
   | "PANIER_VIDE"
@@ -61,6 +62,7 @@ export type ResultatCommande =
         | "STOCK_INSUFFISANT"
         | "INDISPONIBLE"
         | "PAIEMENT_INDISPONIBLE"
+        | "ACCES_18_REQUIS"
         | "ERREUR";
       detail?: string;
     };
@@ -105,6 +107,12 @@ export async function passerCommande(
   });
   if (!panier || panier.lignes.length === 0) {
     return { ok: false, code: "PANIER_VIDE" };
+  }
+  if (!(await aConfirmeMajorite())) {
+    const ids18 = await idsCategoriesReservees18();
+    if (panier.lignes.some((ligne) => ids18.includes(ligne.produit.categorieId))) {
+      return { ok: false, code: "ACCES_18_REQUIS" };
+    }
   }
 
   const totalPrevu = calculerTotal(
