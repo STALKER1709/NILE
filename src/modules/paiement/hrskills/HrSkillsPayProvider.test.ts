@@ -114,4 +114,29 @@ describe("HrSkillsPayProvider — contrat Cash-In", () => {
       operateur: "orange",
     })).rejects.toThrow("HTTP 403");
   });
+  it("envoie un Cash-Out MTN avec une clé d'idempotence stable et conserve les frais", async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({ transaction_token: "transaction-test-token", expires_in: 2700 }), { status: 200 }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({ data: { reference: "payout_ref_123", status: "PENDING", fee: 100, net_amount: 10100 } }), { status: 200 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const provider = new HrSkillsPayProvider();
+    const reference = "3f2a1c4e-9b7d-4e21-a8f6-0c5d2e7b1a93";
+    const resultat = await provider.decaisser({
+      reference, telephone: "699823686", operateur: "MTN", montant: 10000,
+      description: "Reversement NILE · Boutique test",
+    });
+    expect(resultat).toEqual({ reference: "payout_ref_123", statut: "PENDING", frais: 100 });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    const [url, options] = fetchMock.mock.calls[1] as [string, RequestInit];
+    expect(url).toBe("https://api.hrskills-pay.com/sandbox/api/v1/payout/mobile-money");
+    const headers = new Headers(options.headers);
+    expect(headers.get("authorization")).toBe("Bearer hrsk_sk_test_secret");
+    expect(headers.get("x-transaction-token")).toBe("transaction-test-token");
+    expect(headers.get("idempotency-key")).toBe(reference);
+    expect(JSON.parse(String(options.body))).toEqual({
+      operator: "MTN", country: "CM", phone_number: "237699823686",
+      amount: 10000, currency: "XAF", description: "Reversement NILE · Boutique test",
+    });
+  });
+
 });
