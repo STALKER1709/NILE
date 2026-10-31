@@ -136,9 +136,15 @@ export default async function ReversementsPage({
                         <label htmlFor={`operateur-${d.id}`} className="block text-etiquette-xs text-slate-500">
                           Portefeuille destinataire
                         </label>
-                        <select id={`operateur-${d.id}`} name="operateur" required defaultValue={infos.momoMtn ? "MTN" : "ORANGE"} className={`${champClass} mt-1`}>
-                          {infos.momoMtn && <option value="MTN">MTN · {infos.momoMtn}</option>}
-                          {infos.momoOrange && <option value="ORANGE">Orange · {infos.momoOrange}</option>}
+                        <select id={`operateur-${d.id}`} name="operateur" required defaultValue={d.operateur ?? (infos.momoMtn ? "MTN" : "ORANGE")} className={`${champClass} mt-1`}>
+                          {d.statut === "EN_COURS" && d.operateur && d.telephoneDestination ? (
+                            <option value={d.operateur}>{d.operateur} · {d.telephoneDestination}</option>
+                          ) : (
+                            <>
+                              {infos.momoMtn && <option value="MTN">MTN · {infos.momoMtn}</option>}
+                              {infos.momoOrange && <option value="ORANGE">Orange · {infos.momoOrange}</option>}
+                            </>
+                          )}
                         </select>
                       </div>
                       <BoutonSoumettre enCours="Traitement…" className={btn("primaire", "md")}>
