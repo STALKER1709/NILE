@@ -223,9 +223,11 @@ export async function mettreAJourProduit(
     }
   }
 
+  const basculeEnModeration = produit.statut === "ACTIF" && await categorieEstReservee18(input.categorieId);
   await prisma.produit.update({
     where: { id: produitId },
     data: {
+      ...(basculeEnModeration ? { statut: "EN_MODERATION" as const } : {}),
       titre: input.titre,
       description: input.description,
       caracteristiques: input.caracteristiques,
