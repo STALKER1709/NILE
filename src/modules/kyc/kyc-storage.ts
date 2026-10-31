@@ -1,14 +1,14 @@
-import { SupabaseStorageProvider } from "@/modules/stockage/supabase/SupabaseStorageProvider";
+import { getStorageProvider } from "@/modules/stockage";
 
 /**
- * Résout les références KYC en URL signée courte durée.
- * À appeler exclusivement depuis une page/action serveur après autorisation ADMIN.
- * Les anciennes URL HTTP publiques sont conservées pour compatibilité et
- * nécessitent une migration opérationnelle vers le bucket privé.
+ * Résout une référence KYC en URL de consultation protégée.
+ * Les anciennes URL publiques ne sont volontairement jamais restituées :
+ * elles doivent être migrées vers le stockage privé avant consultation.
+ * À appeler exclusivement depuis une page serveur après autorisation ADMIN.
  */
 export async function resoudreUrlKyc(url: string | null | undefined, chemin: string | null | undefined): Promise<string | null> {
   if (!url) return null;
-  if (!url.startsWith("kyc://")) return url;
+  if (!url.startsWith("kyc://")) return null;
   if (!chemin) throw new Error("Référence KYC privée sans chemin de stockage.");
-  return new SupabaseStorageProvider().urlSigneeKyc(chemin);
+  return getStorageProvider().urlSigneeKyc(chemin);
 }
