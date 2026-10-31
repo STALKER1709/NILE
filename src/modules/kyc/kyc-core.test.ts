@@ -120,7 +120,7 @@ describe("KYC Vendeur — kyc-core", () => {
       const res = validerCompletudeKyc(cniSansVerso);
       expect(res.valide).toBe(false);
       expect(res.erreurs).toContain(
-        "La photo du verso de votre pièce d'identité est obligatoire pour une CNI ou un récépissé.",
+        "La photo du verso de votre pièce d'identité est obligatoire pour une CNI.",
       );
     });
 
