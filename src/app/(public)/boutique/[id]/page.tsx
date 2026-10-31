@@ -75,16 +75,16 @@ export default async function BoutiquePage({
       : 0;
 
   return (
-    <div className="space-y-5">
-      <div className="overflow-hidden rounded-xl border border-contour-carte bg-white shadow-carte">
-        <div className="h-20 bg-gradient-to-r from-nile-800 via-nile-700 to-emerald-700 sm:h-24" />
+    <div className="mx-auto w-full max-w-[1360px] space-y-7 px-4 pb-12 sm:px-6 lg:px-8">
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <div className="h-28 bg-gradient-to-r from-[#0B192C] via-[#12385A] to-[#10B981] sm:h-36" />
         <div className="p-5 pt-0">
         <div className="-mt-7 flex flex-wrap items-end gap-3">
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-nile text-xl font-bold text-white ring-4 ring-white">
             {boutique.nomBoutique.charAt(0).toUpperCase()}
           </span>
           <div className="min-w-0">
-            <h1 className="text-titre-sm leading-tight text-nile-800">{boutique.nomBoutique}</h1>
+            <h1 className="text-2xl font-extrabold leading-tight tracking-tight text-[#0B192C] sm:text-3xl">{boutique.nomBoutique}</h1>
             <p className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-slate-500">
               <Badge ton="vert">Boutique vérifiée</Badge>
               <span>
@@ -133,7 +133,7 @@ export default async function BoutiquePage({
       </div>
 
       <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <h2 className="text-titre-sm text-slate-900">Produits</h2>
+        <h2 className="text-xl font-extrabold tracking-tight text-[#0B192C]">Produits de la boutique</h2>
         <span className="text-sm text-slate-500">
           {produits.length} produit{produits.length > 1 ? "s" : ""}
         </span>
@@ -142,7 +142,7 @@ export default async function BoutiquePage({
       {produits.length === 0 ? (
         <EtatVide titre="Cette boutique n'a pas encore de produits en ligne." />
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
           {produits.map((p, i) => (
             <CarteProduit
               key={p.id}
