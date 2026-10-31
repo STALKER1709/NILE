@@ -365,7 +365,7 @@ export default async function DetailCommandePage({
               Livraison
             </h2>
             <ul className="mt-3 space-y-2 text-corps-sm text-slate-600">
-              <li><strong>Gratuite</strong>, partout au Cameroun.</li>
+              <li><strong>1 500 FCFA</strong> par commande, à remettre directement au livreur à la réception.</li>
               <li>Les délais annoncés sont indicatifs.</li>
               <li>
                 Une fois le colis accepté, les ventes sont fermes —{" "}
@@ -511,7 +511,7 @@ export default async function DetailCommandePage({
             </>
           )}
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <span className="text-slate-600">Livraison</span>
+            <span className="text-slate-600">Livraison · à remettre au livreur</span>
             <Prix montant={commande.fraisLivraison} className="text-slate-900" />
           </div>
           {commande.fraisPaiement > 0 && (
@@ -521,12 +521,13 @@ export default async function DetailCommandePage({
             </div>
           )}
           <div className="flex flex-wrap items-baseline justify-between gap-3 text-corps-lg font-bold">
-            <span className="text-slate-900">Total</span>
+            <span className="text-slate-900">Coût total de la commande</span>
             <Prix montant={commande.total} className="whitespace-nowrap text-nile-800" />
           </div>
           <p className="pt-1 text-etiquette-xs text-slate-500">
-            Livraison : {commande.fraisLivraison.toLocaleString("fr-FR")} FCFA · paiement{" "}
-            {commande.modePaiement === "COD" ? "en espèces à la livraison" : "Mobile Money"}
+            {commande.modePaiement === "COD"
+              ? "À la réception, le livreur encaisse le montant total indiqué ci-dessus."
+              : `Montant Mobile Money : ${(commande.total - commande.fraisLivraison).toLocaleString("fr-FR")} FCFA · livraison à régler en espèces au livreur : ${commande.fraisLivraison.toLocaleString("fr-FR")} FCFA.`}
           </p>
         </div>
       </Carte>

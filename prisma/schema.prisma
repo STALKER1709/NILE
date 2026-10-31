@@ -479,7 +479,7 @@ model Livraison {
   statut                   StatutLivraison            @default(EN_ATTENTE)
   preuveUrl                String? // preuve de livraison (photo/signature)
   statutCash               StatutCashCOD              @default(NON_APPLICABLE)
-  montantCashCollecte      Int? // FCFA encaissés à la livraison (COD)
+  montantCashCollecte      Int? // FCFA encaissés en espèces par le livreur : commande COD complète ou livraison seule si Mobile Money
   dateAffectation          DateTime?
   dateLivraison            DateTime?
   note                     String?

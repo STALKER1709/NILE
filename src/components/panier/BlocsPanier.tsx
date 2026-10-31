@@ -147,8 +147,8 @@ export function BlocLivraison() {
       <div className="min-w-0">
         <p className="text-etiquette-md text-nile-800">Livraison · 1 500 FCFA</p>
         <p className="text-corps-sm text-slate-600">
-          Tarif fixe par commande, partout au Cameroun. Vous indiquerez
-          votre adresse à l&apos;étape suivante.
+          Tarif fixe par commande, partout au Cameroun, à remettre directement
+          au livreur à la réception. Vous indiquerez votre adresse à l&apos;étape suivante.
         </p>
       </div>
     </div>
@@ -179,15 +179,17 @@ export function RecapitulatifPanier({
           <Prix montant={total} className="font-semibold text-slate-900" />
         </div>
         <div className="flex justify-between text-corps-md">
-          <span className="text-slate-600">Livraison</span>
+          <span className="text-slate-600">Livraison · à remettre au livreur</span>
           <Prix montant={FRAIS_LIVRAISON_FCFA} className="font-bold text-slate-900" />
         </div>
       </div>
 
       <div className="flex items-center justify-between py-6">
-        <span className="text-titre-sm text-nile-800">Total</span>
+        <span className="text-titre-sm text-nile-800">Coût total</span>
         <Prix montant={total + FRAIS_LIVRAISON_FCFA} className="text-titre-sm font-bold text-nile-800" />
       </div>
+
+      <p className="mb-2 text-xs text-slate-500">Les frais de livraison ne sont pas inclus dans le paiement Mobile Money : ils sont remis en espèces au livreur.</p>
 
       <p className="text-etiquette-xs uppercase tracking-wider text-slate-500">
         Modes de paiement acceptés

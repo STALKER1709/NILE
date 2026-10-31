@@ -331,7 +331,7 @@ export default async function FicheProduitPage({
                 <path d="M4 6h16M4 12h16M4 18h10" strokeLinecap="round" />
               </FicheInfo>
             )}
-            <FicheInfo libelle="Livraison" valeur="1 500 FCFA, partout">
+            <FicheInfo libelle="Livraison" valeur="1 500 FCFA au livreur">
               <path d="M3 7h11v8H3z M14 10h4l3 3v2h-7" strokeLinejoin="round" />
               <circle cx="7" cy="17" r="1.5" />
               <circle cx="17" cy="17" r="1.5" />

@@ -364,17 +364,20 @@ async function creerCommandeTransaction(
     // Le total payé est net de remise ; les `sousTotal` des lignes restent au
     // prix plein. C'est ce qui fait porter la remise à NILE et non au vendeur :
     // reversement et commission se calculent sur les lignes.
-    // La commission de paiement HR-Skills (2 %) est refacturée à l'acheteur
-    // uniquement lorsque Mobile Money passe par HR-Skills. Elle est calculée
-    // sur le montant articles + livraison avant remise promo, affiché au checkout.
+    // La livraison est réglée en espèces directement au livreur, à la réception.
+    // Elle reste dans le coût global de la commande, mais ne transite jamais
+    // par Mobile Money. Les frais HR-Skills portent donc uniquement sur les
+    // articles, avant remise promotionnelle.
     const fraisPaiement =
       mode === "MONETBIL" && env.PAYMENT_PROVIDER === "hrskills"
-        ? calculerFraisHrSkills(total + FRAIS_LIVRAISON_FCFA)
+        ? calculerFraisHrSkills(total)
         : 0;
     const fraisLivraison = FRAIS_LIVRAISON_FCFA;
     const totalPaye = total - remise + fraisLivraison + fraisPaiement;
+    const montantPaiementEnLigne = total - remise + fraisPaiement;
 
-    const statutCash = mode === "COD" ? "NON_COLLECTE" : "NON_APPLICABLE";
+    // Le livreur collecte toujours les frais de livraison en espèces.
+    const statutCash = "NON_COLLECTE";
     const commande = await tx.commande.create({
       data: {
         numero,
@@ -413,9 +416,14 @@ async function creerCommandeTransaction(
     }
 
     const paiement = await tx.paiement.create({
-      // Le montant du paiement est ce que l'acheteur règle réellement,
-      // livraison et frais HR-Skills inclus, remise déduite.
-      data: { commandeId: commande.id, mode, montant: totalPaye, statut: "EN_ATTENTE" },
+      // Mobile Money ne prélève que les articles et les frais HR-Skills.
+      // En COD, le livreur collecte aussi les articles en espèces.
+      data: {
+        commandeId: commande.id,
+        mode,
+        montant: mode === "COD" ? totalPaye : montantPaiementEnLigne,
+        statut: "EN_ATTENTE",
+      },
     });
 
     await tx.lignePanier.deleteMany({ where: { panierId: panier.id } });
@@ -423,7 +431,8 @@ async function creerCommandeTransaction(
       commandeId: commande.id,
       numero: commande.numero,
       paiementId: paiement.id,
-      total: totalPaye,
+      // Le fournisseur Mobile Money ne débite jamais les frais de livraison.
+      total: mode === "COD" ? totalPaye : montantPaiementEnLigne,
     };
   });
 }
@@ -617,7 +626,7 @@ export async function reprendrePaiement(
   try {
     const demarrage = await getPaymentProvider().initier({
       reference: paiement.id,
-      montant: commande.total,
+      montant: paiement.montant,
       telephone: options.telephone,
       email: options.email,
       nomComplet: options.nom,

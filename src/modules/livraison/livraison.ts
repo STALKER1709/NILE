@@ -129,8 +129,8 @@ async function appliquerLivraison(
   // client règle en espèces au livreur, en main propre. Marquer la commande
   // payée dans le même geste évite qu'elle reste indéfiniment « en attente de
   // paiement » aux yeux de l'acheteur, et que le chiffre d'affaires ignore
-  // ces ventes. Le cash est consigné comme collecté PAR LA BOUTIQUE : il ne
-  // remonte pas à NILE, il n'y a donc rien à réconcilier ensuite.
+  // ces ventes. Le montant encaissé par le livreur est tracé séparément :
+  // articles + livraison en COD, livraison seule si Mobile Money.
   const estCOD = commande.modePaiement === "COD";
 
   // Filtré sur EXPEDIEE : deux scans concurrents ne peuvent pas appliquer la
@@ -157,9 +157,11 @@ async function appliquerLivraison(
         confirmationAcheteur: confirmation.mode === "ADMIN" ? null : maintenant,
         modeConfirmation: confirmation.mode,
         forcageMotif: confirmation.motif ?? null,
-        ...(estCOD
-          ? { statutCash: "COLLECTE" as const, montantCashCollecte: commande.total }
-          : {}),
+        // Le livreur encaisse toujours les frais de livraison en espèces.
+        // En COD, il collecte aussi le prix des articles ; en Mobile Money,
+        // seuls les frais de livraison restent à encaisser sur place.
+        statutCash: "COLLECTE" as const,
+        montantCashCollecte: estCOD ? commande.total : commande.fraisLivraison,
       },
     });
     return true;
