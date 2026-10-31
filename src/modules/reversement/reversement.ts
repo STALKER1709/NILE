@@ -241,7 +241,7 @@ async function creerLigneReversement(
           _sum: { montant: true },
         }),
         tx.reversement.aggregate({
-          where: { vendeurId, statut: "DEMANDE" },
+          where: { vendeurId, statut: { in: ["DEMANDE", "EN_COURS"] } },
           _sum: { montant: true },
         }),
       ]);
