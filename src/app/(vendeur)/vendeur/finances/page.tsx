@@ -186,13 +186,15 @@ export default async function FinancesVendeurPage({
           </>
         ) : solde.solde < 10000 ? (
           <p className="mt-2 text-corps-sm text-slate-600">
-            {solde.enAttente > 0 ? (
+            {solde.solde === 0 && solde.enAttente > 0 ? (
               <>
-                Votre dû est déjà entièrement demandé (
-                <Prix montant={solde.enAttente} /> en attente).
+                Votre solde disponible est entièrement réservé : <Prix montant={solde.enAttente} /> en attente de traitement.
               </>
             ) : (
-              "Le seuil minimum est de 10 000 FCFA. Votre solde doit atteindre ce montant et provenir de commandes livrées et payées."
+              <>
+                Le seuil minimum est de 10 000 FCFA. Votre solde disponible est de <Prix montant={solde.solde} /> ; il doit atteindre ce seuil et provenir de commandes livrées et payées.
+                {solde.enAttente > 0 && <> <Prix montant={solde.enAttente} /> reste déjà réservé dans une demande en attente.</>}
+              </>
             )}
           </p>
         ) : (
