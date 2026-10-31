@@ -50,6 +50,7 @@ export function SelecteurCategorieCascade({
   const niveaux = [{ parentId: null as string | null, titre: "Grande famille" }];
   for (let i = 0; i < chemin.length; i += 1) {
     const parentId = chemin[i];
+    if (!parentId) continue;
     if ((enfantsParParent.get(parentId) ?? []).length > 0) {
       niveaux.push({ parentId, titre: i === 0 ? "Sous-catégorie" : "Préciser la catégorie" });
     }
