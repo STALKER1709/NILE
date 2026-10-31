@@ -168,7 +168,7 @@ export type ResultatReversement =
   | { ok: true }
   | {
       ok: false;
-      code: "INTROUVABLE" | "MONTANT_INVALIDE" | "SOLDE_INSUFFISANT";
+      code: "INTROUVABLE" | "VENDEUR_NON_VALIDE" | "MONTANT_INVALIDE" | "MONTANT_MINIMUM" | "SOLDE_INSUFFISANT";
     };
 
 /**
@@ -183,10 +183,11 @@ export async function enregistrerReversement(
 ): Promise<ResultatReversement> {
   const vendeur = await prisma.vendeur.findUnique({
     where: { id: vendeurId },
-    select: { estBoutiqueMaison: true },
+    select: { estBoutiqueMaison: true, statutValidation: true, kyc: { select: { statut: true } } },
   });
-  if (!vendeur || vendeur.estBoutiqueMaison) {
-    return { ok: false, code: "INTROUVABLE" };
+  if (!vendeur || vendeur.estBoutiqueMaison) return { ok: false, code: "INTROUVABLE" };
+  if (vendeur.statutValidation !== "VALIDE" || vendeur.kyc?.statut !== "VALIDE") {
+    return { ok: false, code: "VENDEUR_NON_VALIDE" };
   }
   const taux = await getTauxCommissionPourcent();
 
@@ -203,10 +204,11 @@ export async function demanderReversement(
 ): Promise<ResultatReversement> {
   const vendeur = await prisma.vendeur.findUnique({
     where: { id: vendeurId },
-    select: { estBoutiqueMaison: true },
+    select: { estBoutiqueMaison: true, statutValidation: true, kyc: { select: { statut: true } } },
   });
-  if (!vendeur || vendeur.estBoutiqueMaison) {
-    return { ok: false, code: "INTROUVABLE" };
+  if (!vendeur || vendeur.estBoutiqueMaison) return { ok: false, code: "INTROUVABLE" };
+  if (vendeur.statutValidation !== "VALIDE" || vendeur.kyc?.statut !== "VALIDE") {
+    return { ok: false, code: "VENDEUR_NON_VALIDE" };
   }
   const taux = await getTauxCommissionPourcent();
   return creerLigneReversement(vendeurId, montant, "DEMANDE", taux);
@@ -280,6 +282,9 @@ async function creerLigneReversement(
       if (erreur.message === "MONTANT_INVALIDE") {
         return { ok: false, code: "MONTANT_INVALIDE" };
       }
+      if (erreur.message === "MONTANT_MINIMUM") {
+        return { ok: false, code: "MONTANT_MINIMUM" };
+      }
       if (erreur.message === "SOLDE_INSUFFISANT") {
         return { ok: false, code: "SOLDE_INSUFFISANT" };
       }
@@ -318,33 +323,41 @@ export async function listerDemandesDuVendeur(vendeurId: string) {
 
 export type ResultatTraitement =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" };
+  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" | "VENDEUR_NON_VALIDE" };
 
 /**
- * Marque une demande comme payée, ou la refuse. Le passage n'est autorisé que
- * depuis DEMANDE : un `updateMany` filtré sur ce statut rend l'opération
- * idempotente et empêche deux admins de traiter deux fois la même demande.
+ * Confirme le règlement manuel d'une demande ou la rejette.
+ * Un paiement ne peut être confirmé que si le vendeur et son KYC sont toujours validés.
+ * Aucun transfert Mobile Money n'est déclenché par cette fonction.
  */
 export async function traiterDemandeReversement(
   reversementId: string,
   decision: "PAYE" | "REJETE",
   commentaire?: string,
 ): Promise<ResultatTraitement> {
-  const { count } = await prisma.reversement.updateMany({
-    where: { id: reversementId, statut: "DEMANDE" },
-    data: {
-      statut: decision,
-      dateTraitement: new Date(),
-      ...(commentaire ? { commentaire } : {}),
-    },
-  });
-  if (count > 0) return { ok: true };
+  return prisma.$transaction(async (tx) => {
+    const demande = await tx.reversement.findUnique({
+      where: { id: reversementId },
+      include: { vendeur: { select: { statutValidation: true, kyc: { select: { statut: true } } } } },
+    });
+    if (!demande) return { ok: false, code: "INTROUVABLE" };
+    if (demande.statut !== "DEMANDE") return { ok: false, code: "DEJA_TRAITE" };
 
-  const existe = await prisma.reversement.findUnique({
-    where: { id: reversementId },
-    select: { id: true },
+    if (decision === "PAYE" &&
+      (demande.vendeur.statutValidation !== "VALIDE" || demande.vendeur.kyc?.statut !== "VALIDE")) {
+      return { ok: false, code: "VENDEUR_NON_VALIDE" };
+    }
+
+    const { count } = await tx.reversement.updateMany({
+      where: { id: reversementId, statut: "DEMANDE" },
+      data: {
+        statut: decision,
+        dateTraitement: new Date(),
+        ...(commentaire ? { commentaire } : {}),
+      },
+    });
+    return count > 0 ? { ok: true } : { ok: false, code: "DEJA_TRAITE" };
   });
-  return { ok: false, code: existe ? "DEJA_TRAITE" : "INTROUVABLE" };
 }
 
 /**
