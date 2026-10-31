@@ -53,6 +53,8 @@ function messageCommande(res: Extract<ResultatCommande, { ok: false }>): string 
       return "Trop de commandes non abouties sur votre compte. Contactez le support.";
     case "STOCK_INSUFFISANT":
       return `Stock insuffisant pour « ${res.detail ?? "un produit"} ». Ajustez votre panier.`;
+    case "ACCES_18_REQUIS":
+      return "Votre panier contient un article réservé aux adultes. Confirmez votre majorité avant de poursuivre.";
     case "INDISPONIBLE":
       return `Le produit « ${res.detail ?? ""} » n'est plus disponible.`;
     case "PAIEMENT_INDISPONIBLE":
