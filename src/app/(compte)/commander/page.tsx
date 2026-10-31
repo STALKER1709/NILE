@@ -337,7 +337,7 @@ export default async function CommanderPage({
               {sansRedirection ? (
                 <>
                   <div className="flex flex-wrap items-baseline justify-between gap-2 border-t border-slate-200 pt-2 text-corps-sm">
-                    <span className="text-slate-700">Total si paiement à la livraison</span>
+                    <span className="text-slate-700">À remettre au livreur (articles + livraison)</span>
                     <Prix montant={totalAvecLivraison} className="font-semibold text-slate-900" />
                   </div>
                   <div className="flex flex-wrap items-baseline justify-between gap-2 text-titre-sm text-slate-900">
