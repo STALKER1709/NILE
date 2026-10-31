@@ -178,8 +178,8 @@ export function navigationCategories(
   }
 
   const libellesPublics: Record<string, string> = {
-    "bien-etre-intime": "Bien-être personnel",
-    "accessoires-intimes-sextoys": "Accessoires personnels",
+    "bien-etre-intime": "Bien-être intime",
+    "accessoires-intimes-sextoys": "Accessoires intimes",
   };
   const entree = (
     c: Pick<Categorie, "id" | "nom" | "slug">,
