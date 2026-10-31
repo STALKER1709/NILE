@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import type { Categorie } from "@prisma/client";
 import { prisma } from "@/lib/db";
 import { slugifier } from "@/modules/catalogue/slug";
+import { aConfirmeMajorite, idsCategoriesReservees18 } from "@/modules/catalogue/acces-18";
 
 export type CategorieAvecEnfants = Categorie & {
   enfants: CategorieAvecEnfants[];
@@ -88,9 +89,11 @@ export async function imagesParRayon(
   racineIds: string[],
   toutes: Pick<Categorie, "id" | "parentId">[],
 ): Promise<Record<string, string>> {
+  const ids18 = (await aConfirmeMajorite()) ? [] : await idsCategoriesReservees18();
   const resultats = await Promise.all(
     racineIds.map(async (racineId) => {
-      const ids = collecterIdsCategorieEtDescendants(racineId, toutes);
+      const ids = collecterIdsCategorieEtDescendants(racineId, toutes).filter((id) => !ids18.includes(id));
+      if (ids.length === 0) return [racineId, undefined] as const;
       const produit = await prisma.produit.findFirst({
         where: { statut: "ACTIF", categorieId: { in: ids }, images: { some: {} } },
         orderBy: { dateCreation: "desc" },
