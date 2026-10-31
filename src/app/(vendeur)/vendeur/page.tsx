@@ -46,15 +46,24 @@ export default async function VendeurPage() {
             <span className="font-semibold text-slate-700">{vendeur.nomBoutique}</span>.
           </p>
         </div>
-        <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : "ambre"}>
-          {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : "En attente de validation"}
+        <Badge ton={vendeur.statutValidation === "VALIDE" ? "vert" : vendeur.statutValidation === "REJETE" ? "rouge" : vendeur.statutValidation === "SUSPENDU" ? "neutre" : "ambre"}>
+          {vendeur.statutValidation === "VALIDE" ? "Boutique validée" : vendeur.statutValidation === "REJETE" ? "Validation refusée" : vendeur.statutValidation === "SUSPENDU" ? "Boutique suspendue" : "En attente de validation"}
         </Badge>
       </div>
 
       {vendeur.statutValidation === "EN_ATTENTE" && (
         <p className="rounded border border-amber-200 bg-accent-fixe px-3 py-2 text-sm text-amber-800">
-          Votre boutique est en attente de validation. Vous pouvez préparer vos
-          produits ; la publication sera possible une fois validée.
+          Votre dossier de validation boutique est en attente. Vous pouvez préparer vos produits ; leur publication sera possible une fois la boutique validée.
+        </p>
+      )}
+      {vendeur.statutValidation === "REJETE" && (
+        <p className="rounded border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+          La validation de votre boutique a été refusée. Contactez l’équipe NILE pour connaître les éléments à corriger avant une nouvelle vérification.
+        </p>
+      )}
+      {vendeur.statutValidation === "SUSPENDU" && (
+        <p className="rounded border border-slate-200 bg-slate-50 px-3 py-2 text-sm text-slate-700">
+          Votre boutique est actuellement suspendue. Contactez l’équipe NILE pour connaître la situation et les démarches de réactivation.
         </p>
       )}
 
