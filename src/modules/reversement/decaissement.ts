@@ -48,8 +48,14 @@ export async function executerDemandeReversement(
     return { ok: false, code: "VENDEUR_NON_VALIDE", message: "La boutique et le KYC doivent être validés." };
   }
 
+  if (demande.operateur && demande.operateur !== operateur) {
+    return { ok: false, code: "OPERATEUR_INVALIDE", message: "L'opérateur de cette demande est déjà verrouillé." };
+  }
   const infos = lireInfosPaiement(demande.vendeur.infosPaiement);
-  const telephone = operateur === "MTN" ? infos.momoMtn : infos.momoOrange;
+  const telephoneChoisi = operateur === "MTN" ? infos.momoMtn : infos.momoOrange;
+  // Une demande EN_COURS garde le bénéficiaire initial même si le vendeur
+  // modifie ensuite ses coordonnées de paiement.
+  const telephone = demande.telephoneDestination ?? telephoneChoisi;
   if (!telephone || !normaliserNumeroHrSkills(telephone)) {
     return { ok: false, code: "NUMERO_ABSENT", message: `Aucun numéro ${operateur} valide n'est enregistré pour cette boutique.` };
   }
@@ -103,7 +109,7 @@ export async function executerDemandeReversement(
     let frais = demande.frais;
 
     if (referenceFournisseur) {
-      const lecture = await provider.lireStatut(referenceFournisseur);
+      const lecture = await provider.lireStatutDecaissement(referenceFournisseur);
       if (!lecture.ok) {
         return { ok: true, statut: "EN_COURS", referenceFournisseur, frais };
       }
