@@ -37,6 +37,10 @@ export default async function ReversementsPage({
       </div>
 
       <p className="text-sm text-slate-500">
+        Traitement hebdomadaire manuel : effectuez le transfert Mobile Money hors de NILE, puis confirmez son exécution ici. Cette action ne déclenche aucun paiement réel. Seuil minimum : 10 000 FCFA.
+      </p>
+
+      <p className="text-sm text-slate-500">
         Une vente devient due au vendeur quand la commande est <strong>livrée et payée</strong>.
         {taux !== undefined && <> Commission NILE : <strong>{taux} %</strong> (clé <code>commission_pourcent</code> en configuration).</>}{" "}
         La boutique maison n&apos;apparaît pas ici (son chiffre revient à la plateforme).
@@ -204,7 +208,7 @@ export default async function ReversementsPage({
                       id={`montant-${v.vendeurId}`}
                       name="montant"
                       type="number"
-                      min={1}
+                      min={10000}
                       max={v.solde}
                       defaultValue={v.solde}
                       required
