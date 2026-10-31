@@ -29,3 +29,6 @@ npm-debug.log*
 /.vitest
 .vercel
 .env*
+
+# Documents KYC locaux (jamais versionnés)
+.private/
