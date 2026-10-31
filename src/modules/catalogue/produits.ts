@@ -463,8 +463,8 @@ export async function rechercherProduitsCatalogue(options: OptionsCatalogue) {
     ...p,
     categorie: {
       ...p.categorie,
-      nom: p.categorie.slug === "bien-etre-intime" ? "Bien-être personnel"
-        : p.categorie.slug === "accessoires-intimes-sextoys" ? "Accessoires personnels"
+      nom: p.categorie.slug === "bien-etre-intime" ? "Bien-être intime"
+        : p.categorie.slug === "accessoires-intimes-sextoys" ? "Accessoires intimes"
         : p.categorie.nom,
     },
   }));
