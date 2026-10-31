@@ -122,7 +122,8 @@ function cheminKycPrive(chemin: string): string {
 export async function lireFichierKycLocal(chemin: string): Promise<{ contenu: Buffer; typeMime: string }> {
   const abs = cheminKycPrive(chemin);
   const contenu = await readFile(abs);
-  const typeMime = typeMimeDepuisExtension(path.extname(chemin).slice(1).toLowerCase());
+  const extension = path.extname(chemin).slice(1).toLowerCase();
+  const typeMime = extension === "pdf" ? "application/pdf" : typeMimeDepuisExtension(extension);
   if (!typeMime || !["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(typeMime)) {
     throw new ErreurStockage("TYPE_INVALIDE");
   }
@@ -132,7 +133,10 @@ export async function lireFichierKycLocal(chemin: string): Promise<{ contenu: Bu
 export class LocalStorageProvider implements StorageProvider {
   async enregistrerKyc(fichier: FichierAEnregistrer): Promise<FichierEnregistre> {
     await mkdir(DOSSIER_KYC_PRIVE, { recursive: true });
-    const nom = `${randomUUID()}.${extensionDepuisMime(fichier.typeMime)}`;
+    if (!["image/jpeg", "image/png", "image/webp", "application/pdf"].includes(fichier.typeMime)) throw new ErreurStockage("TYPE_INVALIDE");
+    if (fichier.contenu.length > (fichier.typeMime === "application/pdf" ? 5 * 1024 * 1024 : 2 * 1024 * 1024)) throw new ErreurStockage("TROP_LOURDE");
+    const extension = fichier.typeMime === "application/pdf" ? "pdf" : extensionDepuisMime(fichier.typeMime);
+    const nom = `${randomUUID()}.${extension}`;
     await writeFile(cheminKycPrive(nom), fichier.contenu, { flag: "wx", mode: 0o600 });
     return { url: `kyc://${nom}`, chemin: nom };
   }
