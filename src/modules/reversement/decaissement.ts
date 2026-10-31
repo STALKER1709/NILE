@@ -158,9 +158,29 @@ export async function executerDemandeReversement(
     }
     return { ok: true, statut: "EN_COURS", referenceFournisseur: referenceFournisseur ?? undefined, frais };
   } catch (erreur) {
+    const diagnostic = erreur instanceof Error ? erreur.message : "";
+    const refusDefinitif = diagnostic.match(/HTTP (400|401|403|422)\\b/);
+    console.error("[reversement] HR-Skills payout à réconcilier:", erreur);
+    if (refusDefinitif) {
+      // Ces réponses 4xx signifient que l'ordre a été refusé avant exécution.
+      // On libère la réservation : le vendeur pourra corriger ses coordonnées
+      // ou retenter après résolution du problème de compte/wallet.
+      await prisma.reversement.updateMany({
+        where: { id: demande.id, statut: "EN_COURS", referenceFournisseur: null },
+        data: {
+          statut: "REJETE",
+          dateTraitement: new Date(),
+          commentaire: `Requête HR-Skills refusée (HTTP ${refusDefinitif[1]}).`,
+        },
+      });
+      return {
+        ok: false,
+        code: "ERREUR_FOURNISSEUR",
+        message: `HR-Skills Pay a refusé la demande (HTTP ${refusDefinitif[1]}). La réservation est libérée ; corrige le problème avant une nouvelle demande.`,
+      };
+    }
     // Timeout/5xx : résultat potentiellement ambigu. Surtout ne pas libérer la
     // réservation ; la prochaine tentative réutilise la même Idempotency-Key.
-    console.error("[reversement] HR-Skills payout à réconcilier:", erreur);
     return {
       ok: false,
       code: "ERREUR_FOURNISSEUR",
