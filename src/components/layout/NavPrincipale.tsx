@@ -23,6 +23,7 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
     (actif ? "border-amber-400 text-blue-900" : "border-transparent text-slate-600 hover:border-stone-300 hover:text-blue-900");
   const surCatalogue = chemin.startsWith("/catalogue");
   const surBoutiques = chemin.startsWith("/boutique") || chemin === "/boutiques";
+  const surReels = chemin.startsWith("/reels");
   return <div className="bg-white">
     <div ref={conteneur} className="relative mx-auto max-w-[1284px] px-[14px] sm:px-[22px]">
       <nav aria-label="Navigation principale" className="no-scrollbar flex h-12 items-center gap-3 overflow-x-auto sm:gap-5">
@@ -35,6 +36,10 @@ export function NavPrincipale({ categories }: { categories: LienCategorie[] }) {
         <Link href="/" aria-current={chemin === "/" ? "page" : undefined} className={classeLien(chemin === "/")}>Accueil</Link>
         <Link href="/catalogue" aria-current={surCatalogue ? "page" : undefined} className={classeLien(surCatalogue)}>Catalogue</Link>
         <Link href="/boutiques" aria-current={surBoutiques ? "page" : undefined} className={classeLien(surBoutiques)}>Boutiques</Link>
+        <Link href="/reels" aria-current={surReels ? "page" : undefined} className={classeLien(surReels)}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" /><path d="m10 9 5 3-5 3zM7 4l3 4m4-4 3 4" /></svg>
+          Réels
+        </Link>
         <Link href="/promotions" aria-current={chemin === "/promotions" ? "page" : undefined} className={classeLien(chemin === "/promotions")}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" className="text-amber-500" aria-hidden="true"><path d="M4 4h7l9 9-7 7-9-9z" /><circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" stroke="none" /></svg>
           Promotions
