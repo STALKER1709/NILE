@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { getUtilisateurCourant } from "@/modules/auth/access";
+import { aConfirmeMajorite, varianteEstReservee18 } from "@/modules/catalogue/acces-18";
 import { ajoutPanierSchema } from "@/validators/commande";
 import {
   ajouterVarianteAuPanier,
@@ -20,6 +21,8 @@ import {
 
 function messagePanier(code: string): string {
   switch (code) {
+    case "ACCES_18_REQUIS":
+      return "Cette rubrique est réservée aux adultes. Confirmez votre majorité pour ajouter cet article.";
     case "INDISPONIBLE":
       return "Ce produit n'est plus disponible.";
     case "STOCK_INSUFFISANT":
@@ -49,6 +52,10 @@ export async function incrementerPanierAction(
 ): Promise<EtatBoutonPanier> {
   const parsed = ajoutPanierSchema.safeParse({ varianteId, quantite: 1 });
   if (!parsed.success) return { ok: false, message: "Article invalide." };
+
+  if (!(await aConfirmeMajorite()) && await varianteEstReservee18(parsed.data.varianteId)) {
+    return { ok: false, message: messagePanier("ACCES_18_REQUIS") };
+  }
 
   const utilisateur = await getUtilisateurCourant();
   if (!utilisateur) {
