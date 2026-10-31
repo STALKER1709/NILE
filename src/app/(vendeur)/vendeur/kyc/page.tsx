@@ -48,8 +48,7 @@ export default async function VendeurKycPage({
 
       {ok && (
         <div className="rounded border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
-          Votre dossier KYC a été soumis avec succès. Notre équipe va examiner vos
-          pièces dans les plus brefs délais.
+          Votre dossier KYC a été soumis avec succès. Notre équipe vise un traitement sous 48 heures ouvrées.
         </div>
       )}
 
@@ -114,7 +113,7 @@ export default async function VendeurKycPage({
             Dossier en cours d'examen
           </h2>
           <p className="mt-1 text-sm text-slate-600">
-            Nos équipes vérifient l'authenticité de vos pièces d'identité et de votre selfie. Vous serez notifié dès que la validation sera effectuée.
+            Nos équipes vérifient l'authenticité de vos pièces d'identité et de votre selfie. Le délai cible est de 48 heures ouvrées à compter de la soumission. Vous serez notifié dès que la validation sera effectuée.
           </p>
         </Carte>
       )}
@@ -153,12 +152,11 @@ export default async function VendeurKycPage({
                     id="typePiece"
                     name="typePiece"
                     required
-                    defaultValue={kyc?.typePiece ?? "CNI"}
+                    defaultValue={kyc?.typePiece === "PASSEPORT" ? "PASSEPORT" : "CNI"}
                     className={champClass}
                   >
                     <option value="CNI">Carte Nationale d'Identité (CNI)</option>
                     <option value="PASSEPORT">Passeport</option>
-                    <option value="RECEPISSE">Récépissé de CNI valide</option>
                   </select>
                 </div>
 
@@ -300,7 +298,7 @@ export default async function VendeurKycPage({
 
                 <div>
                   <label htmlFor="pieceVerso" className={labelClass}>
-                    Photo Verso de la pièce d'identité <span className="text-slate-400">(Requis pour CNI et Récépissé)</span>
+                    Photo Verso de la pièce d'identité <span className="text-slate-400">(Requis pour une CNI)</span>
                   </label>
                   <input
                     id="pieceVerso"
