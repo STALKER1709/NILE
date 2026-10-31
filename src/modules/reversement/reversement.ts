@@ -181,29 +181,6 @@ export type ResultatReversement =
     };
 
 /**
- * Enregistre un reversement DÉJÀ PAYÉ au vendeur (transfert MoMo/OM manuel
- * effectué par l'admin). Le solde est revérifié sous verrou (voir
- * creerLigneReversement).
- */
-export async function enregistrerReversement(
-  vendeurId: string,
-  montant: number,
-  commentaire?: string,
-): Promise<ResultatReversement> {
-  const vendeur = await prisma.vendeur.findUnique({
-    where: { id: vendeurId },
-    select: { estBoutiqueMaison: true, statutValidation: true, kyc: { select: { statut: true } } },
-  });
-  if (!vendeur || vendeur.estBoutiqueMaison) return { ok: false, code: "INTROUVABLE" };
-  if (vendeur.statutValidation !== "VALIDE" || vendeur.kyc?.statut !== "VALIDE") {
-    return { ok: false, code: "VENDEUR_NON_VALIDE" };
-  }
-  const taux = await getTauxCommissionPourcent();
-
-  return creerLigneReversement(vendeurId, montant, "PAYE", taux, commentaire);
-}
-
-/**
  * Demande de versement émise par le VENDEUR lui-même. Crée une ligne DEMANDE :
  * le montant est réservé sur son solde mais n'est pas encore payé.
  */
@@ -220,7 +197,7 @@ export async function demanderReversement(
     return { ok: false, code: "VENDEUR_NON_VALIDE" };
   }
   const taux = await getTauxCommissionPourcent();
-  return creerLigneReversement(vendeurId, montant, "DEMANDE", taux);
+  return creerLigneReversement(vendeurId, montant, taux);
 }
 
 /**
@@ -231,7 +208,6 @@ export async function demanderReversement(
 async function creerLigneReversement(
   vendeurId: string,
   montant: number,
-  statut: "PAYE" | "DEMANDE",
   taux: number,
   commentaire?: string,
 ): Promise<ResultatReversement> {
@@ -285,10 +261,9 @@ async function creerLigneReversement(
         data: {
           vendeurId,
           montant,
-          statut,
+          statut: "DEMANDE",
           commentaire: commentaire || null,
-          // Un paiement direct est traité d'emblée ; une demande attend l'admin.
-          dateTraitement: statut === "PAYE" ? new Date() : null,
+          dateTraitement: null,
         },
       });
     });
@@ -344,16 +319,15 @@ export async function listerDemandesDuVendeur(vendeurId: string) {
 
 export type ResultatTraitement =
   | { ok: true }
-  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" | "VENDEUR_NON_VALIDE" | "MONTANT_MINIMUM" };
+  | { ok: false; code: "INTROUVABLE" | "DEJA_TRAITE" };
 
 /**
- * Confirme le règlement manuel d'une demande ou la rejette.
- * Un paiement ne peut être confirmé que si le vendeur et son KYC sont toujours validés.
- * Aucun transfert Mobile Money n'est déclenché par cette fonction.
+ * Refuse une demande vendeur avant tout ordre de décaissement.
+ * Le seul chemin qui marque PAYE est la confirmation du fournisseur HR-Skills.
  */
 export async function traiterDemandeReversement(
   reversementId: string,
-  decision: "PAYE" | "REJETE",
+  decision: "REJETE",
   commentaire?: string,
 ): Promise<ResultatTraitement> {
   return prisma.$transaction(async (tx) => {
@@ -364,18 +338,10 @@ export async function traiterDemandeReversement(
     if (!demande) return { ok: false, code: "INTROUVABLE" };
     if (demande.statut !== "DEMANDE") return { ok: false, code: "DEJA_TRAITE" };
 
-    if (decision === "PAYE" && demande.montant < SEUIL_MINIMUM_REVERSEMENT) {
-      return { ok: false, code: "MONTANT_MINIMUM" };
-    }
-    if (decision === "PAYE" &&
-      (demande.vendeur.statutValidation !== "VALIDE" || demande.vendeur.kyc?.statut !== "VALIDE")) {
-      return { ok: false, code: "VENDEUR_NON_VALIDE" };
-    }
-
     const { count } = await tx.reversement.updateMany({
       where: { id: reversementId, statut: "DEMANDE" },
       data: {
-        statut: decision,
+        statut: "REJETE",
         dateTraitement: new Date(),
         ...(commentaire ? { commentaire } : {}),
       },
