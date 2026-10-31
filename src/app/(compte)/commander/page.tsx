@@ -71,7 +71,9 @@ export default async function CommanderPage({
   // Le fournisseur actif débite-t-il le téléphone du client sans page de
   // paiement ? Si oui, il faut lui demander son opérateur ici même.
   const sansRedirection = paiementSansRedirection();
-  const fraisHrSkills = sansRedirection ? calculerFraisHrSkills(total) : 0;
+  const fraisHrSkills = sansRedirection
+    ? calculerFraisHrSkills(total + FRAIS_LIVRAISON_FCFA)
+    : 0;
   const totalAvecLivraison = total + FRAIS_LIVRAISON_FCFA;
   const totalMobileMoney = totalAvecLivraison + fraisHrSkills;
   // Unités commandées, pas lignes : 2 exemplaires comptent pour 2 articles.
@@ -328,7 +330,7 @@ export default async function CommanderPage({
               </div>
               {sansRedirection && (
                 <div className="flex flex-wrap items-baseline justify-between gap-2 text-corps-sm">
-                  <span className="text-slate-600">Frais HR-Skills Pay (2 %, Mobile Money)</span>
+                  <span className="text-slate-600">Frais HR-Skills Pay (2 % du montant avant frais)</span>
                   <Prix montant={fraisHrSkills} className="font-semibold text-slate-900" />
                 </div>
               )}
