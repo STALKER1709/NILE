@@ -37,7 +37,20 @@ export default async function ModerationPage({
               <p className="text-xs text-slate-500">{p.vendeur.nomBoutique} · {p.categorie.nom} · <Prix montant={p.prix} /></p>
             </div>
             <Badge ton={p.statut === "ACTIF" ? "vert" : p.statut === "REJETE" ? "rouge" : "neutre"}>{p.statut}</Badge>
-            {p.statut !== "REJETE" ? (
+            {p.statut === "EN_MODERATION" ? (
+              <div className="flex items-center gap-2">
+                <form action={modererProduitAction}>
+                  <input type="hidden" name="produitId" value={p.id} />
+                  <input type="hidden" name="statut" value="ACTIF" />
+                  <button type="submit" className={btn("primaire", "sm")}>Valider</button>
+                </form>
+                <form action={modererProduitAction}>
+                  <input type="hidden" name="produitId" value={p.id} />
+                  <input type="hidden" name="statut" value="REJETE" />
+                  <button type="submit" className={btn("danger", "sm")}>Rejeter</button>
+                </form>
+              </div>
+            ) : p.statut !== "REJETE" ? (
               <form action={modererProduitAction}>
                 <input type="hidden" name="produitId" value={p.id} />
                 <input type="hidden" name="statut" value="REJETE" />
