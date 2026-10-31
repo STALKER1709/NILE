@@ -49,6 +49,9 @@ export default async function CataloguePage({
   const categorieChoisie = sp.categorie
     ? categories.find((c) => c.slug === sp.categorie)
     : undefined;
+  const nomCategoriePublic = categorieChoisie?.slug === "bien-etre-intime" ? "Bien-être intime"
+    : categorieChoisie?.slug === "accessoires-intimes-sextoys" ? "Accessoires intimes"
+    : categorieChoisie?.nom;
   if (categorieChoisie) {
     if (await categorieEstReservee18(categorieChoisie.id)) {
       if (!(await aConfirmeMajorite())) {
@@ -243,7 +246,7 @@ export default async function CataloguePage({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="nile-eyebrow mb-2 text-blue-700">{categorieChoisie ? "Rayon sélectionné" : "Le catalogue NILE"}</p>\n            <h1 className="font-titre text-3xl font-bold tracking-tight text-slate-950 sm:text-4xl">
-              {categorieChoisie ? categorieChoisie.nom : "Tous les produits"}
+              {categorieChoisie ? nomCategoriePublic : "Tous les produits"}
             </h1>
             <p className="mt-1 text-corps-sm text-slate-500">
               {q
