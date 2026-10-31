@@ -2,6 +2,18 @@
  * Logique PURE des commandes (aucune dépendance base/env) — testable directement.
  */
 
+/** Frais fixes de livraison facturés une fois par commande. */
+export const FRAIS_LIVRAISON_FCFA = 1500;
+
+/** Commission de traitement HR-Skills Pay facturée à l'acheteur (%). */
+export const TAUX_FRAIS_HRSKILLS_POURCENT = 2;
+
+/** Frais HR-Skills arrondis au FCFA supérieur, calculés sur les articles. */
+export function calculerFraisHrSkills(sousTotalArticles: number): number {
+  if (!Number.isFinite(sousTotalArticles) || sousTotalArticles <= 0) return 0;
+  return Math.ceil((sousTotalArticles * TAUX_FRAIS_HRSKILLS_POURCENT) / 100);
+}
+
 /** Total d'un ensemble de lignes (prix entier FCFA × quantité). */
 export function calculerTotal(
   lignes: { prix: number; quantite: number }[],
