@@ -157,9 +157,11 @@ async function appliquerLivraison(
         confirmationAcheteur: confirmation.mode === "ADMIN" ? null : maintenant,
         modeConfirmation: confirmation.mode,
         forcageMotif: confirmation.motif ?? null,
-        ...(estCOD
-          ? { statutCash: "COLLECTE" as const, montantCashCollecte: commande.total }
-          : {}),
+        // Le livreur encaisse toujours les frais de livraison en espèces.
+        // En COD, il collecte aussi le prix des articles ; en Mobile Money,
+        // seuls les frais de livraison restent à encaisser sur place.
+        statutCash: "COLLECTE" as const,
+        montantCashCollecte: estCOD ? commande.total : commande.fraisLivraison,
       },
     });
     return true;
