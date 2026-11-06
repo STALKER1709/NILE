@@ -21,7 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${base}/confidentialite`, changeFrequency: "yearly", priority: 0.2 },
   ];
 
-  const [produits, vendeurs] = await Promise.all([
+  const [produits, vendeurs, categories, villes] = await Promise.all([
     prisma.produit.findMany({
       where: { statut: "ACTIF", vendeur: { statutValidation: "VALIDE" } },
       select: { slug: true, dateMaj: true },
@@ -34,10 +34,34 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       orderBy: { dateMaj: "desc" },
       take: 2000,
     }),
+    prisma.categorie.findMany({
+      where: { produits: { some: { statut: "ACTIF", vendeur: { statutValidation: "VALIDE" } } } },
+      select: { slug: true, dateCreation: true },
+      orderBy: { dateCreation: "desc" },
+    }),
+    prisma.vendeur.findMany({
+      where: {
+        statutValidation: "VALIDE",
+        OR: [
+          { localisationPublique: { contains: "Yaoundé", mode: "insensitive" } },
+          { localisationPublique: { contains: "Yaounde", mode: "insensitive" } },
+          { localisationPublique: { contains: "Douala", mode: "insensitive" } },
+        ],
+      },
+      select: { localisationPublique: true },
+    }),
   ]);
 
   return [
     ...statiques,
+    ...categories.map((c) => ({
+      url: `${base}/categorie/${c.slug}`,
+      lastModified: c.dateCreation,
+      changeFrequency: "daily" as const,
+      priority: 0.8,
+    })),
+    ...(villes.some((v) => /yaoundé|yaounde/i.test(v.localisationPublique ?? "")) ? [{ url: `${base}/yaounde`, changeFrequency: "daily" as const, priority: 0.75 }] : []),
+    ...(villes.some((v) => /douala/i.test(v.localisationPublique ?? "")) ? [{ url: `${base}/douala`, changeFrequency: "daily" as const, priority: 0.75 }] : []),
     ...vendeurs.map((v) => ({
       url: `${base}/boutique/${v.id}`,
       lastModified: v.dateMaj,
