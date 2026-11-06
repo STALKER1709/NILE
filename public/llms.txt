@@ -21,15 +21,12 @@
 - [Centre d'aide](https://nile-beige.vercel.app/aide) — informations d'assistance et d'utilisation de la plateforme.
 - [Inscription](https://nile-beige.vercel.app/inscription) — création d'un compte acheteur ou vendeur.
 - [Connexion](https://nile-beige.vercel.app/connexion) — accès aux comptes existants.
+- [Yaoundé](https://nile-beige.vercel.app/yaounde) — découverte de l'offre locale à Yaoundé.
+- [Douala](https://nile-beige.vercel.app/douala) — découverte de l'offre locale à Douala.
 
-## Pages de découverte
+## Pages dynamiques
 
-- [Produits par catégorie](https://nile-beige.vercel.app/categorie/) — pages de catégories accessibles avec leur slug.
-- [Découverte par ville](https://nile-beige.vercel.app/yaounde) — page locale de Yaoundé.
-- [Découverte à Douala](https://nile-beige.vercel.app/douala) — page locale de Douala.
-- [Produits par budget](https://nile-beige.vercel.app/prix/) — pages de sélection par budget.
-- [Fiches produits](https://nile-beige.vercel.app/produit/) — pages détaillées accessibles avec le slug du produit.
-- [Boutiques individuelles](https://nile-beige.vercel.app/boutique/) — pages de boutiques accessibles avec leur identifiant.
+Les pages de catégories, de produits, de boutiques et de sélection par budget sont accessibles depuis le catalogue et les rubriques correspondantes. Leurs adresses dépendent des identifiants ou slugs publiés sur la plateforme.
 
 ## Informations utiles
 
