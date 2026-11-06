@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { listerProduitsEnPromotion } from "@/modules/promotion/promotion";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { favorisParmi } from "@/modules/catalogue/favoris";
@@ -8,7 +9,12 @@ import { bornesAffichage, normaliserPageDemandee } from "@/modules/catalogue/pag
 import { EtatVide } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Promotions" };
+export const metadata: Metadata = {
+  title: "Promotions et bons plans au Cameroun",
+  description: "Profitez des promotions et réductions proposées par les boutiques NILE au Cameroun. Découvrez les offres disponibles et comparez les prix en FCFA.",
+  alternates: { canonical: "/promotions" },
+  openGraph: { title: "Promotions et bons plans au Cameroun — NILE", description: "Découvrez les offres et réductions disponibles sur NILE.", url: "/promotions", type: "website", locale: "fr_CM" },
+};
 const PAR_PAGE = 12;
 
 export default async function PromotionsPage({
@@ -34,7 +40,7 @@ export default async function PromotionsPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Promotions</h1>
+        <h1 className="text-titre-sm text-nile-800 sm:text-titre-md">Promotions et bons plans au Cameroun</h1>
         <p className="mt-1 text-corps-md text-slate-600">
           Les articles actuellement en réduction, tous vendeurs confondus.
         </p>
