@@ -35,8 +35,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
     prisma.vendeur.findMany({
       where: { statutValidation: "VALIDE" },
-      select: { id: true, dateMaj: true },
-      orderBy: { dateMaj: "desc" },
+      select: { id: true, dateCreation: true },
+      orderBy: { dateCreation: "desc" },
       take: 2000,
     }),
     prisma.categorie.findMany({
@@ -69,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...(villes.some((v) => /douala/i.test(v.localisationPublique ?? "")) ? [{ url: `${base}/douala`, changeFrequency: "daily" as const, priority: 0.75 }] : []),
     ...vendeurs.map((v) => ({
       url: `${base}/boutique/${v.id}`,
-      lastModified: v.dateMaj,
+      lastModified: v.dateCreation,
       changeFrequency: "weekly" as const,
       priority: 0.6,
     })),
