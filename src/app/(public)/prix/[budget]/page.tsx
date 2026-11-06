@@ -31,7 +31,7 @@ export default async function BudgetPage({ params }: { params: Promise<{ budget:
   if (!config) notFound();
   const utilisateur = await getUtilisateurCourant();
   const [{ produits, total }, quantites] = await Promise.all([
-    rechercherProduitsCatalogue({ prixMax: String(config.max), tri: "prix_asc", page: 1, parPage: 24 }),
+    rechercherProduitsCatalogue({ prixMax: config.max, tri: "prix_asc", page: 1, parPage: 24 }),
     getQuantitesAffichees(utilisateur?.id ?? null),
   ]);
   const favoris = await favorisParmi(utilisateur?.id ?? null, produits.map((p) => p.id));
