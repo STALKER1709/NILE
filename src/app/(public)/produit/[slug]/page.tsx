@@ -172,7 +172,22 @@ export default async function FicheProduitPage({
     similaires.map((p) => p.id),
   );
 
-  const siteUrl = env.NEXT_PUBLIC_SITE_URL.replace(/\\/$/, "");
+  // Le stock vient des DÉCLINAISONS : `Produit.stock` n'est plus tenu à jour
+  // depuis qu'elles existent, l'afficher annoncerait du stock sur un article
+  // épuisé.
+  const decline = aDesDeclinaisons(produit.variantes);
+  const stock = stockTotal(produit.variantes);
+  // Article non décliné : sa déclinaison par défaut (deux axes vides) est la
+  // seule, et l'ajout au panier se fait sans rien demander à l'acheteur.
+  const varianteParDefaut = decline ? null : trouverVariante(produit.variantes, {});
+  const enRupture = stock === 0;
+  const quantitePanier = varianteParDefaut
+    ? (quantitesVariantes[varianteParDefaut.id] ?? 0)
+    : (quantites[produit.id] ?? 0);
+  const enPromo = affichagePrix.prixPromo != null;
+  const prixEffectif = affichagePrix.prixPromo ?? produit.prix;
+
+  const siteUrl = env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
   const productJsonLd = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -188,13 +203,8 @@ export default async function FicheProduitPage({
       url: `${siteUrl}/produit/${produit.slug}`,
       priceCurrency: "XAF",
       price: String(prixEffectif),
-      availability: enRupture
-        ? "https://schema.org/OutOfStock"
-        : "https://schema.org/InStock",
-      seller: {
-        "@type": "Organization",
-        name: produit.vendeur.nomBoutique,
-      },
+      availability: enRupture ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
+      seller: { "@type": "Organization", name: produit.vendeur.nomBoutique },
     },
     ...(produit.nbAvis > 0
       ? {
@@ -218,31 +228,10 @@ export default async function FicheProduitPage({
     ],
   };
 
-  // Le stock vient des DÉCLINAISONS : `Produit.stock` n'est plus tenu à jour
-  // depuis qu'elles existent, l'afficher annoncerait du stock sur un article
-  // épuisé.
-  const decline = aDesDeclinaisons(produit.variantes);
-  const stock = stockTotal(produit.variantes);
-  // Article non décliné : sa déclinaison par défaut (deux axes vides) est la
-  // seule, et l'ajout au panier se fait sans rien demander à l'acheteur.
-  const varianteParDefaut = decline ? null : trouverVariante(produit.variantes, {});
-  const enRupture = stock === 0;
-  const quantitePanier = varianteParDefaut
-    ? (quantitesVariantes[varianteParDefaut.id] ?? 0)
-    : (quantites[produit.id] ?? 0);
-  const enPromo = affichagePrix.prixPromo != null;
-  const prixEffectif = affichagePrix.prixPromo ?? produit.prix;
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
       <div className="mx-auto w-full max-w-[1360px] space-y-7 px-4 pb-16 sm:px-6 lg:px-8">
       {/* Fil d'Ariane */}
       <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-sm text-slate-500">
