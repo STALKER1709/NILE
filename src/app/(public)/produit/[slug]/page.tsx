@@ -97,8 +97,7 @@ function FicheInfo({
         <span className="block text-xs text-slate-500">{libelle}</span>
         <span className="block truncate text-sm font-bold text-slate-900">{valeur}</span>
       </span>
-      </div>
-    </>
+    </div>
   );
 }
 
@@ -207,13 +206,7 @@ export default async function FicheProduitPage({
       seller: { "@type": "Organization", name: produit.vendeur.nomBoutique },
     },
     ...(produit.nbAvis > 0
-      ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: String(produit.noteMoyenne),
-            reviewCount: String(produit.nbAvis),
-          },
-        }
+      ? { aggregateRating: { "@type": "AggregateRating", ratingValue: String(produit.noteMoyenne), reviewCount: String(produit.nbAvis) } }
       : {}),
   };
 
@@ -570,5 +563,6 @@ export default async function FicheProduitPage({
         />
       )}
     </div>
+    </>
   );
 }
