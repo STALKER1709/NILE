@@ -97,7 +97,8 @@ function FicheInfo({
         <span className="block text-xs text-slate-500">{libelle}</span>
         <span className="block truncate text-sm font-bold text-slate-900">{valeur}</span>
       </span>
-    </div>
+      </div>
+    </>
   );
 }
 
@@ -171,6 +172,52 @@ export default async function FicheProduitPage({
     similaires.map((p) => p.id),
   );
 
+  const siteUrl = env.NEXT_PUBLIC_SITE_URL.replace(/\\/$/, "");
+  const productJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: produit.titre,
+    description: produit.description,
+    image: produit.images.map((img) => img.url),
+    sku: produit.id,
+    category: produit.categorie.nom,
+    ...(produit.marque ? { brand: { "@type": "Brand", name: produit.marque } } : {}),
+    url: `${siteUrl}/produit/${produit.slug}`,
+    offers: {
+      "@type": "Offer",
+      url: `${siteUrl}/produit/${produit.slug}`,
+      priceCurrency: "XAF",
+      price: String(prixEffectif),
+      availability: enRupture
+        ? "https://schema.org/OutOfStock"
+        : "https://schema.org/InStock",
+      seller: {
+        "@type": "Organization",
+        name: produit.vendeur.nomBoutique,
+      },
+    },
+    ...(produit.nbAvis > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: String(produit.noteMoyenne),
+            reviewCount: String(produit.nbAvis),
+          },
+        }
+      : {}),
+  };
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Accueil", item: siteUrl },
+      { "@type": "ListItem", position: 2, name: "Catalogue", item: `${siteUrl}/catalogue` },
+      { "@type": "ListItem", position: 3, name: produit.categorie.nom },
+      { "@type": "ListItem", position: 4, name: produit.titre, item: `${siteUrl}/produit/${produit.slug}` },
+    ],
+  };
+
   // Le stock vient des DÉCLINAISONS : `Produit.stock` n'est plus tenu à jour
   // depuis qu'elles existent, l'afficher annoncerait du stock sur un article
   // épuisé.
@@ -187,7 +234,16 @@ export default async function FicheProduitPage({
   const prixEffectif = affichagePrix.prixPromo ?? produit.prix;
 
   return (
-    <div className="mx-auto w-full max-w-[1360px] space-y-7 px-4 pb-16 sm:px-6 lg:px-8">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
+      <div className="mx-auto w-full max-w-[1360px] space-y-7 px-4 pb-16 sm:px-6 lg:px-8">
       {/* Fil d'Ariane */}
       <nav aria-label="Fil d'Ariane" className="flex items-center gap-1.5 text-sm text-slate-500">
         <Link href="/" className="transition-colors hover:text-nile-700">Accueil</Link>
