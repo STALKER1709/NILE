@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { prisma } from "@/lib/db";
 import { getUtilisateurCourant } from "@/modules/auth/access";
 import { getQuantitesAffichees } from "@/modules/commande/panier-invite";
@@ -28,7 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ ville: st
 export default async function VillePage({ params }: { params: Promise<{ ville: string }> }) {
   const { ville } = await params;
   const config = villes[ville];
-  if (!config) return null;
+  if (!config) notFound();
 
   const ids18 = (await aConfirmeMajorite()) ? [] : await idsCategoriesReservees18();
   const localisationConditions = config.variantes.map((v) => ({ localisationPublique: { contains: v, mode: "insensitive" as const } }));
