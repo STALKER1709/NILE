@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
@@ -21,7 +22,12 @@ import { champClass, btn, EtatVide } from "@/components/ui/kit";
 import { aConfirmeMajorite, categorieEstReservee18 } from "@/modules/catalogue/acces-18";
 
 export const dynamic = "force-dynamic";
-export const metadata = { title: "Catalogue" };
+export const metadata: Metadata = {
+  title: "Acheter en ligne au Cameroun — Catalogue",
+  description: "Parcourez le catalogue NILE et achetez en ligne au Cameroun : téléphones, informatique, électronique, mode, maison et autres produits proposés par des boutiques locales.",
+  alternates: { canonical: "/catalogue" },
+  openGraph: { title: "Acheter en ligne au Cameroun — NILE", description: "Parcourez le catalogue NILE et trouvez vos produits au Cameroun.", url: "/catalogue", type: "website", locale: "fr_CM" },
+};
 const PAR_PAGE = 12;
 
 export default async function CataloguePage({
