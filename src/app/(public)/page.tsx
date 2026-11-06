@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import type { ComponentProps, ReactNode } from "react";
@@ -15,6 +16,19 @@ import { Vignette } from "@/components/ui/Vignette";
 import { btn } from "@/components/ui/kit";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Marketplace en ligne au Cameroun",
+  description: "Achetez en ligne au Cameroun sur NILE : découvrez des produits, comparez les offres et trouvez des boutiques locales à Yaoundé, Douala et partout au Cameroun.",
+  alternates: { canonical: "/" },
+  openGraph: {
+    title: "NILE — Marketplace en ligne au Cameroun",
+    description: "Découvrez des produits et boutiques locales au Cameroun sur NILE.",
+    url: "/",
+    type: "website",
+    locale: "fr_CM",
+  },
+};
+
 
 export default async function AccueilPage() {
   const utilisateur = await getUtilisateurCourant();
